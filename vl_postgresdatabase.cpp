@@ -14,12 +14,13 @@ namespace VeinLogger
   {
     bool retVal = false;
     QSqlError err;
-    //default db
-    m_logDB = QSqlDatabase::addDatabase("QPSQL");
+
+    m_logDB = QSqlDatabase::addDatabase("QPSQL"); //default database
     m_logDB.setDatabaseName("testdb");
     m_logDB.setHostName("127.0.0.1");
     m_logDB.setPort(15432);
-    if (!m_logDB.open("testuser", "testpass")) {
+    if (!m_logDB.open("testuser", "testpass"))
+    {
       err = m_logDB.lastError();
       m_logDB = QSqlDatabase();
       QSqlDatabase::removeDatabase(QString("LogDB"));
@@ -27,39 +28,44 @@ namespace VeinLogger
 
     if (err.type() != QSqlError::NoError)
     {
-      qDebug() << QString("Failed to open Database") << QString("Error: %1").arg(err.text());
+      qDebug() << "(VeinLogger) Database connection failed" << "error:" << err.text();
     }
     else
     {
       retVal = true;
     }
 
-
     //prepare common queries
     m_valueMappingQuery.prepare("INSERT INTO valuemapping (entity_id, component_id, value_timestamp) VALUES (:entity_id, :component_id, :value_timestamp);");
-    m_valueMappingSequenceQuery.prepare("SELECT currval('valuemapping_valuemap_id_seq');");
+    m_valueMappingSequenceQuery.prepare("SELECT currval('valuemapping_valuemap_id_seq'::regclass);");
     m_recordMappingQuery.prepare("INSERT INTO recordmapping VALUES (:record_id, :valuemap_id);");
     m_valuesDoubleQuery.prepare("INSERT INTO values_double VALUES (:valuemap_id, :component_value);");
     m_valuesIntQuery.prepare("INSERT INTO values_int VALUES (:valuemap_id, :component_value);");
     m_valuesStringQuery.prepare("INSERT INTO values_string VALUES (:valuemap_id, :component_value);");
     m_valuesDoubleListQuery.prepare("INSERT INTO values_double_array VALUES (:valuemap_id, :component_value);");
 
+    m_componentQuery.prepare("components (name) VALUES (:componentName);");
+    m_componentSequenceQuery.prepare("SELECT currval('components_id_seq'::regclass);");
+    m_entityQuery.prepare("entities VALUES (:entityId, :entityName);");
+    m_recordQuery.prepare("INSERT INTO record (name) VALUES (:recordName);");
+    m_recordSequenceQuery.prepare("SELECT currval('record_id_seq'::regclass);");
+
     return retVal;
   }
 
   void PostgresDatabase::addLoggedValue(int t_recordId, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
   {
-    int valuemapId=0;
-    int componentId = getComponentId(t_componentName);
+    int componentId = m_componentIds.value(t_componentName);
 
     //make sure the ids exist
     VF_ASSERT(componentId > 0, QStringC(QStringLiteral("(VeinLogger) Unknown componentName: %1").arg(t_componentName)));
-    VF_ASSERT(checkRecordId(t_recordId) == true, QStringC(QStringLiteral("(VeinLogger) Unknown recordId:").arg(t_recordId)));
-    VF_ASSERT(checkEntityId(t_entityId) == true, QStringC(QStringLiteral("(VeinLogger) Unknown entityId").arg(t_entityId)));
+    VF_ASSERT(m_recordIds.key(t_recordId).isEmpty() == false , QStringC(QStringLiteral("(VeinLogger) Unknown recordId:").arg(t_recordId)));
+    VF_ASSERT(m_entityIds.key(t_entityId).isEmpty() == false, QStringC(QStringLiteral("(VeinLogger) Unknown entityId").arg(t_entityId)));
 
     //start a transaction since partial inserts are worthless in this case
-    if(m_logDB.transaction())
+    if(m_logDB.transaction() == true)
     {
+      int valuemapId=0;
 
       m_valueMappingQuery.bindValue(":entity_id", t_entityId);
       m_valueMappingQuery.bindValue(":component_id", componentId);
@@ -98,7 +104,12 @@ namespace VeinLogger
         {
           m_valuesDoubleQuery.bindValue(":valuemap_id", valuemapId);
           m_valuesDoubleQuery.bindValue(":component_value", t_value);
-          m_valuesDoubleQuery.exec();
+          if(m_valuesDoubleQuery.exec() == false)
+          {
+            qWarning() << "(VeinLogger) m_valuesDoubleQuery failed:" << m_logDB.lastError().text();
+            m_logDB.rollback();
+            return;
+          }
           break;
         }
         case QMetaType::Int:
@@ -116,7 +127,7 @@ namespace VeinLogger
         case QMetaType::QString:
         {
           m_valuesStringQuery.bindValue(":valuemap_id", valuemapId);
-          m_valuesStringQuery.bindValue(":valuemap_id", t_value);
+          m_valuesStringQuery.bindValue(":component_value", t_value);
           if(m_valuesStringQuery.exec() == false)
           {
             qWarning() << "(VeinLogger) m_valuesStringQuery failed:" << m_logDB.lastError().text();
@@ -143,7 +154,7 @@ namespace VeinLogger
           {
             QJsonDocument tmpDocument = QJsonDocument::fromVariant(t_value);
             m_valuesStringQuery.bindValue(":valuemap_id", valuemapId);
-            m_valuesStringQuery.bindValue(":valuemap_id", tmpDocument.toJson());
+            m_valuesStringQuery.bindValue(":component_value", tmpDocument.toJson());
             if(m_valuesStringQuery.exec() == false)
             {
               qWarning() << "(VeinLogger) canConvert(QMetaType::QVariantMap) on m_valuesStringQuery failed:" << m_logDB.lastError().text();
@@ -154,7 +165,7 @@ namespace VeinLogger
           else if(t_value.canConvert(QMetaType::QString) && t_value.toString().isEmpty() == false) //last resort try to store as string
           {
             m_valuesStringQuery.bindValue(":valuemap_id", valuemapId);
-            m_valuesStringQuery.bindValue(":valuemap_id", t_value.toString());
+            m_valuesStringQuery.bindValue(":component_value", t_value.toString());
             if(m_valuesStringQuery.exec() == false)
             {
               qWarning() << "(VeinLogger) canConvert(QMetaType::QString) on m_valuesStringQuery failed:" << m_logDB.lastError().text();
@@ -170,7 +181,7 @@ namespace VeinLogger
         }
       }
 
-      if(m_logDB.commit() == false) //do not use assert here!
+      if(m_logDB.commit() == false) //do not use assert here
       {
         qWarning() << "(VeinLogger) Error in database transaction commit:" << m_logDB.lastError().text();
       }
@@ -178,6 +189,70 @@ namespace VeinLogger
     else
     {
       qWarning() << "(VeinLogger) Error in database transaction:" << m_logDB.lastError().text();
+    }
+  }
+
+  void PostgresDatabase::addComponent(const QString &t_componentName)
+  {
+    if(m_componentIds.contains(t_componentName) == false)
+    {
+      int nextComponentId=0;
+      m_componentQuery.bindValue(":componentName", t_componentName);
+      m_componentQuery.exec();
+
+      m_componentSequenceQuery.exec();
+      nextComponentId = m_componentSequenceQuery.value(0).toInt();
+      m_recordSequenceQuery.finish();
+
+      if(nextComponentId > 0)
+      {
+        m_componentIds.insert(t_componentName, nextComponentId);
+      }
+      else
+      {
+        qWarning() << "(VeinLogger) Error in PostgresDatabase::addComponent transaction:" << m_logDB.lastError().text();
+      }
+    }
+  }
+
+  void PostgresDatabase::addEntity(int t_entityId, const QString &t_entityName)
+  {
+    if(m_entityIds.contains(t_entityName) == false)
+    {
+      m_entityQuery.bindValue(":entityId", t_entityId);
+      m_entityQuery.bindValue(":entityName", t_entityName);
+
+      if(m_entityQuery.exec() == true)
+      {
+        m_entityIds.insert(t_entityName, t_entityId);
+      }
+      else
+      {
+        qWarning() << "(VeinLogger) Error in PostgresDatabase::addEntity transaction:" << m_logDB.lastError().text();
+      }
+    }
+  }
+
+  void PostgresDatabase::addRecord(const QString &t_recordName)
+  {
+    if(m_recordIds.contains(t_recordName) == false)
+    {
+      int nextRecordId = 0;
+      m_recordQuery.bindValue(":recordName", t_recordName);
+      m_recordQuery.exec();
+
+      m_recordSequenceQuery.exec();
+      nextRecordId = m_recordSequenceQuery.value(0).toInt();
+      m_recordSequenceQuery.finish();
+
+      if(nextRecordId > 0)
+      {
+        m_recordIds.insert(t_recordName, nextRecordId);
+      }
+      else
+      {
+        qWarning() << "(VeinLogger) Error in PostgresDatabase::addRecord transaction:" << m_logDB.lastError().text();
+      }
     }
   }
 
