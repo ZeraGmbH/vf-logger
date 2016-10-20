@@ -33,13 +33,17 @@ namespace VeinLogger
   public slots:
 
   private:
+    void initLocalData();
+
+
     QHash<QString, int> m_recordIds;
     QHash<QString, int> m_entityIds;
     QHash<QString, int> m_componentIds;
 
+    //commonly used queries
     QSqlQuery m_valueMappingQuery;
-    QSqlQuery m_recordMappingQuery;
     QSqlQuery m_valueMappingSequenceQuery;
+    QSqlQuery m_recordMappingQuery;
     QSqlQuery m_valuesDoubleQuery;
     QSqlQuery m_valuesIntQuery;
     QSqlQuery m_valuesStringQuery;
