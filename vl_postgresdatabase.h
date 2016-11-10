@@ -29,14 +29,13 @@ namespace VeinLogger
   public:
     explicit PostgresDatabase(QObject *t_parent = 0);
 
+  signals:
+
+  public slots:
     /**
      * @b Stores a value in the database
      * @param t_timestamp defaults to the time when the function will be called
      */
-
-  signals:
-
-  public slots:
     void addLoggedValue(QVector<int> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp = QDateTime::currentDateTime());
     void addEntity(int t_entityId);
     void addComponent(const QString &t_componentName);

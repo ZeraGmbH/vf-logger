@@ -11,9 +11,6 @@ namespace VeinLogger
 
     }
 
-
-
-
     QHash<QString, int> m_recordIds;
     QVector<int> m_entityIds;
     QHash<QString, int> m_componentIds;
@@ -50,8 +47,6 @@ namespace VeinLogger
   {
   }
 
-
-
   void PostgresDatabase::addComponent(const QString &t_componentName)
   {
     if(m_dPtr->m_componentIds.contains(t_componentName) == false)
@@ -65,7 +60,7 @@ namespace VeinLogger
 
       if(m_dPtr->m_componentSequenceQuery.exec() == true)
       {
-       m_dPtr-> m_componentSequenceQuery.next();
+        m_dPtr-> m_componentSequenceQuery.next();
         nextComponentId = m_dPtr->m_componentSequenceQuery.value(0).toInt();
       }
       else
@@ -140,7 +135,7 @@ namespace VeinLogger
   {
     int componentId = m_dPtr->m_componentIds.value(t_componentName);
 
-    VF_ASSERT(m_dPtr->m_logDB.isOpen() == true, "VeinLogger) Database is not open");
+    VF_ASSERT(m_dPtr->m_logDB.isOpen() == true, "(VeinLogger) Database is not open");
 
     //make sure the ids exist
     VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(t_componentName)));
@@ -166,8 +161,6 @@ namespace VeinLogger
 
   void PostgresDatabase::runBatchedExecution()
   {
-    /// @todo complete this function HERE!
-
     //addBindValue requires QList<QVariant>
     QList<QVariant> tmpValuemapIds;
     QList<QVariant> tmpEntityIds;
@@ -403,7 +396,7 @@ namespace VeinLogger
     QSqlQuery componentQuery("SELECT * FROM components");
     QSqlQuery recordQuery("SELECT * FROM records");
 
-    m_dPtr->m_batchTimer.setInterval(30000);
+    m_dPtr->m_batchTimer.setInterval(1000);
     m_dPtr->m_batchTimer.setSingleShot(true);
     connect(&m_dPtr->m_batchTimer, &QTimer::timeout, this, &PostgresDatabase::runBatchedExecution);
 

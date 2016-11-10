@@ -37,6 +37,7 @@ namespace VeinLogger
 
   DataLogger::DataLogger(QObject *t_parent) : VeinEvent::EventSystem(t_parent), m_dPtr(new DataLoggerPrivate(this))
   {
+    m_dPtr->m_asyncDatabaseThread.setObjectName("VFLogDBThread");
   }
 
   DataLogger::~DataLogger()
