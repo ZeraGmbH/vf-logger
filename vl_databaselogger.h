@@ -10,13 +10,13 @@ namespace VeinLogger
   class DataLoggerPrivate;
   class PostgresDatabase;
 
-  class VEINLOGGERSHARED_EXPORT DataLogger : public VeinEvent::EventSystem
+  class VEINLOGGERSHARED_EXPORT DatabaseLogger : public VeinEvent::EventSystem
   {
     Q_OBJECT
 
   public:
-    explicit DataLogger(QObject *t_parent=0);
-    ~DataLogger();
+    explicit DatabaseLogger(QObject *t_parent=0);
+    ~DatabaseLogger();
 
     void setDatabase(PostgresDatabase *t_database);
 

@@ -2,6 +2,7 @@
 #include <QMetaType>
 #include <QDebug>
 #include <QJsonDocument>
+#include <QTimer>
 
 namespace VeinLogger
 {
@@ -60,7 +61,7 @@ namespace VeinLogger
 
       if(m_dPtr->m_componentSequenceQuery.exec() == true)
       {
-        m_dPtr-> m_componentSequenceQuery.next();
+        m_dPtr->m_componentSequenceQuery.next();
         nextComponentId = m_dPtr->m_componentSequenceQuery.value(0).toInt();
       }
       else
@@ -133,7 +134,7 @@ namespace VeinLogger
 
   void PostgresDatabase::addLoggedValue(QVector<int> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
   {
-    int componentId = m_dPtr->m_componentIds.value(t_componentName);
+    const int componentId = m_dPtr->m_componentIds.value(t_componentName);
 
     VF_ASSERT(m_dPtr->m_logDB.isOpen() == true, "(VeinLogger) Database is not open");
 
@@ -173,19 +174,19 @@ namespace VeinLogger
     QMap<QVariant, QVariant> tmpDoubleArrayValues; //valuemap_id, component_value
     QMap<QVariant, QVariant> tmpStringValues; //valuemap_id, component_value
 
-    for(SQLBatchData entry : m_dPtr->m_batchVector)
+    for(const SQLBatchData entry : m_dPtr->m_batchVector)
     {
       tmpValuemapIds.append(m_dPtr->m_valueMappingQueryCounter);
       tmpEntityIds.append(entry.entityId);
       tmpComponentIds.append(entry.componentId);
       //one value can be logged to multiple records simultaneously
-      for( int currentRecordId : entry.recordIds)
+      for(int currentRecordId : entry.recordIds)
       {
         tmpRecordIds.insert(currentRecordId, m_dPtr->m_valueMappingQueryCounter);
       }
       tmpTimestamps.append(entry.timestamp);
 
-      switch(entry.value.type())
+      switch(static_cast<QMetaType::Type>(entry.value.type())) //see http://stackoverflow.com/questions/31290606/qmetatypefloat-not-in-qvarianttype
       {
         case QMetaType::Float:
         case QMetaType::Double:
@@ -358,6 +359,7 @@ namespace VeinLogger
 
       //prepare common queries
       m_dPtr->m_valueMappingQuery.prepare("INSERT INTO valuemapping VALUES (?, ?, ?, ?);"); //valuemap_id, entity_id, component_id, value_timestamp
+      //executed to get the next id for internal tracking, other database clients must not alter the value while the internal reference is kept
       m_dPtr->m_valueMappingSequenceQuery.prepare("SELECT nextval('valuemapping_valuemap_id_seq'::regclass);");
       m_dPtr->m_valueMappingSequenceSetterQuery.prepare("SELECT setval('valuemapping_valuemap_id_seq'::regclass, :nextValuemapId);");
       m_dPtr->m_recordMappingQuery.prepare("INSERT INTO recordmapping VALUES (?, ?);"); //record_id, valuemap_id
@@ -369,6 +371,7 @@ namespace VeinLogger
       m_dPtr->m_componentSequenceQuery.prepare("SELECT currval('components_id_seq'::regclass);");
       m_dPtr->m_entityQuery.prepare("INSERT INTO entities VALUES (:entityId, :entityName);");
       m_dPtr->m_recordQuery.prepare("INSERT INTO records (name) VALUES (:recordName);");
+      //executed after the record was added to get the last used number
       m_dPtr->m_recordSequenceQuery.prepare("SELECT currval('records_id_seq'::regclass);");
 
       //get next valuemap_id
@@ -392,8 +395,8 @@ namespace VeinLogger
 
   void PostgresDatabase::initLocalData()
   {
-    QSqlQuery entityQuery("SELECT * FROM entities");
     QSqlQuery componentQuery("SELECT * FROM components");
+    QSqlQuery entityQuery("SELECT * FROM entities");
     QSqlQuery recordQuery("SELECT * FROM records");
 
     m_dPtr->m_batchTimer.setInterval(1000);

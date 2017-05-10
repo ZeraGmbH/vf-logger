@@ -7,8 +7,6 @@
 #include <QDateTime>
 #include <QVector>
 #include <QtSql>
-#include <QTimer>
-#include <QTextStream>
 
 namespace VeinLogger
 {

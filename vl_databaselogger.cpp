@@ -1,4 +1,4 @@
-#include "vl_datalogger.h"
+#include "vl_databaselogger.h"
 #include "vl_postgresdatabase.h"
 #include <QHash>
 #include <QThread>
@@ -12,7 +12,7 @@ namespace VeinLogger
 {
   class DataLoggerPrivate
   {
-    explicit DataLoggerPrivate(DataLogger *t_qPtr) : m_qPtr(t_qPtr) {}
+    explicit DataLoggerPrivate(DatabaseLogger *t_qPtr) : m_qPtr(t_qPtr) {}
 
     // stores a list of record ids of type T and a key based on component names
     template <typename T>
@@ -29,29 +29,31 @@ namespace VeinLogger
 
     PostgresDatabase *m_database=0;
 
-    DataLogger *m_qPtr=0;
-    QVector<int> m_disallowedIds = {0, 50};
+    DatabaseLogger *m_qPtr=0;
+    QVector<int> m_disallowedIds = {0, 50}; ///< @todo replace with user defined blacklist
     QThread m_asyncDatabaseThread;
-    friend class DataLogger;
+    friend class DatabaseLogger;
   };
 
-  DataLogger::DataLogger(QObject *t_parent) : VeinEvent::EventSystem(t_parent), m_dPtr(new DataLoggerPrivate(this))
+  DatabaseLogger::DatabaseLogger(QObject *t_parent) : VeinEvent::EventSystem(t_parent), m_dPtr(new DataLoggerPrivate(this))
   {
     m_dPtr->m_asyncDatabaseThread.setObjectName("VFLogDBThread");
   }
 
-  DataLogger::~DataLogger()
+  DatabaseLogger::~DatabaseLogger()
   {
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
   }
 
-  void DataLogger::setDatabase(PostgresDatabase *t_database)
+  void DatabaseLogger::setDatabase(PostgresDatabase *t_database)
   {
+    Q_ASSERT(m_dPtr->m_database == 0);
     m_dPtr->m_database=t_database;
     m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
     m_dPtr->m_asyncDatabaseThread.start();
 
+    //will be queued connection due to thread affinity
     connect(this, SIGNAL(sigAddLoggedValue(QVector<int>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QVector<int>,int,QString,QVariant,QDateTime)));
     connect(this, SIGNAL(sigAddEntity(int)), m_dPtr->m_database, SLOT(addEntity(int)));
     connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
@@ -59,7 +61,7 @@ namespace VeinLogger
     //m_dPtr->m_database->connectToDatabase();
   }
 
-  bool DataLogger::processEvent(QEvent *t_event)
+  bool DatabaseLogger::processEvent(QEvent *t_event)
   {
     using namespace VeinEvent;
     using namespace VeinComponent;
