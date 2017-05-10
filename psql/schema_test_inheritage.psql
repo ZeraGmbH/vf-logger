@@ -1,0 +1,24 @@
+/* The record is a series of values collected over a variable duration connected to customer data not included in this schema */;
+CREATE TABLE records (id serial PRIMARY KEY, name text);
+
+/* SDK based entity id */;
+CREATE TABLE entities (id smallint PRIMARY KEY, name text);
+
+/* SDK based component name, the id is not relevant to the SDK,
+currently the system features around 200 components with variable update intervals ranging from "once then never" to a maximal theoretical of 10Hz */;
+CREATE TABLE components (id smallserial PRIMARY KEY, name text UNIQUE);
+CREATE TABLE valuemapping (valuemap_id serial PRIMARY KEY,
+                           entity_id smallint references entities(id),
+                           component_id smallint references components(id),
+                           value_timestamp timestamptz);
+
+/* One value can be logged to multiple records simultaneously */;
+CREATE TABLE recordmapping (record_id int references records(id),
+                            valuemap_id int references valuemapping(valuemap_id));
+
+/* Postgres does not support variant types, so the data is stored in type aligned tables,
+   the SELECT query will use NATURAL JOIN with UNION ALL to display the final table where the values will be displayed as string */;
+CREATE TABLE values_int (valuemap_id int unique references valuemapping(valuemap_id), component_value bigint);
+CREATE TABLE values_double (valuemap_id int unique references valuemapping(valuemap_id), component_value float8);
+CREATE TABLE values_string (valuemap_id int unique references valuemapping(valuemap_id), component_value text);
+CREATE TABLE values_double_array (valuemap_id int unique references valuemapping(valuemap_id), component_value float8[]);

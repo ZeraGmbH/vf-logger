@@ -29,6 +29,10 @@ SOURCES += \
     vl_postgresdatabase.cpp \
     vl_databaselogger.cpp
 
+
+OTHER_FILES += psql/* \
+    docker/*
+
 unix {
     target.path = /usr/lib
     INSTALLS += target

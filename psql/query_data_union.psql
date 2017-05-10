@@ -1,0 +1,22 @@
+/* Selects all stored values as text */;
+/* example output:
+ valuemap_id | entity_id | component_id |      value_timestamp       | record_id |  component_value
+-------------+-----------+--------------+----------------------------+-----------+--------------------
+           1 |         0 |            1 | 2016-10-06 11:58:34.504319 |         1 | 2.3536
+           2 |         0 |            1 | 2016-10-06 11:58:34.529059 |         1 | some string
+           3 |         0 |            1 | 2016-10-06 11:58:34.553821 |         1 | {9.2453,36.436347}
+*/;
+
+SELECT * FROM valuemapping
+    NATURAL JOIN recordmapping
+    NATURAL JOIN
+    (
+        SELECT * FROM values_string
+        UNION ALL
+        SELECT valuemap_id, component_value::text FROM values_double
+        UNION ALL
+        SELECT valuemap_id, component_value::text FROM values_double_array
+        UNION ALL
+        SELECT valuemap_id, component_value::text FROM values_int
+    ) AS foo /* subqueries need an alias */
+ORDER BY 1;
