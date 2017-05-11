@@ -1,0 +1,12 @@
+INSERT INTO entities VALUES (0, 'someEntity');
+INSERT INTO components (name) VALUES ('someComponent');
+INSERT INTO records (name) VALUES ('record1');
+/* double */
+INSERT INTO values_double (entity_id, component_id, value_timestamp, component_value) VALUES (0 , 1, now(), 2.3536);
+INSERT INTO recordmapping VALUES (1, 1);
+/* string */
+INSERT INTO values_string (entity_id, component_id, value_timestamp, component_value) VALUES (0 , 1, now(), 'some string');
+INSERT INTO recordmapping VALUES (1, 2);
+/* double array */
+INSERT INTO values_string (entity_id, component_id, value_timestamp, component_value) VALUES (0 , 1, now(), '{9.2453, 36.436347}');
+INSERT INTO recordmapping VALUES (1, 3);

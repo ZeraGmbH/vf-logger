@@ -11,7 +11,7 @@ SELECT * FROM valuemapping
     NATURAL JOIN recordmapping
     NATURAL JOIN
     (
-        SELECT * FROM values_string
+        SELECT valuemap_id, component_value::text FROM values_string
         UNION ALL
         SELECT valuemap_id, component_value::text FROM values_double
         UNION ALL

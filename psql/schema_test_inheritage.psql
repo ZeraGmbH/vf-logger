@@ -14,11 +14,11 @@ CREATE TABLE valuemapping (valuemap_id serial PRIMARY KEY,
 
 /* One value can be logged to multiple records simultaneously */;
 CREATE TABLE recordmapping (record_id int references records(id),
-                            valuemap_id int references valuemapping(valuemap_id));
+                            valuemap_id int); /* Would be 'references valuemapping(valuemap_id)' if the INHERIT would work with foreign keys */
 
 /* Postgres does not support variant types, so the data is stored in type aligned tables,
    the SELECT query will use NATURAL JOIN with UNION ALL to display the final table where the values will be displayed as string */;
-CREATE TABLE values_int (valuemap_id int unique references valuemapping(valuemap_id), component_value bigint);
-CREATE TABLE values_double (valuemap_id int unique references valuemapping(valuemap_id), component_value float8);
-CREATE TABLE values_string (valuemap_id int unique references valuemapping(valuemap_id), component_value text);
-CREATE TABLE values_double_array (valuemap_id int unique references valuemapping(valuemap_id), component_value float8[]);
+CREATE TABLE values_int (component_value bigint) INHERITS(valuemapping);
+CREATE TABLE values_double (component_value float8) INHERITS(valuemapping);
+CREATE TABLE values_string (component_value text) INHERITS(valuemapping);
+CREATE TABLE values_double_array (component_value float8[]) INHERITS(valuemapping);
