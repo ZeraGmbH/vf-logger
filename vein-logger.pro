@@ -31,7 +31,8 @@ SOURCES += \
 
 
 OTHER_FILES += psql/* \
-    docker/*
+    docker/* \
+    sqlite/*
 
 unix {
     target.path = /usr/lib
