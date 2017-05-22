@@ -8,8 +8,8 @@
 */;
 
 SELECT valuemap_id, record_name, entity_name, component_name, value_timestamp, component_value FROM valuemap
-    NATURAL JOIN recordmapping
-    NATURAL JOIN records
-    NATURAL JOIN entities
-    NATURAL JOIN components
-ORDER BY 1;
+  NATURAL JOIN recordmapping
+  NATURAL JOIN records
+  NATURAL JOIN entities
+  NATURAL JOIN components
+  ORDER BY 1;
