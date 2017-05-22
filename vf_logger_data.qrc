@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>sqlite/schema_test_sqlite.sql</file>
+    </qresource>
+</RCC>

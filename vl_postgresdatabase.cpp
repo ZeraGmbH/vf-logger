@@ -6,7 +6,8 @@
 
 namespace VeinLogger
 {
-  class PostgresDBPrivate {
+  class PostgresDBPrivate
+  {
     PostgresDBPrivate(PostgresDatabase *t_qPtr) : m_qPtr(t_qPtr)
     {
 

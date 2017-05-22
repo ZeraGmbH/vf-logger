@@ -12,7 +12,8 @@ VEIN_DEP_HELPER = 1
 HEADERS +=\
   vein-logger_global.h \
   vl_postgresdatabase.h \
-    vl_databaselogger.h
+    vl_databaselogger.h \
+    vl_sqlitedb.h
 
 QT       += sql
 QT       -= gui
@@ -27,7 +28,8 @@ DEFINES += VEINLOGGER_LIBRARY
 
 SOURCES += \
     vl_postgresdatabase.cpp \
-    vl_databaselogger.cpp
+    vl_databaselogger.cpp \
+    vl_sqlitedb.cpp
 
 
 OTHER_FILES += psql/* \
@@ -43,3 +45,6 @@ unix {
 exists( ../../vein-framework.pri ) {
   include(../../vein-framework.pri)
 }
+
+RESOURCES += \
+    vf_logger_data.qrc
