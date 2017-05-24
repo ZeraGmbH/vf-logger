@@ -42,7 +42,7 @@ namespace VeinLogger
     friend class SQLiteDB;
   };
 
-  SQLiteDB::SQLiteDB(QObject *t_parent) : QObject(t_parent)
+  SQLiteDB::SQLiteDB(QObject *t_parent) : QObject(t_parent), m_dPtr(new DBPrivate(this))
   {
 
   }
@@ -129,12 +129,12 @@ namespace VeinLogger
     }
   }
 
-  void SQLiteDB::addEntity(int t_entityId)
+  void SQLiteDB::addEntity(int t_entityId, QString t_entityName)
   {
     if(m_dPtr->m_entityIds.contains(t_entityId) == false)
     {
       m_dPtr->m_entityInsertQuery.bindValue(":entity_id", t_entityId);
-      m_dPtr->m_entityInsertQuery.bindValue(":entity_name", "EMPTY");
+      m_dPtr->m_entityInsertQuery.bindValue(":entity_name", t_entityName);
 
       if(m_dPtr->m_entityInsertQuery.exec() == true)
       {
@@ -142,7 +142,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in SQLiteDB::addEntity transaction:" << m_dPtr->m_entityInsertQuery.lastQuery() << m_dPtr->m_logDB.lastError().text();
+        qWarning() << "(VeinLogger) Error in SQLiteDB::addEntity transaction:" << m_dPtr->m_entityInsertQuery.lastQuery() << m_dPtr->m_entityInsertQuery.lastError().text();
       }
     }
   }
@@ -207,12 +207,13 @@ namespace VeinLogger
     batchData.timestamp=t_timestamp;
 
     m_dPtr->m_batchVector.append(batchData);
-    emit sigStartBatchTimer();
   }
 
   bool SQLiteDB::openDatabase(const QString &t_dbPath)
   {
-    m_dPtr = new DBPrivate(this);
+    VF_ASSERT(m_dPtr->m_logDB.isOpen() == false, "(VeinLogger) Database is already open");
+
+
     bool retVal = false;
     QSqlError err;
 

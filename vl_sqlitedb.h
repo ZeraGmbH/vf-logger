@@ -28,13 +28,11 @@ namespace VeinLogger
   public:
     explicit SQLiteDB(QObject *t_parent = 0);
     ~SQLiteDB();
-  signals:
-    void sigStartBatchTimer();
 
   public slots:
     void initLocalData();
     void addComponent(const QString &t_componentName);
-    void addEntity(int t_entityId);
+    void addEntity(int t_entityId, QString t_entityName);
     void addRecord(const QString &t_recordName);
     void addLoggedValue(QVector<int> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
 
