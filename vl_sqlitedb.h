@@ -29,12 +29,17 @@ namespace VeinLogger
     explicit SQLiteDB(QObject *t_parent = 0);
     ~SQLiteDB();
 
+    bool hasEntityId(int t_entityId) const;
+    bool hasComponentName(const QString &t_componentName) const;
+    bool hasRecordName(const QString &t_recordName) const;
+
   public slots:
     void initLocalData();
     void addComponent(const QString &t_componentName);
     void addEntity(int t_entityId, QString t_entityName);
-    void addRecord(const QString &t_recordName);
+    int addRecord(const QString &t_recordName);
     void addLoggedValue(QVector<int> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
+    void addLoggedValue(QVector<QString> t_recordNames, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
 
     bool openDatabase(const QString &t_dbPath);
     void runBatchedExecution();

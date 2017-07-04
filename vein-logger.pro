@@ -14,9 +14,10 @@ VEIN_DEP_QML = 1
 HEADERS +=\
   vein-logger_global.h \
   vl_postgresdatabase.h \
-    vl_databaselogger.h \
-    vl_sqlitedb.h \
-    vl_datasource.h
+  vl_databaselogger.h \
+  vl_sqlitedb.h \
+  vl_datasource.h \
+  vl_qmllogger.h
 
 QT       += sql network qml
 QT       -= gui
@@ -33,7 +34,8 @@ SOURCES += \
     vl_postgresdatabase.cpp \
     vl_databaselogger.cpp \
     vl_sqlitedb.cpp \
-    vl_datasource.cpp
+    vl_datasource.cpp \
+    vl_qmllogger.cpp
 
 
 OTHER_FILES += psql/* \
@@ -46,9 +48,12 @@ unix {
 }
 
 
+RESOURCES += \
+    vf_logger_data.qrc
+
+DISTFILES += \
+    scripts/ExampleDBScript.qml
+
 exists( ../../vein-framework.pri ) {
   include(../../vein-framework.pri)
 }
-
-RESOURCES += \
-    vf_logger_data.qrc
