@@ -6,8 +6,9 @@
 
 namespace VeinLogger
 {
-  QmlLogger::QmlLogger(QObject *t_parent) : QObject(t_parent)
+  QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
   {
+    VF_ASSERT(s_dbLogger != nullptr, "Required static logging instance is not set");
   }
 
   QString QmlLogger::recordName() const
@@ -25,6 +26,12 @@ namespace VeinLogger
     return m_scriptActive;
   }
 
+  void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
+  {
+    Q_ASSERT(t_dbLogger != nullptr);
+    s_dbLogger = t_dbLogger;
+  }
+
   void QmlLogger::registerScriptedLogger()
   {
     s_dbLogger->addScript(this);
@@ -32,6 +39,7 @@ namespace VeinLogger
 
   void QmlLogger::addLoggerEntry(int t_entityId, const QString &t_componentName)
   {
+    VF_ASSERT(m_recordName.isEmpty() == false, "Logging requires a valid recordName");
     if(m_loggedValues.contains(t_entityId, t_componentName) == false)
     {
       m_loggedValues.insert(t_entityId, t_componentName);
@@ -55,12 +63,12 @@ namespace VeinLogger
     }
   }
 
-  void QmlLogger::setScriptActive(bool scriptActive)
+  void QmlLogger::setScriptActive(bool t_scriptActive)
   {
-    if (m_scriptActive != scriptActive)
+    if (m_scriptActive != t_scriptActive)
     {
-      m_scriptActive = scriptActive;
-      emit scriptActiveChanged(scriptActive);
+      m_scriptActive = t_scriptActive;
+      emit scriptActiveChanged(t_scriptActive);
     }
   }
 

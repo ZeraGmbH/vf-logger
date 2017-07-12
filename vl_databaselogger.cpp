@@ -18,7 +18,7 @@ namespace VeinLogger
   {
     explicit DataLoggerPrivate(DatabaseLogger *t_qPtr) : m_qPtr(t_qPtr)
     {
-      m_batchedExecutionTimer.setInterval(1000);
+      m_batchedExecutionTimer.setInterval(5000);
       m_batchedExecutionTimer.setSingleShot(false);
     }
 
@@ -29,7 +29,6 @@ namespace VeinLogger
     DataSource *m_dataSource=0;
 
     DatabaseLogger *m_qPtr=0;
-    QVector<int> m_disallowedIds = {0, 50}; ///< @todo replace with user defined whitelist
     QThread m_asyncDatabaseThread;
     QTimer m_batchedExecutionTimer;
     friend class DatabaseLogger;
@@ -89,7 +88,7 @@ namespace VeinLogger
       if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
         ///@todo replace the test code
-        if(evData->type()==ComponentData::dataType() && m_dPtr->m_disallowedIds.contains(evData->entityId()) == false)
+        if(evData->type()==ComponentData::dataType())
         {
           ComponentData *cData=nullptr;
           cData = static_cast<ComponentData *>(evData);
@@ -99,7 +98,7 @@ namespace VeinLogger
           const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
           for(const QmlLogger *entry : scripts)
           {
-            if(entry->hasLoggerEntry(evData->entityId(), cData->componentName()))
+            if(entry->scriptActive() == true && entry->hasLoggerEntry(evData->entityId(), cData->componentName()))
             {
               recordNames.append(entry->recordName());
             }
