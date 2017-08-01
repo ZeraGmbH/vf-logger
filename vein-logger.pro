@@ -13,7 +13,6 @@ VEIN_DEP_QML = 1
 
 HEADERS +=\
   vein-logger_global.h \
-  vl_postgresdatabase.h \
   vl_databaselogger.h \
   vl_sqlitedb.h \
   vl_datasource.h \
@@ -31,14 +30,17 @@ TARGET = vein-logger
 DEFINES += VEINLOGGER_LIBRARY
 
 SOURCES += \
-    vl_postgresdatabase.cpp \
     vl_databaselogger.cpp \
     vl_sqlitedb.cpp \
     vl_datasource.cpp \
     vl_qmllogger.cpp
 
 
+
+# psql is currently not supported
 OTHER_FILES += psql/* \
+    vl_postgresdatabase.cpp \
+    vl_postgresdatabase.h \
     docker/* \
     sqlite/*
 
@@ -50,9 +52,6 @@ unix {
 
 RESOURCES += \
     vf_logger_data.qrc
-
-DISTFILES += \
-    scripts/ExampleDBScript.qml
 
 exists( ../../vein-framework.pri ) {
   include(../../vein-framework.pri)

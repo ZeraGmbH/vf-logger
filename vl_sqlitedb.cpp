@@ -68,6 +68,11 @@ namespace VeinLogger
     return m_dPtr->m_recordIds.contains(t_recordName);
   }
 
+  bool SQLiteDB::databaseIsOpen() const
+  {
+    return m_dPtr->m_logDB.isOpen();
+  }
+
   void SQLiteDB::initLocalData()
   {
     QSqlQuery componentQuery("SELECT * FROM components;");
@@ -99,11 +104,6 @@ namespace VeinLogger
 
       qDebug() << "(VeinLogger) Found record:" << recordId << recordName;
       m_dPtr->m_recordIds.insert(recordName, recordId);
-    }
-    /// @todo remove testdata
-    if(m_dPtr->m_recordIds.isEmpty())
-    {
-      addRecord("Testrecord");
     }
   }
 
@@ -271,7 +271,7 @@ namespace VeinLogger
     {
       err = m_dPtr->m_logDB.lastError();
       m_dPtr->m_logDB = QSqlDatabase();
-      QSqlDatabase::removeDatabase(QString("LogDB"));
+      QSqlDatabase::removeDatabase(m_dPtr->m_logDB.databaseName());
     }
 
     if (err.type() != QSqlError::NoError)
@@ -354,104 +354,110 @@ namespace VeinLogger
 
   void SQLiteDB::runBatchedExecution()
   {
-    //addBindValue requires QList<QVariant>
-    QList<QVariant> tmpValuemapIds;
-    QList<QVariant> tmpEntityIds;
-    QList<QVariant> tmpComponentIds;
-    QList<QVariant> tmpTimestamps;
-    //do not use QHash here, the sorted key lists are required
-    QMultiMap<QVariant, QVariant> tmpRecordIds; //record_id, valuemap_id
-    QMap<int, QVariant> tmpValues; //valuemap_id, component_value
-
-    for(const SQLBatchData entry : m_dPtr->m_batchVector)
+    if(m_dPtr->m_logDB.isOpen())
     {
-      tmpValuemapIds.append(m_dPtr->m_valueMapQueryCounter);
-      tmpEntityIds.append(entry.entityId);
-      tmpComponentIds.append(entry.componentId);
-      //one value can be logged to multiple records simultaneously
-      for(const int currentRecordId : entry.recordIds)
-      {
-        tmpRecordIds.insert(currentRecordId, m_dPtr->m_valueMapQueryCounter);
-      }
-      tmpTimestamps.append(entry.timestamp);
+      //addBindValue requires QList<QVariant>
+      QList<QVariant> tmpValuemapIds;
+      QList<QVariant> tmpEntityIds;
+      QList<QVariant> tmpComponentIds;
+      QList<QVariant> tmpTimestamps;
+      //do not use QHash here, the sorted key lists are required
+      QMultiMap<QVariant, QVariant> tmpRecordIds; //record_id, valuemap_id
+      QMap<int, QVariant> tmpValues; //valuemap_id, component_value
 
-      switch(static_cast<QMetaType::Type>(entry.value.type())) //see http://stackoverflow.com/questions/31290606/qmetatypefloat-not-in-qvarianttype
+      for(const SQLBatchData entry : m_dPtr->m_batchVector)
       {
-        case QMetaType::Float:
-        case QMetaType::Double:
-        case QMetaType::Int:
-        case QMetaType::UInt:
-        case QMetaType::Long:
-        case QMetaType::QString:
+        tmpValuemapIds.append(m_dPtr->m_valueMapQueryCounter);
+        tmpEntityIds.append(entry.entityId);
+        tmpComponentIds.append(entry.componentId);
+        //one value can be logged to multiple records simultaneously
+        for(const int currentRecordId : entry.recordIds)
         {
-          tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value);
-          break;
+          tmpRecordIds.insert(currentRecordId, m_dPtr->m_valueMapQueryCounter);
         }
-        case QMetaType::QByteArray:
-        {
-          tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString::fromUtf8(entry.value.value<QByteArray>()));
-          break;
-        }
-        default:
-        {
-          int tmpDataType = QMetaType::type(entry.value.typeName());
+        tmpTimestamps.append(entry.timestamp);
 
-          if(tmpDataType == QMetaType::type("QList<double>")) //store as double list
+        switch(static_cast<QMetaType::Type>(entry.value.type())) //see http://stackoverflow.com/questions/31290606/qmetatypefloat-not-in-qvarianttype
+        {
+          case QMetaType::Float:
+          case QMetaType::Double:
+          case QMetaType::Int:
+          case QMetaType::UInt:
+          case QMetaType::Long:
+          case QMetaType::QString:
           {
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertDoubleArrayToString(entry.value));
+            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value);
+            break;
           }
+          case QMetaType::QByteArray:
+          {
+            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString::fromUtf8(entry.value.value<QByteArray>()));
+            break;
+          }
+          default:
+          {
+            int tmpDataType = QMetaType::type(entry.value.typeName());
+
+            if(tmpDataType == QMetaType::type("QList<double>")) //store as double list
+            {
+              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertDoubleArrayToString(entry.value));
+            }
 #if 0
-          else if(entry.value.canConvert(QMetaType::QString) && entry.value.toString().isEmpty() == false) //last resort try to store as string
-          {
-            tmpStringValues.insert(nextValuemapId, entry.value.toString());
-          }
+            else if(entry.value.canConvert(QMetaType::QString) && entry.value.toString().isEmpty() == false) //last resort try to store as string
+            {
+              tmpStringValues.insert(nextValuemapId, entry.value.toString());
+            }
 #endif
-          else
-          {
-            qWarning() << "(VeinLogger) Datatype cannot be stored in DB:" << entry.entityId << m_dPtr->m_componentIds.key(entry.componentId) << entry.value;
+            else
+            {
+              qWarning() << "(VeinLogger) Datatype cannot be stored in DB:" << entry.entityId << m_dPtr->m_componentIds.key(entry.componentId) << entry.value;
+            }
+            break;
           }
-          break;
+        }
+
+        ++m_dPtr->m_valueMapQueryCounter;
+      }
+      if(m_dPtr->m_logDB.transaction() == true)
+      {
+        //valuemap_id, entity_id, component_id, value_timestamp
+        m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValuemapIds);
+        m_dPtr->m_valueMapInsertQuery.addBindValue(tmpEntityIds);
+        m_dPtr->m_valueMapInsertQuery.addBindValue(tmpComponentIds);
+        m_dPtr->m_valueMapInsertQuery.addBindValue(tmpTimestamps);
+        m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValues.values());
+        if(m_dPtr->m_valueMapInsertQuery.execBatch() == false)
+        {
+          qWarning() << "(VeinLogger) Error executing m_valueMapInsertQuery:" << m_dPtr->m_valueMapInsertQuery.lastError();
+          Q_ASSERT(false);
+        }
+        //record_id, valuemap_id
+        m_dPtr->m_recordMappingInsertQuery.addBindValue(tmpRecordIds.keys());
+        m_dPtr->m_recordMappingInsertQuery.addBindValue(tmpRecordIds.values());
+        if(m_dPtr->m_recordMappingInsertQuery.execBatch() == false)
+        {
+          qWarning() << "(VeinLogger) Error executing m_recordMappingQuery:" << m_dPtr->m_recordMappingInsertQuery.lastError();
+          Q_ASSERT(false);
+        }
+
+        if(tmpValuemapIds.isEmpty() == false)
+        {
+          qDebug() << "(VeinLogger) Batched" << tmpValuemapIds.length() << "queries";
+        }
+
+        if(m_dPtr->m_logDB.commit() == false) //do not use assert here, asserts are no-ops in release code
+        {
+          qWarning() << "(VeinLogger) Error in database transaction commit:" << m_dPtr->m_logDB.lastError().text();
+          Q_ASSERT(false);
         }
       }
-
-      ++m_dPtr->m_valueMapQueryCounter;
-    }
-    if(m_dPtr->m_logDB.transaction() == true)
-    {
-      //valuemap_id, entity_id, component_id, value_timestamp
-      m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValuemapIds);
-      m_dPtr->m_valueMapInsertQuery.addBindValue(tmpEntityIds);
-      m_dPtr->m_valueMapInsertQuery.addBindValue(tmpComponentIds);
-      m_dPtr->m_valueMapInsertQuery.addBindValue(tmpTimestamps);
-      m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValues.values());
-      if(m_dPtr->m_valueMapInsertQuery.execBatch() == false)
+      else
       {
-        qWarning() << "(VeinLogger) Error executing m_valueMapInsertQuery:" << m_dPtr->m_valueMapInsertQuery.lastError();
+        qWarning() << "(VeinLogger) Error in database transaction:" << m_dPtr->m_logDB.lastError().text();
         Q_ASSERT(false);
       }
-      //record_id, valuemap_id
-      m_dPtr->m_recordMappingInsertQuery.addBindValue(tmpRecordIds.keys());
-      m_dPtr->m_recordMappingInsertQuery.addBindValue(tmpRecordIds.values());
-      if(m_dPtr->m_recordMappingInsertQuery.execBatch() == false)
-      {
-        qWarning() << "(VeinLogger) Error executing m_recordMappingQuery:" << m_dPtr->m_recordMappingInsertQuery.lastError();
-        Q_ASSERT(false);
-      }
-
-      qDebug() << "(VeinLogger) Batched" << tmpValuemapIds.length() << "queries";
-
-      if(m_dPtr->m_logDB.commit() == false) //do not use assert here, asserts are no-ops in release code
-      {
-        qWarning() << "(VeinLogger) Error in database transaction commit:" << m_dPtr->m_logDB.lastError().text();
-        Q_ASSERT(false);
-      }
+      m_dPtr->m_batchVector.clear();
     }
-    else
-    {
-      qWarning() << "(VeinLogger) Error in database transaction:" << m_dPtr->m_logDB.lastError().text();
-      Q_ASSERT(false);
-    }
-    m_dPtr->m_batchVector.clear();
   }
 
   QString SQLiteDB::convertDoubleArrayToString(QVariant t_value)

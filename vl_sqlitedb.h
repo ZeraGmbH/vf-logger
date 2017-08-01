@@ -33,6 +33,8 @@ namespace VeinLogger
     bool hasComponentName(const QString &t_componentName) const;
     bool hasRecordName(const QString &t_recordName) const;
 
+    bool databaseIsOpen() const;
+
   public slots:
     void initLocalData();
     void addComponent(const QString &t_componentName);

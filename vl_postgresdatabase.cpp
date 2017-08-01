@@ -303,7 +303,10 @@ namespace VeinLogger
           qWarning() << "(VeinLogger) Error executing m_valuesStringQuery:" << m_dPtr->m_valuesStringQuery.lastError();
         }
       }
-      qDebug() << "(VeinLogger) Batched" << tmpValuemapIds.length() << "queries";
+      if(tmpValuemapIds.isEmpty() == false)
+      {
+        qDebug() << "(VeinLogger) Batched" << tmpValuemapIds.length() << "queries";
+      }
 
       if(m_dPtr->m_logDB.commit() == false) //do not use assert here, asserts are no-ops in release code
       {
