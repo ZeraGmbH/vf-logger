@@ -8,7 +8,6 @@
 namespace VeinLogger
 {
   class DataLoggerPrivate;
-  class SQLiteDB;
   class DataSource;
   class QmlLogger;
 
@@ -17,13 +16,12 @@ namespace VeinLogger
     Q_OBJECT
 
   public:
-    explicit DatabaseLogger(SQLiteDB *t_database, DataSource *t_dataSource, QObject *t_parent=0);
+    explicit DatabaseLogger(DataSource *t_dataSource, QObject *t_parent=0);
     ~DatabaseLogger();
     void addScript(QmlLogger *t_script);
     void removeScript(QmlLogger *t_script);
     void addValueToLog(const QString &t_recordName, int t_entityId, const QString &t_componentName);
     bool loggingEnabled() const;
-
     static int entityId();
 
   signals:
@@ -33,6 +31,7 @@ namespace VeinLogger
     void sigAddRecord(const QString &t_recordName);
 
     void sigOpenDatabase(const QString &t_filePath);
+    void sigDatabaseError(const QString &t_filePath);
     void sigLoggingEnabledChanged(bool t_enabled);
 
   public slots:

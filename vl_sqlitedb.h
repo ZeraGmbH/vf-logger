@@ -34,6 +34,10 @@ namespace VeinLogger
     bool hasRecordName(const QString &t_recordName) const;
 
     bool databaseIsOpen() const;
+    QString databasePath() const;
+
+  signals:
+    void sigDatabaseError(const QString &t_errorString);
 
   public slots:
     void initLocalData();

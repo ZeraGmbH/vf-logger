@@ -44,7 +44,9 @@ namespace VeinLogger
 
   SQLiteDB::SQLiteDB(QObject *t_parent) : QObject(t_parent), m_dPtr(new DBPrivate(this))
   {
-
+    connect(this, &SQLiteDB::sigDatabaseError, [](const QString &t_error){
+      qWarning() << t_error;
+    });
   }
 
   SQLiteDB::~SQLiteDB()
@@ -71,6 +73,11 @@ namespace VeinLogger
   bool SQLiteDB::databaseIsOpen() const
   {
     return m_dPtr->m_logDB.isOpen();
+  }
+
+  QString SQLiteDB::databasePath() const
+  {
+    return m_dPtr->m_logDB.databaseName();
   }
 
   void SQLiteDB::initLocalData()
@@ -120,14 +127,15 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) SQLiteDB::addComponent m_componentSequenceQuery failed";
+        emit sigDatabaseError(QString("SQLiteDB::addComponent m_componentSequenceQuery failed: %1").arg(m_dPtr->m_componentSequenceQuery.lastError().text()));
+        Q_ASSERT(false);
       }
 
       m_dPtr->m_componentInsertQuery.bindValue(":component_id", nextComponentId);
       m_dPtr->m_componentInsertQuery.bindValue(":component_name", t_componentName);
       if(m_dPtr->m_componentInsertQuery.exec() == false)
       {
-        qWarning() << "(VeinLogger) SQLiteDB::addComponent m_componentQuery failed";
+        emit sigDatabaseError(QString("SQLiteDB::addComponent m_componentQuery failed: %1").arg(m_dPtr->m_componentInsertQuery.lastError().text()));
         Q_ASSERT(false);
       }
 
@@ -140,7 +148,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in SQLiteDB::addComponent transaction:" << m_dPtr->m_logDB.lastError().text();
+        emit sigDatabaseError(QString("Error in SQLiteDB::addComponent transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
         Q_ASSERT(false);
       }
     }
@@ -159,7 +167,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in SQLiteDB::addEntity transaction:" << m_dPtr->m_entityInsertQuery.lastQuery() << m_dPtr->m_entityInsertQuery.lastError().text();
+        emit sigDatabaseError(QString("(VeinLogger) SQLiteDB::addEntity m_entityInsertQuery failed: %1").arg(m_dPtr->m_entityInsertQuery.lastError().text()));
         Q_ASSERT(false);
       }
     }
@@ -179,7 +187,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) SQLiteDB::addRecord m_recordSequenceQuery failed:" << m_dPtr->m_recordSequenceQuery.lastError().text();
+        emit sigDatabaseError(QString("(VeinLogger) SQLiteDB::addRecord m_recordSequenceQuery failed: %1").arg(m_dPtr->m_recordSequenceQuery.lastError().text()));
         Q_ASSERT(false);
       }
 
@@ -187,7 +195,7 @@ namespace VeinLogger
       m_dPtr->m_recordInsertQuery.bindValue(":record_name", t_recordName);
       if(m_dPtr->m_recordInsertQuery.exec() == false)
       {
-        qWarning() << "(VeinLogger) SQLiteDB::addRecord m_recordQuery failed:" << m_dPtr->m_recordInsertQuery.lastError().text();
+        emit sigDatabaseError(QString("(VeinLogger) SQLiteDB::addRecord m_recordQuery failed: %1").arg(m_dPtr->m_recordInsertQuery.lastError().text()));
         Q_ASSERT(false);
       }
 
@@ -202,7 +210,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in SQLiteDB::addRecord transaction:" << m_dPtr->m_logDB.lastError().text();
+        emit sigDatabaseError(QString("(VeinLogger) Error in SQLiteDB::addRecord transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
         Q_ASSERT(false);
       }
     }
@@ -217,6 +225,7 @@ namespace VeinLogger
 
     //make sure the ids exist
     VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(t_componentName)));
+
     for(int tmpRecord : t_recordIds)
     {
       VF_ASSERT(m_dPtr->m_recordIds.key(tmpRecord).isEmpty() == false , QStringC(QString("(VeinLogger) Unknown recordId: %1").arg(tmpRecord)));
@@ -259,24 +268,30 @@ namespace VeinLogger
 
   bool SQLiteDB::openDatabase(const QString &t_dbPath)
   {
-    VF_ASSERT(m_dPtr->m_logDB.isOpen() == false, "(VeinLogger) Database is already open");
+    //VF_ASSERT(m_dPtr->m_logDB.isOpen() == false, "(VeinLogger) Database is already open");
+
+    if(m_dPtr->m_logDB.isOpen())
+    {
+      m_dPtr->m_logDB.close();
+      QSqlDatabase::removeDatabase(m_dPtr->m_logDB.databaseName());
+    }
 
 
     bool retVal = false;
-    QSqlError err;
+    QSqlError dbError;
 
     m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE"); //default database
     m_dPtr->m_logDB.setDatabaseName(t_dbPath);
     if (!m_dPtr->m_logDB.open())
     {
-      err = m_dPtr->m_logDB.lastError();
+      dbError = m_dPtr->m_logDB.lastError();
       m_dPtr->m_logDB = QSqlDatabase();
       QSqlDatabase::removeDatabase(m_dPtr->m_logDB.databaseName());
     }
 
-    if (err.type() != QSqlError::NoError)
+    if(dbError.type() != QSqlError::NoError)
     {
-      qDebug() << "(VeinLogger) Database connection failed error:" << err.text();
+      emit sigDatabaseError(QString("(VeinLogger) Database connection failed error: %1").arg(dbError.text()));
       Q_ASSERT(false);
     }
     else
@@ -295,58 +310,67 @@ namespace VeinLogger
       m_dPtr->m_recordSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
 
       //setup database if necessary
-      if(m_dPtr->m_logDB.tables().isEmpty())
+      QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
+
+      if(schemaVersionQuery.exec("pragma schema_version;") == true)
       {
-        m_dPtr->m_queryReader.setFileName("://sqlite/schema_test_sqlite.sql");
-        m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
-        QTextStream queryStreamIn(&m_dPtr->m_queryReader);
-        QStringList commandQueue = queryStreamIn.readAll().split(";");
-        m_dPtr->m_queryReader.close();
-
-        for(const QString &tmpCommand : commandQueue)
+        if(schemaVersionQuery.value(0) == 0) //if there is no database schema
         {
-          QSqlQuery tmpQuery(m_dPtr->m_logDB);
+          m_dPtr->m_queryReader.setFileName("://sqlite/schema_test_sqlite.sql");
+          m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
+          QTextStream queryStreamIn(&m_dPtr->m_queryReader);
+          QStringList commandQueue = queryStreamIn.readAll().split(";");
+          m_dPtr->m_queryReader.close();
 
-          if(tmpQuery.exec(tmpCommand) == false)
+          for(const QString &tmpCommand : commandQueue)
           {
-            //ignore warnings as sqlite throws warnings for comments and empty statements
-            //qWarning() << "(VeinLogger) Error executing schema query:" << tmpQuery.lastQuery() << tmpQuery.lastError();
+            QSqlQuery tmpQuery(m_dPtr->m_logDB);
+
+            if(tmpQuery.exec(tmpCommand) == false)
+            {
+              //ignore warnings as sqlite throws warnings for comments and empty statements
+              //qWarning() << "(VeinLogger) Error executing schema query:" << tmpQuery.lastQuery() << tmpQuery.lastError();
+            }
           }
         }
-      }
-      //prepare common queries
-      /* valuemap_id INTEGER PRIMARY KEY,
+        //prepare common queries
+        /* valuemap_id INTEGER PRIMARY KEY,
          entity_id INTEGER REFERENCES entities(entity_id) NOT NULL,
          component_id INTEGER REFERENCES components(component_id) NOT NULL,
          value_timestamp VARCHAR(255) NOT NULL, -- timestamp in ISO 8601 format, example: 2016-10-06 11:58:34.504319
          component_value NUMERIC) WITHOUT ROWID; -- can be any type but numeric is preferred
       */
-      m_dPtr->m_valueMapInsertQuery.prepare("INSERT INTO valuemap VALUES (?, ?, ?, ?, ?);");
-      //executed to get the next id for internal tracking, other database clients must not alter the value while the internal reference is kept
-      m_dPtr->m_valueMapSequenceQuery.prepare("SELECT MAX(valuemap_id) FROM valuemap;");
-      m_dPtr->m_componentInsertQuery.prepare("INSERT INTO components (component_id, component_name) VALUES (:component_id, :component_name);");
-      m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(component_id) FROM components;");
-      m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:entity_id, :entity_name);");
-      /* -- The record is a series of values collected over a variable duration connected to customer data
+        m_dPtr->m_valueMapInsertQuery.prepare("INSERT INTO valuemap VALUES (?, ?, ?, ?, ?);");
+        //executed to get the next id for internal tracking, other database clients must not alter the value while the internal reference is kept
+        m_dPtr->m_valueMapSequenceQuery.prepare("SELECT MAX(valuemap_id) FROM valuemap;");
+        m_dPtr->m_componentInsertQuery.prepare("INSERT INTO components (component_id, component_name) VALUES (:component_id, :component_name);");
+        m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(component_id) FROM components;");
+        m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:entity_id, :entity_name);");
+        /* -- The record is a series of values collected over a variable duration connected to customer data
            CREATE TABLE records (record_id INTEGER PRIMARY KEY, record_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
         */
-      m_dPtr->m_recordInsertQuery.prepare("INSERT INTO records (record_id, record_name) VALUES (:record_id, :record_name);");
-      //executed after the record was added to get the last used number
-      m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(record_id) FROM records;");
-      m_dPtr->m_recordMappingInsertQuery.prepare("INSERT INTO recordmapping VALUES (?, ?);"); //record_id, valuemap_id
+        m_dPtr->m_recordInsertQuery.prepare("INSERT INTO records (record_id, record_name) VALUES (:record_id, :record_name);");
+        //executed after the record was added to get the last used number
+        m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(record_id) FROM records;");
+        m_dPtr->m_recordMappingInsertQuery.prepare("INSERT INTO recordmapping VALUES (?, ?);"); //record_id, valuemap_id
 
-      //get next valuemap_id
-      if(m_dPtr->m_valueMapSequenceQuery.exec() == false)
-      {
-        qWarning() << "(VeinLogger) Error executing m_valueMappingSequenceQuery:" << m_dPtr->m_valueMapSequenceQuery.lastError();
-        Q_ASSERT(false);
+        //get next valuemap_id
+        if(m_dPtr->m_valueMapSequenceQuery.exec() == false)
+        {
+          emit sigDatabaseError(QString("(VeinLogger) Error executing m_valueMappingSequenceQuery: %1").arg(m_dPtr->m_valueMapSequenceQuery.lastError().text()));
+          Q_ASSERT(false);
+        }
+        m_dPtr->m_valueMapSequenceQuery.next();
+        m_dPtr->m_valueMapQueryCounter = m_dPtr->m_valueMapSequenceQuery.value(0).toInt()+1;
+        //close the query as we read all data from it and it has to be closed to commit the transaction
+        m_dPtr->m_valueMapSequenceQuery.finish();
+
+        initLocalData();
       }
-      m_dPtr->m_valueMapSequenceQuery.next();
-      m_dPtr->m_valueMapQueryCounter = m_dPtr->m_valueMapSequenceQuery.value(0).toInt()+1;
-      //close the query as we read all data from it and it has to be closed to commit the transaction
-      m_dPtr->m_valueMapSequenceQuery.finish();
-
-      initLocalData();
+      else
+      {
+        emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(t_dbPath).arg(schemaVersionQuery.lastError().text()));
+      }
     }
 
     return retVal;
@@ -410,7 +434,10 @@ namespace VeinLogger
 #endif
             else
             {
-              qWarning() << "(VeinLogger) Datatype cannot be stored in DB:" << entry.entityId << m_dPtr->m_componentIds.key(entry.componentId) << entry.value;
+              emit sigDatabaseError(QString("(VeinLogger) Datatype cannot be stored in DB Entity: %1 Component: %2 Type: %3")
+                                    .arg(entry.entityId)
+                                    .arg(m_dPtr->m_componentIds.key(entry.componentId))
+                                    .arg(entry.value.typeName()));
             }
             break;
           }
@@ -428,7 +455,7 @@ namespace VeinLogger
         m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValues.values());
         if(m_dPtr->m_valueMapInsertQuery.execBatch() == false)
         {
-          qWarning() << "(VeinLogger) Error executing m_valueMapInsertQuery:" << m_dPtr->m_valueMapInsertQuery.lastError();
+          emit sigDatabaseError(QString("(VeinLogger) Error executing m_valueMapInsertQuery: %1").arg(m_dPtr->m_valueMapInsertQuery.lastError().text()));
           Q_ASSERT(false);
         }
         //record_id, valuemap_id
@@ -436,7 +463,7 @@ namespace VeinLogger
         m_dPtr->m_recordMappingInsertQuery.addBindValue(tmpRecordIds.values());
         if(m_dPtr->m_recordMappingInsertQuery.execBatch() == false)
         {
-          qWarning() << "(VeinLogger) Error executing m_recordMappingQuery:" << m_dPtr->m_recordMappingInsertQuery.lastError();
+          emit sigDatabaseError(QString("(VeinLogger) Error executing m_recordMappingQuery: %1").arg(m_dPtr->m_recordMappingInsertQuery.lastError().text()));
           Q_ASSERT(false);
         }
 
@@ -447,13 +474,13 @@ namespace VeinLogger
 
         if(m_dPtr->m_logDB.commit() == false) //do not use assert here, asserts are no-ops in release code
         {
-          qWarning() << "(VeinLogger) Error in database transaction commit:" << m_dPtr->m_logDB.lastError().text();
+          emit sigDatabaseError(QString("(VeinLogger) Error in database transaction commit: %1").arg(m_dPtr->m_logDB.lastError().text()));
           Q_ASSERT(false);
         }
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in database transaction:" << m_dPtr->m_logDB.lastError().text();
+        emit sigDatabaseError(QString("(VeinLogger) Error in database transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
         Q_ASSERT(false);
       }
       m_dPtr->m_batchVector.clear();
@@ -474,5 +501,4 @@ namespace VeinLogger
 
     return doubleListValue;
   }
-
 } // namespace VeinLogger
