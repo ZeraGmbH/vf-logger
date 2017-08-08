@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QCoreApplication>
 #include <QTimer>
+#include <QStateMachine>
 #include <QStorageInfo>
 
 #include <ve_commandevent.h>
@@ -46,6 +47,7 @@ namespace VeinLogger
         componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("Logging inactive")));
         ///@todo load from persistent settings file?
         componentData.insert(s_databaseFileComponentName, QVariant(QString()));
+        componentData.insert(s_databaseReadyComponentName, QVariant(false));
         componentData.insert(s_filesystemDeviceComponentName, QVariant(QString()));
         componentData.insert(s_filesystemTypeComponentName, QVariant(QString()));
         componentData.insert(s_filesystemFreeComponentName, QVariant(0.0));
@@ -66,6 +68,8 @@ namespace VeinLogger
           systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, introspectionData);
           emit m_qPtr->sigSendEvent(systemEvent);
         }
+
+        initStateMachine();
 
         m_initDone = true;
       }
@@ -90,6 +94,109 @@ namespace VeinLogger
       }
     }
 
+    void initStateMachine()
+    {
+      m_stateMachine.setChildMode(QStateMachine::ParallelStates);
+      m_databaseContainerState->setInitialState(m_databaseUninitializedState);
+      m_loggingContainerState->setInitialState(m_loggingDisabledState);
+      m_logSchedulerContainerState->setInitialState(m_logSchedulerDisabledState);
+
+      //uninitialized -> ready
+      m_databaseUninitializedState->addTransition(m_qPtr, SIGNAL(sigDatabaseReady()), m_databaseReadyState);
+      //uninitialized -> error
+      m_databaseUninitializedState->addTransition(m_qPtr, SIGNAL(sigDatabaseError(QString)), m_databaseErrorState);
+      //ready -> error
+      m_databaseReadyState->addTransition(m_qPtr, SIGNAL(sigDatabaseError(QString)), m_databaseErrorState);
+      //error -> ready
+      m_databaseErrorState->addTransition(m_qPtr, SIGNAL(sigDatabaseReady()), m_databaseReadyState);
+
+      //enabled -> disabled
+      m_loggingEnabledState->addTransition(m_qPtr, SIGNAL(sigLoggingStopped()), m_loggingDisabledState);
+      //disabled -> enabled
+      m_loggingDisabledState->addTransition(m_qPtr, SIGNAL(sigLoggingStarted()), m_loggingEnabledState);
+
+      //enabled -> disbled
+      m_logSchedulerEnabledState->addTransition(m_qPtr, SIGNAL(sigLogSchedulerDeactivated()), m_logSchedulerDisabledState);
+      //disabled -> enabled
+      m_logSchedulerDisabledState->addTransition(m_qPtr, SIGNAL(sigLogSchedulerActivated()), m_logSchedulerEnabledState);
+
+      QObject::connect(m_databaseReadyState, &QState::entered, [&](){
+        setStatusText("Database loaded");
+        VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
+        databaseReadyCData->setEntityId(DataLoggerPrivate::s_entityId);
+        databaseReadyCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        databaseReadyCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
+        databaseReadyCData->setNewValue(true);
+        databaseReadyCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        databaseReadyCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseReadyCData));
+      });
+      QObject::connect(m_databaseErrorState, &QState::entered, [&](){
+        qDebug() << "Entered m_databaseErrorState";
+        VeinComponent::ComponentData *databaseErrorCData = new VeinComponent::ComponentData();
+        databaseErrorCData->setEntityId(DataLoggerPrivate::s_entityId);
+        databaseErrorCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        databaseErrorCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
+        databaseErrorCData->setNewValue(false);
+        databaseErrorCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        databaseErrorCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseErrorCData));
+        setStatusText("Database error");
+      });
+      QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
+        VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
+        loggingEnabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
+        loggingEnabledCData->setNewValue(true);
+        loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
+        setStatusText("Logging data");
+      });
+      QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
+        VeinComponent::ComponentData *loggingDisabledCData = new VeinComponent::ComponentData();
+        loggingDisabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        loggingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        loggingDisabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
+        loggingDisabledCData->setNewValue(false);
+        loggingDisabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        loggingDisabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingDisabledCData));
+        setStatusText("Logging disabled");
+      });
+      QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
+        VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
+        schedulingEnabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        schedulingEnabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
+        schedulingEnabledCData->setNewValue(true);
+        schedulingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        schedulingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingEnabledCData));
+      });
+      QObject::connect(m_logSchedulerDisabledState, &QState::entered, [&](){
+        VeinComponent::ComponentData *schedulingDisabledCData = new VeinComponent::ComponentData();
+        schedulingDisabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        schedulingDisabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
+        schedulingDisabledCData->setNewValue(false);
+        schedulingDisabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        schedulingDisabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDisabledCData));
+      });
+
+
+
+      m_stateMachine.start();
+    }
+
     /**
      * @brief The logging is implemented via interpreted scripts that state which values to log
      * @see vl_qmllogger.cpp
@@ -112,8 +219,8 @@ namespace VeinLogger
      * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
      */
     QTimer m_batchedExecutionTimer;
-    bool m_loggingEnabled=false;
-    bool m_scheduledLoggingEnabled=false;
+    //bool m_loggingEnabled=false;
+    //bool m_scheduledLoggingEnabled=false;
     QTime m_scheduledLoggingDuration;
     QTimer m_schedulingTimer;
     bool m_initDone=false;
@@ -127,13 +234,29 @@ namespace VeinLogger
     static constexpr char const *s_loggingStatusTextComponentName = "LoggingStatus";
     static constexpr char const *s_loggingEnabledComponentName = "LoggingEnabled";
     static constexpr char const *s_databaseFileComponentName = "DatabaseFile";
-    static constexpr char const *s_databaseErrorComponentName = "DatabaseError";
+    static constexpr char const *s_databaseReadyComponentName = "DatabaseReady";
     static constexpr char const *s_filesystemDeviceComponentName = "FilesystemDevice";
     static constexpr char const *s_filesystemTypeComponentName = "FilesystemType";
     static constexpr char const *s_filesystemFreeComponentName = "FilesystemFree";
     static constexpr char const *s_filesystemTotalComponentName = "FilesystemTotal";
     static constexpr char const *s_scheduledLoggingEnabledComponentName = "ScheduledLoggingEnabled";
     static constexpr char const *s_scheduledLoggingDurationComponentName = "ScheduledLoggingDuration";
+
+
+    QStateMachine m_stateMachine;
+
+    QState *m_databaseContainerState = new QState(&m_stateMachine);
+    QState *m_databaseUninitializedState = new QState(m_databaseContainerState);
+    QState *m_databaseReadyState = new QState(m_databaseContainerState);
+    QState *m_databaseErrorState = new QState(m_databaseContainerState);
+
+    QState *m_loggingContainerState = new QState(&m_stateMachine);
+    QState *m_loggingEnabledState = new QState(m_loggingContainerState);
+    QState *m_loggingDisabledState = new QState(m_loggingContainerState);
+
+    QState *m_logSchedulerContainerState = new QState(&m_stateMachine);
+    QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
+    QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
 
     DatabaseLogger *m_qPtr=0;
     friend class DatabaseLogger;
@@ -148,14 +271,13 @@ namespace VeinLogger
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]()
     {
-      if(m_dPtr->m_loggingEnabled == false)
+      if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState))
       {
         m_dPtr->m_batchedExecutionTimer.stop();
       }
     });
     connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, [this]()
     {
-      qDebug() << "m_SchedulingTimer";
       setLoggingEnabled(false);
     });
   }
@@ -182,7 +304,7 @@ namespace VeinLogger
 
   bool DatabaseLogger::loggingEnabled() const
   {
-    return m_dPtr->m_loggingEnabled;
+    return m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingEnabledState);
   }
 
   int DatabaseLogger::entityId()
@@ -192,34 +314,25 @@ namespace VeinLogger
 
   void DatabaseLogger::setLoggingEnabled(bool t_enabled)
   {
-    if(t_enabled != m_dPtr->m_loggingEnabled)
+    //do not accept values that are already set
+    const QSet<QAbstractState *> activeStates = m_dPtr->m_stateMachine.configuration();
+    if(t_enabled != activeStates.contains(m_dPtr->m_loggingEnabledState) )
     {
-      m_dPtr->m_loggingEnabled = t_enabled;
       if(t_enabled)
       {
         m_dPtr->m_batchedExecutionTimer.start();
-        m_dPtr->setStatusText("Logging data");
-        if(m_dPtr->m_scheduledLoggingEnabled)
+        if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState))
         {
           m_dPtr->m_schedulingTimer.start();
         }
+        emit sigLoggingStarted();
       }
       else
       {
-        m_dPtr->setStatusText("Logging inactive");
         m_dPtr->m_schedulingTimer.stop();
+        emit sigLoggingStopped();
       }
-      VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
-      loggingEnabledCData->setEntityId(DataLoggerPrivate::s_entityId);
-      loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-      loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
-      loggingEnabledCData->setNewValue(QVariant(t_enabled));
-      loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-      loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-      emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
       emit sigLoggingEnabledChanged(t_enabled);
-
     }
   }
 
@@ -281,6 +394,7 @@ namespace VeinLogger
       connect(this, SIGNAL(sigAddRecord(QString)), m_dPtr->m_database, SLOT(addRecord(QString)));
       connect(this, SIGNAL(sigOpenDatabase(QString)), m_dPtr->m_database, SLOT(openDatabase(QString)));
       connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
+      connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
       connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
 
       m_dPtr->m_databaseFilePath = t_filePath;
@@ -307,7 +421,9 @@ namespace VeinLogger
       evData = cEvent->eventData();
       Q_ASSERT(evData != nullptr);
 
-      if(m_dPtr->m_loggingEnabled && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
+      const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
+      const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
+      if(activeStates.contains(requiredStates) && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
         if(evData->type()==ComponentData::dataType())
         {
@@ -375,48 +491,36 @@ namespace VeinLogger
         else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
         {
           cEvent->accept();
-          if(cData->newValue() != m_dPtr->m_loggingEnabled)
-          {
-            retVal = true;
-            setLoggingEnabled(cData->newValue().toBool());
-          }
+          retVal = true;
+          setLoggingEnabled(cData->newValue().toBool());
         }
         else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName)
         {
           cEvent->accept();
-          if(cData->newValue() != m_dPtr->m_scheduledLoggingEnabled)
+          //do not accept values that are already set
+          if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState))
           {
             retVal = true;
-            m_dPtr->m_scheduledLoggingEnabled = cData->newValue().toBool();
-
-            VeinComponent::ComponentData *schedulingEnabledData = new VeinComponent::ComponentData();
-            schedulingEnabledData->setEntityId(DataLoggerPrivate::s_entityId);
-            schedulingEnabledData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            schedulingEnabledData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
-            schedulingEnabledData->setNewValue(cData->newValue());
-            schedulingEnabledData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            schedulingEnabledData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingEnabledData));
+            if(cData->newValue().toBool() == true)
+            {
+              emit sigLogSchedulerActivated();
+            }
+            else
+            {
+              emit sigLogSchedulerDeactivated();
+            }
             setLoggingEnabled(false);
           }
         }
         else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingDurationComponentName)
         {
-          cEvent->accept();
+          bool invalidTime = false;
           const QTime tmpTime = QTime::fromString(cData->newValue().toString(), "hh:mm:ss");
+          cEvent->accept();
+
           if(tmpTime.isValid() == false)
           {
-            VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
-            errData->setEntityId(DataLoggerPrivate::s_entityId);
-            errData->setOriginalData(cData);
-            errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
-            errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
-            errData->setErrorDescription(QString("Invalid logging duration: %1").arg(cData->newValue().toString()));
-
-            sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
-
-            Q_ASSERT(false); //client shouldn't be able to send invalid time data
+            invalidTime = true;
           }
           else if(tmpTime != m_dPtr->m_scheduledLoggingDuration)
           {
@@ -426,20 +530,35 @@ namespace VeinLogger
             if(logDurationMsecs > 0)
             {
               m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
-              if(m_dPtr->m_loggingEnabled)
+              if(activeStates.contains(requiredStates))
               {
                 m_dPtr->m_schedulingTimer.start(); //restart timer
               }
-            }
-            VeinComponent::ComponentData *schedulingEnabledData = new VeinComponent::ComponentData();
-            schedulingEnabledData->setEntityId(DataLoggerPrivate::s_entityId);
-            schedulingEnabledData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            schedulingEnabledData->setComponentName(DataLoggerPrivate::s_scheduledLoggingDurationComponentName);
-            schedulingEnabledData->setNewValue(cData->newValue());
-            schedulingEnabledData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            schedulingEnabledData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+              VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
+              schedulingDurationData->setEntityId(DataLoggerPrivate::s_entityId);
+              schedulingDurationData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+              schedulingDurationData->setComponentName(DataLoggerPrivate::s_scheduledLoggingDurationComponentName);
+              schedulingDurationData->setNewValue(cData->newValue());
+              schedulingDurationData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+              schedulingDurationData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingEnabledData));
+              emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDurationData));
+            }
+            else
+            {
+              invalidTime = true;
+            }
+          }
+          if(invalidTime)
+          {
+            VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
+            errData->setEntityId(DataLoggerPrivate::s_entityId);
+            errData->setOriginalData(cData);
+            errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
+            errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
+            errData->setErrorDescription(QString("Invalid logging duration: %1").arg(cData->newValue().toString()));
+
+            sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
           }
         }
       }

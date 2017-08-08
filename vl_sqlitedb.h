@@ -38,6 +38,7 @@ namespace VeinLogger
 
   signals:
     void sigDatabaseError(const QString &t_errorString);
+    void sigDatabaseReady();
 
   public slots:
     void initLocalData();

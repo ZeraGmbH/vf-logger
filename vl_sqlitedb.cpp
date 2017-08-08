@@ -312,9 +312,10 @@ namespace VeinLogger
       //setup database if necessary
       QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
 
-      if(schemaVersionQuery.exec("pragma schema_version;") == true)
+      if(schemaVersionQuery.exec("pragma schema_version;") == true) //check if the file is valid (empty or a valid database)
       {
-        if(schemaVersionQuery.value(0) == 0) //if there is no database schema
+        schemaVersionQuery.first();
+        if(schemaVersionQuery.value(0) == 0) //if there is no database schema or if the file does not exist, then this will create the database and initialize the schema
         {
           m_dPtr->m_queryReader.setFileName("://sqlite/schema_test_sqlite.sql");
           m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
@@ -333,6 +334,7 @@ namespace VeinLogger
             }
           }
         }
+        schemaVersionQuery.finish();
         //prepare common queries
         /* valuemap_id INTEGER PRIMARY KEY,
          entity_id INTEGER REFERENCES entities(entity_id) NOT NULL,
@@ -366,8 +368,9 @@ namespace VeinLogger
         m_dPtr->m_valueMapSequenceQuery.finish();
 
         initLocalData();
+        emit sigDatabaseReady();
       }
-      else
+      else //file is not a database so we don't want to touch it
       {
         emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(t_dbPath).arg(schemaVersionQuery.lastError().text()));
       }

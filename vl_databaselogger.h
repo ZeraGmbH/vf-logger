@@ -31,8 +31,14 @@ namespace VeinLogger
     void sigAddRecord(const QString &t_recordName);
 
     void sigOpenDatabase(const QString &t_filePath);
-    void sigDatabaseError(const QString &t_filePath);
+
+    void sigDatabaseError(const QString &t_errorString);
+    void sigDatabaseReady();
     void sigLoggingEnabledChanged(bool t_enabled);
+    void sigLoggingStarted();
+    void sigLoggingStopped();
+    void sigLogSchedulerActivated();
+    void sigLogSchedulerDeactivated();
 
   public slots:
     void setLoggingEnabled(bool t_enabled);
