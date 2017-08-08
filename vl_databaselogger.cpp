@@ -102,26 +102,25 @@ namespace VeinLogger
       m_logSchedulerContainerState->setInitialState(m_logSchedulerDisabledState);
 
       //uninitialized -> ready
-      m_databaseUninitializedState->addTransition(m_qPtr, SIGNAL(sigDatabaseReady()), m_databaseReadyState);
+      m_databaseUninitializedState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseReady, m_databaseReadyState);
       //uninitialized -> error
-      m_databaseUninitializedState->addTransition(m_qPtr, SIGNAL(sigDatabaseError(QString)), m_databaseErrorState);
+      m_databaseUninitializedState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseError, m_databaseErrorState);
       //ready -> error
-      m_databaseReadyState->addTransition(m_qPtr, SIGNAL(sigDatabaseError(QString)), m_databaseErrorState);
+      m_databaseReadyState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseError, m_databaseErrorState);
       //error -> ready
-      m_databaseErrorState->addTransition(m_qPtr, SIGNAL(sigDatabaseReady()), m_databaseReadyState);
+      m_databaseErrorState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseReady, m_databaseReadyState);
 
       //enabled -> disabled
-      m_loggingEnabledState->addTransition(m_qPtr, SIGNAL(sigLoggingStopped()), m_loggingDisabledState);
+      m_loggingEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLoggingStopped, m_loggingDisabledState);
       //disabled -> enabled
-      m_loggingDisabledState->addTransition(m_qPtr, SIGNAL(sigLoggingStarted()), m_loggingEnabledState);
+      m_loggingDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLoggingStarted, m_loggingEnabledState);
 
       //enabled -> disbled
-      m_logSchedulerEnabledState->addTransition(m_qPtr, SIGNAL(sigLogSchedulerDeactivated()), m_logSchedulerDisabledState);
+      m_logSchedulerEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerDeactivated, m_logSchedulerDisabledState);
       //disabled -> enabled
-      m_logSchedulerDisabledState->addTransition(m_qPtr, SIGNAL(sigLogSchedulerActivated()), m_logSchedulerEnabledState);
+      m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
 
       QObject::connect(m_databaseReadyState, &QState::entered, [&](){
-        setStatusText("Database loaded");
         VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
         databaseReadyCData->setEntityId(DataLoggerPrivate::s_entityId);
         databaseReadyCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -131,6 +130,8 @@ namespace VeinLogger
         databaseReadyCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseReadyCData));
+        m_qPtr->setLoggingEnabled(false);
+        setStatusText("Database loaded");
       });
       QObject::connect(m_databaseErrorState, &QState::entered, [&](){
         qDebug() << "Entered m_databaseErrorState";
@@ -143,6 +144,7 @@ namespace VeinLogger
         databaseErrorCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseErrorCData));
+        m_qPtr->setLoggingEnabled(false);
         setStatusText("Database error");
       });
       QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
@@ -167,7 +169,10 @@ namespace VeinLogger
         loggingDisabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingDisabledCData));
-        setStatusText("Logging disabled");
+        if(m_stateMachine.configuration().contains(m_databaseErrorState) == false) // do not override important notification
+        {
+          setStatusText("Logging disabled");
+        }
       });
       QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
