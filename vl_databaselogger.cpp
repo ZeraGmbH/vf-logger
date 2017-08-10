@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QStateMachine>
 #include <QStorageInfo>
+#include <QMimeDatabase>
 
 #include <ve_commandevent.h>
 #include <vcmp_componentdata.h>
@@ -46,8 +47,10 @@ namespace VeinLogger
         componentData.insert(s_loggingEnabledComponentName, QVariant(false));
         componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("Logging inactive")));
         ///@todo load from persistent settings file?
-        componentData.insert(s_databaseFileComponentName, QVariant(QString()));
         componentData.insert(s_databaseReadyComponentName, QVariant(false));
+        componentData.insert(s_databaseFileComponentName, QVariant(QString()));
+        componentData.insert(s_databaseFileMimeTypeComponentName, QVariant(QString()));
+        componentData.insert(s_databaseFileSizeComponentName, QVariant(QString()));
         componentData.insert(s_filesystemDeviceComponentName, QVariant(QString()));
         componentData.insert(s_filesystemTypeComponentName, QVariant(QString()));
         componentData.insert(s_filesystemFreeComponentName, QVariant(0.0));
@@ -202,6 +205,108 @@ namespace VeinLogger
       m_stateMachine.start();
     }
 
+    bool checkDBStorageLocation(const QString &t_dbFilePath)
+    {
+      bool retVal=false;
+
+      const auto storages = QStorageInfo::mountedVolumes();
+      QStringList availableStorages;
+      for(const auto storDevice : storages)
+      {
+        if(storDevice.fileSystemType().contains("tmpfs") == false && storDevice.isRoot() == false)
+        {
+          availableStorages.append(storDevice.rootPath());
+          if(retVal == false && t_dbFilePath.contains(storDevice.rootPath()))
+          {
+            const double availGB = storDevice.bytesFree()/1.0e9;
+            const double totalGB = storDevice.bytesTotal()/1.0e9;
+
+            QHash<QString, QVariant> storageInfo;
+            storageInfo.insert(DataLoggerPrivate::s_filesystemFreeComponentName, availGB);
+            storageInfo.insert(DataLoggerPrivate::s_filesystemTotalComponentName, totalGB);
+            storageInfo.insert(DataLoggerPrivate::s_filesystemDeviceComponentName, QString::fromUtf8(storDevice.device()));
+            storageInfo.insert(DataLoggerPrivate::s_filesystemTypeComponentName, QString::fromUtf8(storDevice.fileSystemType()));
+
+
+            VeinComponent::ComponentData *storageCData = nullptr;
+
+            for(const QString &componentName : storageInfo.keys())
+            {
+              storageCData= new VeinComponent::ComponentData();
+              storageCData->setEntityId(DataLoggerPrivate::s_entityId);
+              storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+              storageCData->setComponentName(componentName);
+              storageCData->setNewValue(storageInfo.value(componentName));
+              storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+              storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+              emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
+            }
+            retVal = true;
+          }
+        }
+      }
+
+      if(retVal == false)
+      {
+        emit m_qPtr->sigDatabaseError(QString("Database cannot be stored on path: %1\nAvailable storage mount points: (%2)").arg(t_dbFilePath).arg(availableStorages.join(", ")));
+      }
+
+      return retVal;
+    }
+
+    bool checkDBFilePath(const QString &t_dbFilePath)
+    {
+      bool retVal = false;
+      QFileInfo fInfo(t_dbFilePath);
+
+      if(fInfo.absoluteDir().exists())
+      {
+        if(fInfo.isFile() || fInfo.exists() == false)
+        {
+          retVal = true;
+        }
+        else
+        {
+          emit m_qPtr->sigDatabaseError(QString("Path is not a valid file location: %1").arg(t_dbFilePath));
+        }
+      }
+      else
+      {
+        emit m_qPtr->sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(t_dbFilePath));
+      }
+
+      return retVal;
+    }
+
+    void setDBFileInfo(const QString &t_dbFilePath)
+    {
+      QFileInfo fInfo(t_dbFilePath);
+      if(true) //fInfo.exists())
+      {
+        QHash <QString, QVariant> fileInfoData;
+        QMimeDatabase mimeDB;
+        VeinComponent::ComponentData *storageCData = nullptr;
+
+        fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, fInfo.absoluteFilePath());
+        fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeDB.mimeTypeForFile(fInfo, QMimeDatabase::MatchContent).name());
+        fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fInfo.size());
+
+        for(const QString &componentName : fileInfoData.keys())
+        {
+          storageCData= new VeinComponent::ComponentData();
+          storageCData->setEntityId(DataLoggerPrivate::s_entityId);
+          storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+          storageCData->setComponentName(componentName);
+          storageCData->setNewValue(fileInfoData.value(componentName));
+          storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+          storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+          emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
+        }
+      }
+    }
+
     /**
      * @brief The logging is implemented via interpreted scripts that state which values to log
      * @see vl_qmllogger.cpp
@@ -211,9 +316,9 @@ namespace VeinLogger
     /**
      * @brief The actual database choice is an implementation detail of the DatabaseLogger
      */
-    SQLiteDB *m_database=0;
+    SQLiteDB *m_database=nullptr;
     QString m_databaseFilePath;
-    DataSource *m_dataSource=0;
+    DataSource *m_dataSource=nullptr;
 
     /**
      * @brief Qt doesn't support non blocking database access
@@ -224,8 +329,6 @@ namespace VeinLogger
      * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
      */
     QTimer m_batchedExecutionTimer;
-    //bool m_loggingEnabled=false;
-    //bool m_scheduledLoggingEnabled=false;
     QTime m_scheduledLoggingDuration;
     QTimer m_schedulingTimer;
     bool m_initDone=false;
@@ -238,8 +341,10 @@ namespace VeinLogger
     static constexpr char const *s_entityNameComponentName = "EntityName";
     static constexpr char const *s_loggingStatusTextComponentName = "LoggingStatus";
     static constexpr char const *s_loggingEnabledComponentName = "LoggingEnabled";
-    static constexpr char const *s_databaseFileComponentName = "DatabaseFile";
     static constexpr char const *s_databaseReadyComponentName = "DatabaseReady";
+    static constexpr char const *s_databaseFileComponentName = "DatabaseFile";
+    static constexpr char const *s_databaseFileMimeTypeComponentName = "DatabaseFileMimeType";
+    static constexpr char const *s_databaseFileSizeComponentName = "DatabaseFileSize";
     static constexpr char const *s_filesystemDeviceComponentName = "FilesystemDevice";
     static constexpr char const *s_filesystemTypeComponentName = "FilesystemType";
     static constexpr char const *s_filesystemFreeComponentName = "FilesystemFree";
@@ -263,7 +368,7 @@ namespace VeinLogger
     QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
     QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
 
-    DatabaseLogger *m_qPtr=0;
+    DatabaseLogger *m_qPtr=nullptr;
     friend class DatabaseLogger;
   };
 
@@ -343,44 +448,12 @@ namespace VeinLogger
 
   bool DatabaseLogger::openDatabase(const QString &t_filePath)
   {
-    bool validStorage = false;
-    const auto storages = QStorageInfo::mountedVolumes();
-    for(const auto storDevice : storages)
-    {
-      if(storDevice.fileSystemType().contains("tmpfs") == false /*&& storDevice.isRoot() == false*/ && t_filePath.contains(storDevice.rootPath()))
-      {
-        validStorage = true;
-        const double availGB = storDevice.bytesFree()/1.0e9;
-        const double totalGB = storDevice.bytesTotal()/1.0e9;
-
-        QHash<QString, QVariant> storageInfo;
-        storageInfo.insert(DataLoggerPrivate::s_databaseFileComponentName, t_filePath);
-        storageInfo.insert(DataLoggerPrivate::s_filesystemFreeComponentName, availGB);
-        storageInfo.insert(DataLoggerPrivate::s_filesystemTotalComponentName, totalGB);
-        storageInfo.insert(DataLoggerPrivate::s_filesystemDeviceComponentName, QString::fromUtf8(storDevice.device()));
-        storageInfo.insert(DataLoggerPrivate::s_filesystemTypeComponentName, QString::fromUtf8(storDevice.fileSystemType()));
-
-
-        VeinComponent::ComponentData *storageCData = nullptr;
-
-        for(const QString &componentName : storageInfo.keys())
-        {
-          storageCData= new VeinComponent::ComponentData();
-          storageCData->setEntityId(DataLoggerPrivate::s_entityId);
-          storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-          storageCData->setComponentName(componentName);
-          storageCData->setNewValue(storageInfo.value(componentName));
-          storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-          storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-          emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-        }
-        break; //there can only
-      }
-    }
+    const bool validStorage = m_dPtr->checkDBFilePath(t_filePath) && m_dPtr->checkDBStorageLocation(t_filePath);
 
     if(validStorage == true)
     {
+      m_dPtr->setDBFileInfo(t_filePath);
+
       if(m_dPtr->m_database != nullptr)
       {
         m_dPtr->m_database->deleteLater();
@@ -479,19 +552,21 @@ namespace VeinLogger
 
         if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName)
         {
-          if(cData->newValue() != m_dPtr->m_database->databasePath() && openDatabase(cData->newValue().toString()) == false)
+          if((m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_database->databasePath()))
           {
-            retVal = true;
-            VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
-            errData->setEntityId(DataLoggerPrivate::s_entityId);
-            errData->setOriginalData(cData);
-            errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
-            errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
-            errData->setErrorDescription(QString("Invalid database path: %1").arg(cData->newValue().toString()));
-
-            sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
-            t_event->accept();
+            retVal = openDatabase(cData->newValue().toString());
           }
+          t_event->accept();
+
+          VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
+          dbFileNameCData->setEntityId(DataLoggerPrivate::s_entityId);
+          dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+          dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
+          dbFileNameCData->setNewValue(cData->newValue());
+          dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+          dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+          emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
         }
         else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
         {
