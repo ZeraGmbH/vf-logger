@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QJsonDocument>
 #include <QtSql>
+#include <QtSql/QSqlQuery>
 #include <QMultiMap>
 
 namespace VeinLogger
@@ -44,6 +45,7 @@ namespace VeinLogger
 
   SQLiteDB::SQLiteDB(QObject *t_parent) : QObject(t_parent), m_dPtr(new DBPrivate(this))
   {
+    m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE", "VFLogDB"); //default database
     connect(this, &SQLiteDB::sigDatabaseError, [](const QString &t_error){
       qWarning() << t_error;
     });
@@ -51,8 +53,10 @@ namespace VeinLogger
 
   SQLiteDB::~SQLiteDB()
   {
+    runBatchedExecution(); //finish the remaining batch of data
     m_dPtr->m_logDB.close();
     delete m_dPtr;
+    QSqlDatabase::removeDatabase("VFLogDB");
   }
 
   bool SQLiteDB::hasEntityId(int t_entityId) const
@@ -82,9 +86,9 @@ namespace VeinLogger
 
   void SQLiteDB::initLocalData()
   {
-    QSqlQuery componentQuery("SELECT * FROM components;");
-    QSqlQuery entityQuery("SELECT * FROM entities;");
-    QSqlQuery recordQuery("SELECT * FROM records;");
+    QSqlQuery componentQuery("SELECT * FROM components;", m_dPtr->m_logDB);
+    QSqlQuery entityQuery("SELECT * FROM entities;", m_dPtr->m_logDB);
+    QSqlQuery recordQuery("SELECT * FROM records;", m_dPtr->m_logDB);
 
     while (componentQuery.next())
     {
@@ -268,112 +272,114 @@ namespace VeinLogger
 
   bool SQLiteDB::openDatabase(const QString &t_dbPath)
   {
-    //VF_ASSERT(m_dPtr->m_logDB.isOpen() == false, "(VeinLogger) Database is already open");
-
-    if(m_dPtr->m_logDB.isOpen())
-    {
-      m_dPtr->m_logDB.close();
-      QSqlDatabase::removeDatabase(m_dPtr->m_logDB.databaseName());
-    }
-
-
+    QFileInfo fInfo(t_dbPath);
     bool retVal = false;
-    QSqlError dbError;
-
-    m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE"); //default database
-    m_dPtr->m_logDB.setDatabaseName(t_dbPath);
-    if (!m_dPtr->m_logDB.open())
+    if(fInfo.absoluteDir().exists())
     {
-      dbError = m_dPtr->m_logDB.lastError();
-      m_dPtr->m_logDB = QSqlDatabase();
-      QSqlDatabase::removeDatabase(m_dPtr->m_logDB.databaseName());
-    }
-
-    if(dbError.type() != QSqlError::NoError)
-    {
-      emit sigDatabaseError(QString("(VeinLogger) Database connection failed error: %1").arg(dbError.text()));
-      Q_ASSERT(false);
-    }
-    else
-    {
-      retVal = true;
-
-
-      //the database was not open when these queries were initialized
-      m_dPtr->m_valueMapInsertQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_valueMapSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_recordMappingInsertQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_componentInsertQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_componentSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_entityInsertQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_recordInsertQuery = QSqlQuery(m_dPtr->m_logDB);
-      m_dPtr->m_recordSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
-
-      //setup database if necessary
-      QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
-
-      if(schemaVersionQuery.exec("pragma schema_version;") == true) //check if the file is valid (empty or a valid database)
+      QSqlError dbError;
+      if(m_dPtr->m_logDB.isOpen())
       {
-        schemaVersionQuery.first();
-        if(schemaVersionQuery.value(0) == 0) //if there is no database schema or if the file does not exist, then this will create the database and initialize the schema
+        m_dPtr->m_logDB.close();
+      }
+
+      m_dPtr->m_logDB.setDatabaseName(t_dbPath);
+      if (!m_dPtr->m_logDB.open())
+      {
+        dbError = m_dPtr->m_logDB.lastError();
+        m_dPtr->m_logDB = QSqlDatabase();
+      }
+
+      if(dbError.type() != QSqlError::NoError)
+      {
+        emit sigDatabaseError(QString("(VeinLogger) Database connection failed error: %1").arg(dbError.text()));
+        Q_ASSERT(false);
+      }
+      else
+      {
+        retVal = true;
+
+
+        //the database was not open when these queries were initialized
+        m_dPtr->m_valueMapInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_valueMapSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_recordMappingInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_componentInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_componentSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_entityInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_recordInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+        m_dPtr->m_recordSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
+
+        //setup database if necessary
+        QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
+
+        if(schemaVersionQuery.exec("pragma schema_version;") == true) //check if the file is valid (empty or a valid database)
         {
-          m_dPtr->m_queryReader.setFileName("://sqlite/schema_test_sqlite.sql");
-          m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
-          QTextStream queryStreamIn(&m_dPtr->m_queryReader);
-          QStringList commandQueue = queryStreamIn.readAll().split(";");
-          m_dPtr->m_queryReader.close();
-
-          for(const QString &tmpCommand : commandQueue)
+          schemaVersionQuery.first();
+          if(schemaVersionQuery.value(0) == 0) //if there is no database schema or if the file does not exist, then this will create the database and initialize the schema
           {
-            QSqlQuery tmpQuery(m_dPtr->m_logDB);
+            m_dPtr->m_queryReader.setFileName("://sqlite/schema_test_sqlite.sql");
+            m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
+            QTextStream queryStreamIn(&m_dPtr->m_queryReader);
+            QStringList commandQueue = queryStreamIn.readAll().split(";");
+            m_dPtr->m_queryReader.close();
 
-            if(tmpQuery.exec(tmpCommand) == false)
+            for(const QString &tmpCommand : commandQueue)
             {
-              //ignore warnings as sqlite throws warnings for comments and empty statements
-              //qWarning() << "(VeinLogger) Error executing schema query:" << tmpQuery.lastQuery() << tmpQuery.lastError();
+              QSqlQuery tmpQuery(m_dPtr->m_logDB);
+
+              if(tmpQuery.exec(tmpCommand) == false)
+              {
+                //ignore warnings as sqlite throws warnings for comments and empty statements
+                //qWarning() << "(VeinLogger) Error executing schema query:" << tmpQuery.lastQuery() << tmpQuery.lastError();
+              }
             }
           }
-        }
-        schemaVersionQuery.finish();
-        //prepare common queries
-        /* valuemap_id INTEGER PRIMARY KEY,
+          schemaVersionQuery.finish();
+          //prepare common queries
+          /* valuemap_id INTEGER PRIMARY KEY,
          entity_id INTEGER REFERENCES entities(entity_id) NOT NULL,
          component_id INTEGER REFERENCES components(component_id) NOT NULL,
          value_timestamp VARCHAR(255) NOT NULL, -- timestamp in ISO 8601 format, example: 2016-10-06 11:58:34.504319
          component_value NUMERIC) WITHOUT ROWID; -- can be any type but numeric is preferred
       */
-        m_dPtr->m_valueMapInsertQuery.prepare("INSERT INTO valuemap VALUES (?, ?, ?, ?, ?);");
-        //executed to get the next id for internal tracking, other database clients must not alter the value while the internal reference is kept
-        m_dPtr->m_valueMapSequenceQuery.prepare("SELECT MAX(valuemap_id) FROM valuemap;");
-        m_dPtr->m_componentInsertQuery.prepare("INSERT INTO components (component_id, component_name) VALUES (:component_id, :component_name);");
-        m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(component_id) FROM components;");
-        m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:entity_id, :entity_name);");
-        /* -- The record is a series of values collected over a variable duration connected to customer data
+          m_dPtr->m_valueMapInsertQuery.prepare("INSERT INTO valuemap VALUES (?, ?, ?, ?, ?);");
+          //executed to get the next id for internal tracking, other database clients must not alter the value while the internal reference is kept
+          m_dPtr->m_valueMapSequenceQuery.prepare("SELECT MAX(valuemap_id) FROM valuemap;");
+          m_dPtr->m_componentInsertQuery.prepare("INSERT INTO components (component_id, component_name) VALUES (:component_id, :component_name);");
+          m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(component_id) FROM components;");
+          m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:entity_id, :entity_name);");
+          /* -- The record is a series of values collected over a variable duration connected to customer data
            CREATE TABLE records (record_id INTEGER PRIMARY KEY, record_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
         */
-        m_dPtr->m_recordInsertQuery.prepare("INSERT INTO records (record_id, record_name) VALUES (:record_id, :record_name);");
-        //executed after the record was added to get the last used number
-        m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(record_id) FROM records;");
-        m_dPtr->m_recordMappingInsertQuery.prepare("INSERT INTO recordmapping VALUES (?, ?);"); //record_id, valuemap_id
+          m_dPtr->m_recordInsertQuery.prepare("INSERT INTO records (record_id, record_name) VALUES (:record_id, :record_name);");
+          //executed after the record was added to get the last used number
+          m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(record_id) FROM records;");
+          m_dPtr->m_recordMappingInsertQuery.prepare("INSERT INTO recordmapping VALUES (?, ?);"); //record_id, valuemap_id
 
-        //get next valuemap_id
-        if(m_dPtr->m_valueMapSequenceQuery.exec() == false)
-        {
-          emit sigDatabaseError(QString("(VeinLogger) Error executing m_valueMappingSequenceQuery: %1").arg(m_dPtr->m_valueMapSequenceQuery.lastError().text()));
-          Q_ASSERT(false);
+          //get next valuemap_id
+          if(m_dPtr->m_valueMapSequenceQuery.exec() == false)
+          {
+            emit sigDatabaseError(QString("(VeinLogger) Error executing m_valueMappingSequenceQuery: %1").arg(m_dPtr->m_valueMapSequenceQuery.lastError().text()));
+            Q_ASSERT(false);
+          }
+          m_dPtr->m_valueMapSequenceQuery.next();
+          m_dPtr->m_valueMapQueryCounter = m_dPtr->m_valueMapSequenceQuery.value(0).toInt()+1;
+          //close the query as we read all data from it and it has to be closed to commit the transaction
+          m_dPtr->m_valueMapSequenceQuery.finish();
+
+          initLocalData();
+          emit sigDatabaseReady();
         }
-        m_dPtr->m_valueMapSequenceQuery.next();
-        m_dPtr->m_valueMapQueryCounter = m_dPtr->m_valueMapSequenceQuery.value(0).toInt()+1;
-        //close the query as we read all data from it and it has to be closed to commit the transaction
-        m_dPtr->m_valueMapSequenceQuery.finish();
+        else //file is not a database so we don't want to touch it
+        {
+          emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(t_dbPath).arg(schemaVersionQuery.lastError().text()));
+        }
+      }
 
-        initLocalData();
-        emit sigDatabaseReady();
-      }
-      else //file is not a database so we don't want to touch it
-      {
-        emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(t_dbPath).arg(schemaVersionQuery.lastError().text()));
-      }
+    }
+    else
+    {
+      emit sigDatabaseError(QString("Error accessing database in directory: %1\nError: directory does not exist").arg(fInfo.absoluteDir().absolutePath()));
     }
 
     return retVal;
