@@ -25,7 +25,17 @@ namespace VeinLogger
       m_batchedExecutionTimer.setInterval(5000);
       m_batchedExecutionTimer.setSingleShot(false);
     }
-    ~DataLoggerPrivate() {}
+    ~DataLoggerPrivate()
+    {
+      m_batchedExecutionTimer.stop();
+      if(m_database != nullptr)
+      {
+        m_database->deleteLater(); ///@todo: check if the delete works across threads
+        m_database=nullptr;
+      }
+      m_asyncDatabaseThread.quit();
+      m_asyncDatabaseThread.wait();
+    }
 
     void initOnce()
     {
@@ -394,9 +404,7 @@ namespace VeinLogger
 
   DatabaseLogger::~DatabaseLogger()
   {
-    m_dPtr->m_batchedExecutionTimer.stop();
-    m_dPtr->m_asyncDatabaseThread.quit();
-    m_dPtr->m_asyncDatabaseThread.wait();
+    delete m_dPtr;
   }
 
   void DatabaseLogger::addScript(QmlLogger *t_script)

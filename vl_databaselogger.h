@@ -51,7 +51,7 @@ namespace VeinLogger
   private:
     void initEntity();
 
-    DataLoggerPrivate *m_dPtr=0;
+    DataLoggerPrivate *m_dPtr=nullptr;
   };
 }
 

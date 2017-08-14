@@ -78,6 +78,11 @@ namespace VeinLogger
 
   }
 
+  DataSource::~DataSource()
+  {
+    delete m_dPtr;
+  }
+
   QVariant DataSource::getValue(int t_entityId, const QString &t_componentName) const
   {
     return m_dPtr->getValue(t_entityId, t_componentName);
