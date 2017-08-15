@@ -22,6 +22,11 @@ namespace VeinLogger
     return s_dbLogger->loggingEnabled();
   }
 
+  bool QmlLogger::initializeValues() const
+  {
+    return m_initializeValues;
+  }
+
   bool QmlLogger::hasLoggerEntry(int t_entityId, const QString &t_componentName) const
   {
     return m_loggedValues.contains(t_entityId, t_componentName);
@@ -31,6 +36,11 @@ namespace VeinLogger
   {
     Q_ASSERT(t_dbLogger != nullptr);
     s_dbLogger = t_dbLogger;
+  }
+
+  QMultiHash<int, QString> QmlLogger::getLoggedValues() const
+  {
+    return m_loggedValues;
   }
 
   void QmlLogger::startLogging()
@@ -67,6 +77,15 @@ namespace VeinLogger
       m_recordName = t_recordName;
       emit recordNameChanged(t_recordName);
     }
+  }
+
+  void QmlLogger::setInitializeValues(bool initializeValues)
+  {
+    if (m_initializeValues == initializeValues)
+      return;
+
+    m_initializeValues = initializeValues;
+    emit initializeValuesChanged(initializeValues);
   }
 
   DatabaseLogger *QmlLogger::s_dbLogger = nullptr;

@@ -412,6 +412,28 @@ namespace VeinLogger
     if(m_dPtr->m_loggerScripts.contains(t_script) == false)
     {
       m_dPtr->m_loggerScripts.append(t_script);
+      //writes the values from the data source to the database, some values may never change so they need to be initialized
+      if(t_script->initializeValues() == true)
+      {
+        const QVector<QString> tmpRecordName = {t_script->recordName()};
+        const QMultiHash<int, QString> tmpLoggedValues = t_script->getLoggedValues();
+        for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
+        {
+          const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
+          for(const QString &tmpComponentName : tmpComponents)
+          {
+            if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false)
+            {
+              emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+            }
+            if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false)
+            {
+              emit sigAddComponent(tmpComponentName);
+            }
+            emit sigAddLoggedValue(tmpRecordName, tmpEntityId, tmpComponentName, m_dPtr->m_dataSource->getValue(tmpEntityId,tmpComponentName), QDateTime::currentDateTime());
+          }
+        }
+      }
     }
   }
 
