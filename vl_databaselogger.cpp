@@ -317,6 +317,23 @@ namespace VeinLogger
       }
     }
 
+    void updateDBFileSizeInfo()
+    {
+      QFileInfo fInfo(m_databaseFilePath);
+      if(fInfo.exists())
+      {
+        VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
+        storageCData->setEntityId(DataLoggerPrivate::s_entityId);
+        storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        storageCData->setComponentName(DataLoggerPrivate::s_databaseFileSizeComponentName);
+        storageCData->setNewValue(QVariant(fInfo.size()));
+        storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
+      }
+    }
+
     /**
      * @brief The logging is implemented via interpreted scripts that state which values to log
      * @see vl_qmllogger.cpp
@@ -391,6 +408,7 @@ namespace VeinLogger
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]()
     {
+      m_dPtr->updateDBFileSizeInfo();
       if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState))
       {
         m_dPtr->m_batchedExecutionTimer.stop();
