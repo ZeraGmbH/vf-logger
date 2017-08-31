@@ -70,6 +70,11 @@ namespace VeinLogger
     }
   }
 
+  void QmlLogger::clearLoggerEntries()
+  {
+    m_loggedValues.clear();
+  }
+
   void QmlLogger::setRecordName(QString t_recordName)
   {
     if (m_recordName != t_recordName)
@@ -79,13 +84,13 @@ namespace VeinLogger
     }
   }
 
-  void QmlLogger::setInitializeValues(bool initializeValues)
+  void QmlLogger::setInitializeValues(bool t_initializeValues)
   {
-    if (m_initializeValues == initializeValues)
+    if (m_initializeValues == t_initializeValues)
       return;
 
-    m_initializeValues = initializeValues;
-    emit initializeValuesChanged(initializeValues);
+    m_initializeValues = t_initializeValues;
+    emit initializeValuesChanged(t_initializeValues);
   }
 
   DatabaseLogger *QmlLogger::s_dbLogger = nullptr;

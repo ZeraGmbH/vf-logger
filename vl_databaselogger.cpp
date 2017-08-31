@@ -597,6 +597,7 @@ namespace VeinLogger
         ComponentData *cData=nullptr;
         cData = static_cast<ComponentData *>(evData);
         Q_ASSERT(cData != nullptr);
+        t_event->accept();
 
         if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName)
         {
@@ -604,7 +605,6 @@ namespace VeinLogger
           {
             retVal = openDatabase(cData->newValue().toString());
           }
-          t_event->accept();
 
           VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
           dbFileNameCData->setEntityId(DataLoggerPrivate::s_entityId);
@@ -618,13 +618,11 @@ namespace VeinLogger
         }
         else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
         {
-          cEvent->accept();
           retVal = true;
           setLoggingEnabled(cData->newValue().toBool());
         }
         else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName)
         {
-          cEvent->accept();
           //do not accept values that are already set
           if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState))
           {
@@ -644,7 +642,6 @@ namespace VeinLogger
         {
           bool invalidTime = false;
           const QTime tmpTime = QTime::fromString(cData->newValue().toString(), "hh:mm:ss");
-          cEvent->accept();
 
           if(tmpTime.isValid() == false)
           {

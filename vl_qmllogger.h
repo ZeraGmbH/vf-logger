@@ -30,13 +30,14 @@ namespace VeinLogger
     void stopLogging();
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
     void removeLoggerEntry(int t_entityId, const QString &t_componentName);
+    void clearLoggerEntries();
     void setRecordName(QString t_recordName);
-    void setInitializeValues(bool initializeValues);
+    void setInitializeValues(bool t_initializeValues);
 
   signals:
     void recordNameChanged(QString t_recordName);
     void loggingEnabledChanged(bool t_loggingEnabled);
-    void initializeValuesChanged(bool initializeValues);
+    void initializeValuesChanged(bool t_initializeValues);
 
   private:
     static DatabaseLogger *s_dbLogger;
