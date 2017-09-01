@@ -523,10 +523,10 @@ namespace VeinLogger
       connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
       connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
 
-      m_dPtr->m_databaseFilePath = t_filePath;
       emit sigOpenDatabase(t_filePath);
     }
 
+    m_dPtr->m_databaseFilePath = t_filePath;
     return validStorage;
   }
 
@@ -601,7 +601,7 @@ namespace VeinLogger
 
         if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName)
         {
-          if((m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_database->databasePath()))
+          if((m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath))
           {
             retVal = openDatabase(cData->newValue().toString());
           }
