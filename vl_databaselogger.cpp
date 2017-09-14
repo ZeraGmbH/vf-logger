@@ -50,7 +50,7 @@ namespace VeinLogger
 
         emit m_qPtr->sigSendEvent(systemEvent);
 
-        VeinComponent::ComponentData *introspectionData = nullptr;
+        VeinComponent::ComponentData *initialData = nullptr;
 
         QHash<QString, QVariant> componentData;
         componentData.insert(s_entityNameComponentName, s_entityName);
@@ -67,18 +67,19 @@ namespace VeinLogger
         componentData.insert(s_filesystemTotalComponentName, QVariant(0.0));
         componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
         componentData.insert(s_scheduledLoggingDurationComponentName, QVariant(QString("")));
+        componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
 
         for(const QString &componentName : componentData.keys())
         {
-          introspectionData = new VeinComponent::ComponentData();
-          introspectionData->setEntityId(s_entityId);
-          introspectionData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
-          introspectionData->setComponentName(componentName);
-          introspectionData->setNewValue(componentData.value(componentName));
-          introspectionData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-          introspectionData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+          initialData = new VeinComponent::ComponentData();
+          initialData->setEntityId(s_entityId);
+          initialData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
+          initialData->setComponentName(componentName);
+          initialData->setNewValue(componentData.value(componentName));
+          initialData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+          initialData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-          systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, introspectionData);
+          systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, initialData);
           emit m_qPtr->sigSendEvent(systemEvent);
         }
 
@@ -334,6 +335,22 @@ namespace VeinLogger
       }
     }
 
+    void updateSchedulerCountdown()
+    {
+      if(m_schedulingTimer.isActive())
+      {
+        VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
+        schedulerCountdownCData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        schedulerCountdownCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingCountdownComponentName);
+        schedulerCountdownCData->setNewValue(QVariant(m_schedulingTimer.remainingTime()));
+        schedulerCountdownCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        schedulerCountdownCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulerCountdownCData));
+      }
+    }
+
     /**
      * @brief The logging is implemented via interpreted scripts that state which values to log
      * @see vl_qmllogger.cpp
@@ -358,6 +375,7 @@ namespace VeinLogger
     QTimer m_batchedExecutionTimer;
     QTime m_scheduledLoggingDuration;
     QTimer m_schedulingTimer;
+    QTimer m_countdownUpdateTimer;
     bool m_initDone=false;
     QString m_loggerStatusText="Logging inactive";
 
@@ -378,6 +396,7 @@ namespace VeinLogger
     static constexpr char const *s_filesystemTotalComponentName = "FilesystemTotal";
     static constexpr char const *s_scheduledLoggingEnabledComponentName = "ScheduledLoggingEnabled";
     static constexpr char const *s_scheduledLoggingDurationComponentName = "ScheduledLoggingDuration";
+    static constexpr char const *s_scheduledLoggingCountdownComponentName = "ScheduledLoggingCountdown";
 
 
     QStateMachine m_stateMachine;
@@ -404,6 +423,7 @@ namespace VeinLogger
     m_dPtr->m_dataSource=t_dataSource;
     m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
+    m_dPtr->m_countdownUpdateTimer.setInterval(100);
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]()
@@ -417,6 +437,11 @@ namespace VeinLogger
     connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, [this]()
     {
       setLoggingEnabled(false);
+    });
+
+    connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, [this]()
+    {
+      m_dPtr->updateSchedulerCountdown();
     });
   }
 
@@ -482,12 +507,14 @@ namespace VeinLogger
         if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState))
         {
           m_dPtr->m_schedulingTimer.start();
+          m_dPtr->m_countdownUpdateTimer.start();
         }
         emit sigLoggingStarted();
       }
       else
       {
         m_dPtr->m_schedulingTimer.stop();
+        m_dPtr->m_countdownUpdateTimer.stop();
         emit sigLoggingStopped();
       }
       emit sigLoggingEnabledChanged(t_enabled);
