@@ -66,7 +66,7 @@ namespace VeinLogger
         componentData.insert(s_filesystemFreeComponentName, QVariant(0.0));
         componentData.insert(s_filesystemTotalComponentName, QVariant(0.0));
         componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
-        componentData.insert(s_scheduledLoggingDurationComponentName, QVariant(QString("")));
+        componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
         componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
 
         for(const QString &componentName : componentData.keys())
@@ -373,7 +373,10 @@ namespace VeinLogger
      * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
      */
     QTimer m_batchedExecutionTimer;
-    QTime m_scheduledLoggingDuration;
+    /**
+     * @brief logging duration in ms
+     */
+    int m_scheduledLoggingDuration;
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
     bool m_initDone=false;
@@ -668,17 +671,14 @@ namespace VeinLogger
         else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingDurationComponentName)
         {
           bool invalidTime = false;
-          const QTime tmpTime = QTime::fromString(cData->newValue().toString(), "hh:mm:ss");
+          bool conversionOk = false;
+          const int logDurationMsecs = cData->newValue().toInt(&conversionOk);
+          invalidTime = !conversionOk;
 
-          if(tmpTime.isValid() == false)
+          if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration)
           {
-            invalidTime = true;
-          }
-          else if(tmpTime != m_dPtr->m_scheduledLoggingDuration)
-          {
-            const int logDurationMsecs = QTime::fromString("00:00:00", "hh:mm:ss").msecsTo(tmpTime);
             retVal = true;
-            m_dPtr->m_scheduledLoggingDuration = tmpTime;
+            m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
             if(logDurationMsecs > 0)
             {
               m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
