@@ -52,7 +52,7 @@ namespace VeinLogger
     void runBatchedExecution();
 
   private:
-    QString convertDoubleArrayToString(QVariant t_value);
+    template <class T> QString convertListToString(QVariant t_value);
 
     DBPrivate *m_dPtr=0;
   };

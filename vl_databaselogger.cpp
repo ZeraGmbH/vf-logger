@@ -382,9 +382,15 @@ namespace VeinLogger
     bool m_initDone=false;
     QString m_loggerStatusText="Logging inactive";
 
+#ifndef VF_BINARY_RECORDER
     static constexpr int s_entityId = 2;
     //entity name
     static constexpr char const *s_entityName = "_LoggingSystem";
+#else
+    static constexpr int s_entityId = 200;
+    //entity name
+    static constexpr char const *s_entityName = "_BinaryLoggingSystem";
+#endif
     //component names
     static constexpr char const *s_entityNameComponentName = "EntityName";
     static constexpr char const *s_loggingStatusTextComponentName = "LoggingStatus";
@@ -622,12 +628,12 @@ namespace VeinLogger
         }
       }
       else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
+              evData->type() == ComponentData::dataType() &&
               evData->entityId() == DataLoggerPrivate::s_entityId)
       {
         ComponentData *cData=nullptr;
         cData = static_cast<ComponentData *>(evData);
         Q_ASSERT(cData != nullptr);
-        t_event->accept();
 
         if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName)
         {
@@ -713,6 +719,7 @@ namespace VeinLogger
             sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
           }
         }
+        t_event->accept();
       }
     }
     return retVal;

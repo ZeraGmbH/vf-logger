@@ -410,13 +410,16 @@ namespace VeinLogger
         }
         tmpTimestamps.append(entry.timestamp);
 
+#ifndef VF_BINARY_RECORDER
         switch(static_cast<QMetaType::Type>(entry.value.type())) //see http://stackoverflow.com/questions/31290606/qmetatypefloat-not-in-qvarianttype
         {
+          case QMetaType::Bool:
           case QMetaType::Float:
           case QMetaType::Double:
           case QMetaType::Int:
           case QMetaType::UInt:
           case QMetaType::Long:
+          case QMetaType::LongLong:
           case QMetaType::QString:
           {
             tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value);
@@ -424,23 +427,48 @@ namespace VeinLogger
           }
           case QMetaType::QByteArray:
           {
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString::fromUtf8(entry.value.value<QByteArray>()));
+            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value());
+            break;
+          }
+          case QMetaType::QVariant:
+          {
+            //try to store as string
+            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value.toString());
+          }
+          case QMetaType::QVariantMap:
+          {
+            QJsonDocument tmpDoc;
+            tmpDoc.setObject(QJsonObject::fromVariantMap(entry.value.toMap()));
+            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString::fromUtf8(tmpDoc.toJson()));
             break;
           }
           default:
           {
-            int tmpDataType = QMetaType::type(entry.value.typeName());
+            const int tmpDataType = QMetaType::type(entry.value.typeName());
+
 
             if(tmpDataType == QMetaType::type("QList<double>")) //store as double list
             {
-              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertDoubleArrayToString(entry.value));
+              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertListToString<QList<double> >(entry.value));
+            }
+            else if(tmpDataType == QMetaType::type("QList<int>")) //store as int list
+            {
+              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertListToString<QList<int> >(entry.value));
+            }
+            else if(tmpDataType == QMetaType::type("QStringList") || tmpDataType == QMetaType::type("QList<QString>")) //store as string
+            {
+              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value.toStringList().join(';'));
+            }
+            else if(entry.value.isValid() == false)
+            {
+              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString()); //log empty value
             }
 #if 0
-            else if(entry.value.canConvert(QMetaType::QString) && entry.value.toString().isEmpty() == false) //last resort try to store as string
+              else if(entry.value.canConvert(QMetaType::QString) && entry.value.toString().isEmpty() == false) //last resort try to store as string
             {
-              tmpStringValues.insert(nextValuemapId, entry.value.toString());
+              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value.toString());
             }
-#endif
+#endif //0
             else
             {
               emit sigDatabaseError(QString("(VeinLogger) Datatype cannot be stored in DB Entity: %1 Component: %2 Type: %3")
@@ -451,6 +479,15 @@ namespace VeinLogger
             break;
           }
         }
+#else //#ifndef VF_BINARY_RECORDER
+        QByteArray tmpData;
+        QDataStream dataWriter(&tmpData, QIODevice::WriteOnly);
+        dataWriter.device()->seek(0);
+        dataWriter.setVersion(QDataStream::Qt_5_0);
+        dataWriter << entry.value;
+        tmpValues.insert(m_dPtr->m_valueMapQueryCounter, tmpData);
+
+#endif //#ifndef VF_BINARY_RECORDER
 
         ++m_dPtr->m_valueMapQueryCounter;
       }
@@ -496,10 +533,10 @@ namespace VeinLogger
     }
   }
 
-  QString SQLiteDB::convertDoubleArrayToString(QVariant t_value)
+  template <class T> QString SQLiteDB::convertListToString(QVariant t_value)
   {
     QString doubleListValue;
-    const QList<double> tmpDoubleList = t_value.value<QList<double>>();
+    const T tmpDoubleList = t_value.value<T>();
 
     QStringList tmpResult;
     for( const double var : tmpDoubleList )
