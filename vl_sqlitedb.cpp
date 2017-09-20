@@ -421,13 +421,9 @@ namespace VeinLogger
           case QMetaType::Long:
           case QMetaType::LongLong:
           case QMetaType::QString:
-          {
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value);
-            break;
-          }
           case QMetaType::QByteArray:
           {
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value());
+            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value);
             break;
           }
           case QMetaType::QVariant:
