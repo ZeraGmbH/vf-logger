@@ -11,9 +11,92 @@ namespace VeinLogger
 
   class DBPrivate
   {
-    DBPrivate(SQLiteDB *t_qPtr) : m_qPtr(t_qPtr)
+
+    DBPrivate(SQLiteDB::STORAGE_MODE t_storageMode, SQLiteDB *t_qPtr) :
+      m_storageMode(t_storageMode),
+      m_qPtr(t_qPtr)
     {
 
+    }
+
+    QVariant getTextRepresentation(const QVariant &t_value) const
+    {
+      QVariant retVal;
+      switch(static_cast<QMetaType::Type>(t_value.type())) //see http://stackoverflow.com/questions/31290606/qmetatypefloat-not-in-qvarianttype
+      {
+        case QMetaType::Bool:
+        case QMetaType::Float:
+        case QMetaType::Double:
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::Long:
+        case QMetaType::LongLong:
+        case QMetaType::QString:
+        case QMetaType::QByteArray:
+        {
+          retVal = t_value;
+          break;
+        }
+        case QMetaType::QVariant:
+        {
+          //try to store as string
+          retVal = t_value.toString();
+          break;
+        }
+        case QMetaType::QVariantMap:
+        {
+          QJsonDocument tmpDoc;
+          tmpDoc.setObject(QJsonObject::fromVariantMap(t_value.toMap()));
+          retVal = QString::fromUtf8(tmpDoc.toJson());
+          break;
+        }
+        default:
+        {
+          const int tmpDataType = QMetaType::type(t_value.typeName());
+
+
+          if(tmpDataType == QMetaType::type("QList<double>")) //store as double list
+          {
+            retVal = convertListToString<QList<double> >(t_value);
+          }
+          else if(tmpDataType == QMetaType::type("QList<int>")) //store as int list
+          {
+            retVal = convertListToString<QList<int> >(t_value);
+          }
+          else if(tmpDataType == QMetaType::type("QStringList") || tmpDataType == QMetaType::type("QList<QString>")) //store as string
+          {
+            retVal = t_value.toStringList().join(';');
+          }
+          break;
+        }
+      }
+      return retVal;
+    }
+
+    QByteArray getBinaryRepresentation(const QVariant &t_value) const
+    {
+      QByteArray tmpData;
+      QDataStream dataWriter(&tmpData, QIODevice::WriteOnly);
+      dataWriter.device()->seek(0);
+      dataWriter.setVersion(QDataStream::Qt_5_0);
+      dataWriter << t_value;
+
+      return tmpData;
+    }
+
+    template <class T> QString convertListToString(QVariant t_value) const
+    {
+      QString doubleListValue;
+      const T tmpDoubleList = t_value.value<T>();
+
+      QStringList tmpResult;
+      for( const double var : tmpDoubleList )
+      {
+        tmpResult.append(QString::number(var));
+      }
+      doubleListValue = QString("%1").arg(tmpResult.join(';'));
+
+      return doubleListValue;
     }
 
     QHash<QString, int> m_recordIds;
@@ -38,12 +121,14 @@ namespace VeinLogger
 
     QSqlDatabase m_logDB;
 
+    SQLiteDB::STORAGE_MODE m_storageMode=SQLiteDB::STORAGE_MODE::TEXT;
+
     SQLiteDB *m_qPtr=0;
 
     friend class SQLiteDB;
   };
 
-  SQLiteDB::SQLiteDB(QObject *t_parent) : QObject(t_parent), m_dPtr(new DBPrivate(this))
+  SQLiteDB::SQLiteDB(STORAGE_MODE t_storageMode, QObject *t_parent) : QObject(t_parent), m_dPtr(new DBPrivate(t_storageMode, this))
   {
     m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE", "VFLogDB"); //default database
     connect(this, &SQLiteDB::sigDatabaseError, [](const QString &t_error){
@@ -398,8 +483,8 @@ namespace VeinLogger
       QMultiMap<QVariant, QVariant> tmpRecordIds; //record_id, valuemap_id
       QMap<int, QVariant> tmpValues; //valuemap_id, component_value
 
-      for(const SQLBatchData entry : m_dPtr->m_batchVector)
-      {
+      //code that is used in both loops
+      const auto commonCode = [&](const SQLBatchData &entry) {
         tmpValuemapIds.append(m_dPtr->m_valueMapQueryCounter);
         tmpEntityIds.append(entry.entityId);
         tmpComponentIds.append(entry.componentId);
@@ -409,84 +494,26 @@ namespace VeinLogger
           tmpRecordIds.insert(currentRecordId, m_dPtr->m_valueMapQueryCounter);
         }
         tmpTimestamps.append(entry.timestamp);
-
-#ifndef VF_BINARY_RECORDER
-        switch(static_cast<QMetaType::Type>(entry.value.type())) //see http://stackoverflow.com/questions/31290606/qmetatypefloat-not-in-qvarianttype
-        {
-          case QMetaType::Bool:
-          case QMetaType::Float:
-          case QMetaType::Double:
-          case QMetaType::Int:
-          case QMetaType::UInt:
-          case QMetaType::Long:
-          case QMetaType::LongLong:
-          case QMetaType::QString:
-          case QMetaType::QByteArray:
-          {
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value);
-            break;
-          }
-          case QMetaType::QVariant:
-          {
-            //try to store as string
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value.toString());
-          }
-          case QMetaType::QVariantMap:
-          {
-            QJsonDocument tmpDoc;
-            tmpDoc.setObject(QJsonObject::fromVariantMap(entry.value.toMap()));
-            tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString::fromUtf8(tmpDoc.toJson()));
-            break;
-          }
-          default:
-          {
-            const int tmpDataType = QMetaType::type(entry.value.typeName());
-
-
-            if(tmpDataType == QMetaType::type("QList<double>")) //store as double list
-            {
-              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertListToString<QList<double> >(entry.value));
-            }
-            else if(tmpDataType == QMetaType::type("QList<int>")) //store as int list
-            {
-              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, convertListToString<QList<int> >(entry.value));
-            }
-            else if(tmpDataType == QMetaType::type("QStringList") || tmpDataType == QMetaType::type("QList<QString>")) //store as string
-            {
-              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value.toStringList().join(';'));
-            }
-            else if(entry.value.isValid() == false)
-            {
-              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, QString()); //log empty value
-            }
-#if 0
-              else if(entry.value.canConvert(QMetaType::QString) && entry.value.toString().isEmpty() == false) //last resort try to store as string
-            {
-              tmpValues.insert(m_dPtr->m_valueMapQueryCounter, entry.value.toString());
-            }
-#endif //0
-            else
-            {
-              emit sigDatabaseError(QString("(VeinLogger) Datatype cannot be stored in DB Entity: %1 Component: %2 Type: %3")
-                                    .arg(entry.entityId)
-                                    .arg(m_dPtr->m_componentIds.key(entry.componentId))
-                                    .arg(entry.value.typeName()));
-            }
-            break;
-          }
-        }
-#else //#ifndef VF_BINARY_RECORDER
-        QByteArray tmpData;
-        QDataStream dataWriter(&tmpData, QIODevice::WriteOnly);
-        dataWriter.device()->seek(0);
-        dataWriter.setVersion(QDataStream::Qt_5_0);
-        dataWriter << entry.value;
-        tmpValues.insert(m_dPtr->m_valueMapQueryCounter, tmpData);
-
-#endif //#ifndef VF_BINARY_RECORDER
-
         ++m_dPtr->m_valueMapQueryCounter;
+      };
+
+      if(m_dPtr->m_storageMode == SQLiteDB::STORAGE_MODE::TEXT)
+      {
+        for(const SQLBatchData &entry : qAsConst(m_dPtr->m_batchVector))
+        {
+          tmpValues.insert(m_dPtr->m_valueMapQueryCounter, m_dPtr->getTextRepresentation(entry.value)); //store as text
+          commonCode(entry);
+        }
       }
+      else if(m_dPtr->m_storageMode == SQLiteDB::STORAGE_MODE::BINARY)
+      {
+        for(const SQLBatchData &entry : qAsConst(m_dPtr->m_batchVector))
+        {
+          tmpValues.insert(m_dPtr->m_valueMapQueryCounter, m_dPtr->getBinaryRepresentation(entry.value)); //store as binary
+          commonCode(entry);
+        }
+      }
+
       if(m_dPtr->m_logDB.transaction() == true)
       {
         //valuemap_id, entity_id, component_id, value_timestamp
@@ -527,20 +554,5 @@ namespace VeinLogger
       }
       m_dPtr->m_batchVector.clear();
     }
-  }
-
-  template <class T> QString SQLiteDB::convertListToString(QVariant t_value)
-  {
-    QString doubleListValue;
-    const T tmpDoubleList = t_value.value<T>();
-
-    QStringList tmpResult;
-    for( const double var : tmpDoubleList )
-    {
-      tmpResult.append(QString::number(var));
-    }
-    doubleListValue = QString("%1").arg(tmpResult.join(';'));
-
-    return doubleListValue;
   }
 } // namespace VeinLogger

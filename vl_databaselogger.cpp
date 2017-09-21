@@ -1,5 +1,4 @@
 #include "vl_databaselogger.h"
-#include "vl_sqlitedb.h"
 #include "vl_datasource.h"
 #include "vl_qmllogger.h"
 
@@ -423,16 +422,21 @@ namespace VeinLogger
     QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
     QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
 
+    SQLiteDB::STORAGE_MODE m_storageMode;
+
     DatabaseLogger *m_qPtr=nullptr;
     friend class DatabaseLogger;
   };
 
-  DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, QObject *t_parent) : VeinEvent::EventSystem(t_parent), m_dPtr(new DataLoggerPrivate(this))
+  DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, QObject *t_parent, SQLiteDB::STORAGE_MODE t_storageMode) :
+    VeinEvent::EventSystem(t_parent),
+    m_dPtr(new DataLoggerPrivate(this))
   {
     m_dPtr->m_dataSource=t_dataSource;
     m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
     m_dPtr->m_countdownUpdateTimer.setInterval(100);
+    m_dPtr->m_storageMode=t_storageMode;
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]()
@@ -530,7 +534,7 @@ namespace VeinLogger
     }
   }
 
-  bool DatabaseLogger::openDatabase(const QString &t_filePath)
+  bool DatabaseLogger::openDatabase(const QString &t_filePath, SQLiteDB::STORAGE_MODE t_storageMode)
   {
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath) && m_dPtr->checkDBStorageLocation(t_filePath);
 
@@ -545,7 +549,7 @@ namespace VeinLogger
       }
       m_dPtr->m_asyncDatabaseThread.quit();
       m_dPtr->m_asyncDatabaseThread.wait();
-      m_dPtr->m_database=new SQLiteDB();
+      m_dPtr->m_database=new SQLiteDB(t_storageMode);
       m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
       m_dPtr->m_asyncDatabaseThread.start();
 
@@ -639,7 +643,7 @@ namespace VeinLogger
         {
           if((m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath))
           {
-            retVal = openDatabase(cData->newValue().toString());
+            retVal = openDatabase(cData->newValue().toString(), m_dPtr->m_storageMode);
           }
 
           VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();

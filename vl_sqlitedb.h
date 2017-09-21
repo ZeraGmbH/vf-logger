@@ -26,7 +26,12 @@ namespace VeinLogger
   {
     Q_OBJECT
   public:
-    explicit SQLiteDB(QObject *t_parent = 0);
+    enum class STORAGE_MODE : int {
+      TEXT = 0,
+      BINARY = 1,
+    };
+
+    explicit SQLiteDB(SQLiteDB::STORAGE_MODE t_storageMode, QObject *t_parent = 0);
     ~SQLiteDB();
 
     bool hasEntityId(int t_entityId) const;
@@ -52,8 +57,6 @@ namespace VeinLogger
     void runBatchedExecution();
 
   private:
-    template <class T> QString convertListToString(QVariant t_value);
-
     DBPrivate *m_dPtr=0;
   };
 
