@@ -2,9 +2,10 @@
 #define VL_DATALOGGER_H
 
 #include "vein-logger_global.h"
-#include "vl_sqlitedb.h"
+#include "vl_abstractloggerdb.h"
 #include <ve_eventsystem.h>
 #include <QDateTime>
+#include <functional>
 
 namespace VeinLogger
 {
@@ -17,13 +18,12 @@ namespace VeinLogger
     Q_OBJECT
 
   public:
-    explicit DatabaseLogger(DataSource *t_dataSource, QObject *t_parent=0, SQLiteDB::STORAGE_MODE t_storageMode=SQLiteDB::STORAGE_MODE::TEXT);
+    explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=0, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
     void addScript(QmlLogger *t_script);
     void removeScript(QmlLogger *t_script);
     void addValueToLog(const QString &t_recordName, int t_entityId, const QString &t_componentName);
     bool loggingEnabled() const;
-    static int entityId();
 
   signals:
     void sigAddLoggedValue(QVector<QString> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
@@ -43,7 +43,7 @@ namespace VeinLogger
 
   public slots:
     void setLoggingEnabled(bool t_enabled);
-    bool openDatabase(const QString &t_filePath, SQLiteDB::STORAGE_MODE t_storageMode);
+    bool openDatabase(const QString &t_filePath);
 
     // EventSystem interface
   public:

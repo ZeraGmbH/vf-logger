@@ -12,8 +12,7 @@ namespace VeinLogger
   class DBPrivate
   {
 
-    DBPrivate(SQLiteDB::STORAGE_MODE t_storageMode, SQLiteDB *t_qPtr) :
-      m_storageMode(t_storageMode),
+    DBPrivate(SQLiteDB *t_qPtr) :
       m_qPtr(t_qPtr)
     {
 
@@ -128,7 +127,7 @@ namespace VeinLogger
     friend class SQLiteDB;
   };
 
-  SQLiteDB::SQLiteDB(STORAGE_MODE t_storageMode, QObject *t_parent) : QObject(t_parent), m_dPtr(new DBPrivate(t_storageMode, this))
+  SQLiteDB::SQLiteDB(QObject *t_parent) : AbstractLoggerDB(t_parent), m_dPtr(new DBPrivate(this))
   {
     m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE", "VFLogDB"); //default database
     connect(this, &SQLiteDB::sigDatabaseError, [](const QString &t_error){
@@ -167,6 +166,19 @@ namespace VeinLogger
   QString SQLiteDB::databasePath() const
   {
     return m_dPtr->m_logDB.databaseName();
+  }
+
+  void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode)
+  {
+    if(m_dPtr->m_storageMode != t_storageMode)
+    {
+      m_dPtr->m_storageMode = t_storageMode;
+    }
+  }
+
+  AbstractLoggerDB::STORAGE_MODE SQLiteDB::getStorageMode() const
+  {
+    return m_dPtr->m_storageMode;
   }
 
   void SQLiteDB::initLocalData()

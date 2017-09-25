@@ -4,7 +4,6 @@
 
 #include <QHash>
 #include <QThread>
-#include <QCoreApplication>
 #include <QTimer>
 #include <QStateMachine>
 #include <QStorageInfo>
@@ -43,7 +42,7 @@ namespace VeinLogger
       {
         VeinComponent::EntityData *systemData = new VeinComponent::EntityData();
         systemData->setCommand(VeinComponent::EntityData::Command::ECMD_ADD);
-        systemData->setEntityId(s_entityId);
+        systemData->setEntityId(m_entityId);
 
         VeinEvent::CommandEvent *systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, systemData);
 
@@ -52,7 +51,7 @@ namespace VeinLogger
         VeinComponent::ComponentData *initialData = nullptr;
 
         QHash<QString, QVariant> componentData;
-        componentData.insert(s_entityNameComponentName, s_entityName);
+        componentData.insert(s_entityNameComponentName, m_entityName);
         componentData.insert(s_loggingEnabledComponentName, QVariant(false));
         componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("Logging inactive")));
         ///@todo load from persistent settings file?
@@ -71,7 +70,7 @@ namespace VeinLogger
         for(const QString &componentName : componentData.keys())
         {
           initialData = new VeinComponent::ComponentData();
-          initialData->setEntityId(s_entityId);
+          initialData->setEntityId(m_entityId);
           initialData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
           initialData->setComponentName(componentName);
           initialData->setNewValue(componentData.value(componentName));
@@ -96,7 +95,7 @@ namespace VeinLogger
 
 
         VeinComponent::ComponentData *schedulingEnabledData = new VeinComponent::ComponentData();
-        schedulingEnabledData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulingEnabledData->setEntityId(m_entityId);
         schedulingEnabledData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulingEnabledData->setComponentName(DataLoggerPrivate::s_loggingStatusTextComponentName);
         schedulingEnabledData->setNewValue(t_status);
@@ -135,7 +134,7 @@ namespace VeinLogger
 
       QObject::connect(m_databaseReadyState, &QState::entered, [&](){
         VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
-        databaseReadyCData->setEntityId(DataLoggerPrivate::s_entityId);
+        databaseReadyCData->setEntityId(m_entityId);
         databaseReadyCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         databaseReadyCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
         databaseReadyCData->setNewValue(true);
@@ -149,7 +148,7 @@ namespace VeinLogger
       QObject::connect(m_databaseErrorState, &QState::entered, [&](){
         qDebug() << "Entered m_databaseErrorState";
         VeinComponent::ComponentData *databaseErrorCData = new VeinComponent::ComponentData();
-        databaseErrorCData->setEntityId(DataLoggerPrivate::s_entityId);
+        databaseErrorCData->setEntityId(m_entityId);
         databaseErrorCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         databaseErrorCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
         databaseErrorCData->setNewValue(false);
@@ -162,7 +161,7 @@ namespace VeinLogger
       });
       QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
-        loggingEnabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        loggingEnabledCData->setEntityId(m_entityId);
         loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
         loggingEnabledCData->setNewValue(true);
@@ -174,7 +173,7 @@ namespace VeinLogger
       });
       QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *loggingDisabledCData = new VeinComponent::ComponentData();
-        loggingDisabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        loggingDisabledCData->setEntityId(m_entityId);
         loggingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         loggingDisabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
         loggingDisabledCData->setNewValue(false);
@@ -189,7 +188,7 @@ namespace VeinLogger
       });
       QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
-        schedulingEnabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulingEnabledCData->setEntityId(m_entityId);
         schedulingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulingEnabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
         schedulingEnabledCData->setNewValue(true);
@@ -200,7 +199,7 @@ namespace VeinLogger
       });
       QObject::connect(m_logSchedulerDisabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingDisabledCData = new VeinComponent::ComponentData();
-        schedulingDisabledCData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulingDisabledCData->setEntityId(m_entityId);
         schedulingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulingDisabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
         schedulingDisabledCData->setNewValue(false);
@@ -243,7 +242,7 @@ namespace VeinLogger
             for(const QString &componentName : storageInfo.keys())
             {
               storageCData= new VeinComponent::ComponentData();
-              storageCData->setEntityId(DataLoggerPrivate::s_entityId);
+              storageCData->setEntityId(m_entityId);
               storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
               storageCData->setComponentName(componentName);
               storageCData->setNewValue(storageInfo.value(componentName));
@@ -305,7 +304,7 @@ namespace VeinLogger
         for(const QString &componentName : fileInfoData.keys())
         {
           storageCData= new VeinComponent::ComponentData();
-          storageCData->setEntityId(DataLoggerPrivate::s_entityId);
+          storageCData->setEntityId(m_entityId);
           storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
           storageCData->setComponentName(componentName);
           storageCData->setNewValue(fileInfoData.value(componentName));
@@ -323,7 +322,7 @@ namespace VeinLogger
       if(fInfo.exists())
       {
         VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
-        storageCData->setEntityId(DataLoggerPrivate::s_entityId);
+        storageCData->setEntityId(m_entityId);
         storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         storageCData->setComponentName(DataLoggerPrivate::s_databaseFileSizeComponentName);
         storageCData->setNewValue(QVariant(fInfo.size()));
@@ -339,7 +338,7 @@ namespace VeinLogger
       if(m_schedulingTimer.isActive())
       {
         VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
-        schedulerCountdownCData->setEntityId(DataLoggerPrivate::s_entityId);
+        schedulerCountdownCData->setEntityId(m_entityId);
         schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulerCountdownCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingCountdownComponentName);
         schedulerCountdownCData->setNewValue(QVariant(m_schedulingTimer.remainingTime()));
@@ -359,7 +358,8 @@ namespace VeinLogger
     /**
      * @brief The actual database choice is an implementation detail of the DatabaseLogger
      */
-    SQLiteDB *m_database=nullptr;
+    AbstractLoggerDB *m_database=nullptr;
+    DBFactory m_databaseFactory;
     QString m_databaseFilePath;
     DataSource *m_dataSource=nullptr;
 
@@ -381,15 +381,10 @@ namespace VeinLogger
     bool m_initDone=false;
     QString m_loggerStatusText="Logging inactive";
 
-#ifndef VF_BINARY_RECORDER
-    static constexpr int s_entityId = 2;
+
+    int m_entityId;
     //entity name
-    static constexpr char const *s_entityName = "_LoggingSystem";
-#else
-    static constexpr int s_entityId = 200;
-    //entity name
-    static constexpr char const *s_entityName = "_BinaryLoggingSystem";
-#endif
+    char const *m_entityName;
     //component names
     static constexpr char const *s_entityNameComponentName = "EntityName";
     static constexpr char const *s_loggingStatusTextComponentName = "LoggingStatus";
@@ -422,13 +417,13 @@ namespace VeinLogger
     QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
     QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
 
-    SQLiteDB::STORAGE_MODE m_storageMode;
+    AbstractLoggerDB::STORAGE_MODE m_storageMode;
 
     DatabaseLogger *m_qPtr=nullptr;
     friend class DatabaseLogger;
   };
 
-  DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, QObject *t_parent, SQLiteDB::STORAGE_MODE t_storageMode) :
+  DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
     m_dPtr(new DataLoggerPrivate(this))
   {
@@ -436,7 +431,24 @@ namespace VeinLogger
     m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
     m_dPtr->m_countdownUpdateTimer.setInterval(100);
+    m_dPtr->m_databaseFactory = t_factoryFunction;
     m_dPtr->m_storageMode=t_storageMode;
+    switch(t_storageMode)
+    {
+      case AbstractLoggerDB::STORAGE_MODE::TEXT:
+      {
+        m_dPtr->m_entityId = 2;
+        m_dPtr->m_entityName = "_LoggingSystem";
+        break;
+      }
+      case AbstractLoggerDB::STORAGE_MODE::BINARY:
+      {
+        //use different id and entity name
+        m_dPtr->m_entityId = 200;
+        m_dPtr->m_entityName = "_BinaryLoggingSystem";
+        break;
+      }
+    }
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]()
@@ -503,11 +515,6 @@ namespace VeinLogger
     return m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingEnabledState);
   }
 
-  int DatabaseLogger::entityId()
-  {
-    return DataLoggerPrivate::s_entityId;
-  }
-
   void DatabaseLogger::setLoggingEnabled(bool t_enabled)
   {
     //do not accept values that are already set
@@ -534,7 +541,7 @@ namespace VeinLogger
     }
   }
 
-  bool DatabaseLogger::openDatabase(const QString &t_filePath, SQLiteDB::STORAGE_MODE t_storageMode)
+  bool DatabaseLogger::openDatabase(const QString &t_filePath)
   {
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath) && m_dPtr->checkDBStorageLocation(t_filePath);
 
@@ -549,7 +556,8 @@ namespace VeinLogger
       }
       m_dPtr->m_asyncDatabaseThread.quit();
       m_dPtr->m_asyncDatabaseThread.wait();
-      m_dPtr->m_database=new SQLiteDB(t_storageMode);
+      m_dPtr->m_database=m_dPtr->m_databaseFactory();//new SQLiteDB(t_storageMode);
+      m_dPtr->m_database->setStorageMode(m_dPtr->m_storageMode);
       m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
       m_dPtr->m_asyncDatabaseThread.start();
 
@@ -633,7 +641,7 @@ namespace VeinLogger
       }
       else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
               evData->type() == ComponentData::dataType() &&
-              evData->entityId() == DataLoggerPrivate::s_entityId)
+              evData->entityId() == m_dPtr->m_entityId)
       {
         ComponentData *cData=nullptr;
         cData = static_cast<ComponentData *>(evData);
@@ -643,11 +651,11 @@ namespace VeinLogger
         {
           if((m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath))
           {
-            retVal = openDatabase(cData->newValue().toString(), m_dPtr->m_storageMode);
+            retVal = openDatabase(cData->newValue().toString());
           }
 
           VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
-          dbFileNameCData->setEntityId(DataLoggerPrivate::s_entityId);
+          dbFileNameCData->setEntityId(m_dPtr->m_entityId);
           dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
           dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
           dbFileNameCData->setNewValue(cData->newValue());
@@ -697,7 +705,7 @@ namespace VeinLogger
                 m_dPtr->m_schedulingTimer.start(); //restart timer
               }
               VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
-              schedulingDurationData->setEntityId(DataLoggerPrivate::s_entityId);
+              schedulingDurationData->setEntityId(m_dPtr->m_entityId);
               schedulingDurationData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
               schedulingDurationData->setComponentName(DataLoggerPrivate::s_scheduledLoggingDurationComponentName);
               schedulingDurationData->setNewValue(cData->newValue());
@@ -714,7 +722,7 @@ namespace VeinLogger
           if(invalidTime)
           {
             VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
-            errData->setEntityId(DataLoggerPrivate::s_entityId);
+            errData->setEntityId(m_dPtr->m_entityId);
             errData->setOriginalData(cData);
             errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
             errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
