@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QDateTime>
 #include <QVariant>
+#include <functional>
 
 namespace VeinLogger
 {

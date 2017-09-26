@@ -5,7 +5,6 @@
 #include "vl_abstractloggerdb.h"
 #include <ve_eventsystem.h>
 #include <QDateTime>
-#include <functional>
 
 namespace VeinLogger
 {
