@@ -185,6 +185,8 @@ namespace VeinLogger
         {
           setStatusText("Logging disabled");
         }
+        m_batchedExecutionTimer.stop();
+        updateDBFileSizeInfo();
       });
       QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
@@ -570,6 +572,8 @@ namespace VeinLogger
       connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
       connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
       connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
+      //run final batch instantly when logging is disabled
+      connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
 
       emit sigOpenDatabase(t_filePath);
     }
