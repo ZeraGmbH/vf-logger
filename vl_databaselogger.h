@@ -34,6 +34,7 @@ namespace VeinLogger
 
     void sigDatabaseError(const QString &t_errorString);
     void sigDatabaseReady();
+    void sigDatabaseUnloaded();
     void sigLoggingEnabledChanged(bool t_enabled);
     void sigLoggingStarted();
     void sigLoggingStopped();
@@ -43,6 +44,7 @@ namespace VeinLogger
   public slots:
     void setLoggingEnabled(bool t_enabled);
     bool openDatabase(const QString &t_filePath);
+    void closeDatabase();
 
     // EventSystem interface
   public:

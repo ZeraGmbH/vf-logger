@@ -119,6 +119,8 @@ namespace VeinLogger
       m_databaseUninitializedState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseError, m_databaseErrorState);
       //ready -> error
       m_databaseReadyState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseError, m_databaseErrorState);
+      //ready -> uninitialized
+      m_databaseReadyState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseUnloaded, m_databaseUninitializedState);
       //error -> ready
       m_databaseErrorState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseReady, m_databaseReadyState);
 
@@ -131,6 +133,19 @@ namespace VeinLogger
       m_logSchedulerEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerDeactivated, m_logSchedulerDisabledState);
       //disabled -> enabled
       m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
+
+      QObject::connect(m_databaseUninitializedState, &QState::entered, [&]() {
+        VeinComponent::ComponentData *databaseUninitializedCData = new VeinComponent::ComponentData();
+        databaseUninitializedCData->setEntityId(m_entityId);
+        databaseUninitializedCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        databaseUninitializedCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
+        databaseUninitializedCData->setNewValue(false);
+        databaseUninitializedCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        databaseUninitializedCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseUninitializedCData));
+        m_qPtr->setLoggingEnabled(false);
+      });
 
       QObject::connect(m_databaseReadyState, &QState::entered, [&](){
         VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
@@ -479,7 +494,8 @@ namespace VeinLogger
 
   void DatabaseLogger::addScript(QmlLogger *t_script)
   {
-    if(m_dPtr->m_loggerScripts.contains(t_script) == false)
+    const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
+    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates) && m_dPtr->m_loggerScripts.contains(t_script) == false)
     {
       m_dPtr->m_loggerScripts.append(t_script);
       //writes the values from the data source to the database, some values may never change so they need to be initialized
@@ -582,6 +598,19 @@ namespace VeinLogger
     return validStorage;
   }
 
+  void DatabaseLogger::closeDatabase()
+  {
+    setLoggingEnabled(false);
+    if(m_dPtr->m_database != nullptr)
+    {
+      m_dPtr->m_database->deleteLater();
+      m_dPtr->m_database=nullptr;
+    }
+    m_dPtr->m_asyncDatabaseThread.quit();
+    m_dPtr->m_asyncDatabaseThread.wait();
+    emit sigDatabaseUnloaded();
+  }
+
   bool DatabaseLogger::processEvent(QEvent *t_event)
   {
     using namespace VeinEvent;
@@ -653,9 +682,17 @@ namespace VeinLogger
 
         if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName)
         {
-          if((m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath))
+          if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath)
           {
-            retVal = openDatabase(cData->newValue().toString());
+            if(cData->newValue().toString().isEmpty()) //unsetting the file component = closing the database
+            {
+              retVal = true;
+              closeDatabase();
+            }
+            else
+            {
+              retVal = openDatabase(cData->newValue().toString());
+            }
           }
 
           VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
