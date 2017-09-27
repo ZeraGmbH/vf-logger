@@ -414,7 +414,7 @@ namespace VeinLogger
           schemaVersionQuery.first();
           if(schemaVersionQuery.value(0) == 0) //if there is no database schema or if the file does not exist, then this will create the database and initialize the schema
           {
-            m_dPtr->m_queryReader.setFileName("://sqlite/schema_test_sqlite.sql");
+            m_dPtr->m_queryReader.setFileName("://sqlite/schema_sqlite.sql");
             m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
             QTextStream queryStreamIn(&m_dPtr->m_queryReader);
             QStringList commandQueue = queryStreamIn.readAll().split(";");
