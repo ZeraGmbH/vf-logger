@@ -14,6 +14,8 @@
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 
+Q_LOGGING_CATEGORY(VEIN_LOGGER, VEIN_DEBUGNAME_LOGGER)
+
 namespace VeinLogger
 {
   class DataLoggerPrivate
@@ -161,7 +163,7 @@ namespace VeinLogger
         setStatusText("Database loaded");
       });
       QObject::connect(m_databaseErrorState, &QState::entered, [&](){
-        qDebug() << "Entered m_databaseErrorState";
+        vCDebug(VEIN_LOGGER) << "Entered m_databaseErrorState";
         VeinComponent::ComponentData *databaseErrorCData = new VeinComponent::ComponentData();
         databaseErrorCData->setEntityId(m_entityId);
         databaseErrorCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -456,6 +458,7 @@ namespace VeinLogger
       {
         m_dPtr->m_entityId = 2;
         m_dPtr->m_entityName = "_LoggingSystem";
+        qCDebug(VEIN_LOGGER) << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
       }
       case AbstractLoggerDB::STORAGE_MODE::BINARY:
@@ -463,6 +466,7 @@ namespace VeinLogger
         //use different id and entity name
         m_dPtr->m_entityId = 200;
         m_dPtr->m_entityName = "_BinaryLoggingSystem";
+        qCDebug(VEIN_LOGGER) << "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
       }
     }
@@ -609,6 +613,7 @@ namespace VeinLogger
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
     emit sigDatabaseUnloaded();
+    qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
   }
 
   bool DatabaseLogger::processEvent(QEvent *t_event)

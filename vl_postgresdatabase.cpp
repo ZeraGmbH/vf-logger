@@ -57,7 +57,7 @@ namespace VeinLogger
       m_dPtr->m_componentQuery.bindValue(":componentName", t_componentName);
       if(m_dPtr->m_componentQuery.exec() == false)
       {
-        qWarning() << "(VeinLogger) PostgresDatabase::addComponent m_componentQuery failed";
+        qCWarning(VEIN_LOGGER) << "PostgresDatabase::addComponent m_componentQuery failed";
       }
 
       if(m_dPtr->m_componentSequenceQuery.exec() == true)
@@ -67,7 +67,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) PostgresDatabase::addComponent m_componentSequenceQuery failed";
+        qCWarning(VEIN_LOGGER) << "PostgresDatabase::addComponent m_componentSequenceQuery failed";
       }
       m_dPtr->m_recordSequenceQuery.finish();
 
@@ -77,7 +77,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in PostgresDatabase::addComponent transaction:" << m_dPtr->m_logDB.lastError().text();
+        qCWarning(VEIN_LOGGER) << "Error in PostgresDatabase::addComponent transaction:" << m_dPtr->m_logDB.lastError().text();
       }
     }
   }
@@ -95,7 +95,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in PostgresDatabase::addEntity transaction:" << m_dPtr->m_entityQuery.lastQuery() << m_dPtr->m_logDB.lastError().text();
+        qCWarning(VEIN_LOGGER) << "Error in PostgresDatabase::addEntity transaction:" << m_dPtr->m_entityQuery.lastQuery() << m_dPtr->m_logDB.lastError().text();
       }
     }
   }
@@ -108,7 +108,7 @@ namespace VeinLogger
       m_dPtr->m_recordQuery.bindValue(":recordName", t_recordName);
       if(m_dPtr->m_recordQuery.exec() == false)
       {
-        qWarning() << "(VeinLogger) PostgresDatabase::addRecord m_recordQuery failed";
+        qCWarning(VEIN_LOGGER) << "PostgresDatabase::addRecord m_recordQuery failed";
       }
 
       if(m_dPtr->m_recordSequenceQuery.exec() == true)
@@ -118,7 +118,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) PostgresDatabase::addRecord m_recordSequenceQuery failed";
+        qCWarning(VEIN_LOGGER) << "PostgresDatabase::addRecord m_recordSequenceQuery failed";
       }
       m_dPtr->m_recordSequenceQuery.finish();
 
@@ -128,7 +128,7 @@ namespace VeinLogger
       }
       else
       {
-        qWarning() << "(VeinLogger) Error in PostgresDatabase::addRecord transaction:" << m_dPtr->m_logDB.lastError().text();
+        qCWarning(VEIN_LOGGER) << "Error in PostgresDatabase::addRecord transaction:" << m_dPtr->m_logDB.lastError().text();
       }
     }
   }
@@ -226,7 +226,7 @@ namespace VeinLogger
           //            }
           else
           {
-            qWarning() << "(VeinLogger) Datatype cannot be stored in DB:" << entry.entityId << m_dPtr->m_componentIds.key(entry.componentId) << entry.value;
+            qCWarning(VEIN_LOGGER) << "Datatype cannot be stored in DB:" << entry.entityId << m_dPtr->m_componentIds.key(entry.componentId) << entry.value;
           }
           break;
         }
@@ -243,13 +243,13 @@ namespace VeinLogger
       m_dPtr->m_valueMappingQuery.addBindValue(tmpTimestamps);
       if(m_dPtr->m_valueMappingQuery.execBatch() == false)
       {
-        qWarning() << "(VeinLogger) Error executing m_valueMappingQuery:" << m_dPtr->m_valueMappingQuery.lastError();
+        qCWarning(VEIN_LOGGER) << "Error executing m_valueMappingQuery:" << m_dPtr->m_valueMappingQuery.lastError();
       }
 
       m_dPtr->m_valueMappingSequenceSetterQuery.bindValue(":nextValuemapId", m_dPtr->m_valueMappingQueryCounter+1);
       if(m_dPtr->m_valueMappingSequenceSetterQuery.exec() == false)
       {
-        qWarning() << "(VeinLogger) Error executing valueMappingSequenceSetterQuery:" << m_dPtr->m_valueMappingSequenceSetterQuery.lastError();
+        qCWarning(VEIN_LOGGER) << "Error executing valueMappingSequenceSetterQuery:" << m_dPtr->m_valueMappingSequenceSetterQuery.lastError();
       }
 
       //record_id, valuemap_id
@@ -257,7 +257,7 @@ namespace VeinLogger
       m_dPtr->m_recordMappingQuery.addBindValue(tmpRecordIds.values());
       if(m_dPtr->m_recordMappingQuery.execBatch() == false)
       {
-        qWarning() << "(VeinLogger) Error executing m_recordMappingQuery:" << m_dPtr->m_recordMappingQuery.lastError();
+        qCWarning(VEIN_LOGGER) << "Error executing m_recordMappingQuery:" << m_dPtr->m_recordMappingQuery.lastError();
       }
 
       if(tmpDoubleValues.isEmpty() == false)
@@ -267,7 +267,7 @@ namespace VeinLogger
         m_dPtr->m_valuesDoubleQuery.addBindValue(tmpDoubleValues.values());
         if(m_dPtr->m_valuesDoubleQuery.execBatch() == false)
         {
-          qWarning() << "(VeinLogger) Error executing m_valuesDoubleQuery:" << m_dPtr->m_valuesDoubleQuery.lastError();
+          qCWarning(VEIN_LOGGER) << "Error executing m_valuesDoubleQuery:" << m_dPtr->m_valuesDoubleQuery.lastError();
         }
       }
 
@@ -278,7 +278,7 @@ namespace VeinLogger
         m_dPtr->m_valuesDoubleListQuery.addBindValue(tmpDoubleArrayValues.values());
         if(m_dPtr->m_valuesDoubleListQuery.execBatch() == false)
         {
-          qWarning() << "(VeinLogger) Error executing m_valuesDoubleListQuery:" << m_dPtr->m_valuesDoubleListQuery.lastError();
+          qCWarning(VEIN_LOGGER) << "Error executing m_valuesDoubleListQuery:" << m_dPtr->m_valuesDoubleListQuery.lastError();
         }
       }
 
@@ -289,7 +289,7 @@ namespace VeinLogger
         m_dPtr->m_valuesIntQuery.addBindValue(tmpIntValues.values());
         if(m_dPtr->m_valuesIntQuery.execBatch() == false)
         {
-          qWarning() << "(VeinLogger) Error executing m_valuesIntQuery:" << m_dPtr->m_valuesIntQuery.lastError();
+          qCWarning(VEIN_LOGGER) << "Error executing m_valuesIntQuery:" << m_dPtr->m_valuesIntQuery.lastError();
         }
       }
 
@@ -300,22 +300,22 @@ namespace VeinLogger
         m_dPtr->m_valuesStringQuery.addBindValue(tmpStringValues.values());
         if(m_dPtr->m_valuesStringQuery.execBatch() == false)
         {
-          qWarning() << "(VeinLogger) Error executing m_valuesStringQuery:" << m_dPtr->m_valuesStringQuery.lastError();
+          qCWarning(VEIN_LOGGER) << "Error executing m_valuesStringQuery:" << m_dPtr->m_valuesStringQuery.lastError();
         }
       }
       if(tmpValuemapIds.isEmpty() == false)
       {
-        qDebug() << "(VeinLogger) Batched" << tmpValuemapIds.length() << "queries";
+        vCDebug(VEIN_LOGGER) << "Batched" << tmpValuemapIds.length() << "queries";
       }
 
       if(m_dPtr->m_logDB.commit() == false) //do not use assert here, asserts are no-ops in release code
       {
-        qWarning() << "(VeinLogger) Error in database transaction commit:" << m_dPtr->m_logDB.lastError().text();
+        qCWarning(VEIN_LOGGER) << "Error in database transaction commit:" << m_dPtr->m_logDB.lastError().text();
       }
     }
     else
     {
-      qWarning() << "(VeinLogger) Error in database transaction:" << m_dPtr->m_logDB.lastError().text();
+      qCWarning(VEIN_LOGGER) << "Error in database transaction:" << m_dPtr->m_logDB.lastError().text();
     }
     m_dPtr->m_batchVector.clear();
   }
@@ -340,7 +340,7 @@ namespace VeinLogger
 
     if (err.type() != QSqlError::NoError)
     {
-      qDebug() << "(VeinLogger) Database connection failed error:" << err.text();
+      vCDebug(VEIN_LOGGER) << "Database connection failed error:" << err.text();
     }
     else
     {
@@ -381,7 +381,7 @@ namespace VeinLogger
       //get next valuemap_id
       if(m_dPtr->m_valueMappingSequenceQuery.exec() == false)
       {
-        qWarning() << "(VeinLogger) Error executing m_valueMappingSequenceQuery:" << m_dPtr->m_valueMappingSequenceQuery.lastError();
+        qCWarning(VEIN_LOGGER) << "Error executing m_valueMappingSequenceQuery:" << m_dPtr->m_valueMappingSequenceQuery.lastError();
       }
       m_dPtr->m_valueMappingSequenceQuery.next();
       m_dPtr->m_valueMappingQueryCounter = m_dPtr->m_valueMappingSequenceQuery.value(0).toInt();
@@ -412,7 +412,7 @@ namespace VeinLogger
       int componentId = componentQuery.value(0).toInt();
       QString componentName = componentQuery.value(1).toString();
 
-      qDebug() << "(VeinLogger) Found component:" << componentId << componentName;
+      vCDebug(VEIN_LOGGER) << "Found component:" << componentId << componentName;
       m_dPtr->m_componentIds.insert(componentName, componentId);
     }
 
@@ -421,7 +421,7 @@ namespace VeinLogger
       int entityId = entityQuery.value(0).toInt();
       QString entityName = entityQuery.value(1).toString();
 
-      qDebug() << "(VeinLogger) Found entity:" << entityId << entityName;
+      vCDebug(VEIN_LOGGER) << "Found entity:" << entityId << entityName;
       m_dPtr->m_entityIds.append(entityId);
     }
 
@@ -430,7 +430,7 @@ namespace VeinLogger
       int recordId = recordQuery.value(0).toInt();
       QString recordName = recordQuery.value(1).toString();
 
-      qDebug() << "(VeinLogger) Found record:" << recordId << recordName;
+      vCDebug(VEIN_LOGGER) << "Found record:" << recordId << recordName;
       m_dPtr->m_recordIds.insert(recordName, recordId);
     }
   }
