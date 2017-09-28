@@ -435,11 +435,11 @@ namespace VeinLogger
           schemaVersionQuery.finish();
           //prepare common queries
           /* valuemap_id INTEGER PRIMARY KEY,
-         entity_id INTEGER REFERENCES entities(entity_id) NOT NULL,
-         component_id INTEGER REFERENCES components(component_id) NOT NULL,
-         value_timestamp VARCHAR(255) NOT NULL, -- timestamp in ISO 8601 format, example: 2016-10-06 11:58:34.504319
-         component_value NUMERIC) WITHOUT ROWID; -- can be any type but numeric is preferred
-      */
+           * entity_id INTEGER REFERENCES entities(entity_id) NOT NULL,
+           * component_id INTEGER REFERENCES components(component_id) NOT NULL,
+           * value_timestamp VARCHAR(255) NOT NULL, -- timestamp in ISO 8601 format, example: 2016-10-06 11:58:34.504319
+           * component_value NUMERIC) WITHOUT ROWID; -- can be any type but numeric is preferred
+           */
           m_dPtr->m_valueMapInsertQuery.prepare("INSERT INTO valuemap VALUES (?, ?, ?, ?, ?);");
           //executed to get the next id for internal tracking, other database clients must not alter the value while the internal reference is kept
           m_dPtr->m_valueMapSequenceQuery.prepare("SELECT MAX(valuemap_id) FROM valuemap;");
@@ -447,8 +447,8 @@ namespace VeinLogger
           m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(component_id) FROM components;");
           m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:entity_id, :entity_name);");
           /* -- The record is a series of values collected over a variable duration connected to customer data
-           CREATE TABLE records (record_id INTEGER PRIMARY KEY, record_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
-        */
+           * CREATE TABLE records (record_id INTEGER PRIMARY KEY, record_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
+           */
           m_dPtr->m_recordInsertQuery.prepare("INSERT INTO records (record_id, record_name) VALUES (:record_id, :record_name);");
           //executed after the record was added to get the last used number
           m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(record_id) FROM records;");
