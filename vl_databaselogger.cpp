@@ -403,22 +403,22 @@ namespace VeinLogger
 
     int m_entityId;
     //entity name
-    char const *m_entityName;
+    QLatin1String m_entityName;
     //component names
-    static constexpr char const *s_entityNameComponentName = "EntityName";
-    static constexpr char const *s_loggingStatusTextComponentName = "LoggingStatus";
-    static constexpr char const *s_loggingEnabledComponentName = "LoggingEnabled";
-    static constexpr char const *s_databaseReadyComponentName = "DatabaseReady";
-    static constexpr char const *s_databaseFileComponentName = "DatabaseFile";
-    static constexpr char const *s_databaseFileMimeTypeComponentName = "DatabaseFileMimeType";
-    static constexpr char const *s_databaseFileSizeComponentName = "DatabaseFileSize";
-    static constexpr char const *s_filesystemDeviceComponentName = "FilesystemDevice";
-    static constexpr char const *s_filesystemTypeComponentName = "FilesystemType";
-    static constexpr char const *s_filesystemFreeComponentName = "FilesystemFree";
-    static constexpr char const *s_filesystemTotalComponentName = "FilesystemTotal";
-    static constexpr char const *s_scheduledLoggingEnabledComponentName = "ScheduledLoggingEnabled";
-    static constexpr char const *s_scheduledLoggingDurationComponentName = "ScheduledLoggingDuration";
-    static constexpr char const *s_scheduledLoggingCountdownComponentName = "ScheduledLoggingCountdown";
+    static constexpr QLatin1String s_entityNameComponentName = QLatin1String("EntityName");
+    static constexpr QLatin1String s_loggingStatusTextComponentName = QLatin1String("LoggingStatus");
+    static constexpr QLatin1String s_loggingEnabledComponentName = QLatin1String("LoggingEnabled");
+    static constexpr QLatin1String s_databaseReadyComponentName = QLatin1String("DatabaseReady");
+    static constexpr QLatin1String s_databaseFileComponentName = QLatin1String("DatabaseFile");
+    static constexpr QLatin1String s_databaseFileMimeTypeComponentName = QLatin1String("DatabaseFileMimeType");
+    static constexpr QLatin1String s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
+    static constexpr QLatin1String s_filesystemDeviceComponentName = QLatin1String("FilesystemDevice");
+    static constexpr QLatin1String s_filesystemTypeComponentName = QLatin1String("FilesystemType");
+    static constexpr QLatin1String s_filesystemFreeComponentName = QLatin1String("FilesystemFree");
+    static constexpr QLatin1String s_filesystemTotalComponentName = QLatin1String("FilesystemTotal");
+    static constexpr QLatin1String s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
+    static constexpr QLatin1String s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
+    static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
 
 
     QStateMachine m_stateMachine;
@@ -441,6 +441,21 @@ namespace VeinLogger
     DatabaseLogger *m_qPtr=nullptr;
     friend class DatabaseLogger;
   };
+  //constexpr definition, see: https://stackoverflow.com/questions/8016780/undefined-reference-to-static-constexpr-char
+  constexpr QLatin1String DataLoggerPrivate::s_entityNameComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_databaseReadyComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_databaseFileComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_databaseFileMimeTypeComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemDeviceComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemTypeComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemFreeComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemTotalComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
 
   DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
@@ -457,7 +472,7 @@ namespace VeinLogger
       case AbstractLoggerDB::STORAGE_MODE::TEXT:
       {
         m_dPtr->m_entityId = 2;
-        m_dPtr->m_entityName = "_LoggingSystem";
+        m_dPtr->m_entityName = QLatin1String("_LoggingSystem");
         qCDebug(VEIN_LOGGER) << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
       }
@@ -465,7 +480,7 @@ namespace VeinLogger
       {
         //use different id and entity name
         m_dPtr->m_entityId = 200;
-        m_dPtr->m_entityName = "_BinaryLoggingSystem";
+        m_dPtr->m_entityName = QLatin1String("_BinaryLoggingSystem");
         qCDebug(VEIN_LOGGER) << "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
       }
