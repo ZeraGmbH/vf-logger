@@ -479,7 +479,7 @@ namespace VeinLogger
       case AbstractLoggerDB::STORAGE_MODE::BINARY:
       {
         //use different id and entity name
-        m_dPtr->m_entityId = 200;
+        m_dPtr->m_entityId = 200000;
         m_dPtr->m_entityName = QLatin1String("_BinaryLoggingSystem");
         qCDebug(VEIN_LOGGER) << "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
