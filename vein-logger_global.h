@@ -14,7 +14,7 @@ Q_DECLARE_LOGGING_CATEGORY(VEIN_LOGGER)
 #if defined(VEIN_COLORS_SUPPORT)
 # define VEIN_DEBUGNAME_LOGGER "\e[0;34m<Vein.Logger>\033[0m"
 #else
-# define VEIN_DEBUGNAME_EVENT "<Vein.Logger>"
+# define VEIN_DEBUGNAME_LOGGER "<Vein.Logger>"
 #endif //defined(VEIN_DEBUG_COLOR_SUPPORT)
 
 #endif // VEINLOGGER_GLOBAL_H
