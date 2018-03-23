@@ -466,6 +466,10 @@ namespace VeinLogger
           m_dPtr->m_valueMapSequenceQuery.finish();
 
           initLocalData();
+
+          QSqlQuery tuningQuery(m_dPtr->m_logDB);
+          tuningQuery.exec("pragma journal_mode = memory;"); //prevent .journal files and speed up the logging
+
           emit sigDatabaseReady();
         }
         else //file is not a database so we don't want to touch it
@@ -473,7 +477,6 @@ namespace VeinLogger
           emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(t_dbPath).arg(schemaVersionQuery.lastError().text()));
         }
       }
-
     }
     else
     {
