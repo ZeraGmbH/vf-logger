@@ -17,7 +17,7 @@ namespace VeinLogger
     Q_OBJECT
 
   public:
-    explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=0, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
+    explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
     void addScript(QmlLogger *t_script);
     void removeScript(QmlLogger *t_script);

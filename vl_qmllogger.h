@@ -15,7 +15,7 @@ namespace VeinLogger
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
   public:
-    explicit QmlLogger(QQuickItem *t_parent = 0);
+    explicit QmlLogger(QQuickItem *t_parent = nullptr);
     QString recordName() const;
     bool loggingEnabled() const;
     bool initializeValues() const;

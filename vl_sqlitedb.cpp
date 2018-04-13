@@ -122,7 +122,7 @@ namespace VeinLogger
 
     SQLiteDB::STORAGE_MODE m_storageMode=SQLiteDB::STORAGE_MODE::TEXT;
 
-    SQLiteDB *m_qPtr=0;
+    SQLiteDB *m_qPtr=nullptr;
 
     friend class SQLiteDB;
   };

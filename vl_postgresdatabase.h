@@ -25,7 +25,7 @@ namespace VeinLogger
   {
     Q_OBJECT
   public:
-    explicit PostgresDatabase(QObject *t_parent = 0);
+    explicit PostgresDatabase(QObject *t_parent = nullptr);
 
   signals:
 

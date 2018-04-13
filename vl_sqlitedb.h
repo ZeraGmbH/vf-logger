@@ -27,7 +27,7 @@ namespace VeinLogger
     Q_OBJECT
   public:
 
-    explicit SQLiteDB(QObject *t_parent = 0);
+    explicit SQLiteDB(QObject *t_parent = nullptr);
     ~SQLiteDB();
 
     bool hasEntityId(int t_entityId) const override;
@@ -51,7 +51,7 @@ namespace VeinLogger
     void runBatchedExecution() override;
 
   private:
-    DBPrivate *m_dPtr=0;
+    DBPrivate *m_dPtr=nullptr;
   };
 
 } // namespace VeinLogger

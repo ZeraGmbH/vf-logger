@@ -14,7 +14,7 @@ namespace VeinLogger
     Q_OBJECT
 
   public:
-    AbstractLoggerDB(QObject *t_parent=0);
+    AbstractLoggerDB(QObject *t_parent=nullptr);
     virtual ~AbstractLoggerDB()
     {
 

@@ -40,7 +40,7 @@ namespace VeinLogger
 
     QSqlDatabase m_logDB;
 
-    PostgresDatabase *m_qPtr=0;
+    PostgresDatabase *m_qPtr=nullptr;
 
     friend class PostgresDatabase;
   };

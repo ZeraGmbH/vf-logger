@@ -19,7 +19,7 @@ namespace VeinLogger
     virtual QString getEntityName(int t_entityId) const =0;
 
   private:
-    DataSource *m_qPtr=0;
+    DataSource *m_qPtr=nullptr;
     friend class DataSource;
   };
 
@@ -41,7 +41,7 @@ namespace VeinLogger
       return m_dataSource->getEntityById(t_entityId)->value(QString("EntityName")).toString();
     }
 
-    VeinApiQml::VeinQml *m_dataSource=0;
+    VeinApiQml::VeinQml *m_dataSource=nullptr;
     friend class DataSource;
   };
 
@@ -64,7 +64,7 @@ namespace VeinLogger
     }
 
 
-    VeinStorage::VeinHash *m_dataSource=0;
+    VeinStorage::VeinHash *m_dataSource=nullptr;
     friend class DataSource;
   };
 
