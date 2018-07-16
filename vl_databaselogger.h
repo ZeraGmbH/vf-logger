@@ -19,9 +19,8 @@ namespace VeinLogger
   public:
     explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
-    void addScript(QmlLogger *t_script);
-    void removeScript(QmlLogger *t_script);
-    void addValueToLog(const QString &t_recordName, int t_entityId, const QString &t_componentName);
+    virtual void addScript(QmlLogger *t_script);
+    virtual void removeScript(QmlLogger *t_script);
     bool loggingEnabled() const;
 
   signals:
@@ -42,13 +41,13 @@ namespace VeinLogger
     void sigLogSchedulerDeactivated();
 
   public slots:
-    void setLoggingEnabled(bool t_enabled);
-    bool openDatabase(const QString &t_filePath);
-    void closeDatabase();
+    virtual void setLoggingEnabled(bool t_enabled);
+    virtual bool openDatabase(const QString &t_filePath);
+    virtual void closeDatabase();
 
     // EventSystem interface
   public:
-    bool processEvent(QEvent *t_event) override;
+    virtual bool processEvent(QEvent *t_event) override;
 
   private:
     void initEntity();

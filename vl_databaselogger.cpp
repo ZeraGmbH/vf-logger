@@ -233,54 +233,40 @@ namespace VeinLogger
       m_stateMachine.start();
     }
 
-    bool checkDBStorageLocation(const QString &t_dbFilePath)
+    void updateDBStorageInfo(const QString &t_dbFilePath)
     {
-      bool retVal=false;
-
       const auto storages = QStorageInfo::mountedVolumes();
-      QStringList availableStorages;
       for(const auto storDevice : storages)
       {
-        if(storDevice.fileSystemType().contains("tmpfs") == false && storDevice.isRoot() == false)
+        if(t_dbFilePath.contains(storDevice.rootPath()))
         {
-          availableStorages.append(storDevice.rootPath());
-          if(retVal == false && t_dbFilePath.contains(storDevice.rootPath()))
+          const double availGB = storDevice.bytesFree()/1.0e9;
+          const double totalGB = storDevice.bytesTotal()/1.0e9;
+
+          QHash<QString, QVariant> storageInfo;
+          storageInfo.insert(DataLoggerPrivate::s_filesystemFreeComponentName, availGB);
+          storageInfo.insert(DataLoggerPrivate::s_filesystemTotalComponentName, totalGB);
+          storageInfo.insert(DataLoggerPrivate::s_filesystemDeviceComponentName, QString::fromUtf8(storDevice.device()));
+          storageInfo.insert(DataLoggerPrivate::s_filesystemTypeComponentName, QString::fromUtf8(storDevice.fileSystemType()));
+
+
+          VeinComponent::ComponentData *storageCData = nullptr;
+
+          for(const QString &componentName : storageInfo.keys())
           {
-            const double availGB = storDevice.bytesFree()/1.0e9;
-            const double totalGB = storDevice.bytesTotal()/1.0e9;
+            storageCData= new VeinComponent::ComponentData();
+            storageCData->setEntityId(m_entityId);
+            storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+            storageCData->setComponentName(componentName);
+            storageCData->setNewValue(storageInfo.value(componentName));
+            storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+            storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-            QHash<QString, QVariant> storageInfo;
-            storageInfo.insert(DataLoggerPrivate::s_filesystemFreeComponentName, availGB);
-            storageInfo.insert(DataLoggerPrivate::s_filesystemTotalComponentName, totalGB);
-            storageInfo.insert(DataLoggerPrivate::s_filesystemDeviceComponentName, QString::fromUtf8(storDevice.device()));
-            storageInfo.insert(DataLoggerPrivate::s_filesystemTypeComponentName, QString::fromUtf8(storDevice.fileSystemType()));
-
-
-            VeinComponent::ComponentData *storageCData = nullptr;
-
-            for(const QString &componentName : storageInfo.keys())
-            {
-              storageCData= new VeinComponent::ComponentData();
-              storageCData->setEntityId(m_entityId);
-              storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-              storageCData->setComponentName(componentName);
-              storageCData->setNewValue(storageInfo.value(componentName));
-              storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-              storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-              emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-            }
-            retVal = true;
+            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
           }
+          break;
         }
       }
-
-      if(retVal == false)
-      {
-        emit m_qPtr->sigDatabaseError(QString("Database cannot be stored on path: %1\nAvailable storage mount points: (%2)").arg(t_dbFilePath).arg(availableStorages.join(", ")));
-      }
-
-      return retVal;
     }
 
     bool checkDBFilePath(const QString &t_dbFilePath)
@@ -580,10 +566,11 @@ namespace VeinLogger
 
   bool DatabaseLogger::openDatabase(const QString &t_filePath)
   {
-    const bool validStorage = m_dPtr->checkDBFilePath(t_filePath) && m_dPtr->checkDBStorageLocation(t_filePath);
+    const bool validStorage = m_dPtr->checkDBFilePath(t_filePath);
 
     if(validStorage == true)
     {
+      m_dPtr->updateDBStorageInfo(t_filePath);
       m_dPtr->setDBFileInfo(t_filePath);
 
       if(m_dPtr->m_database != nullptr)
