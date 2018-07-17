@@ -22,6 +22,7 @@ namespace VeinLogger
     virtual void addScript(QmlLogger *t_script);
     virtual void removeScript(QmlLogger *t_script);
     bool loggingEnabled() const;
+    int entityId() const;
 
   signals:
     void sigAddLoggedValue(QVector<QString> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);

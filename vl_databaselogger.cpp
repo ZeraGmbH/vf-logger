@@ -538,6 +538,11 @@ namespace VeinLogger
     return m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingEnabledState);
   }
 
+  int DatabaseLogger::entityId() const
+  {
+    return m_dPtr->m_entityId;
+  }
+
   void DatabaseLogger::setLoggingEnabled(bool t_enabled)
   {
     //do not accept values that are already set
