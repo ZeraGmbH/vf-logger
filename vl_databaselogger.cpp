@@ -148,7 +148,6 @@ namespace VeinLogger
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseUninitializedCData));
         m_qPtr->setLoggingEnabled(false);
       });
-
       QObject::connect(m_databaseReadyState, &QState::entered, [&](){
         VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
         databaseReadyCData->setEntityId(m_entityId);
@@ -177,27 +176,9 @@ namespace VeinLogger
         setStatusText("Database error");
       });
       QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
-        VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
-        loggingEnabledCData->setEntityId(m_entityId);
-        loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
-        loggingEnabledCData->setNewValue(true);
-        loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
         setStatusText("Logging data");
       });
       QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
-        VeinComponent::ComponentData *loggingDisabledCData = new VeinComponent::ComponentData();
-        loggingDisabledCData->setEntityId(m_entityId);
-        loggingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        loggingDisabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
-        loggingDisabledCData->setNewValue(false);
-        loggingDisabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        loggingDisabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingDisabledCData));
         if(m_stateMachine.configuration().contains(m_databaseErrorState) == false) // do not override important notification
         {
           setStatusText("Logging disabled");
@@ -227,8 +208,6 @@ namespace VeinLogger
 
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDisabledCData));
       });
-
-
 
       m_stateMachine.start();
     }
@@ -642,7 +621,7 @@ namespace VeinLogger
 
       const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
       const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-      if(activeStates.contains(requiredStates) && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
+      if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
         if(evData->type()==ComponentData::dataType())
         {
@@ -650,37 +629,46 @@ namespace VeinLogger
           cData = static_cast<ComponentData *>(evData);
           Q_ASSERT(cData != nullptr);
 
-          QVector<QString> recordNames;
-          const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
-          //check all scripts if they want to log the changed value
-          for(const QmlLogger *entry : scripts)
+          if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
           {
-            if(entry->hasLoggerEntry(evData->entityId(), cData->componentName()))
-            {
-              recordNames.append(entry->recordName());
-            }
-          }
-
-          for(const QString &recName : recordNames)
-          {
-            if(m_dPtr->m_database->hasRecordName(recName) == false)
-            {
-              emit sigAddRecord(recName);
-            }
-          }
-
-          if(recordNames.isEmpty() == false)
-          {
-            if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
-            {
-              emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
-            }
-            if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false)
-            {
-              emit sigAddComponent(cData->componentName());
-            }
-            emit sigAddLoggedValue(recordNames, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
             retVal = true;
+            setLoggingEnabled(cData->newValue().toBool());
+          }
+
+          if(activeStates.contains(requiredStates))
+          {
+            QVector<QString> recordNames;
+            const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
+            //check all scripts if they want to log the changed value
+            for(const QmlLogger *entry : scripts)
+            {
+              if(entry->hasLoggerEntry(evData->entityId(), cData->componentName()))
+              {
+                recordNames.append(entry->recordName());
+              }
+            }
+
+            for(const QString &recName : recordNames)
+            {
+              if(m_dPtr->m_database->hasRecordName(recName) == false)
+              {
+                emit sigAddRecord(recName);
+              }
+            }
+
+            if(recordNames.isEmpty() == false)
+            {
+              if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
+              {
+                emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
+              }
+              if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false)
+              {
+                emit sigAddComponent(cData->componentName());
+              }
+              emit sigAddLoggedValue(recordNames, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
+              retVal = true;
+            }
           }
         }
       }
@@ -719,8 +707,15 @@ namespace VeinLogger
         }
         else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
         {
-          retVal = true;
-          setLoggingEnabled(cData->newValue().toBool());
+          VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
+          loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
+          loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+          loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
+          loggingEnabledCData->setNewValue(cData->newValue());
+          loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+          loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+          emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
         }
         else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName)
         {
