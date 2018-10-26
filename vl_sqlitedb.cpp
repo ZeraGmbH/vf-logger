@@ -486,6 +486,41 @@ namespace VeinLogger
     return retVal;
   }
 
+  bool SQLiteDB::isValidDatabase(QString t_dbPath) const
+  {
+    bool retVal = false;
+    QFile dbFile(t_dbPath);
+
+    if(dbFile.exists())
+    {
+      QSqlDatabase tmpDB = QSqlDatabase::addDatabase("QSQLITE", "TempDB");
+      tmpDB.setDatabaseName(t_dbPath);
+      if(tmpDB.open())
+      {
+        QSqlQuery schemaValidationQuery(tmpDB);
+        if(schemaValidationQuery.exec("SELECT name FROM sqlite_master WHERE type = 'table';"))
+        {
+          QSet<QString> requiredTables {"records", "entities", "components", "valuemap", "recordmapping"};
+          QSet<QString> foundTables;
+          while(schemaValidationQuery.next())
+          {
+            foundTables.insert(schemaValidationQuery.value(0).toString());
+          }
+          schemaValidationQuery.finish();
+          requiredTables.subtract(foundTables);
+          if(requiredTables.isEmpty())
+          {
+            retVal = true;
+          }
+        }
+      }
+      tmpDB.close();
+      tmpDB = QSqlDatabase();
+      QSqlDatabase::removeDatabase("TempDB");
+    }
+    return retVal;
+  }
+
   void SQLiteDB::runBatchedExecution()
   {
     if(m_dPtr->m_logDB.isOpen())

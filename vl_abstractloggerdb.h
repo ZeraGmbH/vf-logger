@@ -47,6 +47,7 @@ namespace VeinLogger
     virtual void addLoggedValue(QVector<QString> t_recordNames, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
 
     virtual bool openDatabase(const QString &t_dbPath) =0;
+    virtual bool isValidDatabase(QString t_dbPath) const =0;
     virtual void runBatchedExecution() =0;
   };
 
