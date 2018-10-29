@@ -8,6 +8,8 @@
 #include <QDateTime>
 #include <QVariant>
 
+#include <functional>
+
 
 namespace VeinLogger
 {
@@ -38,6 +40,9 @@ namespace VeinLogger
     QString databasePath() const override;
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode) override;
     AbstractLoggerDB::STORAGE_MODE getStorageMode() const override;
+    std::function<bool(QString)> getDatabaseValidationFunction() const override;
+
+    static bool isValidDatabase(QString t_dbPath);
 
   public slots:
     void initLocalData() override;
@@ -48,7 +53,8 @@ namespace VeinLogger
     void addLoggedValue(QVector<QString> t_recordNames, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
 
     bool openDatabase(const QString &t_dbPath) override;
-    virtual bool isValidDatabase(QString t_dbPath) const override;
+
+
     void runBatchedExecution() override;
 
   private:

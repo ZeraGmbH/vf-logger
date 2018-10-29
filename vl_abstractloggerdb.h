@@ -31,8 +31,9 @@ namespace VeinLogger
 
     virtual bool databaseIsOpen() const =0;
     virtual QString databasePath() const =0;
-    virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
-    virtual STORAGE_MODE getStorageMode() const = 0;
+    virtual void setStorageMode(STORAGE_MODE t_storageMode) =0;
+    virtual STORAGE_MODE getStorageMode() const =0;
+    virtual std::function<bool(QString)> getDatabaseValidationFunction() const =0;
 
   signals:
     void sigDatabaseError(const QString &t_errorString);
@@ -47,7 +48,6 @@ namespace VeinLogger
     virtual void addLoggedValue(QVector<QString> t_recordNames, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
 
     virtual bool openDatabase(const QString &t_dbPath) =0;
-    virtual bool isValidDatabase(QString t_dbPath) const =0;
     virtual void runBatchedExecution() =0;
   };
 
