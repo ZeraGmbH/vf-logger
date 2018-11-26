@@ -163,7 +163,7 @@ namespace VeinLogger
         setStatusText("Database loaded");
       });
       QObject::connect(m_databaseErrorState, &QState::entered, [&](){
-        vCWarning(VEIN_LOGGER) << "Entered m_databaseErrorState";
+        qCWarning(VEIN_LOGGER) << "Entered m_databaseErrorState";
         VeinComponent::ComponentData *databaseErrorCData = new VeinComponent::ComponentData();
         databaseErrorCData->setEntityId(m_entityId);
         databaseErrorCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
