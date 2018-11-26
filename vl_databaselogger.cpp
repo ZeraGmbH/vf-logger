@@ -61,10 +61,7 @@ namespace VeinLogger
         componentData.insert(s_databaseFileComponentName, QVariant(QString()));
         componentData.insert(s_databaseFileMimeTypeComponentName, QVariant(QString()));
         componentData.insert(s_databaseFileSizeComponentName, QVariant(QString()));
-        componentData.insert(s_filesystemDeviceComponentName, QVariant(QString()));
-        componentData.insert(s_filesystemTypeComponentName, QVariant(QString()));
-        componentData.insert(s_filesystemFreeComponentName, QVariant(0.0));
-        componentData.insert(s_filesystemTotalComponentName, QVariant(0.0));
+        componentData.insert(s_filesystemInfoComponentName, QVariantMap());
         componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
         componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
         componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
@@ -213,40 +210,31 @@ namespace VeinLogger
       m_stateMachine.start();
     }
 
-    void updateDBStorageInfo(const QString &t_dbFilePath)
+    void updateDBStorageInfo()
     {
       const auto storages = QStorageInfo::mountedVolumes();
+      QVariantMap storageInfoMap;
       for(const auto storDevice : storages)
       {
-        if(t_dbFilePath.contains(storDevice.rootPath()))
-        {
-          const double availGB = storDevice.bytesFree()/1.0e9;
-          const double totalGB = storDevice.bytesTotal()/1.0e9;
+        const double availGB = storDevice.bytesFree()/1.0e9;
+        const double totalGB = storDevice.bytesTotal()/1.0e9;
 
-          QHash<QString, QVariant> storageInfo;
-          storageInfo.insert(DataLoggerPrivate::s_filesystemFreeComponentName, availGB);
-          storageInfo.insert(DataLoggerPrivate::s_filesystemTotalComponentName, totalGB);
-          storageInfo.insert(DataLoggerPrivate::s_filesystemDeviceComponentName, QString::fromUtf8(storDevice.device()));
-          storageInfo.insert(DataLoggerPrivate::s_filesystemTypeComponentName, QString::fromUtf8(storDevice.fileSystemType()));
+        QVariantMap storageData;
+        storageData.insert(DataLoggerPrivate::s_filesystemFreePropertyName, availGB);
+        storageData.insert(DataLoggerPrivate::s_filesystemTotalPropertyName, totalGB);
 
-
-          VeinComponent::ComponentData *storageCData = nullptr;
-
-          for(const QString &componentName : storageInfo.keys())
-          {
-            storageCData= new VeinComponent::ComponentData();
-            storageCData->setEntityId(m_entityId);
-            storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            storageCData->setComponentName(componentName);
-            storageCData->setNewValue(storageInfo.value(componentName));
-            storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-          }
-          break;
-        }
+        storageInfoMap.insert(storDevice.rootPath(), storageData);
       }
+
+      VeinComponent::ComponentData *storageCData= new VeinComponent::ComponentData();
+      storageCData->setEntityId(m_entityId);
+      storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+      storageCData->setComponentName(s_filesystemInfoComponentName);
+      storageCData->setNewValue(storageInfoMap);
+      storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+      storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+      emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
     }
 
     bool checkDBFilePath(const QString &t_dbFilePath)
@@ -378,10 +366,9 @@ namespace VeinLogger
     static constexpr QLatin1String s_databaseFileComponentName = QLatin1String("DatabaseFile");
     static constexpr QLatin1String s_databaseFileMimeTypeComponentName = QLatin1String("DatabaseFileMimeType");
     static constexpr QLatin1String s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
-    static constexpr QLatin1String s_filesystemDeviceComponentName = QLatin1String("FilesystemDevice");
-    static constexpr QLatin1String s_filesystemTypeComponentName = QLatin1String("FilesystemType");
-    static constexpr QLatin1String s_filesystemFreeComponentName = QLatin1String("FilesystemFree");
-    static constexpr QLatin1String s_filesystemTotalComponentName = QLatin1String("FilesystemTotal");
+    static constexpr QLatin1String s_filesystemInfoComponentName = QLatin1String("FilesystemInfo");
+    static constexpr QLatin1String s_filesystemFreePropertyName = QLatin1String("FilesystemFree");
+    static constexpr QLatin1String s_filesystemTotalPropertyName = QLatin1String("FilesystemTotal");
     static constexpr QLatin1String s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
     static constexpr QLatin1String s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
     static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
@@ -415,10 +402,9 @@ namespace VeinLogger
   constexpr QLatin1String DataLoggerPrivate::s_databaseFileComponentName;
   constexpr QLatin1String DataLoggerPrivate::s_databaseFileMimeTypeComponentName;
   constexpr QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName;
-  constexpr QLatin1String DataLoggerPrivate::s_filesystemDeviceComponentName;
-  constexpr QLatin1String DataLoggerPrivate::s_filesystemTypeComponentName;
-  constexpr QLatin1String DataLoggerPrivate::s_filesystemFreeComponentName;
-  constexpr QLatin1String DataLoggerPrivate::s_filesystemTotalComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemInfoComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemFreePropertyName;
+  constexpr QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName;
   constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName;
   constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName;
   constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
@@ -555,7 +541,7 @@ namespace VeinLogger
 
     if(validStorage == true)
     {
-      m_dPtr->updateDBStorageInfo(t_filePath);
+      m_dPtr->updateDBStorageInfo();
       m_dPtr->setDBFileInfo(t_filePath);
 
       if(m_dPtr->m_database != nullptr)
@@ -600,6 +586,7 @@ namespace VeinLogger
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
     emit sigDatabaseUnloaded();
+    m_dPtr->updateDBStorageInfo();
     qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
   }
 
