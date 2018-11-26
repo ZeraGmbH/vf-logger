@@ -17,7 +17,7 @@ HEADERS +=\
   vl_sqlitedb.h \
   vl_datasource.h \
   vl_qmllogger.h \
-    vl_abstractloggerdb.h
+  vl_abstractloggerdb.h
 
 QT       += sql network qml
 QT       -= gui

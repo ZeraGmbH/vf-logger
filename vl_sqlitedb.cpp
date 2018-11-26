@@ -194,6 +194,8 @@ namespace VeinLogger
     if(dbFile.exists())
     {
       QSqlDatabase tmpDB = QSqlDatabase::addDatabase("QSQLITE", "TempDB");
+      tmpDB.setConnectOptions(QLatin1String("QSQLITE_OPEN_READONLY"));
+
       tmpDB.setDatabaseName(t_dbPath);
       if(tmpDB.open())
       {

@@ -147,6 +147,7 @@ namespace VeinLogger
 
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseUninitializedCData));
         m_qPtr->setLoggingEnabled(false);
+        setStatusText("No database selected");
       });
       QObject::connect(m_databaseReadyState, &QState::entered, [&](){
         VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
@@ -162,7 +163,7 @@ namespace VeinLogger
         setStatusText("Database loaded");
       });
       QObject::connect(m_databaseErrorState, &QState::entered, [&](){
-        vCDebug(VEIN_LOGGER) << "Entered m_databaseErrorState";
+        vCWarning(VEIN_LOGGER) << "Entered m_databaseErrorState";
         VeinComponent::ComponentData *databaseErrorCData = new VeinComponent::ComponentData();
         databaseErrorCData->setEntityId(m_entityId);
         databaseErrorCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
