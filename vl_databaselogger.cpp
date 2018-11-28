@@ -216,14 +216,17 @@ namespace VeinLogger
       QVariantMap storageInfoMap;
       for(const auto storDevice : storages)
       {
-        const double availGB = storDevice.bytesFree()/1.0e9;
-        const double totalGB = storDevice.bytesTotal()/1.0e9;
+        if(storDevice.fileSystemType().contains("tmpfs") == false)
+        {
+          const double availGB = storDevice.bytesFree()/1.0e9;
+          const double totalGB = storDevice.bytesTotal()/1.0e9;
 
-        QVariantMap storageData;
-        storageData.insert(DataLoggerPrivate::s_filesystemFreePropertyName, availGB);
-        storageData.insert(DataLoggerPrivate::s_filesystemTotalPropertyName, totalGB);
+          QVariantMap storageData;
+          storageData.insert(DataLoggerPrivate::s_filesystemFreePropertyName, availGB);
+          storageData.insert(DataLoggerPrivate::s_filesystemTotalPropertyName, totalGB);
 
-        storageInfoMap.insert(storDevice.rootPath(), storageData);
+          storageInfoMap.insert(storDevice.rootPath(), storageData);
+        }
       }
 
       VeinComponent::ComponentData *storageCData= new VeinComponent::ComponentData();
