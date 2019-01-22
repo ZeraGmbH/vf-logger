@@ -512,6 +512,11 @@ namespace VeinLogger
     return m_dPtr->m_entityId;
   }
 
+  QString DatabaseLogger::entityName() const
+  {
+    return m_dPtr->m_entityName;
+  }
+
   void DatabaseLogger::setLoggingEnabled(bool t_enabled)
   {
     //do not accept values that are already set
