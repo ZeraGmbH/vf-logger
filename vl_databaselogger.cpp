@@ -459,6 +459,18 @@ namespace VeinLogger
     {
       m_dPtr->updateSchedulerCountdown();
     });
+
+    connect(this, &DatabaseLogger::sigLoggingEnabledChanged, [this](bool t_enabled){
+      VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
+      loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
+      loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+      loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
+      loggingEnabledCData->setNewValue(t_enabled);
+      loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+      loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+      emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
+    });
   }
 
   DatabaseLogger::~DatabaseLogger()
