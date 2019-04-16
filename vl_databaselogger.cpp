@@ -631,12 +631,13 @@ namespace VeinLogger
       const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
       if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
       {
-        if(evData->type()==ComponentData::dataType())
+        if(evData->type()==ComponentData::dataType()) ///@todo the if is redundant with the same if condition inside of the TRANSACTION if
         {
           ComponentData *cData=nullptr;
           cData = static_cast<ComponentData *>(evData);
           Q_ASSERT(cData != nullptr);
 
+          ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
           if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
           {
             retVal = true;
@@ -681,7 +682,7 @@ namespace VeinLogger
         }
       }
       else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
-              evData->type() == ComponentData::dataType() &&
+              evData->type() == ComponentData::dataType() && ///@todo this condition is redundant with the same if condition inside of the NOTIFICATION block
               evData->entityId() == m_dPtr->m_entityId)
       {
         ComponentData *cData=nullptr;
