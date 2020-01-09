@@ -1,7 +1,7 @@
 #ifndef VEINLOGGER_SQLITEDB_H
 #define VEINLOGGER_SQLITEDB_H
 
-#include "vein-logger_global.h"
+#include "globalIncludes.h"
 #include "vl_abstractloggerdb.h"
 
 #include <QVector>
@@ -24,7 +24,7 @@ namespace VeinLogger
 
   class DBPrivate;
 
-  class VEINLOGGERSHARED_EXPORT SQLiteDB : public AbstractLoggerDB
+  class VFLOGGER_EXPORT SQLiteDB : public AbstractLoggerDB
   {
     Q_OBJECT
   public:

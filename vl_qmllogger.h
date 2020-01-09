@@ -1,14 +1,14 @@
 #ifndef VEINLOGGER_QMLLOGGER_H
 #define VEINLOGGER_QMLLOGGER_H
 
-#include "vein-logger_global.h"
+#include "globalIncludes.h"
 #include <QtQuick/QQuickItem>
 #include <QMultiHash>
 
 namespace VeinLogger
 {
   class DatabaseLogger;
-  class VEINLOGGERSHARED_EXPORT QmlLogger : public QQuickItem
+  class VFLOGGER_EXPORT QmlLogger : public QQuickItem
   {
     Q_OBJECT
     Q_PROPERTY(QString recordName READ recordName WRITE setRecordName NOTIFY recordNameChanged)

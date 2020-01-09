@@ -1,7 +1,7 @@
 #ifndef VL_DATALOGGER_H
 #define VL_DATALOGGER_H
 
-#include "vein-logger_global.h"
+#include "globalIncludes.h"
 #include "vl_abstractloggerdb.h"
 #include <ve_eventsystem.h>
 #include <QDateTime>
@@ -12,7 +12,7 @@ namespace VeinLogger
   class DataSource;
   class QmlLogger;
 
-  class VEINLOGGERSHARED_EXPORT DatabaseLogger : public VeinEvent::EventSystem
+  class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
   {
     Q_OBJECT
 

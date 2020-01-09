@@ -1,7 +1,7 @@
 #ifndef VEINLOGGER_DATASOURCE_H
 #define VEINLOGGER_DATASOURCE_H
 
-#include "vein-logger_global.h"
+#include "globalIncludes.h"
 #include <QObject>
 
 namespace VeinApiQml
@@ -16,7 +16,7 @@ namespace VeinStorage
 namespace VeinLogger
 {
   class DataSourcePrivate;
-  class VEINLOGGERSHARED_EXPORT DataSource : public QObject
+  class VFLOGGER_EXPORT DataSource : public QObject
   {
     Q_OBJECT
   public:

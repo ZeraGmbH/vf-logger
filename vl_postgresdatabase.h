@@ -1,7 +1,7 @@
 #ifndef VEINLOGGER_POSTGRESDATABASE_H
 #define VEINLOGGER_POSTGRESDATABASE_H
 
-#include "vein-logger_global.h"
+#include "globalIncludes.h"
 
 #include <QObject>
 #include <QDateTime>
@@ -21,7 +21,7 @@ namespace VeinLogger
 
   class PostgresDBPrivate;
 
-  class VEINLOGGERSHARED_EXPORT PostgresDatabase : public QObject
+  class VFLOGGER_EXPORT PostgresDatabase : public QObject
   {
     Q_OBJECT
   public:
