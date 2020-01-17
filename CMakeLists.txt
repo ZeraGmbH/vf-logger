@@ -22,7 +22,7 @@ include(FeatureSummary)
 include(GNUInstallDirs)
 
 #Find dependecies
-find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql CONFIG  )
+find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick CONFIG  )
 find_package(VfHelpers REQUIRED)
 find_package(VfEvent REQUIRED)
 find_package(VfComponent REQUIRED)
@@ -64,6 +64,7 @@ target_link_libraries(VfLogger
     Qt5::Core
     Qt5::Qml
     Qt5::Sql
+    Qt5::Quick
     VeinMeta::VfHelpers
     VeinMeta::VfEvent
     VeinMeta::VfComponent
