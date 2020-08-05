@@ -107,7 +107,8 @@ namespace VeinLogger
 
     void initStateMachine()
     {
-      m_stateMachine.setChildMode(QStateMachine::ParallelStates);
+      m_parallelWrapperState->setChildMode(QStateMachine::ParallelStates);
+      m_stateMachine.setInitialState(m_parallelWrapperState);
       m_databaseContainerState->setInitialState(m_databaseUninitializedState);
       m_loggingContainerState->setInitialState(m_loggingDisabledState);
       m_logSchedulerContainerState->setInitialState(m_logSchedulerDisabledState);
@@ -378,17 +379,20 @@ namespace VeinLogger
 
 
     QStateMachine m_stateMachine;
+    //QStatemachine does not support ParallelState
+    //Therefore we add one state where the actual statemachine starts
+    QState *m_parallelWrapperState = new QState(&m_stateMachine);
 
-    QState *m_databaseContainerState = new QState(&m_stateMachine);
+    QState *m_databaseContainerState = new QState(m_parallelWrapperState);
     QState *m_databaseUninitializedState = new QState(m_databaseContainerState);
     QState *m_databaseReadyState = new QState(m_databaseContainerState);
     QState *m_databaseErrorState = new QState(m_databaseContainerState);
 
-    QState *m_loggingContainerState = new QState(&m_stateMachine);
+    QState *m_loggingContainerState = new QState(m_parallelWrapperState);
     QState *m_loggingEnabledState = new QState(m_loggingContainerState);
     QState *m_loggingDisabledState = new QState(m_loggingContainerState);
 
-    QState *m_logSchedulerContainerState = new QState(&m_stateMachine);
+    QState *m_logSchedulerContainerState = new QState(m_parallelWrapperState);
     QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
     QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
 
