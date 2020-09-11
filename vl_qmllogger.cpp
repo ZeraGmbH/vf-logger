@@ -93,8 +93,11 @@ QVariantMap QmlLogger::readContext()
 
 void QmlLogger::startLogging()
 {
+    if(!m_recordName.isEmpty() && !m_transactionName.isEmpty()){
     VF_ASSERT(m_recordName.isEmpty() == false, "Logging requires a valid recordName");
+    VF_ASSERT(m_transactionName.isEmpty() == false, "Logging requires a valid transactionName");
     s_dbLogger->addScript(this);
+    }
 }
 
 void QmlLogger::stopLogging()
@@ -167,6 +170,36 @@ void QmlLogger::setSession(const QString &t_session)
 
     m_session =  t_session;
     emit sessionChanged(t_session);
+}
+
+QDateTime QmlLogger::getStopTime() const
+{
+    return m_stopTime;
+}
+
+void QmlLogger::setStopTime(const QDateTime &stopTime)
+{
+    m_stopTime = stopTime;
+}
+
+QDateTime QmlLogger::getStartTime() const
+{
+    return m_startTime;
+}
+
+void QmlLogger::setStartTime(const QDateTime &startTime)
+{
+    m_startTime = startTime;
+}
+
+int QmlLogger::getTransactionId() const
+{
+    return m_transactionId;
+}
+
+void QmlLogger::setTransactionId(int transactionId)
+{
+    m_transactionId = transactionId;
 }
 
 

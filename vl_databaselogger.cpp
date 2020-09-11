@@ -65,6 +65,7 @@ namespace VeinLogger
         componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
         componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
         componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
+        componentData.insert(s_existingRecordsComponentName, QStringList());
 
         for(const QString &componentName : componentData.keys())
         {
@@ -157,6 +158,7 @@ namespace VeinLogger
         databaseReadyCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
         emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseReadyCData));
+
         m_qPtr->setLoggingEnabled(false);
         setStatusText("Database loaded");
       });
@@ -376,6 +378,7 @@ namespace VeinLogger
     static constexpr QLatin1String s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
     static constexpr QLatin1String s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
     static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
+    static constexpr QLatin1String s_existingRecordsComponentName = QLatin1String("ExistingRecords");
 
 
     QStateMachine m_stateMachine;
@@ -415,6 +418,7 @@ namespace VeinLogger
   constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName;
   constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName;
   constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
+  constexpr QLatin1String DataLoggerPrivate::s_existingRecordsComponentName;
 
   DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
@@ -491,7 +495,11 @@ namespace VeinLogger
       //writes the values from the data source to the database, some values may never change so they need to be initialized
       if(t_script->initializeValues() == true)
       {
-        const QVector<QString> tmpRecordName = {t_script->recordName()};
+        const QString tmpRecordName = t_script->recordName();
+        const QVector<QString> tmpTransactionName = {t_script->transactionName()};
+        t_script->setTransactionId(m_dPtr->m_database->addTransaction(t_script->transactionName(),t_script->recordName(), t_script->context()));
+        const QVector<int> tmpTransactionIds = {t_script->getTransactionId()};
+        m_dPtr->m_database->addStartTime(t_script->getTransactionId(),QDateTime::currentDateTime());
         const QMultiHash<int, QString> tmpLoggedValues = t_script->getLoggedValues();
         for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
         {
@@ -506,7 +514,7 @@ namespace VeinLogger
             {
               emit sigAddComponent(tmpComponentName);
             }
-            emit sigAddLoggedValue(tmpRecordName, tmpEntityId, tmpComponentName, m_dPtr->m_dataSource->getValue(tmpEntityId,tmpComponentName), QDateTime::currentDateTime());
+            emit sigAddLoggedValue(tmpRecordName, tmpTransactionIds, tmpEntityId, tmpComponentName, m_dPtr->m_dataSource->getValue(tmpEntityId,tmpComponentName), QDateTime::currentDateTime());
           }
         }
       }
@@ -516,6 +524,7 @@ namespace VeinLogger
   void DatabaseLogger::removeScript(QmlLogger *t_script)
   {
     m_dPtr->m_loggerScripts.removeAll(t_script);
+
   }
 
   bool DatabaseLogger::loggingEnabled() const
@@ -581,7 +590,7 @@ namespace VeinLogger
       m_dPtr->m_asyncDatabaseThread.start();
 
       //will be queued connection due to thread affinity
-      connect(this, SIGNAL(sigAddLoggedValue(QVector<QString>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QVector<QString>,int,QString,QVariant,QDateTime)));
+      connect(this, SIGNAL(sigAddLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)));
       connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));
       connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
       connect(this, SIGNAL(sigAddRecord(QString)), m_dPtr->m_database, SLOT(addRecord(QString)));
@@ -591,6 +600,7 @@ namespace VeinLogger
       connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
       //run final batch instantly when logging is disabled
       connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
+      connect(m_dPtr->m_database, SIGNAL(sigNewRecordList(QStringList)), this, SLOT(updateRecordList(QStringList)));
 
       emit sigOpenDatabase(t_filePath);
     }
@@ -610,8 +620,22 @@ namespace VeinLogger
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
     emit sigDatabaseUnloaded();
+    updateRecordList(QStringList());
     m_dPtr->updateDBStorageInfo();
     qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
+  }
+
+  void DatabaseLogger::updateRecordList(QStringList p_records)
+  {
+      VeinComponent::ComponentData *exisitingRecords = new VeinComponent::ComponentData();
+      exisitingRecords ->setEntityId(m_dPtr->m_entityId);
+      exisitingRecords ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+      exisitingRecords ->setComponentName(DataLoggerPrivate::s_existingRecordsComponentName);
+      exisitingRecords ->setNewValue(p_records);
+      exisitingRecords ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+      exisitingRecords ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+      emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingRecords));
+
   }
 
   bool DatabaseLogger::processEvent(QEvent *t_event)
@@ -650,26 +674,27 @@ namespace VeinLogger
 
           if(activeStates.contains(requiredStates))
           {
-            QVector<QString> recordNames;
+            QString recordName = "";
+            QVector<int> transactionIds;
             const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
             //check all scripts if they want to log the changed value
             for(const QmlLogger *entry : scripts)
             {
               if(entry->hasLoggerEntry(evData->entityId(), cData->componentName()))
               {
-                recordNames.append(entry->recordName());
+                recordName = entry->recordName();
+                transactionIds.append(entry->getTransactionId());
               }
             }
 
-            for(const QString &recName : recordNames)
-            {
-              if(m_dPtr->m_database->hasRecordName(recName) == false)
+
+              if(m_dPtr->m_database->hasRecordName(recordName) == false)
               {
-                emit sigAddRecord(recName);
+                emit sigAddRecord(recordName);
               }
-            }
 
-            if(recordNames.isEmpty() == false)
+
+            if(recordName.length() > 0)
             {
               if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
               {
@@ -679,7 +704,9 @@ namespace VeinLogger
               {
                 emit sigAddComponent(cData->componentName());
               }
-              emit sigAddLoggedValue(recordNames, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
+              if(transactionIds.length() != 0){
+                emit sigAddLoggedValue(recordName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
+              }
               retVal = true;
             }
           }

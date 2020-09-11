@@ -26,7 +26,7 @@ namespace VeinLogger
     QString entityName() const;
 
   signals:
-    void sigAddLoggedValue(QVector<QString> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
+    void sigAddLoggedValue(QString t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void sigAddEntity(int t_entityId, const QString &t_entityName);
     void sigAddComponent(const QString &t_componentName);
     void sigAddRecord(const QString &t_recordName);
@@ -46,6 +46,7 @@ namespace VeinLogger
     virtual void setLoggingEnabled(bool t_enabled);
     virtual bool openDatabase(const QString &t_filePath);
     virtual void closeDatabase();
+    virtual void updateRecordList(QStringList p_records);
 
     // EventSystem interface
   public:

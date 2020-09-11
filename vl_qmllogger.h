@@ -4,6 +4,7 @@
 #include "globalIncludes.h"
 #include <QtQuick/QQuickItem>
 #include <QMultiHash>
+#include <QDateTime>
 
 #include "jsoncontextloader.h"
 
@@ -37,6 +38,15 @@ namespace VeinLogger
     Q_INVOKABLE QStringList readSession();
     Q_INVOKABLE QVariantMap readContext();
 
+    int getTransactionId() const;
+    void setTransactionId(int transactionId);
+
+    QDateTime getStartTime() const;
+    void setStartTime(const QDateTime &startTime);
+
+    QDateTime getStopTime() const;
+    void setStopTime(const QDateTime &stopTime);
+
   public slots:
     void startLogging();
     void stopLogging();
@@ -64,6 +74,9 @@ namespace VeinLogger
     QString m_session;
     QString m_recordName;
     QString m_transactionName;
+    int m_transactionId;
+    QDateTime m_startTime;
+    QDateTime m_stopTime;
     QString m_context;
     QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;

@@ -17,7 +17,8 @@ namespace VeinLogger
   {
     int entityId;
     int componentId;
-    QVector<int> recordIds;
+    QVector<int> transactionIds;
+    int recordId;
     QDateTime timestamp;
     QVariant value;
   };
@@ -48,9 +49,12 @@ namespace VeinLogger
     void initLocalData() override;
     void addComponent(const QString &t_componentName) override;
     void addEntity(int t_entityId, QString t_entityName) override;
+    int addTransaction(const QString &t_transactionName,const QString &t_recordName, const QString &t_context) override;
+    bool addStartTime(int t_transactionId, QDateTime t_time) override;
+    bool addStopTime(int t_transactionId,  QDateTime t_time) override;
     int addRecord(const QString &t_recordName) override;
-    void addLoggedValue(QVector<int> t_recordIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
-    void addLoggedValue(QVector<QString> t_recordNames, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
+    void addLoggedValue(int t_recordId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
+    void addLoggedValue(const  QString &t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
 
     bool openDatabase(const QString &t_dbPath) override;
 

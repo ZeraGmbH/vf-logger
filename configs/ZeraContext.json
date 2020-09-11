@@ -27,7 +27,7 @@
                 ]
             },
             {
-                "EntityId": "1010",
+                "EntityId": "1110",
                 "Components": [
                     "ACT_THDN1",
                     "ACT_THDN2",
@@ -36,7 +36,7 @@
                 ]
             },
             {
-                "EntityId": "1170",
+                "EntityId": "1070",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
@@ -44,7 +44,7 @@
                 ]
             },
             {
-                "EntityId": "1171",
+                "EntityId": "1071",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
@@ -52,7 +52,7 @@
                 ]
             },
             {
-                "EntityId": "1172",
+                "EntityId": "1072",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
@@ -81,7 +81,7 @@
         ],
         "ZeraPowerValues" :  [
             {
-                "EntityId": "1170",
+                "EntityId": "1070",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
@@ -89,7 +89,7 @@
                 ]
             },
             {
-                "EntityId": "1171",
+                "EntityId": "1071",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
@@ -97,7 +97,7 @@
                 ]
             },
             {
-                "EntityId": "1172",
+                "EntityId": "1072",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
@@ -131,7 +131,7 @@
         ],
         "ZeraHarmonicTable" : [
             {
-                "EntityId": "1010",
+                "EntityId": "1110",
                 "Components": [
                     "ACT_THDN1",
                     "ACT_THDN2",
@@ -158,7 +158,7 @@
         ],
         "ZeraHarmonicChart" : [
             {
-                "EntityId": "1010",
+                "EntityId": "1110",
                 "Components": [
                     "ACT_THDN1",
                     "ACT_THDN2",
@@ -326,13 +326,13 @@
     },
     "Sessions": {
         "com5003-ced-session.json": [
-
+             "ZeraEnergyComparison"
         ],
         "com5003-meas-session.json": [
-
+             "ZeraEnergyComparison"
         ],
         "com5003-ref-session.json": [
-
+            "ZeraEnergyComparison"
         ],
         "mt310s2-meas-session.json": [
             "ZeraActualValues",
@@ -346,21 +346,28 @@
             "ZeraHarmonicPowerChart",
             "ZeraMeterTest",
             "ZeraEnergyRegister",
-            "ZeraPowerRegister"
+            "ZeraPowerRegister",
+            "ZeraVoltageBurden",
+            "ZeraCurrentBurden",
+            "ZeraInstrumentTransformer"
         ],
         "developer-session.json": [
-            "ZeraActualValues",
-            "ZeraVectorDiagramm",
-            "ZeraPowerValues",
-            "ZeraRMSValues",
-            "ZeraHarmonicTable",
-            "ZeraHarmonicChart",
-            "ZeraCurveDispay",
-            "ZeraHarmonicPowerTable",
-            "ZeraHarmonicPowerChart",
-            "ZeraMeterTest",
-            "ZeraEnergyRegister",
-            "ZeraPowerRegister"
+        "ZeraActualValues",
+        "ZeraVectorDiagramm",
+        "ZeraPowerValues",
+        "ZeraRMSValues",
+        "ZeraHarmonicTable",
+        "ZeraHarmonicChart",
+        "ZeraCurveDispay",
+        "ZeraHarmonicPowerTable",
+        "ZeraHarmonicPowerChart",
+        "ZeraMeterTest",
+        "ZeraEnergyRegister",
+        "ZeraPowerRegister",
+        "ZeraVoltageBurden",
+        "ZeraCurrentBurden",
+        "ZeraInstrumentTransformer",
+        "ZeraEnergyComparison"
         ]
     }
 }
