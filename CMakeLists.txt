@@ -43,6 +43,9 @@ file(GLOB RESOURCES
     )
 
 
+set(zeraContextFile "${PROJECT_SOURCE_DIR}/configs/ZeraContext.json")
+set(customerContextFile "${PROJECT_SOURCE_DIR}/configs/CustomerContext.json")
+
 
 #Exclude psql files
 list(REMOVE_ITEM HEADER "${PROJECT_SOURCE_DIR}/vl_postgresdatabase.h")
@@ -132,6 +135,17 @@ install(EXPORT VfLoggerExport
 install(
     FILES ${HEADER}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
+    )
+    
+# install Context files
+install(
+    FILES ${zeraContextFile}
+    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/zera/configs/
+    )
+
+install(
+    FILES ${customerContextFile}
+    DESTINATION /home/operator/logging-context/
     )
 
 # spawn out some info on configuration

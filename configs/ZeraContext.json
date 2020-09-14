@@ -1,0 +1,368 @@
+{
+    "Context": {
+        "ZeraActualValues": [
+            {
+                "EntityId": "1040",
+                "Components": [
+                    "ACT_RMSPN1",
+                    "ACT_RMSPN2",
+                    "ACT_RMSPN3",
+                    "ACT_RMSPN4",
+                    "ACT_RMSPN5",
+                    "ACT_RMSPN6",
+                    "ACT_RMSPP1",
+                    "ACT_RMSPP2",
+                    "ACT_RMSPP3"
+                ]
+            },
+            {
+                "EntityId": "1050",
+                "Components": [
+                    "ACT_DFTPN1",
+                    "ACT_DFTPN2",
+                    "ACT_DFTPN3",
+                    "ACT_DFTPN4",
+                    "ACT_DFTPN5",
+                    "ACT_DFTPN6"
+                ]
+            },
+            {
+                "EntityId": "1010",
+                "Components": [
+                    "ACT_THDN1",
+                    "ACT_THDN2",
+                    "ACT_THDN3"
+
+                ]
+            },
+            {
+                "EntityId": "1170",
+                "Components": [
+                    "ACT_PQS1",
+                    "ACT_PQS2",
+                    "ACT_PQS3"
+                ]
+            },
+            {
+                "EntityId": "1171",
+                "Components": [
+                    "ACT_PQS1",
+                    "ACT_PQS2",
+                    "ACT_PQS3"
+                ]
+            },
+            {
+                "EntityId": "1172",
+                "Components": [
+                    "ACT_PQS1",
+                    "ACT_PQS2",
+                    "ACT_PQS3"
+                ]
+            },
+            {
+                "EntityId": "1020",
+                "Components": [
+                    "ACT_Frequency"
+                ]
+            }           
+        ],
+        "ZeraVectorDiagramm" : [
+            {
+                "EntityId": "1050",
+                "Components": [
+                    "ACT_DFTPN1",
+                    "ACT_DFTPN2",
+                    "ACT_DFTPN3",
+                    "ACT_DFTPN4",
+                    "ACT_DFTPN5",
+                    "ACT_DFTPN6"
+                ]
+            }
+        ],
+        "ZeraPowerValues" :  [
+            {
+                "EntityId": "1170",
+                "Components": [
+                    "ACT_PQS1",
+                    "ACT_PQS2",
+                    "ACT_PQS3"
+                ]
+            },
+            {
+                "EntityId": "1171",
+                "Components": [
+                    "ACT_PQS1",
+                    "ACT_PQS2",
+                    "ACT_PQS3"
+                ]
+            },
+            {
+                "EntityId": "1172",
+                "Components": [
+                    "ACT_PQS1",
+                    "ACT_PQS2",
+                    "ACT_PQS3"
+                ]
+            }
+        ],
+        "ZeraRMSValues" : [
+            {
+                "EntityId": "1040",
+                "Components": [
+                    "ACT_RMSPN1",
+                    "ACT_RMSPN2",
+                    "ACT_RMSPN3",
+                    "ACT_RMSPN4",
+                    "ACT_RMSPN5",
+                    "ACT_RMSPN6"
+                ]
+            },
+            {
+                "EntityId": "1050",
+                "Components": [
+                    "ACT_DFTPN1",
+                    "ACT_DFTPN2",
+                    "ACT_DFTPN3",
+                    "ACT_DFTPN4",
+                    "ACT_DFTPN5",
+                    "ACT_DFTPN6"
+                ]
+            }
+        ],
+        "ZeraHarmonicTable" : [
+            {
+                "EntityId": "1010",
+                "Components": [
+                    "ACT_THDN1",
+                    "ACT_THDN2",
+                    "ACT_THDN3",
+                    "ACT_THDN4",
+                    "ACT_THDN5",
+                    "ACT_THDN6",
+                    "ACT_THDN7"
+                ]
+            },
+            {
+                "EntityId": "1060",
+                "Components": [
+                    "ACT_FFT1",
+                    "ACT_FFT2",
+                    "ACT_FFT3",
+                    "ACT_FFT4",
+                    "ACT_FFT5",
+                    "ACT_FFT6",
+                    "ACT_FFT7"
+                ]
+            }
+
+        ],
+        "ZeraHarmonicChart" : [
+            {
+                "EntityId": "1010",
+                "Components": [
+                    "ACT_THDN1",
+                    "ACT_THDN2",
+                    "ACT_THDN3",
+                    "ACT_THDN4",
+                    "ACT_THDN5",
+                    "ACT_THDN6",
+                    "ACT_THDN7"
+                ]
+            },
+            {
+                "EntityId": "1060",
+                "Components": [
+                    "ACT_FFT1",
+                    "ACT_FFT2",
+                    "ACT_FFT3",
+                    "ACT_FFT4",
+                    "ACT_FFT5",
+                    "ACT_FFT6",
+                    "ACT_FFT7"
+                ]
+            }
+
+        ],
+        "ZeraCurveDispay" : [
+            {
+                "EntityId": "1120",
+                "Components": [
+                    "ACT_OSCI1",
+                    "ACT_OSCI2",
+                    "ACT_OSCI3",
+                    "ACT_OSCI4",
+                    "ACT_OSCI5",
+                    "ACT_OSCI6",
+                    "ACT_OSCI7",
+                    "ACT_OSCI8"
+                ]
+
+            }
+        ],
+        "ZeraHarmonicPowerTable":   [
+            {
+                "EntityId": "1060",
+                "Components" : [
+                    "ACT_FFT1",
+                    "ACT_FFT2",
+                    "ACT_FFT3",
+                    "ACT_FFT4",
+                    "ACT_FFT5",
+                    "ACT_FFT6"
+                ]
+            }
+        ],
+        "ZeraHarmonicPowerChart": [
+        {
+            "EntityId": "1060",
+            "Components" : [
+                "ACT_FFT1",
+                "ACT_FFT2",
+                "ACT_FFT3",
+                "ACT_FFT4",
+                "ACT_FFT5",
+                "ACT_FFT6"
+            ]
+
+        }
+        ],
+        "ZeraMeterTest": [
+        {
+            "EntityId": "1130",
+            "Components" : [
+                "ACT_Status",
+                "ACT_Result",
+                "ACT_EnergyFinal",
+                "PAR_DutConstant",
+                "PAR_MRate"
+            ]
+        }
+        ],
+        "ZeraEnergyComparison": [
+        {
+            "EntityId": "",
+            "Components": [
+
+            ]
+        }
+        ],
+        "ZeraEnergyRegister": [
+        {
+            "EntityId": "1200",
+            "Components": [
+                "ACT_Result",
+                "PAR_MeasTime"
+            ]
+        }
+        ],
+        "ZeraPowerRegister": [
+        {
+            "EntityId": "1210",
+            "Components" : [
+                "ACT_Result",
+                "PAR_MeasTime"
+            ]
+        }
+        ],
+        "ZeraVoltageBurden": [
+        {
+            "EntityId": "1160",
+            "Components": [
+                "ACT_Burden1",
+                "ACT_Burden2",
+                "ACT_Burden3",
+                "ACT_PFactor1",
+                "ACT_PFactor2",
+                "ACT_PFactor3",
+                "ACT_Ratio1",
+                "ACT_Ratio2",
+                "ACT_Ratio3",
+                "PAR_NominalBurden",
+                "PAR_NominalRange",
+                "PAR_WCrosssection",
+                "PAR_Wirelength"
+            ]
+        }
+        ],
+        "ZeraCurrentBurden": [
+        {
+            "EntityId": "1161",
+            "Components": [
+                "ACT_Burden1",
+                "ACT_Burden2",
+                "ACT_Burden3",
+                "ACT_PFactor1",
+                "ACT_PFactor2",
+                "ACT_PFactor3",
+                "ACT_Ratio1",
+                "ACT_Ratio2",
+                "ACT_Ratio3",
+                "PAR_NominalBurden",
+                "PAR_NominalRange",
+                "PAR_WCrosssection",
+                "PAR_Wirelength"
+            ]
+        }
+        ],
+        "ZeraInstrumentTransformer": [
+        {
+            "EntityId": "1170",
+            "Components": [
+                "ACT_Angle1",
+                "ACT_Error1",
+                "ACT_InSecondary1",
+                "ACT_IXPrimary",
+                "ACT_IXSecondary",
+                "ACT_Ratio",
+                "PAR_DutPrimary",
+                "PAR_DutSecondary",
+                "PAR_PrimClampPrim",
+                "PAR_PrimClampSec",
+                "PAR_SecClampPrim",
+                "PAR_SecClampSec"
+            ]
+        }
+        ]
+    },
+    "Sessions": {
+        "com5003-ced-session.json": [
+
+        ],
+        "com5003-meas-session.json": [
+
+        ],
+        "com5003-ref-session.json": [
+
+        ],
+        "mt310s2-meas-session.json": [
+            "ZeraActualValues",
+            "ZeraVectorDiagramm",
+            "ZeraPowerValues",
+            "ZeraRMSValues",
+            "ZeraHarmonicTable",
+            "ZeraHarmonicChart",
+            "ZeraCurveDispay",
+            "ZeraHarmonicPowerTable",
+            "ZeraHarmonicPowerChart",
+            "ZeraMeterTest",
+            "ZeraEnergyRegister",
+            "ZeraPowerRegister"
+        ],
+        "developer-session.json": [
+            "ZeraActualValues",
+            "ZeraVectorDiagramm",
+            "ZeraPowerValues",
+            "ZeraRMSValues",
+            "ZeraHarmonicTable",
+            "ZeraHarmonicChart",
+            "ZeraCurveDispay",
+            "ZeraHarmonicPowerTable",
+            "ZeraHarmonicPowerChart",
+            "ZeraMeterTest",
+            "ZeraEnergyRegister",
+            "ZeraPowerRegister"
+        ]
+    }
+}
+
+
