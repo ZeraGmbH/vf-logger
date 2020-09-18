@@ -8,9 +8,29 @@
 
 #include "jsoncontextloader.h"
 
+
+
 namespace VeinLogger
 {
 class DatabaseLogger;
+
+/**
+ * @brief The QmlLogger class
+ *
+ * This class stores all imprtand logging context data.
+ * - recordName name
+ * - transaction name
+ * - context name
+ * - components
+ *
+ * - recordId
+ * - transactionId
+ *
+ * With this information its possible to map value changes to logging sessions.
+ *
+ * @todo Create base class that acts only as data storage and does not handle signals and more.
+ * @todo Move jsonContextreader to vl_databaselogger
+ */
 class VFLOGGER_EXPORT QmlLogger : public QQuickItem
 {
     Q_OBJECT
@@ -22,6 +42,10 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
+    /**
+     * @brief recordName
+     * @return
+     */
     QString recordName() const;
     QString transactionName() const;
     QString context() const;
@@ -31,6 +55,13 @@ public:
     bool hasLoggerEntry(int t_entityId, const QString &t_componentName) const;
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
+    /**
+     * @brief setContextPath
+     * @param p_zeraPath: path to Zera context file
+     * @param p_customerPath: path to Customer context file
+     *
+     * @todo reove this with association to jsonContextReader
+     */
     static void setContextPath(QString p_zeraPath,QString p_customerPath);
 
     QMultiHash<int, QString> getLoggedValues() const;

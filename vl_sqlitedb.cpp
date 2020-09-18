@@ -108,19 +108,74 @@ class DBPrivate
     QFile m_queryReader;
 
     //commonly used queries
+    /**
+     * @brief m_valueMapInsertQuery
+     * Insert values in database
+     */
     QSqlQuery m_valueMapInsertQuery;
+    /**
+     * @brief m_valueMapSequenceQuery
+     * Get highest value id in database
+     */
     QSqlQuery m_valueMapSequenceQuery;
+    /**
+     * @brief m_transactionMappingInsertQuery
+     * Add transaction to database
+     *
+     * The id is needed beacause writing is done in batches
+     * and the ids are managed in this class parallel to the database
+     */
     QSqlQuery m_transactionMappingInsertQuery;
+    /**
+     * @brief m_componentInsertQuery
+     * Add component to database
+     */
     QSqlQuery m_componentInsertQuery;
+    /**
+     * @brief m_componentSequenceQuery
+     * get highest component id in database
+     */
     QSqlQuery m_componentSequenceQuery;
+    /**
+     * @brief m_entityInsertQuery
+     * Add entity to database
+     *
+     * The id is needed beacause writing is done in batches
+     * and the ids are managed in this class parallel to the database
+     */
     QSqlQuery m_entityInsertQuery;
+    /**
+     * @brief m_transactionInsertQuery
+     * add transactin to database
+     */
     QSqlQuery m_transactionInsertQuery;
+    /**
+     * @brief m_transactionSequenceQuery
+     * get highest transaction id in database
+     */
     QSqlQuery m_transactionSequenceQuery;
+    /**
+     * @brief m_recordInsertQuery
+     * add record to database
+     *
+     * The id is needed beacause writing is done in batches
+     * and the ids are managed in this class parallel to the database
+     */
     QSqlQuery m_recordInsertQuery;
+    /**
+     * @brief m_recordSequenceQuery
+     * get highest record id to database
+     *
+     * The id is needed beacause writing is done in batches
+     * and the ids are managed in this class parallel to the database
+     */
     QSqlQuery m_recordSequenceQuery;
 
     int m_valueMapQueryCounter=0;
-
+    /**
+     * @brief m_logDB
+     * manages the actual database access
+     */
     QSqlDatabase m_logDB;
 
     SQLiteDB::STORAGE_MODE m_storageMode=SQLiteDB::STORAGE_MODE::TEXT;
@@ -706,6 +761,8 @@ void SQLiteDB::runBatchedExecution()
                 Q_ASSERT(false);
             }
 
+            // Add stop time to active transactions. we have to that here becaus a bathc might be written after the script is removed.
+            // The result is an sql conflict.
             for(int id : activeTransactions.values()){
                 addStopTime(id ,QDateTime::currentDateTime());
             }
