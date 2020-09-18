@@ -9,11 +9,11 @@
 
 namespace VeinLogger
 {
-  class AbstractLoggerDB : public QObject
-  {
+class AbstractLoggerDB : public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     AbstractLoggerDB(QObject *t_parent=nullptr);
     virtual ~AbstractLoggerDB()
     {
@@ -21,8 +21,8 @@ namespace VeinLogger
     }
 
     enum class STORAGE_MODE : int {
-      TEXT = 0,
-      BINARY = 1,
+        TEXT = 0,
+        BINARY = 1,
     };
 
     virtual bool hasEntityId(int t_entityId) const =0;
@@ -35,12 +35,12 @@ namespace VeinLogger
     virtual STORAGE_MODE getStorageMode() const =0;
     virtual std::function<bool(QString)> getDatabaseValidationFunction() const =0;
 
-  signals:
+signals:
     void sigDatabaseError(const QString &t_errorString);
     void sigDatabaseReady();
     void sigNewRecordList(QStringList p_records);
 
-  public slots:
+public slots:
     virtual void initLocalData() =0;
     virtual void addComponent(const QString &t_componentName) =0;
     virtual void addEntity(int t_entityId, QString t_entityName) =0;
@@ -53,10 +53,10 @@ namespace VeinLogger
 
     virtual bool openDatabase(const QString &t_dbPath) =0;
     virtual void runBatchedExecution() =0;
-  };
+};
 
-  /// @b factory function alias to create database
-  using DBFactory = std::function<AbstractLoggerDB *()>;
+/// @b factory function alias to create database
+using DBFactory = std::function<AbstractLoggerDB *()>;
 } // namespace VeinLogger
 
 #endif // VEINLOGGER_ABSTRACTLOGGERDB_H

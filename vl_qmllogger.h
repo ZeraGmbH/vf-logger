@@ -10,9 +10,9 @@
 
 namespace VeinLogger
 {
-  class DatabaseLogger;
-  class VFLOGGER_EXPORT QmlLogger : public QQuickItem
-  {
+class DatabaseLogger;
+class VFLOGGER_EXPORT QmlLogger : public QQuickItem
+{
     Q_OBJECT
     Q_PROPERTY(QString recordName READ recordName WRITE setRecordName NOTIFY recordNameChanged)
     Q_PROPERTY(QString transactionName READ transactionName WRITE setTransactionName NOTIFY transactionNameChanged)
@@ -20,7 +20,7 @@ namespace VeinLogger
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
     Q_PROPERTY(QString context READ context WRITE setContext NOTIFY contextChanged)
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
-  public:
+public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
     QString recordName() const;
     QString transactionName() const;
@@ -47,7 +47,7 @@ namespace VeinLogger
     QDateTime getStopTime() const;
     void setStopTime(const QDateTime &stopTime);
 
-  public slots:
+public slots:
     void startLogging();
     void stopLogging();
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
@@ -59,7 +59,7 @@ namespace VeinLogger
     void setContext(const QString &t_context);
     void setSession(const QString &t_session);
 
-  signals:
+signals:
     void recordNameChanged(QString t_recordName);
     void transactionNameChanged(QString t_transactionName);
     void contextChanged(QString t_context);
@@ -67,7 +67,7 @@ namespace VeinLogger
     void loggingEnabledChanged(bool t_loggingEnabled);
     void initializeValuesChanged(bool t_initializeValues);
 
-  private:
+private:
     static DatabaseLogger *s_dbLogger;
     static QString m_zeraContextPath;
     static QString m_customerContextPath;
@@ -81,7 +81,7 @@ namespace VeinLogger
     QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;
     JsonContextLoader m_contextLoader;
-  };
+};
 } // namespace VeinLogger
 
 #endif // VEINLOGGER_QMLLOGGER_H

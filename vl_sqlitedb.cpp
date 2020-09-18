@@ -352,44 +352,44 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
     }
 
 
-        int nexttransactionId = 0;
+    int nexttransactionId = 0;
 
-        if(m_dPtr->m_transactionSequenceQuery.exec() == true)
-        {
-            m_dPtr->m_transactionSequenceQuery.next();
-            nexttransactionId = m_dPtr->m_transactionSequenceQuery.value(0).toInt()+1;
-        }
-        else
-        {
-            emit sigDatabaseError(QString("SQLiteDB::addTrancaction m_tranactionSequenceQuery failed: %1").arg(m_dPtr->m_transactionSequenceQuery.lastError().text()));
-            Q_ASSERT(false);
-        }
+    if(m_dPtr->m_transactionSequenceQuery.exec() == true)
+    {
+        m_dPtr->m_transactionSequenceQuery.next();
+        nexttransactionId = m_dPtr->m_transactionSequenceQuery.value(0).toInt()+1;
+    }
+    else
+    {
+        emit sigDatabaseError(QString("SQLiteDB::addTrancaction m_tranactionSequenceQuery failed: %1").arg(m_dPtr->m_transactionSequenceQuery.lastError().text()));
+        Q_ASSERT(false);
+    }
 
-        m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
-        m_dPtr->m_transactionInsertQuery.bindValue(":recordsid", recordId);
-        m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", t_transactionName);
-        m_dPtr->m_transactionInsertQuery.bindValue(":context_name", t_context);
-        if(m_dPtr->m_transactionInsertQuery.exec() == false)
-        {
-            emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
-            Q_ASSERT(false);
-        }
+    m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
+    m_dPtr->m_transactionInsertQuery.bindValue(":recordsid", recordId);
+    m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", t_transactionName);
+    m_dPtr->m_transactionInsertQuery.bindValue(":context_name", t_context);
+    if(m_dPtr->m_transactionInsertQuery.exec() == false)
+    {
+        emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
+        Q_ASSERT(false);
+    }
 
 
 
-        m_dPtr->m_transactionSequenceQuery.finish();
+    m_dPtr->m_transactionSequenceQuery.finish();
 
-        if(nexttransactionId > 0)
-        {
-            retVal = nexttransactionId;
-        }
-        else
-        {
-            emit sigDatabaseError(QString("Error in SQLiteDB::addTransaction transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-            Q_ASSERT(false);
-        }
+    if(nexttransactionId > 0)
+    {
+        retVal = nexttransactionId;
+    }
+    else
+    {
+        emit sigDatabaseError(QString("Error in SQLiteDB::addTransaction transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
+        Q_ASSERT(false);
+    }
 
-        return retVal;
+    return retVal;
 }
 
 bool SQLiteDB::addStartTime(int t_transactionId, QDateTime t_time)

@@ -8,15 +8,15 @@
 
 namespace VeinLogger
 {
-  class DataLoggerPrivate;
-  class DataSource;
-  class QmlLogger;
+class DataLoggerPrivate;
+class DataSource;
+class QmlLogger;
 
-  class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
-  {
+class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
+{
     Q_OBJECT
 
-  public:
+public:
     explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
     virtual void addScript(QmlLogger *t_script);
@@ -25,7 +25,7 @@ namespace VeinLogger
     int entityId() const;
     QString entityName() const;
 
-  signals:
+signals:
     void sigAddLoggedValue(QString t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void sigAddEntity(int t_entityId, const QString &t_entityName);
     void sigAddComponent(const QString &t_componentName);
@@ -42,21 +42,21 @@ namespace VeinLogger
     void sigLogSchedulerActivated();
     void sigLogSchedulerDeactivated();
 
-  public slots:
+public slots:
     virtual void setLoggingEnabled(bool t_enabled);
     virtual bool openDatabase(const QString &t_filePath);
     virtual void closeDatabase();
     virtual void updateRecordList(QStringList p_records);
 
     // EventSystem interface
-  public:
+public:
     virtual bool processEvent(QEvent *t_event) override;
 
-  private:
+private:
     void initEntity();
 
     DataLoggerPrivate *m_dPtr=nullptr;
-  };
+};
 }
 
 #endif // VL_DATALOGGER_H

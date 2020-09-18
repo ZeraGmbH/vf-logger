@@ -13,22 +13,22 @@
 
 namespace VeinLogger
 {
-  struct SQLBatchData
-  {
+struct SQLBatchData
+{
     int entityId;
     int componentId;
     QVector<int> transactionIds;
     int recordId;
     QDateTime timestamp;
     QVariant value;
-  };
+};
 
-  class DBPrivate;
+class DBPrivate;
 
-  class VFLOGGER_EXPORT SQLiteDB : public AbstractLoggerDB
-  {
+class VFLOGGER_EXPORT SQLiteDB : public AbstractLoggerDB
+{
     Q_OBJECT
-  public:
+public:
 
     explicit SQLiteDB(QObject *t_parent = nullptr);
     ~SQLiteDB();
@@ -45,7 +45,7 @@ namespace VeinLogger
 
     static bool isValidDatabase(QString t_dbPath);
 
-  public slots:
+public slots:
     void initLocalData() override;
     void addComponent(const QString &t_componentName) override;
     void addEntity(int t_entityId, QString t_entityName) override;
@@ -61,9 +61,9 @@ namespace VeinLogger
 
     void runBatchedExecution() override;
 
-  private:
+private:
     DBPrivate *m_dPtr=nullptr;
-  };
+};
 
 } // namespace VeinLogger
 

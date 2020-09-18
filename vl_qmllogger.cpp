@@ -94,9 +94,9 @@ QVariantMap QmlLogger::readContext()
 void QmlLogger::startLogging()
 {
     if(!m_recordName.isEmpty() && !m_transactionName.isEmpty()){
-    VF_ASSERT(m_recordName.isEmpty() == false, "Logging requires a valid recordName");
-    VF_ASSERT(m_transactionName.isEmpty() == false, "Logging requires a valid transactionName");
-    s_dbLogger->addScript(this);
+        VF_ASSERT(m_recordName.isEmpty() == false, "Logging requires a valid recordName");
+        VF_ASSERT(m_transactionName.isEmpty() == false, "Logging requires a valid transactionName");
+        s_dbLogger->addScript(this);
     }
 }
 

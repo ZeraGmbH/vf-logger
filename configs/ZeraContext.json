@@ -352,22 +352,22 @@
             "ZeraInstrumentTransformer"
         ],
         "developer-session.json": [
-        "ZeraActualValues",
-        "ZeraVectorDiagramm",
-        "ZeraPowerValues",
-        "ZeraRMSValues",
-        "ZeraHarmonicTable",
-        "ZeraHarmonicChart",
-        "ZeraCurveDispay",
-        "ZeraHarmonicPowerTable",
-        "ZeraHarmonicPowerChart",
-        "ZeraMeterTest",
-        "ZeraEnergyRegister",
-        "ZeraPowerRegister",
-        "ZeraVoltageBurden",
-        "ZeraCurrentBurden",
-        "ZeraInstrumentTransformer",
-        "ZeraEnergyComparison"
+            "ZeraActualValues",
+            "ZeraVectorDiagramm",
+            "ZeraPowerValues",
+            "ZeraRMSValues",
+            "ZeraHarmonicTable",
+            "ZeraHarmonicChart",
+            "ZeraCurveDispay",
+            "ZeraHarmonicPowerTable",
+            "ZeraHarmonicPowerChart",
+            "ZeraMeterTest",
+            "ZeraEnergyRegister",
+            "ZeraPowerRegister",
+            "ZeraVoltageBurden",
+            "ZeraCurrentBurden",
+            "ZeraInstrumentTransformer",
+            "ZeraEnergyComparison"
         ]
     }
 }
