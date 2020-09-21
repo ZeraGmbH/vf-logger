@@ -29,6 +29,7 @@ unittest
 *.so*
 
 # qtcreator generated files
+*.txt.user*
 *.pro.user*
 *.qmlproject.user*
 *.pluginspec

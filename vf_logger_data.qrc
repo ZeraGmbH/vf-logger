@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>sqlite/schema_sqlite.sql</file>
+        <file>configs/CustomerContext.json</file>
+        <file>configs/ZeraContext.json</file>
     </qresource>
 </RCC>
