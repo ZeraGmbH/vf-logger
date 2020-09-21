@@ -17,6 +17,7 @@ protected:
 
     virtual QVariant getValue(int t_entityId, const QString &t_componentName) const =0;
     virtual QString getEntityName(int t_entityId) const =0;
+    virtual QStringList getEntityComponents(int t_entityId) const =0;
 
 private:
     DataSource *m_qPtr=nullptr;
@@ -41,6 +42,11 @@ class DataSourcePrivateQml : public DataSourcePrivate
         return m_dataSource->getEntityById(t_entityId)->value(QString("EntityName")).toString();
     }
 
+    QStringList getEntityComponents(int t_entityId) const override
+    {
+        return m_dataSource->getEntityById(t_entityId)->keys();
+    }
+
     VeinApiQml::VeinQml *m_dataSource=nullptr;
     friend class DataSource;
 };
@@ -61,8 +67,13 @@ class DataSourcePrivateStorage : public DataSourcePrivate
     QString getEntityName(int t_entityId) const override
     {
         return m_dataSource->getStoredValue(t_entityId, QString("EntityName")).toString();
+
     }
 
+    QStringList getEntityComponents(int t_entityId) const override
+    {
+        return m_dataSource->getEntityComponents(t_entityId);
+    }
 
     VeinStorage::VeinHash *m_dataSource=nullptr;
     friend class DataSource;
@@ -91,6 +102,11 @@ QVariant DataSource::getValue(int t_entityId, const QString &t_componentName) co
 QString DataSource::getEntityName(int t_entityId) const
 {
     return m_dPtr->getEntityName(t_entityId);
+}
+
+QStringList DataSource::getEntityComponents(int t_entityId)
+{
+    return m_dPtr->getEntityComponents(t_entityId);
 }
 
 } // namespace VeinLogger
