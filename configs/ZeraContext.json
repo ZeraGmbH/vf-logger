@@ -322,17 +322,68 @@
                 "PAR_SecClampSec"
             ]
         }
+        ],
+        "ZeraDCReference": [
+        {
+            "EntityId": "1050",
+            "Components": [
+                "ACT_DFTPN1",
+                "ACT_DFTPN2",
+                "ACT_DFTPN3",
+                "ACT_DFTPN4",
+                "ACT_DFTPN5",
+                "ACT_DFTPN6",
+                "PAR_Interval",
+                "PAR_RefChannel"
+            ]
+        }
+        ],
+        "ZeraCEDPower": [
+        {
+            "EntityId": "1090",
+            "Components": [
+                "ACT_P1",
+                "ACT_P2",
+                "ACT_P3",
+                "ACT_P4",
+                "ACT_PM1",
+                "ACT_PM2",
+                "ACT_PM3",
+                "ACT_PM4",
+                "PAR_Interval",
+                "PAR_MeasuringMode"
+            ]
+        }
         ]
     },
     "Sessions": {
-        "com5003-ced-session.json": [
-             "ZeraEnergyComparison"
-        ],
         "com5003-meas-session.json": [
-             "ZeraEnergyComparison"
+            "ZeraActualValues",
+            "ZeraVectorDiagramm",
+            "ZeraPowerValues",
+            "ZeraRMSValues",
+            "ZeraHarmonicTable",
+            "ZeraHarmonicChart",
+            "ZeraCurveDispay",
+            "ZeraHarmonicPowerTable",
+            "ZeraHarmonicPowerChart",
+            "ZeraMeterTest",
+            "ZeraEnergyComparison"
+        ],
+        "com5003-ced-session.json": [
+            "ZeraActualValues",
+            "ZeraVectorDiagramm",
+            "ZeraPowerValues",
+            "ZeraRMSValues",
+            "ZeraHarmonicTable",
+            "ZeraHarmonicChart",
+            "ZeraCurveDispay",
+            "ZeraMeterTest",
+            "ZeraEnergyComparison",
+            "ZeraCEDPower"
         ],
         "com5003-ref-session.json": [
-            "ZeraEnergyComparison"
+            "ZeraDCReference"
         ],
         "mt310s2-meas-session.json": [
             "ZeraActualValues",
