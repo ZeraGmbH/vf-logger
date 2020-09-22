@@ -260,7 +260,7 @@ bool SQLiteDB::isValidDatabase(QString t_dbPath)
             QSqlQuery schemaValidationQuery(tmpDB);
             if(schemaValidationQuery.exec("SELECT name FROM sqlite_master WHERE type = 'table';"))
             {
-                QSet<QString> requiredTables {"records", "entities", "components", "valuemap", "recordmapping"};
+                QSet<QString> requiredTables {"records", "entities", "components", "valuemap", "transactions"};
                 QSet<QString> foundTables;
                 while(schemaValidationQuery.next())
                 {
