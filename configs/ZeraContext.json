@@ -3,6 +3,7 @@
         "ZeraActualValues": [
             {
                 "EntityId": "1040",
+                "Comment": "RMSModule",
                 "Components": [
                     "ACT_RMSPN1",
                     "ACT_RMSPN2",
@@ -17,175 +18,183 @@
             },
             {
                 "EntityId": "1050",
+                "Comment": "DFTModule",
                 "Components": [
                     "ACT_DFTPN1",
                     "ACT_DFTPN2",
                     "ACT_DFTPN3",
                     "ACT_DFTPN4",
                     "ACT_DFTPN5",
-                    "ACT_DFTPN6"
-                ]
+                    "ACT_DFTPN6",
+                    "ACT_DFTPN7",
+                    "ACT_DFTPN8",
+                    "ACT_DFTPP1",
+                    "ACT_DFTPP2",
+                    "ACT_DFTPP3",
+                    "ACT_RFIELD",
+                    "PAR_Interval",
+                    "PAR_RefChannel"
+               ]
             },
             {
                 "EntityId": "1110",
+                "Comment": "THDNModule",
                 "Components": [
                     "ACT_THDN1",
                     "ACT_THDN2",
-                    "ACT_THDN3"
-
+                    "ACT_THDN3",
+                    "ACT_THDN4",
+                    "ACT_THDN5",
+                    "ACT_THDN6",
+                    "ACT_THDN7",
+                    "ACT_THDN8"
+                ]
+            },
+            {
+                "EntityId": "1111",
+                "Comment": "THDNModule",
+                "Components": [
+                    "ACT_THDR1",
+                    "ACT_THDR2",
+                    "ACT_THDR3",
+                    "ACT_THDR4",
+                    "ACT_THDR5",
+                    "ACT_THDR6",
+                    "ACT_THDR7",
+                    "ACT_THDN8"
                 ]
             },
             {
                 "EntityId": "1070",
+                "Comment": "PowerModule",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
-                    "ACT_PQS3"
+                    "ACT_PQS3",
+                    "ACT_PQS4",
+                    "PAR_Interval",
+                    "PAR_MeasuringMode"
                 ]
             },
             {
                 "EntityId": "1071",
+                "Comment": "PowerModule",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
-                    "ACT_PQS3"
+                    "ACT_PQS3",
+                    "ACT_PQS4",
+                    "PAR_Interval",
+                    "PAR_MeasuringMode"
                 ]
             },
             {
                 "EntityId": "1072",
+                "Comment": "PowerModule",
                 "Components": [
                     "ACT_PQS1",
                     "ACT_PQS2",
-                    "ACT_PQS3"
+                    "ACT_PQS3",
+                    "ACT_PQS4",
+                    "PAR_Interval",
+                    "PAR_MeasuringMode"
+                ]
+            },
+            {
+                "EntityId": "1090",
+                "Comment": "PowerModule CED",
+                "Components": [
+                    "ACT_P1",
+                    "ACT_P2",
+                    "ACT_P3",
+                    "ACT_P4",
+                    "ACT_PM1",
+                    "ACT_PM2",
+                    "ACT_PM3",
+                    "ACT_PM4",
+                    "ACT_PP1",
+                    "ACT_PP2",
+                    "ACT_PP3",
+                    "ACT_PP4",
+                    "PAR_Interval",
+                    "PAR_MeasuringMode"
+                ]
+			},
+            {
+                "EntityId": "1020",
+                "Comment": "RangeModule",
+                "Components": [
+                    "ACT_Frequency",
+                    "PAR_Channel1Range",
+                    "PAR_Channel2Range",
+                    "PAR_Channel3Range",
+                    "PAR_Channel4Range",
+                    "PAR_Channel5Range",
+                    "PAR_Channel6Range",
+                    "PAR_Channel7Range",
+                    "PAR_Channel8Range"
+                ]
+            },
+            {
+                "EntityId": "1140",
+                "Comment": "LambdaModule",
+                "Components": [
+                    "ACT_Lambda1",
+                    "ACT_Lambda2",
+                    "ACT_Lambda3",
+                    "ACT_Lambda4"
+                ]
+            }
+        ],
+        "ZeraHarmonics" : [
+            {
+                "EntityId": "1110",
+                "Comment": "THDNModule",
+                "Components": [
+                    "ACT_THDN1",
+                    "ACT_THDN2",
+                    "ACT_THDN3",
+                    "ACT_THDN4",
+                    "ACT_THDN5",
+                    "ACT_THDN6",
+                    "ACT_THDN7",
+                    "ACT_THDN8"
+                ]
+            },
+            {
+                "EntityId": "1060",
+                "Comment": "FFTModule",
+                "Components": [
+                    "ACT_FFT1",
+                    "ACT_FFT2",
+                    "ACT_FFT3",
+                    "ACT_FFT4",
+                    "ACT_FFT5",
+                    "ACT_FFT6",
+                    "ACT_FFT7",
+                    "ACT_FFT8"
                 ]
             },
             {
                 "EntityId": "1020",
+                "Comment": "RangeModule",
                 "Components": [
-                    "ACT_Frequency"
-                ]
-            }           
-        ],
-        "ZeraVectorDiagramm" : [
-            {
-                "EntityId": "1050",
-                "Components": [
-                    "ACT_DFTPN1",
-                    "ACT_DFTPN2",
-                    "ACT_DFTPN3",
-                    "ACT_DFTPN4",
-                    "ACT_DFTPN5",
-                    "ACT_DFTPN6"
+                    "ACT_Frequency",
+                    "PAR_Channel1Range",
+                    "PAR_Channel2Range",
+                    "PAR_Channel3Range",
+                    "PAR_Channel4Range",
+                    "PAR_Channel5Range",
+                    "PAR_Channel6Range",
+                    "PAR_Channel7Range",
+                    "PAR_Channel8Range"
                 ]
             }
         ],
-        "ZeraPowerValues" :  [
-            {
-                "EntityId": "1070",
-                "Components": [
-                    "ACT_PQS1",
-                    "ACT_PQS2",
-                    "ACT_PQS3"
-                ]
-            },
-            {
-                "EntityId": "1071",
-                "Components": [
-                    "ACT_PQS1",
-                    "ACT_PQS2",
-                    "ACT_PQS3"
-                ]
-            },
-            {
-                "EntityId": "1072",
-                "Components": [
-                    "ACT_PQS1",
-                    "ACT_PQS2",
-                    "ACT_PQS3"
-                ]
-            }
-        ],
-        "ZeraRMSValues" : [
-            {
-                "EntityId": "1040",
-                "Components": [
-                    "ACT_RMSPN1",
-                    "ACT_RMSPN2",
-                    "ACT_RMSPN3",
-                    "ACT_RMSPN4",
-                    "ACT_RMSPN5",
-                    "ACT_RMSPN6"
-                ]
-            },
-            {
-                "EntityId": "1050",
-                "Components": [
-                    "ACT_DFTPN1",
-                    "ACT_DFTPN2",
-                    "ACT_DFTPN3",
-                    "ACT_DFTPN4",
-                    "ACT_DFTPN5",
-                    "ACT_DFTPN6"
-                ]
-            }
-        ],
-        "ZeraHarmonicTable" : [
-            {
-                "EntityId": "1110",
-                "Components": [
-                    "ACT_THDN1",
-                    "ACT_THDN2",
-                    "ACT_THDN3",
-                    "ACT_THDN4",
-                    "ACT_THDN5",
-                    "ACT_THDN6",
-                    "ACT_THDN7"
-                ]
-            },
-            {
-                "EntityId": "1060",
-                "Components": [
-                    "ACT_FFT1",
-                    "ACT_FFT2",
-                    "ACT_FFT3",
-                    "ACT_FFT4",
-                    "ACT_FFT5",
-                    "ACT_FFT6",
-                    "ACT_FFT7"
-                ]
-            }
-
-        ],
-        "ZeraHarmonicChart" : [
-            {
-                "EntityId": "1110",
-                "Components": [
-                    "ACT_THDN1",
-                    "ACT_THDN2",
-                    "ACT_THDN3",
-                    "ACT_THDN4",
-                    "ACT_THDN5",
-                    "ACT_THDN6",
-                    "ACT_THDN7"
-                ]
-            },
-            {
-                "EntityId": "1060",
-                "Components": [
-                    "ACT_FFT1",
-                    "ACT_FFT2",
-                    "ACT_FFT3",
-                    "ACT_FFT4",
-                    "ACT_FFT5",
-                    "ACT_FFT6",
-                    "ACT_FFT7"
-                ]
-            }
-
-        ],
-        "ZeraCurveDispay" : [
+        "ZeraCurves" : [
             {
                 "EntityId": "1120",
+                "Comment": "OSCIModule",
                 "Components": [
                     "ACT_OSCI1",
                     "ACT_OSCI2",
@@ -197,228 +206,197 @@
                     "ACT_OSCI8"
                 ]
 
-            }
-        ],
-        "ZeraHarmonicPowerTable":   [
+            },
             {
-                "EntityId": "1060",
-                "Components" : [
-                    "ACT_FFT1",
-                    "ACT_FFT2",
-                    "ACT_FFT3",
-                    "ACT_FFT4",
-                    "ACT_FFT5",
-                    "ACT_FFT6"
+                "EntityId": "1020",
+                "Comment": "RangeModule",
+                "Components": [
+                    "ACT_Frequency",
+                    "PAR_Channel1Range",
+                    "PAR_Channel2Range",
+                    "PAR_Channel3Range",
+                    "PAR_Channel4Range",
+                    "PAR_Channel5Range",
+                    "PAR_Channel6Range",
+                    "PAR_Channel7Range",
+                    "PAR_Channel8Range"
                 ]
             }
         ],
-        "ZeraHarmonicPowerChart": [
-        {
-            "EntityId": "1060",
-            "Components" : [
-                "ACT_FFT1",
-                "ACT_FFT2",
-                "ACT_FFT3",
-                "ACT_FFT4",
-                "ACT_FFT5",
-                "ACT_FFT6"
-            ]
-
-        }
+        "ZeraComparison": [
+            {
+                "EntityId": "1130",
+                "Comment": "SECModule",
+                "Components" : [
+                    "ACT_Status",
+                    "ACT_Result",
+                    "ACT_EnergyFinal",
+                    "PAR_DutConstant",
+                    "PAR_DutConstUnit",
+                    "PAR_MRate"
+                ]
+            },
+            {
+                "EntityId": "1131",
+                "Comment": "SECModule",
+                "Components" : [
+                    "ACT_Status",
+                    "ACT_Result",
+                    "ACT_EnergyFinal",
+                    "PAR_DutConstant",
+                    "PAR_DutConstUnit",
+                    "PAR_MRate"
+                ]
+            },
+            {
+                "EntityId": "1200",
+                "Comment": "SEMModule",
+                "Components": [
+                    "ACT_Status",
+                    "ACT_Result",
+                    "ACT_EnergyFinal",
+                    "PAR_DutConstant",
+                    "PAR_DutConstUnit",
+                    "PAR_MRate"
+                ]
+			},
+            {
+                "EntityId": "1210",
+                "Comment": "SPMModule",
+                "Components": [
+                    "ACT_Status",
+                    "ACT_Result",
+                    "ACT_EnergyFinal",
+                    "PAR_DutConstant",
+                    "PAR_DutConstUnit",
+                    "PAR_MRate"
+                ]
+			},
+            {
+                "EntityId": "1020",
+                "Comment": "RangeModule",
+                "Components": [
+                    "ACT_Frequency",
+                    "PAR_Channel1Range",
+                    "PAR_Channel2Range",
+                    "PAR_Channel3Range",
+                    "PAR_Channel4Range",
+                    "PAR_Channel5Range",
+                    "PAR_Channel6Range",
+                    "PAR_Channel7Range",
+                    "PAR_Channel8Range"
+                ]
+            }
         ],
-        "ZeraMeterTest": [
-        {
-            "EntityId": "1130",
-            "Components" : [
-                "ACT_Status",
-                "ACT_Result",
-                "ACT_EnergyFinal",
-                "PAR_DutConstant",
-                "PAR_MRate"
-            ]
-        }
+        "ZeraBurden": [
+            {
+                "EntityId": "1160",
+                "Comment": "BurdenModule",
+                "Components": [
+                    "ACT_Burden1",
+                    "ACT_Burden2",
+                    "ACT_Burden3",
+                    "ACT_PFactor1",
+                    "ACT_PFactor2",
+                    "ACT_PFactor3",
+                    "ACT_Ratio1",
+                    "ACT_Ratio2",
+                    "ACT_Ratio3",
+                    "PAR_NominalBurden",
+                    "PAR_NominalRange",
+                    "PAR_WCrosssection",
+                    "PAR_Wirelength"
+                ]
+			},
+            {
+                "EntityId": "1161",
+                "Comment": "BurdenModule",
+                "Components": [
+                    "ACT_Burden1",
+                    "ACT_Burden2",
+                    "ACT_Burden3",
+                    "ACT_PFactor1",
+                    "ACT_PFactor2",
+                    "ACT_PFactor3",
+                    "ACT_Ratio1",
+                    "ACT_Ratio2",
+                    "ACT_Ratio3",
+                    "PAR_NominalBurden",
+                    "PAR_NominalRange",
+                    "PAR_WCrosssection",
+                    "PAR_Wirelength"
+                ]
+            }
         ],
-        "ZeraEnergyComparison": [
-        {
-            "EntityId": "",
-            "Components": [
-
-            ]
-        }
-        ],
-        "ZeraEnergyRegister": [
-        {
-            "EntityId": "1200",
-            "Components": [
-                "ACT_Result",
-                "PAR_MeasTime"
-            ]
-        }
-        ],
-        "ZeraPowerRegister": [
-        {
-            "EntityId": "1210",
-            "Components" : [
-                "ACT_Result",
-                "PAR_MeasTime"
-            ]
-        }
-        ],
-        "ZeraVoltageBurden": [
-        {
-            "EntityId": "1160",
-            "Components": [
-                "ACT_Burden1",
-                "ACT_Burden2",
-                "ACT_Burden3",
-                "ACT_PFactor1",
-                "ACT_PFactor2",
-                "ACT_PFactor3",
-                "ACT_Ratio1",
-                "ACT_Ratio2",
-                "ACT_Ratio3",
-                "PAR_NominalBurden",
-                "PAR_NominalRange",
-                "PAR_WCrosssection",
-                "PAR_Wirelength"
-            ]
-        }
-        ],
-        "ZeraCurrentBurden": [
-        {
-            "EntityId": "1161",
-            "Components": [
-                "ACT_Burden1",
-                "ACT_Burden2",
-                "ACT_Burden3",
-                "ACT_PFactor1",
-                "ACT_PFactor2",
-                "ACT_PFactor3",
-                "ACT_Ratio1",
-                "ACT_Ratio2",
-                "ACT_Ratio3",
-                "PAR_NominalBurden",
-                "PAR_NominalRange",
-                "PAR_WCrosssection",
-                "PAR_Wirelength"
-            ]
-        }
-        ],
-        "ZeraInstrumentTransformer": [
-        {
-            "EntityId": "1170",
-            "Components": [
-                "ACT_Angle1",
-                "ACT_Error1",
-                "ACT_InSecondary1",
-                "ACT_IXPrimary",
-                "ACT_IXSecondary",
-                "ACT_Ratio",
-                "PAR_DutPrimary",
-                "PAR_DutSecondary",
-                "PAR_PrimClampPrim",
-                "PAR_PrimClampSec",
-                "PAR_SecClampPrim",
-                "PAR_SecClampSec"
-            ]
-        }
+        "ZeraTransformer": [
+            {
+                "EntityId": "1170",
+                "Comment": "TransformerModule",
+                "Components": [
+                    "ACT_Angle1",
+                    "ACT_Error1",
+                    "ACT_InSecondary1",
+                    "ACT_IXPrimary",
+                    "ACT_IXSecondary",
+                    "ACT_Ratio",
+                    "PAR_DutPrimary",
+                    "PAR_DutSecondary",
+                    "PAR_PrimClampPrim",
+                    "PAR_PrimClampSec",
+                    "PAR_SecClampPrim",
+                    "PAR_SecClampSec"
+                ]
+            }
         ],
         "ZeraDCReference": [
-        {
-            "EntityId": "1050",
-            "Components": [
-                "ACT_DFTPN1",
-                "ACT_DFTPN2",
-                "ACT_DFTPN3",
-                "ACT_DFTPN4",
-                "ACT_DFTPN5",
-                "ACT_DFTPN6",
-                "PAR_Interval",
-                "PAR_RefChannel"
-            ]
-        }
-        ],
-        "ZeraCEDPower": [
-        {
-            "EntityId": "1090",
-            "Components": [
-                "ACT_P1",
-                "ACT_P2",
-                "ACT_P3",
-                "ACT_P4",
-                "ACT_PM1",
-                "ACT_PM2",
-                "ACT_PM3",
-                "ACT_PM4",
-                "PAR_Interval",
-                "PAR_MeasuringMode"
-            ]
-        }
+            {
+                "EntityId": "1050",
+                "Comment": "DFTModule",
+                "Components": [
+                    "ACT_DFTPN1",
+                    "ACT_DFTPN2",
+                    "ACT_DFTPN3",
+                    "ACT_DFTPN4",
+                    "ACT_DFTPN5",
+                    "ACT_DFTPN6",
+                    "PAR_Interval",
+                    "PAR_RefChannel"
+                ]
+            }
         ]
     },
     "Sessions": {
         "com5003-meas-session.json": [
             "ZeraActualValues",
-            "ZeraVectorDiagramm",
-            "ZeraPowerValues",
-            "ZeraRMSValues",
-            "ZeraHarmonicTable",
-            "ZeraHarmonicChart",
-            "ZeraCurveDispay",
-            "ZeraHarmonicPowerTable",
-            "ZeraHarmonicPowerChart",
-            "ZeraMeterTest",
-            "ZeraEnergyComparison"
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraComparison"
         ],
         "com5003-ced-session.json": [
             "ZeraActualValues",
-            "ZeraVectorDiagramm",
-            "ZeraPowerValues",
-            "ZeraRMSValues",
-            "ZeraHarmonicTable",
-            "ZeraHarmonicChart",
-            "ZeraCurveDispay",
-            "ZeraMeterTest",
-            "ZeraEnergyComparison",
-            "ZeraCEDPower"
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraComparison"
         ],
         "com5003-ref-session.json": [
             "ZeraDCReference"
         ],
         "mt310s2-meas-session.json": [
             "ZeraActualValues",
-            "ZeraVectorDiagramm",
-            "ZeraPowerValues",
-            "ZeraRMSValues",
-            "ZeraHarmonicTable",
-            "ZeraHarmonicChart",
-            "ZeraCurveDispay",
-            "ZeraHarmonicPowerTable",
-            "ZeraHarmonicPowerChart",
+            "ZeraHarmonics",
+            "ZeraCurves",
             "ZeraMeterTest",
-            "ZeraEnergyRegister",
-            "ZeraPowerRegister",
-            "ZeraVoltageBurden",
-            "ZeraCurrentBurden",
-            "ZeraInstrumentTransformer"
+            "ZeraComparison",
+            "ZeraBurden",
+            "ZeraTransformer"
         ],
         "developer-session.json": [
             "ZeraActualValues",
-            "ZeraVectorDiagramm",
-            "ZeraPowerValues",
-            "ZeraRMSValues",
-            "ZeraHarmonicTable",
-            "ZeraHarmonicChart",
-            "ZeraCurveDispay",
-            "ZeraHarmonicPowerTable",
-            "ZeraHarmonicPowerChart",
-            "ZeraMeterTest",
-            "ZeraEnergyRegister",
-            "ZeraPowerRegister",
-            "ZeraVoltageBurden",
-            "ZeraCurrentBurden",
-            "ZeraInstrumentTransformer",
-            "ZeraEnergyComparison"
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraComparison",
+            "ZeraBurden",
+            "ZeraTransformer"
         ]
     }
 }
