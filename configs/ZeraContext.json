@@ -119,7 +119,7 @@
                     "PAR_Interval",
                     "PAR_MeasuringMode"
                 ]
-			},
+                        },
             {
                 "EntityId": "1020",
                 "Comment": "RangeModule",
@@ -259,7 +259,7 @@
                     "PAR_DutConstUnit",
                     "PAR_MRate"
                 ]
-			},
+                        },
             {
                 "EntityId": "1210",
                 "Comment": "SPMModule",
@@ -271,7 +271,7 @@
                     "PAR_DutConstUnit",
                     "PAR_MRate"
                 ]
-			},
+                        },
             {
                 "EntityId": "1020",
                 "Comment": "RangeModule",
@@ -307,7 +307,7 @@
                     "PAR_WCrosssection",
                     "PAR_Wirelength"
                 ]
-			},
+                        },
             {
                 "EntityId": "1161",
                 "Comment": "BurdenModule",
@@ -365,40 +365,90 @@
             }
         ]
     },
-    "Sessions": {
-        "com5003-meas-session.json": [
-            "ZeraActualValues",
-            "ZeraHarmonics",
-            "ZeraCurves",
+    "GuiContext":{
+        "ZeraGuiActualValues":[
+            "ZeraActualValues"
+        ],
+        "ZeraGuiVectorDiagramm":[
+            "ZeraActualValues"
+        ],
+        "ZeraGuiPowerValues":[
+            "ZeraActualValues"
+        ],
+        "ZeraGuiRMSValues":[
+            "ZeraActualValues"
+        ],
+        "ZeraGuiHarmonicTable":[
+            "ZeraHarmonics"
+        ],
+        "ZeraGuiHarmonicChart":[
+            "ZeraHarmonics"
+        ],
+        "ZeraGuiCurveDispay":[
+            "ZeraCurves"
+        ],
+        "ZeraGuiHarmonicPowerTable":[
+            "ZeraHarmonics"
+        ],
+        "ZeraGuiHarmonicPowerChart":[
+            "ZeraHarmonics"
+        ],
+        "ZeraGuiMeterTest":[
             "ZeraComparison"
         ],
-        "com5003-ced-session.json": [
-            "ZeraActualValues",
-            "ZeraHarmonics",
-            "ZeraCurves",
+        "ZeraGuiEnergyRegister":[
             "ZeraComparison"
         ],
-        "com5003-ref-session.json": [
+        "ZeraGuiPowerRegister":[
+            "ZeraComparison"
+        ],
+        "ZeraGuiVoltageBurden":[
+            "ZeraBurden"
+        ],
+        "ZeraGuiCurrentBurden":[
+            "ZeraBurden"
+        ],
+        "ZeraGuiInstrumentTransformer":[
+            "ZeraTransformer"
+        ],
+        "ZeraGuiDCReference":[
             "ZeraDCReference"
-        ],
-        "mt310s2-meas-session.json": [
-            "ZeraActualValues",
-            "ZeraHarmonics",
-            "ZeraCurves",
-            "ZeraMeterTest",
-            "ZeraComparison",
-            "ZeraBurden",
-            "ZeraTransformer"
-        ],
-        "developer-session.json": [
-            "ZeraActualValues",
-            "ZeraHarmonics",
-            "ZeraCurves",
-            "ZeraComparison",
-            "ZeraBurden",
-            "ZeraTransformer"
         ]
-    }
+    },
+    "Sessions": {
+            "com5003-meas-session.json": [
+                "ZeraActualValues",
+                "ZeraHarmonics",
+                "ZeraCurves",
+                "ZeraComparison"
+            ],
+            "com5003-ced-session.json": [
+                "ZeraActualValues",
+                "ZeraHarmonics",
+                "ZeraCurves",
+                "ZeraComparison"
+            ],
+            "com5003-ref-session.json": [
+                "ZeraDCReference"
+            ],
+            "mt310s2-meas-session.json": [
+                "ZeraActualValues",
+                "ZeraHarmonics",
+                "ZeraCurves",
+                "ZeraMeterTest",
+                "ZeraComparison",
+                "ZeraBurden",
+                "ZeraTransformer"
+            ],
+            "developer-session.json": [
+                "ZeraActualValues",
+                "ZeraHarmonics",
+                "ZeraCurves",
+                "ZeraComparison",
+                "ZeraBurden",
+                "ZeraTransformer"
+            ]
+        }
 }
 
 
