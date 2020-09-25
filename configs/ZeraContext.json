@@ -119,7 +119,7 @@
                     "PAR_Interval",
                     "PAR_MeasuringMode"
                 ]
-                        },
+            },
             {
                 "EntityId": "1020",
                 "Comment": "RangeModule",
@@ -259,7 +259,7 @@
                     "PAR_DutConstUnit",
                     "PAR_MRate"
                 ]
-                        },
+            },
             {
                 "EntityId": "1210",
                 "Comment": "SPMModule",
@@ -271,7 +271,7 @@
                     "PAR_DutConstUnit",
                     "PAR_MRate"
                 ]
-                        },
+            },
             {
                 "EntityId": "1020",
                 "Comment": "RangeModule",
@@ -384,7 +384,7 @@
         "ZeraGuiHarmonicChart":[
             "ZeraHarmonics"
         ],
-        "ZeraGuiCurveDispay":[
+        "ZeraGuiCurveDisplay":[
             "ZeraCurves"
         ],
         "ZeraGuiHarmonicPowerTable":[
@@ -416,39 +416,39 @@
         ]
     },
     "Sessions": {
-            "com5003-meas-session.json": [
-                "ZeraActualValues",
-                "ZeraHarmonics",
-                "ZeraCurves",
-                "ZeraComparison"
-            ],
-            "com5003-ced-session.json": [
-                "ZeraActualValues",
-                "ZeraHarmonics",
-                "ZeraCurves",
-                "ZeraComparison"
-            ],
-            "com5003-ref-session.json": [
-                "ZeraDCReference"
-            ],
-            "mt310s2-meas-session.json": [
-                "ZeraActualValues",
-                "ZeraHarmonics",
-                "ZeraCurves",
-                "ZeraMeterTest",
-                "ZeraComparison",
-                "ZeraBurden",
-                "ZeraTransformer"
-            ],
-            "developer-session.json": [
-                "ZeraActualValues",
-                "ZeraHarmonics",
-                "ZeraCurves",
-                "ZeraComparison",
-                "ZeraBurden",
-                "ZeraTransformer"
-            ]
-        }
+        "com5003-meas-session.json": [
+            "ZeraActualValues",
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraComparison"
+        ],
+        "com5003-ced-session.json": [
+            "ZeraActualValues",
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraComparison"
+        ],
+        "com5003-ref-session.json": [
+            "ZeraDCReference"
+        ],
+        "mt310s2-meas-session.json": [
+            "ZeraActualValues",
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraMeterTest",
+            "ZeraComparison",
+            "ZeraBurden",
+            "ZeraTransformer"
+        ],
+        "developer-session.json": [
+            "ZeraActualValues",
+            "ZeraHarmonics",
+            "ZeraCurves",
+            "ZeraComparison",
+            "ZeraBurden",
+            "ZeraTransformer"
+        ]
+    }
 }
 
 
