@@ -18,8 +18,8 @@ class QmlLogger;
  *
  * @todo add rpc to start recording
  * @todo add rpc to stop recording
- * @todo add rpc to add context
- * @todo add rpc to remove context
+ * @todo add rpc to add contentSet
+ * @todo add rpc to remove contentSet
  * @todo add rpc to create snapshot
  */
 class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem

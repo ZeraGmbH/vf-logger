@@ -43,8 +43,8 @@ file(GLOB RESOURCES
     )
 
 
-set(zeraContextFile "${PROJECT_SOURCE_DIR}/configs/ZeraContext.json")
-set(customerContextFile "${PROJECT_SOURCE_DIR}/configs/CustomerContext.json")
+set(zeraContentSetFile "${PROJECT_SOURCE_DIR}/configs/ZeraContext.json")
+set(customerContentSetFile "${PROJECT_SOURCE_DIR}/configs/CustomerContext.json")
 
 
 #Exclude psql files
@@ -137,15 +137,15 @@ install(
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
     )
     
-# install Context files
+# install ContentSet files
 install(
-    FILES ${zeraContextFile}
+    FILES ${zeraContentSetFile}
     DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/zera/configs/
     )
 
 install(
-    FILES ${customerContextFile}
-    DESTINATION /home/operator/logging-context/
+    FILES ${customerContentSetFile}
+    DESTINATION /home/operator/logger-contentsets/
     )
 
 # spawn out some info on configuration
