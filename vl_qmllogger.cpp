@@ -9,16 +9,16 @@ namespace VeinLogger
 {
 
 
-QString QmlLogger::m_zeraContextPath="";
-QString QmlLogger::m_customerContextPath="";
+QString QmlLogger::m_zeraContentSetPath="";
+QString QmlLogger::m_customerContentSetPath="";
 
 QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 {
     VF_ASSERT(s_dbLogger != nullptr, "Required static logging instance is not set");
     connect(s_dbLogger, SIGNAL(sigLoggingEnabledChanged(bool)), this, SIGNAL(loggingEnabledChanged(bool)));
-    VF_ASSERT(!m_zeraContextPath.isEmpty(), "zeraContextPath is not set");
-    VF_ASSERT(!m_customerContextPath.isEmpty(), "customerContextPath is not set");
-    m_contextLoader.init(m_zeraContextPath,m_customerContextPath);
+    VF_ASSERT(!m_zeraContentSetPath.isEmpty(), "zeraContentSetPath is not set");
+    VF_ASSERT(!m_customerContentSetPath.isEmpty(), "customerContentSetPath is not set");
+    m_contentSetLoader.init(m_zeraContentSetPath,m_customerContentSetPath);
 
 }
 
@@ -32,9 +32,9 @@ QString QmlLogger::transactionName() const
     return m_transactionName;
 }
 
-QString QmlLogger::context() const
+QString QmlLogger::contentSet() const
 {
-    return m_context;
+    return m_contentSet;
 }
 
 QString QmlLogger::session() const
@@ -63,10 +63,10 @@ void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
     s_dbLogger = t_dbLogger;
 }
 
-void QmlLogger::setContextPath(QString p_zeraPath, QString p_customerPath)
+void QmlLogger::setContentSetPaths(QString p_zeraPath, QString p_customerPath)
 {
-    m_zeraContextPath=p_zeraPath;
-    m_customerContextPath=p_customerPath;
+    m_zeraContentSetPath=p_zeraPath;
+    m_customerContentSetPath=p_customerPath;
 }
 
 QMultiHash<int, QString> QmlLogger::getLoggedValues() const
@@ -76,13 +76,13 @@ QMultiHash<int, QString> QmlLogger::getLoggedValues() const
 
 QStringList QmlLogger::readSession()
 {
-    QStringList result(m_contextLoader.contextList(m_session).toList());
+    QStringList result(m_contentSetLoader.contentSetList(m_session).toList());
     return result;
 }
 
-QVariantMap QmlLogger::readContext()
+QVariantMap QmlLogger::readContentSet()
 {
-    QMap<QString,QVector<QString>> map = m_contextLoader.readContext(m_context);
+    QMap<QString,QVector<QString>> map = m_contentSetLoader.readContentSet(m_contentSet);
     QVariantMap resultMap;
     for(QString key: map.keys()){
         resultMap[key]=QVariant::fromValue(QStringList(map[key].toList()));
@@ -154,13 +154,13 @@ void QmlLogger::setInitializeValues(bool t_initializeValues)
     emit initializeValuesChanged(t_initializeValues);
 }
 
-void QmlLogger::setContext(const QString &t_context)
+void QmlLogger::setContentSet(const QString &t_contentSet)
 {
-    if (m_context == t_context)
+    if (m_contentSet == t_contentSet)
         return;
 
-    m_context =  t_context;
-    emit contextChanged(t_context);
+    m_contentSet =  t_contentSet;
+    emit contentSetChanged(t_contentSet);
 }
 
 void QmlLogger::setSession(const QString &t_session)

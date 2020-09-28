@@ -20,7 +20,7 @@ class DatabaseLogger;
  * This class stores all imprtand logging context data.
  * - recordName name
  * - transaction name
- * - context name
+ * - contentSet name
  * - components
  *
  * - recordId
@@ -38,7 +38,7 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
     Q_PROPERTY(QString transactionName READ transactionName WRITE setTransactionName NOTIFY transactionNameChanged)
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
-    Q_PROPERTY(QString context READ context WRITE setContext NOTIFY contextChanged)
+    Q_PROPERTY(QString contentSet READ contentSet WRITE setContentSet NOTIFY contentSetChanged)
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
@@ -48,7 +48,7 @@ public:
      */
     QString recordName() const;
     QString transactionName() const;
-    QString context() const;
+    QString contentSet() const;
     QString session() const;
     bool loggingEnabled() const;
     bool initializeValues() const;
@@ -56,18 +56,18 @@ public:
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
     /**
-     * @brief setContextPath
-     * @param p_zeraPath: path to Zera context file
-     * @param p_customerPath: path to Customer context file
+     * @brief setContentSetPaths
+     * @param p_zeraPath: path to Zera contentSet file
+     * @param p_customerPath: path to Customer contentSet file
      *
-     * @todo reove this with association to jsonContextReader
+     * @todo remove this with association to jsonContextReader
      */
-    static void setContextPath(QString p_zeraPath,QString p_customerPath);
+    static void setContentSetPaths(QString p_zeraPath,QString p_customerPath);
 
     QMultiHash<int, QString> getLoggedValues() const;
 
     Q_INVOKABLE QStringList readSession();
-    Q_INVOKABLE QVariantMap readContext();
+    Q_INVOKABLE QVariantMap readContentSet();
 
     int getTransactionId() const;
     void setTransactionId(int transactionId);
@@ -87,31 +87,31 @@ public slots:
     void setRecordName(QString t_recordName);
     void setTransactionName(const QString &t_transactionName);
     void setInitializeValues(bool t_initializeValues);
-    void setContext(const QString &t_context);
+    void setContentSet(const QString &t_contentSet);
     void setSession(const QString &t_session);
 
 signals:
     void recordNameChanged(QString t_recordName);
     void transactionNameChanged(QString t_transactionName);
-    void contextChanged(QString t_context);
+    void contentSetChanged(QString t_contentSet);
     void sessionChanged(QString t_session);
     void loggingEnabledChanged(bool t_loggingEnabled);
     void initializeValuesChanged(bool t_initializeValues);
 
 private:
     static DatabaseLogger *s_dbLogger;
-    static QString m_zeraContextPath;
-    static QString m_customerContextPath;
+    static QString m_zeraContentSetPath;
+    static QString m_customerContentSetPath;
     QString m_session;
     QString m_recordName;
     QString m_transactionName;
     int m_transactionId;
     QDateTime m_startTime;
     QDateTime m_stopTime;
-    QString m_context;
+    QString m_contentSet;
     QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;
-    JsonContextLoader m_contextLoader;
+    JsonContentSetLoader m_contentSetLoader;
 };
 } // namespace VeinLogger
 
