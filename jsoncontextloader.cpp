@@ -388,11 +388,15 @@ QMap<QString,QVector<QString>> JsonContentSetLoader::readContentSetFromFile(cons
                 throw error::ObjectDoesNotExist;
             }
             for(QJsonValue tmpVal : contentSetList.toArray()){
-                QJsonValue compList=tmpVal.toObject().value(c_component);
-                for(QJsonValue comp : compList.toArray()){
-                    retVal[tmpVal.toObject().value(c_entity).toString()].append(comp.toString());
+                QJsonArray compListArray = tmpVal.toObject().value(c_component).toArray();
+                if(compListArray.count() > 0) {
+                    for(QJsonValue comp : compListArray){
+                        retVal[tmpVal.toObject().value(c_entity).toString()].append(comp.toString());
+                    }
                 }
-
+                else {
+                    retVal[tmpVal.toObject().value(c_entity).toString()] = QVector<QString>();
+                }
             }
         }
     }
