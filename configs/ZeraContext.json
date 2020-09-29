@@ -307,7 +307,7 @@
                     "PAR_WCrosssection",
                     "PAR_Wirelength"
                 ]
-                        },
+            },
             {
                 "EntityId": "1161",
                 "Comment": "BurdenModule",
@@ -362,6 +362,93 @@
                     "PAR_Interval",
                     "PAR_RefChannel"
                 ]
+            }
+        ],
+        "ZeraAll": [
+            {
+                "EntityId": "1040",
+                "Comment": "RMSModule"
+            },
+            {
+                "EntityId": "1050",
+                "Comment": "DFTModule"
+            },
+            {
+                "EntityId": "1110",
+                "Comment": "THDNModule"
+            },
+            {
+                "EntityId": "1111",
+                "Comment": "THDNModule"
+            },
+            {
+                "EntityId": "1070",
+                "Comment": "PowerModule"
+            },
+            {
+                "EntityId": "1071",
+                "Comment": "PowerModule"
+            },
+            {
+                "EntityId": "1072",
+                "Comment": "PowerModule"
+            },
+            {
+                "EntityId": "1090",
+                "Comment": "PowerModule CED"
+            },
+            {
+                "EntityId": "1140",
+                "Comment": "LambdaModule"
+            },
+            {
+                "EntityId": "1110",
+                "Comment": "THDNModule"
+            },
+            {
+                "EntityId": "1060",
+                "Comment": "FFTModule"
+            },
+            {
+                "EntityId": "1120",
+                "Comment": "OSCIModule"
+            },
+            {
+                "EntityId": "1130",
+                "Comment": "SECModule"
+            },
+            {
+                "EntityId": "1131",
+                "Comment": "SECModule"
+            },
+            {
+                "EntityId": "1200",
+                "Comment": "SEMModule"
+            },
+            {
+                "EntityId": "1210",
+                "Comment": "SPMModule"
+            },
+            {
+                "EntityId": "1160",
+                "Comment": "BurdenModule"
+            },
+            {
+                "EntityId": "1161",
+                "Comment": "BurdenModule"
+            },
+            {
+                "EntityId": "1170",
+                "Comment": "TransformerModule"
+            },
+            {
+                "EntityId": "1050",
+                "Comment": "DFTModule"
+            },
+
+            {
+                "EntityId": "1020",
+                "Comment": "RangeModule"
             }
         ]
     },
@@ -420,16 +507,19 @@
             "ZeraActualValues",
             "ZeraHarmonics",
             "ZeraCurves",
-            "ZeraComparison"
+            "ZeraComparison",
+            "ZeraAll"
         ],
         "com5003-ced-session.json": [
             "ZeraActualValues",
             "ZeraHarmonics",
             "ZeraCurves",
-            "ZeraComparison"
+            "ZeraComparison",
+            "ZeraAll"
         ],
         "com5003-ref-session.json": [
-            "ZeraDCReference"
+            "ZeraDCReference",
+            "ZeraAll"
         ],
         "mt310s2-meas-session.json": [
             "ZeraActualValues",
@@ -438,7 +528,8 @@
             "ZeraMeterTest",
             "ZeraComparison",
             "ZeraBurden",
-            "ZeraTransformer"
+            "ZeraTransformer",
+            "ZeraAll"
         ],
         "developer-session.json": [
             "ZeraActualValues",
@@ -446,7 +537,8 @@
             "ZeraCurves",
             "ZeraComparison",
             "ZeraBurden",
-            "ZeraTransformer"
+            "ZeraTransformer",
+            "ZeraAll"
         ]
     }
 }
