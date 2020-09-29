@@ -54,7 +54,7 @@ bool QmlLogger::initializeValues() const
 
 bool QmlLogger::hasLoggerEntry(int t_entityId, const QString &t_componentName) const
 {
-    return m_loggedValues.contains(t_entityId, t_componentName);
+    return m_loggedValues.contains(t_entityId, "__ALL_COMPONENTS__") || m_loggedValues.contains(t_entityId, t_componentName);
 }
 
 void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
