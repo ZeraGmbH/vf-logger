@@ -507,12 +507,14 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
             const QVector<int> tmpTransactionIds = {t_script->getTransactionId()};
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(t_script->getTransactionId(),QDateTime::currentDateTime());
+
             QMultiHash<int, QString> tmpLoggedValues = t_script->getLoggedValues();
             // Add customer data at the beginning
-            for(QString comp : m_dPtr->m_dataSource->getEntityComponents(2)){
-                tmpLoggedValues.insert(200,comp);
+            if(m_dPtr->m_dataSource->hasEntity(200)) {
+                for(QString comp : m_dPtr->m_dataSource->getEntityComponents(200)){
+                    tmpLoggedValues.insert(200,comp);
+                }
             }
-
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
             {
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
