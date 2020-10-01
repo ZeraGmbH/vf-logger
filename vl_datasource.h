@@ -24,6 +24,7 @@ public:
     explicit DataSource(VeinStorage::VeinHash *t_dataSource, QObject *t_parent=nullptr);
     ~DataSource();
 
+    bool hasEntity(int t_entityId) const;
     QVariant getValue(int t_entityId, const QString &t_componentName) const;
     QString getEntityName(int t_entityId) const;
     QStringList getEntityComponents(int t_entityId);
