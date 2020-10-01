@@ -518,30 +518,32 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
             {
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
-                for(const QString &tmpComponentName : tmpComponents)
-                {
-                    if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false)
-                    {
-                        emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
-                    }
-                    QStringList componentNamesToAdd;
-                    if(tmpComponentName == QStringLiteral("__ALL_COMPONENTS__")) {
-                        componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponents(tmpEntityId);
-                    }
-                    else {
-                        componentNamesToAdd.append(tmpComponentName);
-                    }
-                    for (auto componentToAdd : componentNamesToAdd) {
-                        if(m_dPtr->m_database->hasComponentName(componentToAdd) == false) {
-                            emit sigAddComponent(componentToAdd);
+                for(const QString &tmpComponentName : tmpComponents) {
+                    if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity available?
+                        if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
+                            emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
                         }
-                        emit sigAddLoggedValue(
-                                    tmpRecordName,
-                                    tmpTransactionIds,
-                                    tmpEntityId,
-                                    componentToAdd,
-                                    m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd),
-                                    QDateTime::currentDateTime());
+                        QStringList componentNamesToAdd;
+                        if(tmpComponentName == QStringLiteral("__ALL_COMPONENTS__")) {
+                            componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponents(tmpEntityId);
+                        }
+                        else {
+                            componentNamesToAdd.append(tmpComponentName);
+                        }
+                        for (auto componentToAdd : componentNamesToAdd) {
+                            // add component to db
+                            if(m_dPtr->m_database->hasComponentName(componentToAdd) == false) {
+                                emit sigAddComponent(componentToAdd);
+                            }
+                            // add initial values
+                            emit sigAddLoggedValue(
+                                        tmpRecordName,
+                                        tmpTransactionIds,
+                                        tmpEntityId,
+                                        componentToAdd,
+                                        m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd),
+                                        QDateTime::currentDateTime());
+                        }
                     }
                 }
             }
