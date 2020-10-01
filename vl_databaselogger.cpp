@@ -513,7 +513,6 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
                 tmpLoggedValues.insert(200,comp);
             }
 
-
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
             {
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
@@ -523,11 +522,25 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
                     {
                         emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
                     }
-                    if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false)
-                    {
-                        emit sigAddComponent(tmpComponentName);
+                    QStringList componentNamesToAdd;
+                    if(tmpComponentName == QStringLiteral("__ALL_COMPONENTS__")) {
+                        componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponents(tmpEntityId);
                     }
-                    emit sigAddLoggedValue(tmpRecordName, tmpTransactionIds, tmpEntityId, tmpComponentName, m_dPtr->m_dataSource->getValue(tmpEntityId,tmpComponentName), QDateTime::currentDateTime());
+                    else {
+                        componentNamesToAdd.append(tmpComponentName);
+                    }
+                    for (auto componentToAdd : componentNamesToAdd) {
+                        if(m_dPtr->m_database->hasComponentName(componentToAdd) == false) {
+                            emit sigAddComponent(componentToAdd);
+                        }
+                        emit sigAddLoggedValue(
+                                    tmpRecordName,
+                                    tmpTransactionIds,
+                                    tmpEntityId,
+                                    componentToAdd,
+                                    m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd),
+                                    QDateTime::currentDateTime());
+                    }
                 }
             }
         }
