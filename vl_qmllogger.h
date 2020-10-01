@@ -20,7 +20,7 @@ class DatabaseLogger;
  * This class stores all imprtand logging context data.
  * - recordName name
  * - transaction name
- * - contentSet name
+ * - contentSet names
  * - components
  *
  * - recordId
@@ -38,7 +38,7 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
     Q_PROPERTY(QString transactionName READ transactionName WRITE setTransactionName NOTIFY transactionNameChanged)
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
-    Q_PROPERTY(QString contentSet READ contentSet WRITE setContentSet NOTIFY contentSetChanged)
+    Q_PROPERTY(QString contentSets READ contentSets WRITE setContentSets NOTIFY contentSetsChanged)
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
@@ -48,7 +48,7 @@ public:
      */
     QString recordName() const;
     QString transactionName() const;
-    QString contentSet() const;
+    QString contentSets() const;
     QString session() const;
     bool loggingEnabled() const;
     bool initializeValues() const;
@@ -87,13 +87,13 @@ public slots:
     void setRecordName(QString t_recordName);
     void setTransactionName(const QString &t_transactionName);
     void setInitializeValues(bool t_initializeValues);
-    void setContentSet(const QString &t_contentSet);
+    void setContentSets(const QString &t_contentSets);
     void setSession(const QString &t_session);
 
 signals:
     void recordNameChanged(QString t_recordName);
     void transactionNameChanged(QString t_transactionName);
-    void contentSetChanged(QString t_contentSet);
+    void contentSetsChanged(QString t_contentSets);
     void sessionChanged(QString t_session);
     void loggingEnabledChanged(bool t_loggingEnabled);
     void initializeValuesChanged(bool t_initializeValues);
@@ -108,7 +108,7 @@ private:
     int m_transactionId;
     QDateTime m_startTime;
     QDateTime m_stopTime;
-    QString m_contentSet;
+    QString m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;
     JsonContentSetLoader m_contentSetLoader;
