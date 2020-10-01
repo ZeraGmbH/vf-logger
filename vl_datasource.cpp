@@ -15,6 +15,7 @@ protected:
     }
     virtual ~DataSourcePrivate() {}
 
+    virtual bool hasEntity(int t_entityId) const = 0;
     virtual QVariant getValue(int t_entityId, const QString &t_componentName) const =0;
     virtual QString getEntityName(int t_entityId) const =0;
     virtual QStringList getEntityComponents(int t_entityId) const =0;
@@ -31,6 +32,11 @@ class DataSourcePrivateQml : public DataSourcePrivate
 
     }
     ~DataSourcePrivateQml() {}
+
+    virtual bool hasEntity(int t_entityId) const override
+    {
+        return m_dataSource->getEntityById(t_entityId);
+    }
 
     QVariant getValue(int t_entityId, const QString &t_componentName) const override
     {
@@ -58,6 +64,11 @@ class DataSourcePrivateStorage : public DataSourcePrivate
 
     }
     ~DataSourcePrivateStorage() {}
+
+    virtual bool hasEntity(int t_entityId) const override
+    {
+        return m_dataSource->hasEntity(t_entityId);
+    }
 
     QVariant getValue(int t_entityId, const QString &t_componentName) const override
     {
@@ -92,6 +103,11 @@ DataSource::DataSource(VeinStorage::VeinHash *t_dataSource, QObject *t_parent) :
 DataSource::~DataSource()
 {
     delete m_dPtr;
+}
+
+bool DataSource::hasEntity(int t_entityId) const
+{
+    return m_dPtr->hasEntity(t_entityId);
 }
 
 QVariant DataSource::getValue(int t_entityId, const QString &t_componentName) const
