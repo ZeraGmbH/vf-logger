@@ -80,14 +80,16 @@ QStringList QmlLogger::readSession()
     return result;
 }
 
-QVariantMap QmlLogger::readContentSet()
+QVariantMap QmlLogger::readContentSets()
 {
-    QMap<QString,QVector<QString>> map = m_contentSetLoader.readContentSet(m_contentSet);
+    QStringList contextSetList = m_contentSet.split(QLatin1Char(','), QString::SkipEmptyParts);
     QVariantMap resultMap;
-    for(QString key: map.keys()){
-        resultMap[key]=QVariant::fromValue(QStringList(map[key].toList()));
+    for(auto contentSet : contextSetList) {
+        QMap<QString,QVector<QString>> map = m_contentSetLoader.readContentSet(contentSet);
+        for(QString key: map.keys()){
+            resultMap[key]=QVariant::fromValue(QStringList(map[key].toList()));
+        }
     }
-
     return resultMap;
 }
 
