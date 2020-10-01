@@ -515,6 +515,12 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
                     tmpLoggedValues.insert(200,comp);
                 }
             }
+            // Add status module data at the beginning
+            if(m_dPtr->m_dataSource->hasEntity(1150)) {
+                for(QString comp : m_dPtr->m_dataSource->getEntityComponents(1150)){
+                    tmpLoggedValues.insert(1150,comp);
+                }
+            }
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
             {
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
