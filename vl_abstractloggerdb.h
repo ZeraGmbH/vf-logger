@@ -44,7 +44,7 @@ public slots:
     virtual void initLocalData() =0;
     virtual void addComponent(const QString &t_componentName) =0;
     virtual void addEntity(int t_entityId, QString t_entityName) =0;
-    virtual int addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSet) =0;
+    virtual int addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets) =0;
     /**
      * @brief addStartTime
      * @param t_transactionId: sql transaction id
