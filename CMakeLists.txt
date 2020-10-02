@@ -34,8 +34,18 @@ file(GLOB SOURCES
     ${PROJECT_SOURCE_DIR}/*.cpp
     )
 
-file(GLOB HEADER
-    ${PROJECT_SOURCE_DIR}/*.h
+set(PUBLIC_HEADER
+    globalIncludes.h
+    jsoncontextloader.h
+    vl_abstractloggerdb.h
+    vl_databaselogger.h
+    vl_datasource.h
+    vl_qmllogger.h
+    vl_sqlitedb.h
+    )
+
+set(PRIVATE_HEADER
+    vl_globallabels.h
     )
 
 file(GLOB RESOURCES 
@@ -48,14 +58,14 @@ set(customerContentSetFile "${PROJECT_SOURCE_DIR}/configs/CustomerContext.json")
 
 
 #Exclude psql files
-list(REMOVE_ITEM HEADER "${PROJECT_SOURCE_DIR}/vl_postgresdatabase.h")
 list(REMOVE_ITEM SOURCES "${PROJECT_SOURCE_DIR}/vl_postgresdatabase.cpp")
 
 
 #create library 
 add_library(VfLogger SHARED
     ${SOURCES}
-    ${HEADER}
+    ${PUBLIC_HEADER}
+    ${PRIVATE_HEADER}
     ${RESOURCES}
     )
 
@@ -133,7 +143,7 @@ install(EXPORT VfLoggerExport
 
 # install public headers
 install(
-    FILES ${HEADER}
+    FILES ${PUBLIC_HEADER}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
     )
     
