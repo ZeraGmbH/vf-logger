@@ -3,7 +3,7 @@
 #include <vl_databaselogger.h>
 #include <QCoreApplication>
 #include <QQmlEngine>
-
+#include "vl_globallabels.h"
 
 namespace VeinLogger
 {
@@ -52,9 +52,17 @@ bool QmlLogger::initializeValues() const
     return m_initializeValues;
 }
 
-bool QmlLogger::hasLoggerEntry(int t_entityId, const QString &t_componentName) const
+bool QmlLogger::isLoggedComponent(int t_entityId, const QString &t_componentName) const
 {
-    return m_loggedValues.contains(t_entityId, QStringLiteral("__ALL_COMPONENTS__")) || m_loggedValues.contains(t_entityId, t_componentName);
+    bool storeComponent = false;
+    if(m_loggedValues.contains(t_entityId, VLGlobalLabels::allComponentsName())) {
+        QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
+        storeComponent = !componentsNoStore.contains(t_componentName);
+    }
+    else {
+        storeComponent = m_loggedValues.contains(t_entityId, t_componentName);
+    }
+    return storeComponent;
 }
 
 void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)

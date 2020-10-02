@@ -511,13 +511,13 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
             QMultiHash<int, QString> tmpLoggedValues = t_script->getLoggedValues();
             // Add customer data at the beginning
             if(m_dPtr->m_dataSource->hasEntity(200)) {
-                for(QString comp : m_dPtr->m_dataSource->getEntityComponents(200)){
+                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
                     tmpLoggedValues.insert(200,comp);
                 }
             }
             // Add status module data at the beginning
             if(m_dPtr->m_dataSource->hasEntity(1150)) {
-                for(QString comp : m_dPtr->m_dataSource->getEntityComponents(1150)){
+                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
                     tmpLoggedValues.insert(1150,comp);
                 }
             }
@@ -531,7 +531,7 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
                         }
                         QStringList componentNamesToAdd;
                         if(tmpComponentName == QStringLiteral("__ALL_COMPONENTS__")) {
-                            componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponents(tmpEntityId);
+                            componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
                         }
                         else {
                             componentNamesToAdd.append(tmpComponentName);
@@ -716,7 +716,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     //check all scripts if they want to log the changed value
                     for(const QmlLogger *entry : scripts)
                     {
-                        if(entry->hasLoggerEntry(evData->entityId(), cData->componentName()))
+                        if(entry->isLoggedComponent(evData->entityId(), cData->componentName()))
                         {
                             recordName = entry->recordName();
                             transactionIds.append(entry->getTransactionId());

@@ -52,7 +52,7 @@ public:
     QString session() const;
     bool loggingEnabled() const;
     bool initializeValues() const;
-    bool hasLoggerEntry(int t_entityId, const QString &t_componentName) const;
+    bool isLoggedComponent(int t_entityId, const QString &t_componentName) const;
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
     /**

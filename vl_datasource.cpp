@@ -3,6 +3,7 @@
 #include <veinqml.h>
 #include <entitycomponentmap.h>
 #include <vs_veinhash.h>
+#include "vl_globallabels.h"
 
 namespace VeinLogger
 {
@@ -120,9 +121,15 @@ QString DataSource::getEntityName(int t_entityId) const
     return m_dPtr->getEntityName(t_entityId);
 }
 
-QStringList DataSource::getEntityComponents(int t_entityId)
+QStringList DataSource::getEntityComponentsForStore(int t_entityId)
 {
-    return m_dPtr->getEntityComponents(t_entityId);
+    QStringList retList = m_dPtr->getEntityComponents(t_entityId);
+    // remove common internal components - not meant to store
+    QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
+    for(auto noStoreLabel : componentsNoStore) {
+        retList.removeAll(noStoreLabel);
+    }
+    return retList;
 }
 
 } // namespace VeinLogger
