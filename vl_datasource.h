@@ -27,7 +27,7 @@ public:
     bool hasEntity(int t_entityId) const;
     QVariant getValue(int t_entityId, const QString &t_componentName) const;
     QString getEntityName(int t_entityId) const;
-    QStringList getEntityComponents(int t_entityId);
+    QStringList getEntityComponentsForStore(int t_entityId);
 
 private:
     DataSourcePrivate *m_dPtr=nullptr;
