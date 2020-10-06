@@ -67,6 +67,9 @@ class DataLoggerPrivate
             componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
             componentData.insert(s_existingRecordsComponentName, QStringList());
 
+            // TODO: Add more from modulemanager
+            componentData.insert(s_guiContextComponentName, QString());
+
             for(const QString &componentName : componentData.keys())
             {
                 initialData = new VeinComponent::ComponentData();
@@ -380,6 +383,9 @@ class DataLoggerPrivate
     static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
     static constexpr QLatin1String s_existingRecordsComponentName = QLatin1String("ExistingRecords");
 
+    // TODO: Add more from modulemanager
+    static constexpr QLatin1String s_guiContextComponentName = QLatin1String("guiContext");
+
 
     QStateMachine m_stateMachine;
     //QStatemachine does not support ParallelState
@@ -419,6 +425,8 @@ constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentNam
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_existingRecordsComponentName;
+// TODO: Add more from modulemanager
+constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
 
 DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
@@ -857,6 +865,19 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                         sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
                     }
+                }
+                // TODO: Add more from modulemanager
+                else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName)
+                {
+                    VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
+                    guiContextCData->setEntityId(m_dPtr->m_entityId);
+                    guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                    guiContextCData->setComponentName(DataLoggerPrivate::s_guiContextComponentName);
+                    guiContextCData->setNewValue(cData->newValue());
+                    guiContextCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
                 }
                 t_event->accept();
             }
