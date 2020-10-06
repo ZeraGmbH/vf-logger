@@ -39,6 +39,7 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
     Q_PROPERTY(QStringList contentSets READ contentSets WRITE setContentSets NOTIFY contentSetsChanged)
+    Q_PROPERTY(QString guiContext READ guiContext WRITE setGuiContext NOTIFY guiContextChanged)
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
@@ -49,6 +50,7 @@ public:
     QString recordName() const;
     QString transactionName() const;
     QStringList contentSets() const;
+    QString guiContext() const;
     QString session() const;
     bool loggingEnabled() const;
     bool initializeValues() const;
@@ -88,6 +90,7 @@ public slots:
     void setTransactionName(const QString &t_transactionName);
     void setInitializeValues(bool t_initializeValues);
     void setContentSets(const QStringList &t_contentSets);
+    void setGuiContext(const QString &t_guiContext);
     void setSession(const QString &t_session);
 
 signals:
@@ -95,6 +98,7 @@ signals:
     void transactionNameChanged(QString t_transactionName);
     void contentSetsChanged(QStringList t_contentSets);
     void sessionChanged(QString t_session);
+    void guiContextChanged(QString t_guiContext);
     void loggingEnabledChanged(bool t_loggingEnabled);
     void initializeValuesChanged(bool t_initializeValues);
 
@@ -109,6 +113,7 @@ private:
     QDateTime m_startTime;
     QDateTime m_stopTime;
     QStringList m_contentSets;
+    QString m_guiContext;
     QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;
     JsonContentSetLoader m_contentSetLoader;

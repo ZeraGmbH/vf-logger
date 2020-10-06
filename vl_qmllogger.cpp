@@ -37,6 +37,11 @@ QStringList QmlLogger::contentSets() const
     return m_contentSets;
 }
 
+QString QmlLogger::guiContext() const
+{
+    return m_guiContext;
+}
+
 QString QmlLogger::session() const
 {
     return m_session;
@@ -170,6 +175,14 @@ void QmlLogger::setContentSets(const QStringList &t_contentSets)
 
     m_contentSets =  t_contentSets;
     emit contentSetsChanged(t_contentSets);
+}
+
+void QmlLogger::setGuiContext(const QString &t_guiContext)
+{
+    if(m_guiContext == t_guiContext)
+        return;
+    m_guiContext = t_guiContext;
+    emit guiContextChanged(t_guiContext);
 }
 
 void QmlLogger::setSession(const QString &t_session)

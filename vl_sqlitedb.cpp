@@ -389,7 +389,7 @@ void SQLiteDB::addEntity(int t_entityId, QString t_entityName)
     }
 }
 
-int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets)
+int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets, const QString &t_guiContextName)
 {
     int retVal = -1;
     int recordId = 0;
@@ -424,6 +424,8 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
     m_dPtr->m_transactionInsertQuery.bindValue(":recordsid", recordId);
     m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", t_transactionName);
     m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", t_contentSets);
+    m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", t_guiContextName);
+
     if(m_dPtr->m_transactionInsertQuery.exec() == false)
     {
         emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
@@ -641,7 +643,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 /* -- The record is a series of values collected over a variable duration connected to customer data
            * CREATE TABLE records (id INTEGER PRIMARY KEY, record_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
            */
-                m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, recordsid, transaction_name, contentset_names, start_time, stop_time) VALUES (:id, :recordsid, :transaction_name, :contentset_names, :start_time, :stop_time);");
+                m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, recordsid, transaction_name, contentset_names, guicontext_name, start_time, stop_time) VALUES (:id, :recordsid, :transaction_name, :contentset_names, :guicontext_name, :start_time, :stop_time);");
                 //executed after the transactions was added to get the last used number
                 m_dPtr->m_transactionSequenceQuery.prepare("SELECT MAX(id) FROM transactions;");
                 m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //recordid, valuemapid

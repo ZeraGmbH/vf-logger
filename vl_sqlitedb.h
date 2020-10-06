@@ -49,7 +49,7 @@ public slots:
     void initLocalData() override;
     void addComponent(const QString &t_componentName) override;
     void addEntity(int t_entityId, QString t_entityName) override;
-    int addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets) override;
+    int addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets, const QString &t_guiContextName) override;
     bool addStartTime(int t_transactionId, QDateTime t_time) override;
     bool addStopTime(int t_transactionId,  QDateTime t_time) override;
     int addRecord(const QString &t_recordName) override;
