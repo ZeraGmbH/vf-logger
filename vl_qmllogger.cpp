@@ -32,7 +32,7 @@ QString QmlLogger::transactionName() const
     return m_transactionName;
 }
 
-QString QmlLogger::contentSets() const
+QStringList QmlLogger::contentSets() const
 {
     return m_contentSets;
 }
@@ -90,9 +90,8 @@ QStringList QmlLogger::readSession()
 
 QVariantMap QmlLogger::readContentSets()
 {
-    QStringList contextSetList = m_contentSets.split(QLatin1Char(','), QString::SkipEmptyParts);
     QVariantMap resultMap;
-    for(auto contentSet : contextSetList) {
+    for(auto contentSet : m_contentSets) {
         QMap<QString,QVector<QString>> map = m_contentSetLoader.readContentSet(contentSet);
         for(QString key: map.keys()){
             resultMap[key]=QVariant::fromValue(QStringList(map[key].toList()));
@@ -164,7 +163,7 @@ void QmlLogger::setInitializeValues(bool t_initializeValues)
     emit initializeValuesChanged(t_initializeValues);
 }
 
-void QmlLogger::setContentSets(const QString &t_contentSets)
+void QmlLogger::setContentSets(const QStringList &t_contentSets)
 {
     if (m_contentSets == t_contentSets)
         return;
