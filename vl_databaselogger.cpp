@@ -504,7 +504,7 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
             const QVector<QString> tmpTransactionName = {t_script->transactionName()};
             QString tmpContentSets = t_script->contentSets().join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            t_script->setTransactionId(m_dPtr->m_database->addTransaction(t_script->transactionName(),t_script->recordName(), tmpContentSets));
+            t_script->setTransactionId(m_dPtr->m_database->addTransaction(t_script->transactionName(),t_script->recordName(), tmpContentSets, t_script->guiContext()));
             const QVector<int> tmpTransactionIds = {t_script->getTransactionId()};
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(t_script->getTransactionId(),QDateTime::currentDateTime());
