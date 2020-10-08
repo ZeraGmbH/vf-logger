@@ -452,56 +452,6 @@
             }
         ]
     },
-    "GuiContext":{
-        "ZeraGuiActualValues":[
-            "ZeraActualValues"
-        ],
-        "ZeraGuiVectorDiagramm":[
-            "ZeraActualValues"
-        ],
-        "ZeraGuiPowerValues":[
-            "ZeraActualValues"
-        ],
-        "ZeraGuiRMSValues":[
-            "ZeraActualValues"
-        ],
-        "ZeraGuiHarmonicTable":[
-            "ZeraHarmonics"
-        ],
-        "ZeraGuiHarmonicChart":[
-            "ZeraHarmonics"
-        ],
-        "ZeraGuiCurveDisplay":[
-            "ZeraCurves"
-        ],
-        "ZeraGuiHarmonicPowerTable":[
-            "ZeraHarmonics"
-        ],
-        "ZeraGuiHarmonicPowerChart":[
-            "ZeraHarmonics"
-        ],
-        "ZeraGuiMeterTest":[
-            "ZeraComparison"
-        ],
-        "ZeraGuiEnergyRegister":[
-            "ZeraComparison"
-        ],
-        "ZeraGuiPowerRegister":[
-            "ZeraComparison"
-        ],
-        "ZeraGuiVoltageBurden":[
-            "ZeraBurden"
-        ],
-        "ZeraGuiCurrentBurden":[
-            "ZeraBurden"
-        ],
-        "ZeraGuiInstrumentTransformer":[
-            "ZeraTransformer"
-        ],
-        "ZeraGuiDCReference":[
-            "ZeraDCReference"
-        ]
-    },
     "Sessions": {
         "com5003-meas-session.json": [
             "ZeraActualValues",
