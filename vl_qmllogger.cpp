@@ -22,9 +22,9 @@ QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 
 }
 
-QString QmlLogger::recordName() const
+QString QmlLogger::sessionName() const
 {
-    return m_recordName;
+    return m_sessionName;
 }
 
 QString QmlLogger::transactionName() const
@@ -107,8 +107,8 @@ QVariantMap QmlLogger::readContentSets()
 
 void QmlLogger::startLogging()
 {
-    if(!m_recordName.isEmpty() && !m_transactionName.isEmpty()){
-        VF_ASSERT(m_recordName.isEmpty() == false, "Logging requires a valid recordName");
+    if(!m_sessionName.isEmpty() && !m_transactionName.isEmpty()){
+        VF_ASSERT(m_sessionName.isEmpty() == false, "Logging requires a valid sessionName");
         VF_ASSERT(m_transactionName.isEmpty() == false, "Logging requires a valid transactionName");
         s_dbLogger->addScript(this);
     }
@@ -121,7 +121,7 @@ void QmlLogger::stopLogging()
 
 void QmlLogger::addLoggerEntry(int t_entityId, const QString &t_componentName)
 {
-    //VF_ASSERT(m_recordName.isEmpty() == false, "Logging requires a valid recordName");
+    //VF_ASSERT(m_sessionName.isEmpty() == false, "Logging requires a valid sessionName");
     if(m_loggedValues.contains(t_entityId, t_componentName) == false)
     {
         m_loggedValues.insert(t_entityId, t_componentName);
@@ -141,12 +141,12 @@ void QmlLogger::clearLoggerEntries()
     m_loggedValues.clear();
 }
 
-void QmlLogger::setRecordName(QString t_recordName)
+void QmlLogger::setSessionName(QString t_sessionName)
 {
-    if (m_recordName != t_recordName)
+    if (m_sessionName != t_sessionName)
     {
-        m_recordName = t_recordName;
-        emit recordNameChanged(t_recordName);
+        m_sessionName = t_sessionName;
+        emit sessionNameChanged(t_sessionName);
     }
 }
 

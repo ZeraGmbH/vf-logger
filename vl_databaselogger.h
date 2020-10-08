@@ -82,7 +82,7 @@ public slots:
      * @brief updateSessionList
      * @param p_sessions: list of sessions stored in open database
      *
-     * This function updates the Vein Component ExistingRecords to p_sessions
+     * This function updates the Vein Component ExistingSessions to p_sessions
      */
     virtual void updateSessionList(QStringList p_sessions);
 

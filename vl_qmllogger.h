@@ -18,12 +18,12 @@ class DatabaseLogger;
  * @brief The QmlLogger class
  *
  * This class stores all imprtand logging context data.
- * - recordName name
+ * - sessionName name
  * - transaction name
  * - contentSet names
  * - components
  *
- * - recordId
+ * - sessionId
  * - transactionId
  *
  * With this information its possible to map value changes to logging sessions.
@@ -34,7 +34,7 @@ class DatabaseLogger;
 class VFLOGGER_EXPORT QmlLogger : public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(QString recordName READ recordName WRITE setRecordName NOTIFY recordNameChanged)
+    Q_PROPERTY(QString sessionName READ sessionName WRITE setSessionName NOTIFY sessionNameChanged)
     Q_PROPERTY(QString transactionName READ transactionName WRITE setTransactionName NOTIFY transactionNameChanged)
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
@@ -44,10 +44,10 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
     /**
-     * @brief recordName
+     * @brief sessionName
      * @return
      */
-    QString recordName() const;
+    QString sessionName() const;
     QString transactionName() const;
     QStringList contentSets() const;
     QString guiContext() const;
@@ -86,7 +86,7 @@ public slots:
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
     void removeLoggerEntry(int t_entityId, const QString &t_componentName);
     void clearLoggerEntries();
-    void setRecordName(QString t_recordName);
+    void setSessionName(QString t_sessionName);
     void setTransactionName(const QString &t_transactionName);
     void setInitializeValues(bool t_initializeValues);
     void setContentSets(const QStringList &t_contentSets);
@@ -94,7 +94,7 @@ public slots:
     void setSession(const QString &t_session);
 
 signals:
-    void recordNameChanged(QString t_recordName);
+    void sessionNameChanged(QString t_sessionName);
     void transactionNameChanged(QString t_transactionName);
     void contentSetsChanged(QStringList t_contentSets);
     void sessionChanged(QString t_session);
@@ -107,7 +107,7 @@ private:
     static QString m_zeraContentSetPath;
     static QString m_customerContentSetPath;
     QString m_session;
-    QString m_recordName;
+    QString m_sessionName;
     QString m_transactionName;
     int m_transactionId;
     QDateTime m_startTime;

@@ -65,7 +65,7 @@ class DataLoggerPrivate
             componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
             componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
             componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
-            componentData.insert(s_existingRecordsComponentName, QStringList());
+            componentData.insert(s_existingSessionsComponentName, QStringList());
 
             // TODO: Add more from modulemanager
             componentData.insert(s_guiContextComponentName, QString());
@@ -381,7 +381,7 @@ class DataLoggerPrivate
     static constexpr QLatin1String s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
     static constexpr QLatin1String s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
     static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
-    static constexpr QLatin1String s_existingRecordsComponentName = QLatin1String("ExistingRecords");
+    static constexpr QLatin1String s_existingSessionsComponentName = QLatin1String("ExistingSessions");
 
     // TODO: Add more from modulemanager
     static constexpr QLatin1String s_guiContextComponentName = QLatin1String("guiContext");
@@ -424,7 +424,7 @@ constexpr QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName;
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_existingRecordsComponentName;
+constexpr QLatin1String DataLoggerPrivate::s_existingSessionsComponentName;
 // TODO: Add more from modulemanager
 constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
 
@@ -508,11 +508,11 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
         //writes the values from the data source to the database, some values may never change so they need to be initialized
         if(t_script->initializeValues() == true)
         {
-            const QString tmpsessionName = t_script->recordName();
+            const QString tmpsessionName = t_script->sessionName();
             const QVector<QString> tmpTransactionName = {t_script->transactionName()};
             QString tmpContentSets = t_script->contentSets().join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            t_script->setTransactionId(m_dPtr->m_database->addTransaction(t_script->transactionName(),t_script->recordName(), tmpContentSets, t_script->guiContext()));
+            t_script->setTransactionId(m_dPtr->m_database->addTransaction(t_script->transactionName(),t_script->sessionName(), tmpContentSets, t_script->guiContext()));
             const QVector<int> tmpTransactionIds = {t_script->getTransactionId()};
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(t_script->getTransactionId(),QDateTime::currentDateTime());
@@ -672,14 +672,14 @@ void DatabaseLogger::closeDatabase()
 
 void DatabaseLogger::updateSessionList(QStringList p_sessions)
 {
-    VeinComponent::ComponentData *exisitingRecords = new VeinComponent::ComponentData();
-    exisitingRecords ->setEntityId(m_dPtr->m_entityId);
-    exisitingRecords ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-    exisitingRecords ->setComponentName(DataLoggerPrivate::s_existingRecordsComponentName);
-    exisitingRecords ->setNewValue(p_sessions);
-    exisitingRecords ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-    exisitingRecords ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingRecords));
+    VeinComponent::ComponentData *exisitingSessions = new VeinComponent::ComponentData();
+    exisitingSessions ->setEntityId(m_dPtr->m_entityId);
+    exisitingSessions ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+    exisitingSessions ->setComponentName(DataLoggerPrivate::s_existingSessionsComponentName);
+    exisitingSessions ->setNewValue(p_sessions);
+    exisitingSessions ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+    exisitingSessions ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingSessions));
 
 }
 
@@ -727,7 +727,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     {
                         if(entry->isLoggedComponent(evData->entityId(), cData->componentName()))
                         {
-                            sessionName = entry->recordName();
+                            sessionName = entry->sessionName();
                             transactionIds.append(entry->getTransactionId());
                         }
                     }
