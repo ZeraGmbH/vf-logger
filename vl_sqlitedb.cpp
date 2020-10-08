@@ -260,7 +260,7 @@ bool SQLiteDB::isValidDatabase(QString t_dbPath)
             QSqlQuery schemaValidationQuery(tmpDB);
             if(schemaValidationQuery.exec("SELECT name FROM sqlite_master WHERE type = 'table';"))
             {
-                QSet<QString> requiredTables {"records", "entities", "components", "valuemap", "transactions"};
+                QSet<QString> requiredTables {"sessions", "entities", "components", "valuemap", "transactions"};
                 QSet<QString> foundTables;
                 while(schemaValidationQuery.next())
                 {
@@ -285,7 +285,7 @@ void SQLiteDB::initLocalData()
 {
     QSqlQuery componentQuery("SELECT * FROM components;", m_dPtr->m_logDB);
     QSqlQuery entityQuery("SELECT * FROM entities;", m_dPtr->m_logDB);
-    QSqlQuery recordQuery("SELECT * FROM records;", m_dPtr->m_logDB);
+    QSqlQuery recordQuery("SELECT * FROM sessions;", m_dPtr->m_logDB);
     QSqlQuery transactionQuery("SELECT * FROM transactions;", m_dPtr->m_logDB);
 
 
@@ -421,7 +421,7 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
     }
 
     m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
-    m_dPtr->m_transactionInsertQuery.bindValue(":recordsid", recordId);
+    m_dPtr->m_transactionInsertQuery.bindValue(":sessionid", recordId);
     m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", t_transactionName);
     m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", t_contentSets);
     m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", t_guiContextName);
@@ -491,7 +491,7 @@ int SQLiteDB::addRecord(const QString &t_recordName)
         }
 
         m_dPtr->m_recordInsertQuery.bindValue(":id", nextrecordId);
-        m_dPtr->m_recordInsertQuery.bindValue(":record_name", t_recordName);
+        m_dPtr->m_recordInsertQuery.bindValue(":session_name", t_recordName);
         if(m_dPtr->m_recordInsertQuery.exec() == false)
         {
             emit sigDatabaseError(QString("SQLiteDB::addRecord m_recordQuery failed: %1").arg(m_dPtr->m_recordInsertQuery.lastError().text()));
@@ -641,16 +641,16 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(id) FROM components;");
                 m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:id, :entity_name);");
                 /* -- The record is a series of values collected over a variable duration connected to customer data
-           * CREATE TABLE records (id INTEGER PRIMARY KEY, record_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
+           * CREATE TABLE sessions (id INTEGER PRIMARY KEY, session_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
            */
-                m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, recordsid, transaction_name, contentset_names, guicontext_name, start_time, stop_time) VALUES (:id, :recordsid, :transaction_name, :contentset_names, :guicontext_name, :start_time, :stop_time);");
+                m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, sessionid, transaction_name, contentset_names, guicontext_name, start_time, stop_time) VALUES (:id, :sessionid, :transaction_name, :contentset_names, :guicontext_name, :start_time, :stop_time);");
                 //executed after the transactions was added to get the last used number
                 m_dPtr->m_transactionSequenceQuery.prepare("SELECT MAX(id) FROM transactions;");
                 m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //recordid, valuemapid
 
-                m_dPtr->m_recordInsertQuery.prepare("INSERT INTO records (id, record_name) VALUES (:id, :record_name);");
+                m_dPtr->m_recordInsertQuery.prepare("INSERT INTO sessions (id, session_name) VALUES (:id, :session_name);");
                 //ecexute after record was added to  get last used number
-                m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(id) FROM records");
+                m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(id) FROM sessions");
 
 
 
