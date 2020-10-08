@@ -98,7 +98,7 @@ class DBPrivate
         return doubleListValue;
     }
 
-    QHash<QString, int> m_recordIds;
+    QHash<QString, int> m_sessionIds;
     QHash<int, QString> m_transactionIds;
     QVector<int> m_entityIds;
     QHash<QString, int> m_componentIds;
@@ -155,21 +155,21 @@ class DBPrivate
      */
     QSqlQuery m_transactionSequenceQuery;
     /**
-     * @brief m_recordInsertQuery
-     * add record to database
+     * @brief m_sessionInsertQuery
+     * add session to database
      *
      * The id is needed beacause writing is done in batches
      * and the ids are managed in this class parallel to the database
      */
-    QSqlQuery m_recordInsertQuery;
+    QSqlQuery m_sessionInsertQuery;
     /**
-     * @brief m_recordSequenceQuery
-     * get highest record id to database
+     * @brief m_sessionSequenceQuery
+     * get highest session id to database
      *
      * The id is needed beacause writing is done in batches
      * and the ids are managed in this class parallel to the database
      */
-    QSqlQuery m_recordSequenceQuery;
+    QSqlQuery m_sessionSequenceQuery;
 
     int m_valueMapQueryCounter=0;
     /**
@@ -211,9 +211,9 @@ bool SQLiteDB::hasComponentName(const QString &t_componentName) const
     return m_dPtr->m_componentIds.contains(t_componentName);
 }
 
-bool SQLiteDB::hasRecordName(const QString &t_recordName) const
+bool SQLiteDB::hasSessionName(const QString &t_sessionName) const
 {
-    return m_dPtr->m_recordIds.contains(t_recordName);
+    return m_dPtr->m_sessionIds.contains(t_sessionName);
 }
 
 bool SQLiteDB::databaseIsOpen() const
@@ -285,7 +285,7 @@ void SQLiteDB::initLocalData()
 {
     QSqlQuery componentQuery("SELECT * FROM components;", m_dPtr->m_logDB);
     QSqlQuery entityQuery("SELECT * FROM entities;", m_dPtr->m_logDB);
-    QSqlQuery recordQuery("SELECT * FROM sessions;", m_dPtr->m_logDB);
+    QSqlQuery sessionQuery("SELECT * FROM sessions;", m_dPtr->m_logDB);
     QSqlQuery transactionQuery("SELECT * FROM transactions;", m_dPtr->m_logDB);
 
 
@@ -309,20 +309,20 @@ void SQLiteDB::initLocalData()
     }
     entityQuery.finish();
 
-    while (recordQuery.next())
+    while (sessionQuery.next())
     {
-        int recordId = recordQuery.value(0).toInt();
-        QString recordName = recordQuery.value(1).toString();
+        int sessionId = sessionQuery.value(0).toInt();
+        QString sessionName = sessionQuery.value(1).toString();
 
-        vCDebug(VEIN_LOGGER) << "Found record:" << recordId << recordName;
-        m_dPtr->m_recordIds.insert(recordName, recordId);
+        vCDebug(VEIN_LOGGER) << "Found session:" << sessionId << sessionName;
+        m_dPtr->m_sessionIds.insert(sessionName, sessionId);
     }
-    recordQuery.finish();
+    sessionQuery.finish();
 
     while (transactionQuery.next())
     {
-        int transactionId = recordQuery.value(0).toInt();
-        QString transactionName = recordQuery.value(1).toString();
+        int transactionId = sessionQuery.value(0).toInt();
+        QString transactionName = sessionQuery.value(1).toString();
 
         vCDebug(VEIN_LOGGER) << "Found transaction:" << transactionId << transactionName;
         m_dPtr->m_transactionIds.insert(transactionId, transactionName);
@@ -389,21 +389,21 @@ void SQLiteDB::addEntity(int t_entityId, QString t_entityName)
     }
 }
 
-int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets, const QString &t_guiContextName)
+int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_sessionName, const QString &t_contentSets, const QString &t_guiContextName)
 {
     int retVal = -1;
-    int recordId = 0;
+    int sessionId = 0;
 
-    //check if record exists. If record does not exist add to list.
-    if(m_dPtr->m_recordIds.contains(t_recordName))
+    //check if session exists. If session does not exist add to list.
+    if(m_dPtr->m_sessionIds.contains(t_sessionName))
     {
-        recordId=m_dPtr->m_recordIds.value(t_recordName);
+        sessionId=m_dPtr->m_sessionIds.value(t_sessionName);
     }
     else
     {
-        int newRecord = addRecord(t_recordName);
-        Q_ASSERT(newRecord >= 0);
-        recordId = newRecord;
+        int newSession = addSession(t_sessionName);
+        Q_ASSERT(newSession >= 0);
+        sessionId = newSession;
     }
 
 
@@ -421,7 +421,7 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
     }
 
     m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
-    m_dPtr->m_transactionInsertQuery.bindValue(":sessionid", recordId);
+    m_dPtr->m_transactionInsertQuery.bindValue(":sessionid", sessionId);
     m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", t_transactionName);
     m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", t_contentSets);
     m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", t_guiContextName);
@@ -472,52 +472,52 @@ bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
     return false;
 }
 
-int SQLiteDB::addRecord(const QString &t_recordName)
+int SQLiteDB::addSession(const QString &t_sessionName)
 {
     int retVal = -1;
-    if(m_dPtr->m_recordIds.contains(t_recordName) == false)
+    if(m_dPtr->m_sessionIds.contains(t_sessionName) == false)
     {
-        int nextrecordId = 0;
+        int nextsessionId = 0;
 
-        if(m_dPtr->m_recordSequenceQuery.exec() == true)
+        if(m_dPtr->m_sessionSequenceQuery.exec() == true)
         {
-            m_dPtr->m_recordSequenceQuery.next();
-            nextrecordId = m_dPtr->m_recordSequenceQuery.value(0).toInt()+1;
+            m_dPtr->m_sessionSequenceQuery.next();
+            nextsessionId = m_dPtr->m_sessionSequenceQuery.value(0).toInt()+1;
         }
         else
         {
-            emit sigDatabaseError(QString("SQLiteDB::addRecord m_recordSequenceQuery failed: %1").arg(m_dPtr->m_recordSequenceQuery.lastError().text()));
+            emit sigDatabaseError(QString("SQLiteDB::addSession m_sessionSequenceQuery failed: %1").arg(m_dPtr->m_sessionSequenceQuery.lastError().text()));
             Q_ASSERT(false);
         }
 
-        m_dPtr->m_recordInsertQuery.bindValue(":id", nextrecordId);
-        m_dPtr->m_recordInsertQuery.bindValue(":session_name", t_recordName);
-        if(m_dPtr->m_recordInsertQuery.exec() == false)
+        m_dPtr->m_sessionInsertQuery.bindValue(":id", nextsessionId);
+        m_dPtr->m_sessionInsertQuery.bindValue(":session_name", t_sessionName);
+        if(m_dPtr->m_sessionInsertQuery.exec() == false)
         {
-            emit sigDatabaseError(QString("SQLiteDB::addRecord m_recordQuery failed: %1").arg(m_dPtr->m_recordInsertQuery.lastError().text()));
+            emit sigDatabaseError(QString("SQLiteDB::addSession m_sessionInsertQuery failed: %1").arg(m_dPtr->m_sessionInsertQuery.lastError().text()));
             Q_ASSERT(false);
         }
 
 
 
-        m_dPtr->m_recordSequenceQuery.finish();
+        m_dPtr->m_sessionSequenceQuery.finish();
 
-        if(nextrecordId > 0)
+        if(nextsessionId > 0)
         {
-            m_dPtr->m_recordIds.insert(t_recordName, nextrecordId);
-            retVal = nextrecordId;
-            emit sigNewRecordList(QStringList(m_dPtr->m_recordIds.keys()));
+            m_dPtr->m_sessionIds.insert(t_sessionName, nextsessionId);
+            retVal = nextsessionId;
+            emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
         }
         else
         {
-            emit sigDatabaseError(QString("Error in SQLiteDB::addRecord transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
+            emit sigDatabaseError(QString("Error in SQLiteDB::addSession transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
             Q_ASSERT(false);
         }
     }
     return retVal;
 }
 
-void SQLiteDB::addLoggedValue(int t_recordId, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
+void SQLiteDB::addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
 {
     const int componentId = m_dPtr->m_componentIds.value(t_componentName, 0);
 
@@ -526,12 +526,12 @@ void SQLiteDB::addLoggedValue(int t_recordId, QVector<int> t_transactionIds, int
     //make sure the ids exist
     VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(t_componentName)));
 
-    VF_ASSERT(m_dPtr->m_recordIds.key(t_recordId).isEmpty() == false , QStringC(QString("(VeinLogger) Unknown recordId: %1").arg(t_recordId)));
+    VF_ASSERT(m_dPtr->m_sessionIds.key(t_sessionId).isEmpty() == false , QStringC(QString("(VeinLogger) Unknown sessionId: %1").arg(t_sessionId)));
 
     VF_ASSERT(m_dPtr->m_entityIds.contains(t_entityId) == true, QStringC(QString("(VeinLogger) Unknown entityId: %1").arg(t_entityId)));
 
     SQLBatchData batchData;
-    batchData.recordId=t_recordId;
+    batchData.sessionId=t_sessionId;
     batchData.transactionIds=t_transactionIds;
     batchData.entityId=t_entityId;
     batchData.componentId=m_dPtr->m_componentIds.value(t_componentName);
@@ -541,21 +541,21 @@ void SQLiteDB::addLoggedValue(int t_recordId, QVector<int> t_transactionIds, int
     m_dPtr->m_batchVector.append(batchData);
 }
 
-void SQLiteDB::addLoggedValue(const QString &t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
+void SQLiteDB::addLoggedValue(const QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
 {
-    int recordId = 0;
+    int sessionId = 0;
 
-    if(m_dPtr->m_recordIds.contains(t_recordName))
+    if(m_dPtr->m_sessionIds.contains(t_sessionName))
     {
-        recordId=m_dPtr->m_recordIds.value(t_recordName);
+        sessionId=m_dPtr->m_sessionIds.value(t_sessionName);
     }
     else
     {
-        int newRecord = addRecord(t_recordName);
-        Q_ASSERT(newRecord >= 0);
-        recordId=newRecord;
+        int newSession = addSession(t_sessionName);
+        Q_ASSERT(newSession >= 0);
+        sessionId=newSession;
     }
-    addLoggedValue(recordId, t_transactionIds, t_entityId, t_componentName, t_value, t_timestamp);
+    addLoggedValue(sessionId, t_transactionIds, t_entityId, t_componentName, t_value, t_timestamp);
 
 }
 
@@ -597,8 +597,8 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
             m_dPtr->m_entityInsertQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_transactionInsertQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_transactionSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
-            m_dPtr->m_recordSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
-            m_dPtr->m_recordInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+            m_dPtr->m_sessionSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
+            m_dPtr->m_sessionInsertQuery = QSqlQuery(m_dPtr->m_logDB);
 
             //setup database if necessary
             QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
@@ -640,17 +640,17 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 m_dPtr->m_componentInsertQuery.prepare("INSERT INTO components (id, component_name) VALUES (:id, :component_name);");
                 m_dPtr->m_componentSequenceQuery.prepare("SELECT MAX(id) FROM components;");
                 m_dPtr->m_entityInsertQuery.prepare("INSERT INTO entities VALUES (:id, :entity_name);");
-                /* -- The record is a series of values collected over a variable duration connected to customer data
+                /* -- The session is a series of values collected over a variable duration connected to customer data
            * CREATE TABLE sessions (id INTEGER PRIMARY KEY, session_name VARCHAR(255) NOT NULL UNIQUE) WITHOUT ROWID;
            */
                 m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, sessionid, transaction_name, contentset_names, guicontext_name, start_time, stop_time) VALUES (:id, :sessionid, :transaction_name, :contentset_names, :guicontext_name, :start_time, :stop_time);");
                 //executed after the transactions was added to get the last used number
                 m_dPtr->m_transactionSequenceQuery.prepare("SELECT MAX(id) FROM transactions;");
-                m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //recordid, valuemapid
+                m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //sessionId, valuemapid
 
-                m_dPtr->m_recordInsertQuery.prepare("INSERT INTO sessions (id, session_name) VALUES (:id, :session_name);");
-                //ecexute after record was added to  get last used number
-                m_dPtr->m_recordSequenceQuery.prepare("SELECT MAX(id) FROM sessions");
+                m_dPtr->m_sessionInsertQuery.prepare("INSERT INTO sessions (id, session_name) VALUES (:id, :session_name);");
+                //ecexute after session was added to  get last used number
+                m_dPtr->m_sessionSequenceQuery.prepare("SELECT MAX(id) FROM sessions");
 
 
 
@@ -669,7 +669,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
 
 
                 initLocalData();
-                emit sigNewRecordList(QStringList(m_dPtr->m_recordIds.keys()));
+                emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
 
                 QSqlQuery tuningQuery(m_dPtr->m_logDB);
                 tuningQuery.exec("pragma journal_mode = memory;"); //prevent .journal files and speed up the logging
@@ -703,7 +703,7 @@ void SQLiteDB::runBatchedExecution()
         QList<QVariant> tmpEntityIds;
 
         //do not use QHash here, the sorted key lists are required
-        QMultiMap<QVariant, QVariant> tmpTransactionIds; //record_id, valuemap_id
+        QMultiMap<QVariant, QVariant> tmpTransactionIds; //session_id, valuemap_id
         QSet<int> activeTransactions;
         QMap<int, QVariant> tmpValues; //valuemap_id, component_value
 
@@ -712,7 +712,7 @@ void SQLiteDB::runBatchedExecution()
             tmpValuemapIds.append(m_dPtr->m_valueMapQueryCounter);
             tmpEntityIds.append(entry.entityId);
             tmpComponentIds.append(entry.componentId);
-            //one value can be logged to multiple records simultaneously
+            //one value can be logged to multiple sessions simultaneously
             for(const int currentTransId : entry.transactionIds)
             {
                 tmpTransactionIds.insert(currentTransId, m_dPtr->m_valueMapQueryCounter);
@@ -759,7 +759,7 @@ void SQLiteDB::runBatchedExecution()
             m_dPtr->m_transactionMappingInsertQuery.addBindValue(tmpTransactionIds.values());
             if(m_dPtr->m_transactionMappingInsertQuery.execBatch() == false)
             {
-                emit sigDatabaseError(QString("Error executing m_recordMappingQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
+                emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
                 Q_ASSERT(false);
             }
 

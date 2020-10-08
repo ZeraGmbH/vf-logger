@@ -27,7 +27,7 @@ public:
 
     virtual bool hasEntityId(int t_entityId) const =0;
     virtual bool hasComponentName(const QString &t_componentName) const =0;
-    virtual bool hasRecordName(const QString &t_recordName) const =0;
+    virtual bool hasSessionName(const QString &t_sessionName) const =0;
 
     virtual bool databaseIsOpen() const =0;
     virtual QString databasePath() const =0;
@@ -38,13 +38,13 @@ public:
 signals:
     void sigDatabaseError(const QString &t_errorString);
     void sigDatabaseReady();
-    void sigNewRecordList(QStringList p_records);
+    void sigNewSessionList(QStringList p_sessions);
 
 public slots:
     virtual void initLocalData() =0;
     virtual void addComponent(const QString &t_componentName) =0;
     virtual void addEntity(int t_entityId, QString t_entityName) =0;
-    virtual int addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets, const QString &t_guiContextName) =0;
+    virtual int addTransaction(const QString &t_transactionName, const QString &t_sessionName, const QString &t_contentSets, const QString &t_guiContextName) =0;
     /**
      * @brief addStartTime
      * @param t_transactionId: sql transaction id
@@ -64,31 +64,31 @@ public slots:
      */
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 
-    virtual int addRecord(const QString &t_transactionName) =0;
+    virtual int addSession(const QString &t_sessionName) =0;
     /**
      * @brief addLoggedValue
-     * @param t_recordId
+     * @param t_sessionId
      * @param t_transactionIds
      * @param t_entityId
      * @param t_componentName
      * @param t_value
      * @param t_timestamp
      *
-     * @todo Remove recordId. Its not necessary and forces the user to store only in one record at the same time.
+     * @todo Remove sessionId. Its not necessary and forces the user to store only in one session at the same time.
      */
-    virtual void addLoggedValue(int t_recordId, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
+    virtual void addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
     /**
      * @brief addLoggedValue
-     * @param t_recordName
+     * @param t_sessionName
      * @param t_transactionIds
      * @param t_entityId
      * @param t_componentName
      * @param t_value
      * @param t_timestamp
      *
-     * @todo Remove recordName. Its not necessary and forces the user to store only in one record at the same time.
+     * @todo Remove sessionName. Its not necessary and forces the user to store only in one session at the same time.
      */
-    virtual void addLoggedValue(const QString &t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
+    virtual void addLoggedValue(const QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
 
     virtual bool openDatabase(const QString &t_dbPath) =0;
     virtual void runBatchedExecution() =0;

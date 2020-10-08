@@ -508,7 +508,7 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
         //writes the values from the data source to the database, some values may never change so they need to be initialized
         if(t_script->initializeValues() == true)
         {
-            const QString tmpRecordName = t_script->recordName();
+            const QString tmpsessionName = t_script->recordName();
             const QVector<QString> tmpTransactionName = {t_script->transactionName()};
             QString tmpContentSets = t_script->contentSets().join(QLatin1Char(','));
             //add a new transaction and store ids in script.
@@ -552,7 +552,7 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
                             }
                             // add initial values
                             emit sigAddLoggedValue(
-                                        tmpRecordName,
+                                        tmpsessionName,
                                         tmpTransactionIds,
                                         tmpEntityId,
                                         componentToAdd,
@@ -638,14 +638,14 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         connect(this, SIGNAL(sigAddLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)));
         connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));
         connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
-        connect(this, SIGNAL(sigAddRecord(QString)), m_dPtr->m_database, SLOT(addRecord(QString)));
+        connect(this, SIGNAL(sigAddSession(QString)), m_dPtr->m_database, SLOT(addSession(QString)));
         connect(this, SIGNAL(sigOpenDatabase(QString)), m_dPtr->m_database, SLOT(openDatabase(QString)));
         connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
         connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
         connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
         //run final batch instantly when logging is disabled
         connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
-        connect(m_dPtr->m_database, SIGNAL(sigNewRecordList(QStringList)), this, SLOT(updateRecordList(QStringList)));
+        connect(m_dPtr->m_database, SIGNAL(sigNewSessionList(QStringList)), this, SLOT(updateSessionList(QStringList)));
 
         emit sigOpenDatabase(t_filePath);
     }
@@ -665,18 +665,18 @@ void DatabaseLogger::closeDatabase()
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
     emit sigDatabaseUnloaded();
-    updateRecordList(QStringList());
+    updateSessionList(QStringList());
     m_dPtr->updateDBStorageInfo();
     qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
 }
 
-void DatabaseLogger::updateRecordList(QStringList p_records)
+void DatabaseLogger::updateSessionList(QStringList p_sessions)
 {
     VeinComponent::ComponentData *exisitingRecords = new VeinComponent::ComponentData();
     exisitingRecords ->setEntityId(m_dPtr->m_entityId);
     exisitingRecords ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
     exisitingRecords ->setComponentName(DataLoggerPrivate::s_existingRecordsComponentName);
-    exisitingRecords ->setNewValue(p_records);
+    exisitingRecords ->setNewValue(p_sessions);
     exisitingRecords ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
     exisitingRecords ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingRecords));
@@ -719,7 +719,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                 if(activeStates.contains(requiredStates))
                 {
-                    QString recordName = "";
+                    QString sessionName = "";
                     QVector<int> transactionIds;
                     const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
                     //check all scripts if they want to log the changed value
@@ -727,19 +727,19 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     {
                         if(entry->isLoggedComponent(evData->entityId(), cData->componentName()))
                         {
-                            recordName = entry->recordName();
+                            sessionName = entry->recordName();
                             transactionIds.append(entry->getTransactionId());
                         }
                     }
 
 
-                    if(m_dPtr->m_database->hasRecordName(recordName) == false)
+                    if(m_dPtr->m_database->hasSessionName(sessionName) == false)
                     {
-                        emit sigAddRecord(recordName);
+                        emit sigAddSession(sessionName);
                     }
 
 
-                    if(recordName.length() > 0)
+                    if(sessionName.length() > 0)
                     {
                         if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
                         {
@@ -750,7 +750,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                             emit sigAddComponent(cData->componentName());
                         }
                         if(transactionIds.length() != 0){
-                            emit sigAddLoggedValue(recordName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
+                            emit sigAddLoggedValue(sessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
                         }
                         retVal = true;
                     }

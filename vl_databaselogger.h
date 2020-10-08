@@ -51,17 +51,17 @@ public:
 signals:
     /**
      * @brief sigAddLoggedValue
-     * @param t_recordName: used record Name
+     * @param t_sessionName: used session Name
      * @param t_transactionIds: sql id of transaction
      * @param t_entityId: sql entity id of value
      * @param t_componentName: sql component id of value
      * @param t_value: value: itself
      * @param t_timestamp: time the value change occured
      */
-    void sigAddLoggedValue(QString t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
+    void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void sigAddEntity(int t_entityId, const QString &t_entityName);
     void sigAddComponent(const QString &t_componentName);
-    void sigAddRecord(const QString &t_recordName);
+    void sigAddSession(const QString &t_sessionName);
 
     void sigOpenDatabase(const QString &t_filePath);
 
@@ -79,12 +79,12 @@ public slots:
     virtual bool openDatabase(const QString &t_filePath);
     virtual void closeDatabase();
     /**
-     * @brief updateRecordList
-     * @param p_records: list of record stored in open database
+     * @brief updateSessionList
+     * @param p_sessions: list of sessions stored in open database
      *
-     * This function updates the Vien Component ExistingRecords to p_records
+     * This function updates the Vein Component ExistingRecords to p_sessions
      */
-    virtual void updateRecordList(QStringList p_records);
+    virtual void updateSessionList(QStringList p_sessions);
 
     // EventSystem interface
 public:

@@ -18,7 +18,7 @@ struct SQLBatchData
     int entityId;
     int componentId;
     QVector<int> transactionIds;
-    int recordId;
+    int sessionId;
     QDateTime timestamp;
     QVariant value;
 };
@@ -35,7 +35,7 @@ public:
 
     bool hasEntityId(int t_entityId) const override;
     bool hasComponentName(const QString &t_componentName) const override;
-    bool hasRecordName(const QString &t_recordName) const override;
+    bool hasSessionName(const QString &t_sessionName) const override;
 
     bool databaseIsOpen() const override;
     QString databasePath() const override;
@@ -49,12 +49,12 @@ public slots:
     void initLocalData() override;
     void addComponent(const QString &t_componentName) override;
     void addEntity(int t_entityId, QString t_entityName) override;
-    int addTransaction(const QString &t_transactionName, const QString &t_recordName, const QString &t_contentSets, const QString &t_guiContextName) override;
+    int addTransaction(const QString &t_transactionName, const QString &t_sessionName, const QString &t_contentSets, const QString &t_guiContextName) override;
     bool addStartTime(int t_transactionId, QDateTime t_time) override;
     bool addStopTime(int t_transactionId,  QDateTime t_time) override;
-    int addRecord(const QString &t_recordName) override;
-    void addLoggedValue(int t_recordId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
-    void addLoggedValue(const  QString &t_recordName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
+    int addSession(const QString &t_sessionName) override;
+    void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
+    void addLoggedValue(const  QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
 
     bool openDatabase(const QString &t_dbPath) override;
 
