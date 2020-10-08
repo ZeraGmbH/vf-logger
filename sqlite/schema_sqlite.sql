@@ -5,7 +5,7 @@ CREATE TABLE transactions (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, record
 CREATE TABLE transactions_valuemap (transactionsid integer(10) NOT NULL, valueid integer(10) NOT NULL, PRIMARY KEY (transactionsid, valueid), FOREIGN KEY(valueid) REFERENCES valuemap(id), FOREIGN KEY(transactionsid) REFERENCES transactions(id));
 CREATE TABLE valuemap (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, value_timestamp timestamp, component_value numeric(19, 0), componentid integer(10), entityiesid integer(10), FOREIGN KEY(entityiesid) REFERENCES entities(id), FOREIGN KEY(componentid) REFERENCES components(id));
 
-/*CREATE VIEW valueview AS SELECT records.record_name, transactions.transaction_name, enties.entity_name, component.component_name, valuemap.value_timestamp, valuemap.component_value FROM records INNER JOIN transactions ON records.id = transactions.recordsid INNER JOIN valuemap ON transactions.id = valuemap.transactionid INNER JOIN enties ON valuemap.* = enties.id INNER JOIN component ON valuemap.componentid = component.id; */
+/*CREATE VIEW valueview AS SELECT records.record_name, transactions.transaction_name, entities.entity_name, component.component_name, valuemap.value_timestamp, valuemap.component_value FROM records INNER JOIN transactions ON records.id = transactions.recordsid INNER JOIN valuemap ON transactions.id = valuemap.transactionid INNER JOIN entities ON valuemap.* = entities.id INNER JOIN component ON valuemap.componentid = component.id; */
 
 /* shows the data in a human readable / CSV processable form */;
 /* example output:
