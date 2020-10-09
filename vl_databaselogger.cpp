@@ -703,12 +703,11 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         }
                     }
 
-                    if(m_dPtr->m_database->hasSessionName(sessionName) == false) {
-                        emit sigAddSession(sessionName);
-                    }
-
                     if(sessionName.length() > 0)
                     {
+                        if(m_dPtr->m_database->hasSessionName(sessionName) == false) {
+                            emit sigAddSession(sessionName);
+                        }
                         if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false) {
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
                         }
