@@ -824,6 +824,15 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
                     sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
+                    QString sessionName = cData->newValue().toString();
+                    // we have a working database?
+                    if(!sessionName.isEmpty() &&
+                            m_dPtr->m_database &&
+                            m_dPtr->m_database->databaseIsOpen() &&
+                            !m_dPtr->m_database->hasSessionName(sessionName)) {
+                        // Add session immediately: That helps us massively to create a smart user-interface
+                        emit sigAddSession(sessionName);
+                    }
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                 }
                 else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
