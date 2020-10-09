@@ -326,6 +326,10 @@
                     "PAR_WCrosssection",
                     "PAR_Wirelength"
                 ]
+            },
+            {
+                "EntityId": "1120",
+                "Comment": "RangeModule"
             }
         ],
         "ZeraTransformer": [
@@ -346,6 +350,10 @@
                     "PAR_SecClampPrim",
                     "PAR_SecClampSec"
                 ]
+            },
+            {
+                "EntityId": "1120",
+                "Comment": "RangeModule"
             }
         ],
         "ZeraDCReference": [
