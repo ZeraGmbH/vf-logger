@@ -69,6 +69,7 @@ class DataLoggerPrivate
 
             // TODO: Add more from modulemanager
             componentData.insert(s_guiContextComponentName, QString());
+            componentData.insert(s_transactionNameComponentName, QString());
 
             for(const QString &componentName : componentData.keys())
             {
@@ -385,6 +386,7 @@ class DataLoggerPrivate
 
     // TODO: Add more from modulemanager
     static constexpr QLatin1String s_guiContextComponentName = QLatin1String("guiContext");
+    static constexpr QLatin1String s_transactionNameComponentName = QLatin1String("transactionName");
 
 
     QStateMachine m_stateMachine;
@@ -427,6 +429,7 @@ constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentN
 constexpr QLatin1String DataLoggerPrivate::s_existingSessionsComponentName;
 // TODO: Add more from modulemanager
 constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
+constexpr QLatin1String DataLoggerPrivate::s_transactionNameComponentName;
 
 DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
@@ -878,6 +881,18 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
+                }
+                else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName)
+                {
+                    VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
+                    transactionNameCData->setEntityId(m_dPtr->m_entityId);
+                    transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                    transactionNameCData->setComponentName(DataLoggerPrivate::s_transactionNameComponentName);
+                    transactionNameCData->setNewValue(cData->newValue());
+                    transactionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
                 }
                 t_event->accept();
             }
