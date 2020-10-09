@@ -68,6 +68,7 @@ class DataLoggerPrivate
             componentData.insert(s_existingSessionsComponentName, QStringList());
 
             // TODO: Add more from modulemanager
+            componentData.insert(s_sessionNameComponentName, QString());
             componentData.insert(s_guiContextComponentName, QString());
             componentData.insert(s_transactionNameComponentName, QString());
             componentData.insert(s_currentContentSetsComponentName, QStringList());
@@ -387,6 +388,7 @@ class DataLoggerPrivate
     static constexpr QLatin1String s_existingSessionsComponentName = QLatin1String("ExistingSessions");
 
     // TODO: Add more from modulemanager
+    static constexpr QLatin1String s_sessionNameComponentName = QLatin1String("sessionName");
     static constexpr QLatin1String s_guiContextComponentName = QLatin1String("guiContext");
     static constexpr QLatin1String s_transactionNameComponentName = QLatin1String("transactionName");
     static constexpr QLatin1String s_currentContentSetsComponentName = QLatin1String("currentContentSets");
@@ -431,6 +433,7 @@ constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentNa
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_existingSessionsComponentName;
 // TODO: Add more from modulemanager
+constexpr QLatin1String DataLoggerPrivate::s_sessionNameComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_transactionNameComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_currentContentSetsComponentName;
@@ -875,6 +878,18 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     }
                 }
                 // TODO: Add more from modulemanager
+                else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName)
+                {
+                    VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
+                    sessionNameCData->setEntityId(m_dPtr->m_entityId);
+                    sessionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                    sessionNameCData->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
+                    sessionNameCData->setNewValue(cData->newValue());
+                    sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+                }
                 else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName)
                 {
                     VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
