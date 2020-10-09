@@ -70,6 +70,7 @@ class DataLoggerPrivate
             // TODO: Add more from modulemanager
             componentData.insert(s_guiContextComponentName, QString());
             componentData.insert(s_transactionNameComponentName, QString());
+            componentData.insert(s_currentContentSetsComponentName, QStringList());
 
             for(const QString &componentName : componentData.keys())
             {
@@ -387,7 +388,7 @@ class DataLoggerPrivate
     // TODO: Add more from modulemanager
     static constexpr QLatin1String s_guiContextComponentName = QLatin1String("guiContext");
     static constexpr QLatin1String s_transactionNameComponentName = QLatin1String("transactionName");
-
+    static constexpr QLatin1String s_currentContentSetsComponentName = QLatin1String("currentContentSets");
 
     QStateMachine m_stateMachine;
     //QStatemachine does not support ParallelState
@@ -430,6 +431,7 @@ constexpr QLatin1String DataLoggerPrivate::s_existingSessionsComponentName;
 // TODO: Add more from modulemanager
 constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_transactionNameComponentName;
+constexpr QLatin1String DataLoggerPrivate::s_currentContentSetsComponentName;
 
 DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
@@ -893,6 +895,18 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
+                }
+                else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName)
+                {
+                    VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
+                    currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
+                    currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                    currentContentSetsCData->setComponentName(DataLoggerPrivate::s_currentContentSetsComponentName);
+                    currentContentSetsCData->setNewValue(cData->newValue());
+                    currentContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    currentContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
                 }
                 t_event->accept();
             }
