@@ -37,11 +37,9 @@ class DataLoggerPrivate
         m_asyncDatabaseThread.wait();
     }
 
-    void initOnce()
-    {
+    void initOnce() {
         Q_ASSERT(m_initDone == false);
-        if(m_initDone == false)
-        {
+        if(m_initDone == false) {
             VeinComponent::EntityData *systemData = new VeinComponent::EntityData();
             systemData->setCommand(VeinComponent::EntityData::Command::ECMD_ADD);
             systemData->setEntityId(m_entityId);
@@ -74,8 +72,7 @@ class DataLoggerPrivate
             componentData.insert(s_currentContentSetsComponentName, QStringList());
             componentData.insert(s_availableContentSetsComponentName, QStringList());
 
-            for(const QString &componentName : componentData.keys())
-            {
+            for(const QString &componentName : componentData.keys()) {
                 initialData = new VeinComponent::ComponentData();
                 initialData->setEntityId(m_entityId);
                 initialData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
@@ -96,10 +93,8 @@ class DataLoggerPrivate
 
     void setStatusText(const QString &t_status)
     {
-        if(m_loggerStatusText != t_status)
-        {
+        if(m_loggerStatusText != t_status) {
             m_loggerStatusText = t_status;
-
 
             VeinComponent::ComponentData *schedulingEnabledData = new VeinComponent::ComponentData();
             schedulingEnabledData->setEntityId(m_entityId);
@@ -187,8 +182,7 @@ class DataLoggerPrivate
             setStatusText("Logging data");
         });
         QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
-            if(m_stateMachine.configuration().contains(m_databaseErrorState) == false) // do not override important notification
-            {
+            if(m_stateMachine.configuration().contains(m_databaseErrorState) == false) { // do not override important notification
                 setStatusText("Logging disabled");
             }
             m_batchedExecutionTimer.stop();
@@ -224,10 +218,8 @@ class DataLoggerPrivate
     {
         const auto storages = QStorageInfo::mountedVolumes();
         QVariantMap storageInfoMap;
-        for(const auto storDevice : storages)
-        {
-            if(storDevice.fileSystemType().contains("tmpfs") == false)
-            {
+        for(const auto storDevice : storages)  {
+            if(storDevice.fileSystemType().contains("tmpfs") == false) {
                 const double availGB = storDevice.bytesFree()/1.0e9;
                 const double totalGB = storDevice.bytesTotal()/1.0e9;
 
@@ -255,19 +247,15 @@ class DataLoggerPrivate
         bool retVal = false;
         QFileInfo fInfo(t_dbFilePath);
 
-        if(fInfo.absoluteDir().exists())
-        {
-            if(fInfo.isFile() || fInfo.exists() == false)
-            {
+        if(fInfo.absoluteDir().exists()) {
+            if(fInfo.isFile() || fInfo.exists() == false) {
                 retVal = true;
             }
-            else
-            {
+            else {
                 emit m_qPtr->sigDatabaseError(QString("Path is not a valid file location: %1").arg(t_dbFilePath));
             }
         }
-        else
-        {
+        else {
             emit m_qPtr->sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(t_dbFilePath));
         }
 
@@ -277,8 +265,7 @@ class DataLoggerPrivate
     void setDBFileInfo(const QString &t_dbFilePath)
     {
         QFileInfo fInfo(t_dbFilePath);
-        if(true) //fInfo.exists())
-        {
+        if(true) { //fInfo.exists())
             QHash <QString, QVariant> fileInfoData;
             QMimeDatabase mimeDB;
             VeinComponent::ComponentData *storageCData = nullptr;
@@ -287,8 +274,7 @@ class DataLoggerPrivate
             fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeDB.mimeTypeForFile(fInfo, QMimeDatabase::MatchContent).name());
             fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fInfo.size());
 
-            for(const QString &componentName : fileInfoData.keys())
-            {
+            for(const QString &componentName : fileInfoData.keys())  {
                 storageCData= new VeinComponent::ComponentData();
                 storageCData->setEntityId(m_entityId);
                 storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -305,8 +291,7 @@ class DataLoggerPrivate
     void updateDBFileSizeInfo()
     {
         QFileInfo fInfo(m_databaseFilePath);
-        if(fInfo.exists())
-        {
+        if(fInfo.exists()) {
             VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
             storageCData->setEntityId(m_entityId);
             storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -321,8 +306,7 @@ class DataLoggerPrivate
 
     void updateSchedulerCountdown()
     {
-        if(m_schedulingTimer.isActive())
-        {
+        if(m_schedulingTimer.isActive()) {
             VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
             schedulerCountdownCData->setEntityId(m_entityId);
             schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -449,17 +433,14 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
     m_dPtr->m_countdownUpdateTimer.setInterval(100);
     m_dPtr->m_databaseFactory = t_factoryFunction;
     m_dPtr->m_storageMode=t_storageMode;
-    switch(t_storageMode)
-    {
-    case AbstractLoggerDB::STORAGE_MODE::TEXT:
-    {
+    switch(t_storageMode) {
+    case AbstractLoggerDB::STORAGE_MODE::TEXT: {
         m_dPtr->m_entityId = 2;
         m_dPtr->m_entityName = QLatin1String("_LoggingSystem");
         qCDebug(VEIN_LOGGER) << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
     }
-    case AbstractLoggerDB::STORAGE_MODE::BINARY:
-    {
+    case AbstractLoggerDB::STORAGE_MODE::BINARY: {
         //use different id and entity name
         m_dPtr->m_entityId = 200000;
         m_dPtr->m_entityName = QLatin1String("_BinaryLoggingSystem");
@@ -469,25 +450,21 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
     }
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
-    connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]()
-    {
+    connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]() {
         m_dPtr->updateDBFileSizeInfo();
-        if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState))
-        {
+        if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState)) {
             m_dPtr->m_batchedExecutionTimer.stop();
         }
     });
-    connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, [this]()
-    {
+    connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, [this]() {
         setLoggingEnabled(false);
     });
 
-    connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, [this]()
-    {
+    connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, [this]() {
         m_dPtr->updateSchedulerCountdown();
     });
 
-    connect(this, &DatabaseLogger::sigLoggingEnabledChanged, [this](bool t_enabled){
+    connect(this, &DatabaseLogger::sigLoggingEnabledChanged, [this](bool t_enabled) {
         VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
         loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
         loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -513,12 +490,10 @@ DatabaseLogger::~DatabaseLogger()
 void DatabaseLogger::addScript(QmlLogger *t_script)
 {
     const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates) && m_dPtr->m_loggerScripts.contains(t_script) == false)
-    {
+    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates) && m_dPtr->m_loggerScripts.contains(t_script) == false) {
         m_dPtr->m_loggerScripts.append(t_script);
         //writes the values from the data source to the database, some values may never change so they need to be initialized
-        if(t_script->initializeValues() == true)
-        {
+        if(t_script->initializeValues() == true) {
             const QString tmpsessionName = t_script->sessionName();
             const QVector<QString> tmpTransactionName = {t_script->transactionName()};
             QString tmpContentSets = t_script->contentSets().join(QLatin1Char(','));
@@ -541,8 +516,7 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
                     tmpLoggedValues.insert(1150,comp);
                 }
             }
-            for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) //only process once for every entity
-            {
+            for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
                 for(const QString &tmpComponentName : tmpComponents) {
                     if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity available?
@@ -602,20 +576,16 @@ void DatabaseLogger::setLoggingEnabled(bool t_enabled)
 {
     //do not accept values that are already set
     const QSet<QAbstractState *> activeStates = m_dPtr->m_stateMachine.configuration();
-    if(t_enabled != activeStates.contains(m_dPtr->m_loggingEnabledState) )
-    {
-        if(t_enabled)
-        {
+    if(t_enabled != activeStates.contains(m_dPtr->m_loggingEnabledState) ) {
+        if(t_enabled) {
             m_dPtr->m_batchedExecutionTimer.start();
-            if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState))
-            {
+            if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState)) {
                 m_dPtr->m_schedulingTimer.start();
                 m_dPtr->m_countdownUpdateTimer.start();
             }
             emit sigLoggingStarted();
         }
-        else
-        {
+        else {
             m_dPtr->m_schedulingTimer.stop();
             m_dPtr->m_countdownUpdateTimer.stop();
             emit sigLoggingStopped();
@@ -628,13 +598,11 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 {
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath);
 
-    if(validStorage == true)
-    {
+    if(validStorage == true) {
         m_dPtr->updateDBStorageInfo();
         m_dPtr->setDBFileInfo(t_filePath);
 
-        if(m_dPtr->m_database != nullptr)
-        {
+        if(m_dPtr->m_database != nullptr) {
             m_dPtr->m_database->deleteLater();
             m_dPtr->m_database=nullptr;
         }
@@ -668,8 +636,7 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 void DatabaseLogger::closeDatabase()
 {
     setLoggingEnabled(false);
-    if(m_dPtr->m_database != nullptr)
-    {
+    if(m_dPtr->m_database != nullptr) {
         m_dPtr->m_database->deleteLater();
         m_dPtr->m_database=nullptr;
     }
@@ -701,8 +668,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
     bool retVal = false;
 
-    if(t_event->type()==CommandEvent::eventType())
-    {
+    if(t_event->type()==CommandEvent::eventType()) {
         CommandEvent *cEvent = nullptr;
         EventData *evData = nullptr;
         cEvent = static_cast<CommandEvent *>(t_event);
@@ -713,54 +679,43 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
         const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-        if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
-        {
-            if(evData->type()==ComponentData::dataType()) ///@todo the if is redundant with the same if condition inside of the TRANSACTION if
-            {
+        if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
+            if(evData->type()==ComponentData::dataType()) { ///@todo the if is redundant with the same if condition inside of the TRANSACTION if
                 ComponentData *cData=nullptr;
                 cData = static_cast<ComponentData *>(evData);
                 Q_ASSERT(cData != nullptr);
 
                 ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
-                if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
-                {
+                if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
                     retVal = true;
                     setLoggingEnabled(cData->newValue().toBool());
                 }
 
-                if(activeStates.contains(requiredStates))
-                {
+                if(activeStates.contains(requiredStates)) {
                     QString sessionName = "";
                     QVector<int> transactionIds;
                     const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
                     //check all scripts if they want to log the changed value
-                    for(const QmlLogger *entry : scripts)
-                    {
-                        if(entry->isLoggedComponent(evData->entityId(), cData->componentName()))
-                        {
+                    for(const QmlLogger *entry : scripts) {
+                        if(entry->isLoggedComponent(evData->entityId(), cData->componentName())) {
                             sessionName = entry->sessionName();
                             transactionIds.append(entry->getTransactionId());
                         }
                     }
 
-
-                    if(m_dPtr->m_database->hasSessionName(sessionName) == false)
-                    {
+                    if(m_dPtr->m_database->hasSessionName(sessionName) == false) {
                         emit sigAddSession(sessionName);
                     }
 
-
                     if(sessionName.length() > 0)
                     {
-                        if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
-                        {
+                        if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false) {
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
                         }
-                        if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false)
-                        {
+                        if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false) {
                             emit sigAddComponent(cData->componentName());
                         }
-                        if(transactionIds.length() != 0){
+                        if(transactionIds.length() != 0) {
                             emit sigAddLoggedValue(sessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
                         }
                         retVal = true;
@@ -770,25 +725,19 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
         }
         else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
                 evData->type() == ComponentData::dataType() && ///@todo this condition is redundant with the same if condition inside of the NOTIFICATION block
-                evData->entityId() == m_dPtr->m_entityId)
-        {
+                evData->entityId() == m_dPtr->m_entityId) {
             ComponentData *cData=nullptr;
             cData = static_cast<ComponentData *>(evData);
             Q_ASSERT(cData != nullptr);
 
-            if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET)
-            {
-                if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName)
-                {
-                    if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath)
-                    {
-                        if(cData->newValue().toString().isEmpty()) //unsetting the file component = closing the database
-                        {
+            if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
+                if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
+                    if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
+                        if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database
                             retVal = true;
                             closeDatabase();
                         }
-                        else
-                        {
+                        else {
                             retVal = openDatabase(cData->newValue().toString());
                         }
                     }
@@ -803,8 +752,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
                     VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
                     loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
                     loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -815,39 +763,31 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
                     //do not accept values that are already set
-                    if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState))
-                    {
+                    if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
                         retVal = true;
-                        if(cData->newValue().toBool() == true)
-                        {
+                        if(cData->newValue().toBool() == true) {
                             emit sigLogSchedulerActivated();
                         }
-                        else
-                        {
+                        else {
                             emit sigLogSchedulerDeactivated();
                         }
                         setLoggingEnabled(false);
                     }
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingDurationComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
                     bool invalidTime = false;
                     bool conversionOk = false;
                     const int logDurationMsecs = cData->newValue().toInt(&conversionOk);
                     invalidTime = !conversionOk;
 
-                    if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration)
-                    {
+                    if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration) {
                         retVal = true;
                         m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
-                        if(logDurationMsecs > 0)
-                        {
+                        if(logDurationMsecs > 0) {
                             m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
-                            if(activeStates.contains(requiredStates))
-                            {
+                            if(activeStates.contains(requiredStates)) {
                                 m_dPtr->m_schedulingTimer.start(); //restart timer
                             }
                             VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
@@ -860,13 +800,11 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                             emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDurationData));
                         }
-                        else
-                        {
+                        else {
                             invalidTime = true;
                         }
                     }
-                    if(invalidTime)
-                    {
+                    if(invalidTime) {
                         VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
                         errData->setEntityId(m_dPtr->m_entityId);
                         errData->setOriginalData(cData);
@@ -878,8 +816,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     }
                 }
                 // TODO: Add more from modulemanager
-                else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName) {
                     VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
                     sessionNameCData->setEntityId(m_dPtr->m_entityId);
                     sessionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -890,8 +827,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
                     VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
                     guiContextCData->setEntityId(m_dPtr->m_entityId);
                     guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -902,8 +838,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
                     VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
                     transactionNameCData->setEntityId(m_dPtr->m_entityId);
                     transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -914,8 +849,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
                     VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
                     currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
                     currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -926,8 +860,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
                 }
-                else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName)
-                {
+                else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
                     VeinComponent::ComponentData *availableContentSetsCData = new VeinComponent::ComponentData();
                     availableContentSetsCData->setEntityId(m_dPtr->m_entityId);
                     availableContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
