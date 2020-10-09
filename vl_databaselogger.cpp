@@ -748,8 +748,18 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     dbFileNameCData->setNewValue(cData->newValue());
                     dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
                     dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
                     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
+
+                    // a good place to reset selected sessionName - however db-open ends up with
+                    VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
+                    sessionNameCData ->setEntityId(m_dPtr->m_entityId);
+                    sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                    sessionNameCData ->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
+                    sessionNameCData ->setNewValue(QString());
+                    sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+
                 }
                 else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
                     VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
