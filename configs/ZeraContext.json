@@ -189,6 +189,10 @@
                     "PAR_Channel7Range",
                     "PAR_Channel8Range"
                 ]
+            },
+            {
+            "EntityId": "1100",
+            "Comment": "POWER3Module",
             }
         ],
         "ZeraCurves" : [
