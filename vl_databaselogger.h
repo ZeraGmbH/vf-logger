@@ -6,6 +6,7 @@
 #include <ve_eventsystem.h>
 #include <QDateTime>
 
+
 namespace VeinLogger
 {
 class DataLoggerPrivate;
