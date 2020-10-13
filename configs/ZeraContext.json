@@ -1,5 +1,13 @@
 {
     "ContentSet": {
+
+        "ZeraCustomerData": [
+            {
+                "EntityId": "200",
+                "Comment": "CustomerData",
+            }
+        ],
+
         "ZeraActualValues": [
             {
                 "EntityId": "1040",
