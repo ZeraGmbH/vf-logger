@@ -6,6 +6,7 @@
 #include <QDateTime>
 #include <QVariant>
 #include <functional>
+#include <QJsonDocument>
 
 namespace VeinLogger
 {
@@ -64,6 +65,7 @@ public slots:
      */
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 
+    virtual QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session) = 0;
     virtual int addSession(const QString &t_sessionName) =0;
     /**
      * @brief addLoggedValue
