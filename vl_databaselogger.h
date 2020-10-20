@@ -62,7 +62,7 @@ signals:
     void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void sigAddEntity(int t_entityId, const QString &t_entityName);
     void sigAddComponent(const QString &t_componentName);
-    void sigAddSession(const QString &t_sessionName);
+    void sigAddSession(const QString &t_sessionName,QList<QVariantMap> p_staticData);
 
     void sigOpenDatabase(const QString &t_filePath);
 
