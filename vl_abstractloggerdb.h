@@ -66,7 +66,7 @@ public slots:
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 
     virtual QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session) = 0;
-    virtual int addSession(const QString &t_sessionName) =0;
+    virtual int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) =0;
     /**
      * @brief addLoggedValue
      * @param t_sessionId

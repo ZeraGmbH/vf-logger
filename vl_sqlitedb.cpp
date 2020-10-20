@@ -137,6 +137,14 @@ class DBPrivate
      * and the ids are managed in this class parallel to the database
      */
     QSqlQuery m_transactionMappingInsertQuery;
+
+    /**
+     * @brief m_sessionMappingInsertQuery
+     * store sessionId, valuemapId pairs
+     *
+     * writes static data to database
+     */
+    QSqlQuery m_sessionMappingInsertQuery;
     /**
      * @brief m_componentInsertQuery
      * Add component to database
@@ -398,7 +406,7 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
         sessionId=m_dPtr->m_sessionIds.value(t_sessionName);
     }
     else {
-        int newSession = addSession(t_sessionName);
+        int newSession = addSession(t_sessionName,QList<QVariantMap>());
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }
@@ -455,7 +463,7 @@ bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
     return false;
 }
 
-int SQLiteDB::addSession(const QString &t_sessionName)
+int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_staticData)
 {
     int retVal = -1;
     if(m_dPtr->m_sessionIds.contains(t_sessionName) == false) {
@@ -476,6 +484,22 @@ int SQLiteDB::addSession(const QString &t_sessionName)
             Q_ASSERT(false);
         }
         m_dPtr->m_sessionSequenceQuery.finish();
+
+        QVector<SQLBatchData> batchDataVector;
+
+
+        for(QVariantMap comp: p_staticData){
+            SQLBatchData batchData;
+            batchData.sessionId=nextsessionId;
+            batchData.entityId=comp["entityId"].toInt();
+            batchData.componentId=m_dPtr->m_componentIds.value(comp["compName"].toString());
+            batchData.value=comp["value"];
+            batchData.timestamp=comp["time"].value<QDateTime>();
+            batchDataVector.append(batchData);
+        }
+
+        writeStaticData(batchDataVector);
+
 
         if(nextsessionId > 0) {
             m_dPtr->m_sessionIds.insert(t_sessionName, nextsessionId);
@@ -518,7 +542,7 @@ void SQLiteDB::addLoggedValue(const QString &t_sessionName, QVector<int> t_trans
         sessionId=m_dPtr->m_sessionIds.value(t_sessionName);
     }
     else {
-        int newSession = addSession(t_sessionName);
+        int newSession = addSession(t_sessionName,QList<QVariantMap>());
         Q_ASSERT(newSession >= 0);
         sessionId=newSession;
     }
@@ -559,6 +583,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
             m_dPtr->m_sessionSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionInsertQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_readTransactionQuery = QSqlQuery(m_dPtr->m_logDB);
+            m_dPtr->m_sessionMappingInsertQuery = QSqlQuery(m_dPtr->m_logDB);
 
             //setup database if necessary
             QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
@@ -604,7 +629,8 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, sessionid, transaction_name, contentset_names, guicontext_name, start_time, stop_time) VALUES (:id, :sessionid, :transaction_name, :contentset_names, :guicontext_name, :start_time, :stop_time);");
                 //executed after the transactions was added to get the last used number
                 m_dPtr->m_transactionSequenceQuery.prepare("SELECT MAX(id) FROM transactions;");
-                m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //sessionId, valuemapid
+                m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //transactionId, valuemapid
+                m_dPtr->m_sessionMappingInsertQuery.prepare("INSERT INTO sessions_valuemap VALUES (:sessionId, :valuemapId)");
                 m_dPtr->m_readTransactionQuery.prepare("SELECT valuemap.value_timestamp,"
                                                        " valuemap.component_value,"
                                                        " valuemap.id,"
@@ -715,6 +741,90 @@ void SQLiteDB::runBatchedExecution()
                 emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
                 Q_ASSERT(false);
             }
+
+            // Add stop time to active transactions. we have to that here becaus a bathc might be written after the script is removed.
+            // The result is an sql conflict.
+            for(int id : activeTransactions.values()) {
+                addStopTime(id ,QDateTime::currentDateTime());
+            }
+
+            if(tmpValuemapIds.isEmpty() == false) {
+                vCDebug(VEIN_LOGGER) << "Batched" << tmpValuemapIds.length() << "queries";
+            }
+
+            if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code
+                emit sigDatabaseError(QString("Error in database transaction commit: %1").arg(m_dPtr->m_logDB.lastError().text()));
+                Q_ASSERT(false);
+            }
+        }
+        else {
+            emit sigDatabaseError(QString("Error in database transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
+            Q_ASSERT(false);
+        }
+        m_dPtr->m_batchVector.clear();
+    }
+}
+
+void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
+{
+    if(m_dPtr->m_logDB.isOpen()) {
+        //addBindValue requires QList<QVariant>
+        QList<QVariant> tmpTimestamps;
+        QList<QVariant> tmpComponentIds;
+        QList<QVariant> tmpValuemapIds;
+        QList<QVariant> tmpEntityIds;
+
+        //do not use QHash here, the sorted key lists are required
+        QMultiMap<QVariant, QVariant> tmpSessionIds; //session_id, valuemap_id
+        QSet<int> activeTransactions;
+        QMap<int, QVariant> tmpValues; //valuemap_id, component_value
+
+        //code that is used in both loops
+        const auto commonCode = [&](const SQLBatchData &entry) {
+            tmpValuemapIds.append(m_dPtr->m_valueMapQueryCounter);
+            tmpEntityIds.append(entry.entityId);
+            tmpComponentIds.append(entry.componentId);
+            tmpSessionIds.insert(entry.sessionId,m_dPtr->m_valueMapQueryCounter);
+            tmpTimestamps.append(entry.timestamp);
+            ++m_dPtr->m_valueMapQueryCounter;
+        };
+
+        if(m_dPtr->m_storageMode == SQLiteDB::STORAGE_MODE::TEXT) {
+            for(const SQLBatchData &entry : qAsConst(p_batchData)) {
+                tmpValues.insert(m_dPtr->m_valueMapQueryCounter, m_dPtr->getTextRepresentation(entry.value)); //store as text
+                commonCode(entry);
+            }
+        }
+        else if(m_dPtr->m_storageMode == SQLiteDB::STORAGE_MODE::BINARY) {
+            for(const SQLBatchData &entry : qAsConst(p_batchData)) {
+                tmpValues.insert(m_dPtr->m_valueMapQueryCounter, m_dPtr->getBinaryRepresentation(entry.value)); //store as binary
+                commonCode(entry);
+            }
+        }
+
+        if(m_dPtr->m_logDB.transaction() == true) {
+            //valuemap_id, transactionid, value_timestamp, value, entity_id, component_id,
+            m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValuemapIds);
+            m_dPtr->m_valueMapInsertQuery.addBindValue(tmpTimestamps);
+            m_dPtr->m_valueMapInsertQuery.addBindValue(tmpValues.values());
+            m_dPtr->m_valueMapInsertQuery.addBindValue(tmpComponentIds);
+            m_dPtr->m_valueMapInsertQuery.addBindValue(tmpEntityIds);
+
+            if(m_dPtr->m_valueMapInsertQuery.execBatch() == false) {
+                emit sigDatabaseError(QString("Error executing m_valueMapInsertQuery: %1").arg(m_dPtr->m_valueMapInsertQuery.lastError().text()));
+                Q_ASSERT(false);
+            }
+            m_dPtr->m_valueMapInsertQuery.finish();
+
+            //transaction_id, valuemap_id
+            m_dPtr->m_sessionMappingInsertQuery.addBindValue(tmpSessionIds.keys());
+            m_dPtr->m_sessionMappingInsertQuery.addBindValue(tmpSessionIds.values());
+            if(m_dPtr->m_sessionMappingInsertQuery.execBatch() == false) {
+                emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
+                Q_ASSERT(false);
+            }
+
+            m_dPtr->m_sessionMappingInsertQuery.finish();
 
             // Add stop time to active transactions. we have to that here becaus a bathc might be written after the script is removed.
             // The result is an sql conflict.
