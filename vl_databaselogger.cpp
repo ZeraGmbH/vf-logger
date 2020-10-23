@@ -88,8 +88,8 @@ class DataLoggerPrivate: public QObject
             }
 
             QMap<QString,QString> tmpParamMap;
-            VfCpp::cVeinModuleRpc::Ptr tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,this,"readTransaction",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_transaction", "QString"}})), &QObject::deleteLater);
-            m_rpcList.append(tmpval);
+            VfCpp::cVeinModuleRpc::Ptr tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_readTransaction",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_transaction", "QString"}})), &QObject::deleteLater);
+            m_rpcList[tmpval->rpcName()]=tmpval;
 
             initStateMachine();
 
@@ -97,15 +97,7 @@ class DataLoggerPrivate: public QObject
         }
     }
 
-    QVariant readTransaction(QVariantMap p_parameters){
-        QString session = p_parameters["p_session"].toString();
-        QString transaction = p_parameters["p_transaction"].toString();
-        QJsonDocument retVal;
-        if(m_stateMachine.configuration().contains(m_databaseReadyState)){
-            retVal=m_database->readTransaction(transaction,session);
-        }
-        return QVariant::fromValue(retVal.toJson());
-    }
+
 
     void setStatusText(const QString &t_status)
     {
@@ -367,7 +359,7 @@ class DataLoggerPrivate: public QObject
     bool m_initDone=false;
     QString m_loggerStatusText="Logging inactive";
 
-    QList<VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
+    QMap<QString,VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
     int m_entityId;
     //entity name
@@ -665,6 +657,16 @@ void DatabaseLogger::updateSessionList(QStringList p_sessions)
     exisitingSessions ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingSessions));
 
+}
+
+QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
+    QString session = p_parameters["p_session"].toString();
+    QString transaction = p_parameters["p_transaction"].toString();
+    QJsonDocument retVal;
+    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)){
+        retVal=m_dPtr->m_database->readTransaction(transaction,session);
+    }
+    return QVariant::fromValue(retVal.toJson());
 }
 
 bool DatabaseLogger::processEvent(QEvent *t_event)

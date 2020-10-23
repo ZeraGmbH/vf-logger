@@ -639,14 +639,14 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                                                        " transactions.transaction_name,"
                                                        " sessions.session_name"
                                                        " FROM sessions INNER JOIN transactions ON"
-                                                       " sessions.id = transactions.sessionsid "
+                                                       " sessions.id = transactions.sessionid "
                                                        " INNER JOIN transactions_valuemap ON "
                                                        " transactions.id = transactions_valuemap.transactionsid "
                                                        " INNER JOIN valuemap ON "
                                                        " transactions_valuemap.valueid = valuemap.id "
                                                        " INNER JOIN components ON "
                                                        " valuemap.componentid = components.id "
-                                                       " INNER JOIN entities ON valuemap.entityiesid = entities.id where transactions.transaction_name = :transaction AND sessions.session_name = :sessionname ;)");
+                                                       " INNER JOIN entities ON valuemap.entityiesid = entities.id where transactions.transaction_name = :transaction AND sessions.session_name = :sessionname ;");
 
                 m_dPtr->m_sessionInsertQuery.prepare("INSERT INTO sessions (id, session_name) VALUES (:id, :session_name);");
                 //ecexute after session was added to  get last used number
