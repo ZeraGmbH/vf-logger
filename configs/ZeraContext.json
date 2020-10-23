@@ -1,13 +1,5 @@
 {
     "ContentSet": {
-
-        "ZeraCustomerData": [
-            {
-                "EntityId": "200",
-                "Comment": "CustomerData",
-            }
-        ],
-
         "ZeraActualValues": [
             {
                 "EntityId": "1040",
@@ -199,8 +191,8 @@
                 ]
             },
             {
-            "EntityId": "1100",
-            "Comment": "POWER3Module",
+                "EntityId": "1100",
+                "Comment": "POWER3Module"
             }
         ],
         "ZeraCurves" : [
