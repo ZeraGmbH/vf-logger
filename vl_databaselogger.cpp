@@ -688,9 +688,12 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
         const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
         if(evData->type()==ComponentData::dataType()) {
+
+            ComponentData *cData=nullptr;
+            cData = static_cast<ComponentData *>(evData);
+
             if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
-                ComponentData *cData=nullptr;
-                cData = static_cast<ComponentData *>(evData);
+
                 Q_ASSERT(cData != nullptr);
 
                 ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
@@ -732,8 +735,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
                     evData->entityId() == m_dPtr->m_entityId) {
-                ComponentData *cData=nullptr;
-                cData = static_cast<ComponentData *>(evData);
                 Q_ASSERT(cData != nullptr);
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
@@ -890,63 +891,78 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                             }
                             emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                         }
-                        else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
-                            VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
-                            guiContextCData->setEntityId(m_dPtr->m_entityId);
-                            guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                            guiContextCData->setComponentName(DataLoggerPrivate::s_guiContextComponentName);
-                            guiContextCData->setNewValue(cData->newValue());
-                            guiContextCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                            guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
-                        }
-                        else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
-                            VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
-                            transactionNameCData->setEntityId(m_dPtr->m_entityId);
-                            transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                            transactionNameCData->setComponentName(DataLoggerPrivate::s_transactionNameComponentName);
-                            transactionNameCData->setNewValue(cData->newValue());
-                            transactionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                            transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
-                        }
-                        else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
-                            VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
-                            currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
-                            currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                            currentContentSetsCData->setComponentName(DataLoggerPrivate::s_currentContentSetsComponentName);
-                            currentContentSetsCData->setNewValue(cData->newValue());
-                            currentContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                            currentContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
-                        }
-                        else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
-                            VeinComponent::ComponentData *availableContentSetsCData = new VeinComponent::ComponentData();
-                            availableContentSetsCData->setEntityId(m_dPtr->m_entityId);
-                            availableContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                            availableContentSetsCData->setComponentName(DataLoggerPrivate::s_availableContentSetsComponentName);
-                            availableContentSetsCData->setNewValue(cData->newValue());
-                            availableContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                            availableContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, availableContentSetsCData));
-                        }
-
-                        t_event->accept();
                     }
+                    else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
+                        VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
+                        guiContextCData->setEntityId(m_dPtr->m_entityId);
+                        guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        guiContextCData->setComponentName(DataLoggerPrivate::s_guiContextComponentName);
+                        guiContextCData->setNewValue(cData->newValue());
+                        guiContextCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
+                        VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
+                        transactionNameCData->setEntityId(m_dPtr->m_entityId);
+                        transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        transactionNameCData->setComponentName(DataLoggerPrivate::s_transactionNameComponentName);
+                        transactionNameCData->setNewValue(cData->newValue());
+                        transactionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
+                        VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
+                        currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
+                        currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        currentContentSetsCData->setComponentName(DataLoggerPrivate::s_currentContentSetsComponentName);
+                        currentContentSetsCData->setNewValue(cData->newValue());
+                        currentContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        currentContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
+                        VeinComponent::ComponentData *availableContentSetsCData = new VeinComponent::ComponentData();
+                        availableContentSetsCData->setEntityId(m_dPtr->m_entityId);
+                        availableContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        availableContentSetsCData->setComponentName(DataLoggerPrivate::s_availableContentSetsComponentName);
+                        availableContentSetsCData->setNewValue(cData->newValue());
+                        availableContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        availableContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, availableContentSetsCData));
+                    }
+
+                    t_event->accept();
                 }
-            }else if(evData->type()==VeinComponent::RemoteProcedureData::dataType()) {
-                VeinComponent::RemoteProcedureData *rpcData=nullptr;
-                rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
-                const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
-                for(VfCpp::cVeinModuleRpc::Ptr obj : m_dPtr->m_rpcList){
-                    if(obj->rpcName() == rpcData->procedureName()){
-                        obj->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
-                        cEvent->accept();
-                    }
+            }
+        }else if(evData->type()==VeinComponent::RemoteProcedureData::dataType() &&
+                 evData->entityId() == m_dPtr->m_entityId) {
+            VeinComponent::RemoteProcedureData *rpcData=nullptr;
+            rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
+            if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
+                if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
+                    const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
+                    m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
+                    cEvent->accept();
+                }else if(!cEvent->isAccepted()){
+                    retVal = true;
+                    qWarning() << "No remote procedure with entityId:" << m_dPtr->m_entityId << "name:" << rpcData->procedureName();
+                    VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_dPtr->m_entityId).arg(rpcData->procedureName())));
+                    VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
+                    eData->setEntityId(m_dPtr->m_entityId);
+                    eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
+                    eData->setOriginalData(rpcData);
+                    eData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    eData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                    VeinEvent::CommandEvent *errorEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, eData);
+                    errorEvent->setPeerId(cEvent->peerId());
+                    cEvent->accept();
+                    emit sigSendEvent(errorEvent);
                 }
             }
         }
