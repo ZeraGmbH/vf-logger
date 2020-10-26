@@ -64,7 +64,7 @@ public slots:
      */
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 
-    virtual int addSession(const QString &t_sessionName) =0;
+    virtual int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) =0;
     /**
      * @brief addLoggedValue
      * @param t_sessionId
