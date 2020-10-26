@@ -679,10 +679,13 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
         const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-        if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
-            if(evData->type()==ComponentData::dataType()) { ///@todo the if is redundant with the same if condition inside of the TRANSACTION if
-                ComponentData *cData=nullptr;
-                cData = static_cast<ComponentData *>(evData);
+        if(evData->type()==ComponentData::dataType()) {
+
+            ComponentData *cData=nullptr;
+            cData = static_cast<ComponentData *>(evData);
+
+            if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
+
                 Q_ASSERT(cData != nullptr);
 
                 ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
@@ -721,176 +724,175 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     }
                 }
             }
-        }
-        else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
-                evData->type() == ComponentData::dataType() && ///@todo this condition is redundant with the same if condition inside of the NOTIFICATION block
-                evData->entityId() == m_dPtr->m_entityId) {
-            ComponentData *cData=nullptr;
-            cData = static_cast<ComponentData *>(evData);
-            Q_ASSERT(cData != nullptr);
 
-            if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
-                if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
-                    if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
-                        if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database
-                            retVal = true;
-                            closeDatabase();
-                        }
-                        else {
-                            retVal = openDatabase(cData->newValue().toString());
-                        }
-                    }
+            else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
+                    evData->entityId() == m_dPtr->m_entityId) {
+                Q_ASSERT(cData != nullptr);
 
-                    VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
-                    dbFileNameCData->setEntityId(m_dPtr->m_entityId);
-                    dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
-                    dbFileNameCData->setNewValue(cData->newValue());
-                    dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
-
-                    // a good place to reset selected sessionName - however db-open ends up with
-                    VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
-                    sessionNameCData ->setEntityId(m_dPtr->m_entityId);
-                    sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    sessionNameCData ->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
-                    sessionNameCData ->setNewValue(QString());
-                    sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
-
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                    VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
-                    loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
-                    loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
-                    loggingEnabledCData->setNewValue(cData->newValue());
-                    loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
-                    //do not accept values that are already set
-                    if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
-                        retVal = true;
-                        if(cData->newValue().toBool() == true) {
-                            emit sigLogSchedulerActivated();
-                        }
-                        else {
-                            emit sigLogSchedulerDeactivated();
-                        }
-                        setLoggingEnabled(false);
-                    }
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
-                    bool invalidTime = false;
-                    bool conversionOk = false;
-                    const int logDurationMsecs = cData->newValue().toInt(&conversionOk);
-                    invalidTime = !conversionOk;
-
-                    if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration) {
-                        retVal = true;
-                        m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
-                        if(logDurationMsecs > 0) {
-                            m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
-                            if(activeStates.contains(requiredStates)) {
-                                m_dPtr->m_schedulingTimer.start(); //restart timer
+                if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
+                    if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
+                        if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
+                            if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database
+                                retVal = true;
+                                closeDatabase();
                             }
-                            VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
-                            schedulingDurationData->setEntityId(m_dPtr->m_entityId);
-                            schedulingDurationData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                            schedulingDurationData->setComponentName(DataLoggerPrivate::s_scheduledLoggingDurationComponentName);
-                            schedulingDurationData->setNewValue(cData->newValue());
-                            schedulingDurationData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                            schedulingDurationData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDurationData));
+                            else {
+                                retVal = openDatabase(cData->newValue().toString());
+                            }
                         }
-                        else {
-                            invalidTime = true;
+
+                        VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
+                        dbFileNameCData->setEntityId(m_dPtr->m_entityId);
+                        dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
+                        dbFileNameCData->setNewValue(cData->newValue());
+                        dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
+
+                        // a good place to reset selected sessionName - however db-open ends up with
+                        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
+                        sessionNameCData ->setEntityId(m_dPtr->m_entityId);
+                        sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        sessionNameCData ->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
+                        sessionNameCData ->setNewValue(QString());
+                        sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
+                        VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
+                        loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
+                        loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
+                        loggingEnabledCData->setNewValue(cData->newValue());
+                        loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
+                        //do not accept values that are already set
+                        if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
+                            retVal = true;
+                            if(cData->newValue().toBool() == true) {
+                                emit sigLogSchedulerActivated();
+                            }
+                            else {
+                                emit sigLogSchedulerDeactivated();
+                            }
+                            setLoggingEnabled(false);
                         }
                     }
-                    if(invalidTime) {
-                        VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
-                        errData->setEntityId(m_dPtr->m_entityId);
-                        errData->setOriginalData(cData);
-                        errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
-                        errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
-                        errData->setErrorDescription(QString("Invalid logging duration: %1").arg(cData->newValue().toString()));
+                    else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
+                        bool invalidTime = false;
+                        bool conversionOk = false;
+                        const int logDurationMsecs = cData->newValue().toInt(&conversionOk);
+                        invalidTime = !conversionOk;
 
-                        sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
+                        if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration) {
+                            retVal = true;
+                            m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
+                            if(logDurationMsecs > 0) {
+                                m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
+                                if(activeStates.contains(requiredStates)) {
+                                    m_dPtr->m_schedulingTimer.start(); //restart timer
+                                }
+                                VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
+                                schedulingDurationData->setEntityId(m_dPtr->m_entityId);
+                                schedulingDurationData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                                schedulingDurationData->setComponentName(DataLoggerPrivate::s_scheduledLoggingDurationComponentName);
+                                schedulingDurationData->setNewValue(cData->newValue());
+                                schedulingDurationData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                                schedulingDurationData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+                                emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDurationData));
+                            }
+                            else {
+                                invalidTime = true;
+                            }
+                        }
+                        if(invalidTime) {
+                            VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
+                            errData->setEntityId(m_dPtr->m_entityId);
+                            errData->setOriginalData(cData);
+                            errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
+                            errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
+                            errData->setErrorDescription(QString("Invalid logging duration: %1").arg(cData->newValue().toString()));
+
+                            sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
+                        }
                     }
-                }
-                // TODO: Add more from modulemanager
-                else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName) {
-                    VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
-                    sessionNameCData->setEntityId(m_dPtr->m_entityId);
-                    sessionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    sessionNameCData->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
-                    sessionNameCData->setNewValue(cData->newValue());
-                    sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                    // TODO: Add more from modulemanager
+                    else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName) {
+                        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
+                        sessionNameCData->setEntityId(m_dPtr->m_entityId);
+                        sessionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        sessionNameCData->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
+                        sessionNameCData->setNewValue(cData->newValue());
+                        sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-                    QString sessionName = cData->newValue().toString();
-                    // we have a working database?
-                    if(!sessionName.isEmpty() &&
-                            m_dPtr->m_database &&
-                            m_dPtr->m_database->databaseIsOpen() &&
-                            !m_dPtr->m_database->hasSessionName(sessionName)) {
-                        // Add session immediately: That helps us massively to create a smart user-interface
-                        emit sigAddSession(sessionName);
+                        QString sessionName = cData->newValue().toString();
+                        // we have a working database?
+                        if(!sessionName.isEmpty() &&
+                                m_dPtr->m_database &&
+                                m_dPtr->m_database->databaseIsOpen() &&
+                                !m_dPtr->m_database->hasSessionName(sessionName)) {
+                            // Add session immediately: That helps us massively to create a smart user-interface
+
+                            emit sigAddSession(sessionName);
+                        }
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                     }
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
-                    VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
-                    guiContextCData->setEntityId(m_dPtr->m_entityId);
-                    guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    guiContextCData->setComponentName(DataLoggerPrivate::s_guiContextComponentName);
-                    guiContextCData->setNewValue(cData->newValue());
-                    guiContextCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                    else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
+                        VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
+                        guiContextCData->setEntityId(m_dPtr->m_entityId);
+                        guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        guiContextCData->setComponentName(DataLoggerPrivate::s_guiContextComponentName);
+                        guiContextCData->setNewValue(cData->newValue());
+                        guiContextCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
-                    VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
-                    transactionNameCData->setEntityId(m_dPtr->m_entityId);
-                    transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    transactionNameCData->setComponentName(DataLoggerPrivate::s_transactionNameComponentName);
-                    transactionNameCData->setNewValue(cData->newValue());
-                    transactionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
+                        VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
+                        transactionNameCData->setEntityId(m_dPtr->m_entityId);
+                        transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        transactionNameCData->setComponentName(DataLoggerPrivate::s_transactionNameComponentName);
+                        transactionNameCData->setNewValue(cData->newValue());
+                        transactionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
-                    VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
-                    currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
-                    currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    currentContentSetsCData->setComponentName(DataLoggerPrivate::s_currentContentSetsComponentName);
-                    currentContentSetsCData->setNewValue(cData->newValue());
-                    currentContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    currentContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
+                        VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
+                        currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
+                        currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        currentContentSetsCData->setComponentName(DataLoggerPrivate::s_currentContentSetsComponentName);
+                        currentContentSetsCData->setNewValue(cData->newValue());
+                        currentContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        currentContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
-                }
-                else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
-                    VeinComponent::ComponentData *availableContentSetsCData = new VeinComponent::ComponentData();
-                    availableContentSetsCData->setEntityId(m_dPtr->m_entityId);
-                    availableContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                    availableContentSetsCData->setComponentName(DataLoggerPrivate::s_availableContentSetsComponentName);
-                    availableContentSetsCData->setNewValue(cData->newValue());
-                    availableContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    availableContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
+                        VeinComponent::ComponentData *availableContentSetsCData = new VeinComponent::ComponentData();
+                        availableContentSetsCData->setEntityId(m_dPtr->m_entityId);
+                        availableContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        availableContentSetsCData->setComponentName(DataLoggerPrivate::s_availableContentSetsComponentName);
+                        availableContentSetsCData->setNewValue(cData->newValue());
+                        availableContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        availableContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-                    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, availableContentSetsCData));
-                }
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, availableContentSetsCData));
+                    }
 
-                t_event->accept();
+                    t_event->accept();
+                }
             }
         }
     }
