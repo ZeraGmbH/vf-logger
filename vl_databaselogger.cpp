@@ -504,18 +504,7 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
             m_dPtr->m_database->addStartTime(t_script->getTransactionId(),QDateTime::currentDateTime());
 
             QMultiHash<int, QString> tmpLoggedValues = t_script->getLoggedValues();
-            // Add customer data at the beginning
-            if(m_dPtr->m_dataSource->hasEntity(200)) {
-                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
-                    tmpLoggedValues.insert(200,comp);
-                }
-            }
-            // Add status module data at the beginning
-            if(m_dPtr->m_dataSource->hasEntity(1150)) {
-                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
-                    tmpLoggedValues.insert(1150,comp);
-                }
-            }
+
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
                 for(const QString &tmpComponentName : tmpComponents) {
@@ -617,7 +606,7 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         connect(this, SIGNAL(sigAddLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)));
         connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));
         connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
-        connect(this, SIGNAL(sigAddSession(QString)), m_dPtr->m_database, SLOT(addSession(QString)));
+        connect(this, SIGNAL(sigAddSession(QString,QList<QVariantMap>)), m_dPtr->m_database, SLOT(addSession(QString,QList<QVariantMap>)));
         connect(this, SIGNAL(sigOpenDatabase(QString)), m_dPtr->m_database, SLOT(openDatabase(QString)));
         connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
         connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
@@ -709,7 +698,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     if(sessionName.length() > 0)
                     {
                         if(m_dPtr->m_database->hasSessionName(sessionName) == false) {
-                            emit sigAddSession(sessionName);
+                            emit sigAddSession(sessionName,QList<QVariantMap>());
                         }
                         if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false) {
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
@@ -842,7 +831,35 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                                 !m_dPtr->m_database->hasSessionName(sessionName)) {
                             // Add session immediately: That helps us massively to create a smart user-interface
 
-                            emit sigAddSession(sessionName);
+                            QMultiHash<int, QString> tmpStaticComps;
+                            QList<QVariantMap> tmpStaticData;
+
+                            // Add customer data at the beginning
+                            if(m_dPtr->m_dataSource->hasEntity(200)) {
+                                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
+                                    tmpStaticComps.insert(200,comp);
+                                }
+                            }
+                            // Add status module data at the beginning
+                            if(m_dPtr->m_dataSource->hasEntity(1150)) {
+                                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
+                                    tmpStaticComps.insert(1150,comp);
+                                }
+                            }
+
+                            for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
+                                const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
+                                for(const QString &tmpComponentName : tmpComponents) {
+                                    QVariantMap tmpMap;
+                                    tmpMap["entityId"]=tmpEntityId;
+                                    tmpMap["compName"]=tmpComponentName;
+                                    tmpMap["value"]=m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
+                                    tmpMap["time"]=QDateTime::currentDateTime();
+                                    tmpStaticData.append(tmpMap);
+                                }
+                            }
+
+                            emit sigAddSession(sessionName,tmpStaticData);
                         }
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                     }
@@ -899,3 +916,5 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
     return retVal;
 }
 }
+
+
