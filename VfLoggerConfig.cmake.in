@@ -11,6 +11,7 @@ find_dependency(VfComponent REQUIRED)
 find_dependency(VfQml REQUIRED)
 find_dependency(VfStorageHash REQUIRED)
 find_dependency(PkgConfig)
+find_dependency(VfCpp)
 
 # cmark pkg-config??
 

@@ -28,6 +28,7 @@ find_package(VfEvent REQUIRED)
 find_package(VfComponent REQUIRED)
 find_package(VfQml REQUIRED)
 find_package(VfStorageHash REQUIRED)
+find_package(VfCpp REQUIRED)
 
 #sum up project Files 
 file(GLOB SOURCES 
@@ -83,6 +84,7 @@ target_link_libraries(VfLogger
     VeinMeta::VfComponent
     VeinMeta::VfQml
     VeinMeta::VfStorageHash
+    VeinMeta::VfCpp
     )
 
 #set target Version
