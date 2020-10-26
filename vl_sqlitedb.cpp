@@ -87,6 +87,28 @@ class DBPrivate
         return doubleListValue;
     }
 
+
+    QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session)
+    {
+        QJsonDocument  retVal;
+        QJsonArray     recordsArray;
+        m_readTransactionQuery.bindValue(":transaction",p_transaction);
+        m_readTransactionQuery.bindValue(":sessionname",p_session);
+        if (!m_readTransactionQuery.exec())return QJsonDocument();
+
+        while(m_readTransactionQuery.next())
+        {
+            QJsonObject recordObject;
+            for(int x=0; x < m_readTransactionQuery.record().count(); x++)
+            {
+                recordObject.insert( m_readTransactionQuery.record().fieldName(x),QJsonValue::fromVariant(m_readTransactionQuery.value(x)) );
+            }
+            recordsArray.push_back(recordObject);
+        }
+        retVal.setArray(recordsArray);
+        return retVal;
+    }
+
     QHash<QString, int> m_sessionIds;
     QHash<int, QString> m_transactionIds;
     QVector<int> m_entityIds;
@@ -167,6 +189,10 @@ class DBPrivate
      * and the ids are managed in this class parallel to the database
      */
     QSqlQuery m_sessionSequenceQuery;
+    /**
+     * @brief m_readTransactionQuery
+     */
+    QSqlQuery m_readTransactionQuery;
 
     int m_valueMapQueryCounter=0;
     /**
@@ -238,6 +264,11 @@ AbstractLoggerDB::STORAGE_MODE SQLiteDB::getStorageMode() const
 std::function<bool (QString)> SQLiteDB::getDatabaseValidationFunction() const
 {
     return isValidDatabase;
+}
+
+QJsonDocument SQLiteDB::readTransaction(const QString &p_transaction, const QString &p_session)
+{
+   return m_dPtr->readTransaction(p_transaction, p_session);
 }
 
 bool SQLiteDB::isValidDatabase(QString t_dbPath)
@@ -551,6 +582,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
             m_dPtr->m_transactionSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionInsertQuery = QSqlQuery(m_dPtr->m_logDB);
+            m_dPtr->m_readTransactionQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionMappingInsertQuery = QSqlQuery(m_dPtr->m_logDB);
 
             //setup database if necessary
@@ -597,8 +629,24 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 m_dPtr->m_transactionInsertQuery.prepare("INSERT INTO transactions (id, sessionid, transaction_name, contentset_names, guicontext_name, start_time, stop_time) VALUES (:id, :sessionid, :transaction_name, :contentset_names, :guicontext_name, :start_time, :stop_time);");
                 //executed after the transactions was added to get the last used number
                 m_dPtr->m_transactionSequenceQuery.prepare("SELECT MAX(id) FROM transactions;");
-                m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //sessionId, valuemapid
+                m_dPtr->m_transactionMappingInsertQuery.prepare("INSERT INTO transactions_valuemap VALUES (?, ?);"); //transactionId, valuemapid
                 m_dPtr->m_sessionMappingInsertQuery.prepare("INSERT INTO sessions_valuemap VALUES (:sessionId, :valuemapId)");
+                m_dPtr->m_readTransactionQuery.prepare("SELECT valuemap.value_timestamp,"
+                                                       " valuemap.component_value,"
+                                                       " valuemap.id,"
+                                                       " components.component_name,"
+                                                       " entities.entity_name,"
+                                                       " transactions.transaction_name,"
+                                                       " sessions.session_name"
+                                                       " FROM sessions INNER JOIN transactions ON"
+                                                       " sessions.id = transactions.sessionid "
+                                                       " INNER JOIN transactions_valuemap ON "
+                                                       " transactions.id = transactions_valuemap.transactionsid "
+                                                       " INNER JOIN valuemap ON "
+                                                       " transactions_valuemap.valueid = valuemap.id "
+                                                       " INNER JOIN components ON "
+                                                       " valuemap.componentid = components.id "
+                                                       " INNER JOIN entities ON valuemap.entityiesid = entities.id where transactions.transaction_name = :transaction AND sessions.session_name = :sessionname ;");
 
                 m_dPtr->m_sessionInsertQuery.prepare("INSERT INTO sessions (id, session_name) VALUES (:id, :session_name);");
                 //ecexute after session was added to  get last used number

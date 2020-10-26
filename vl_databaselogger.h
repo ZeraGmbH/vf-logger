@@ -6,6 +6,7 @@
 #include <ve_eventsystem.h>
 #include <QDateTime>
 
+
 namespace VeinLogger
 {
 class DataLoggerPrivate;
@@ -73,11 +74,11 @@ signals:
     void sigLoggingStopped();
     void sigLogSchedulerActivated();
     void sigLogSchedulerDeactivated();
-
 public slots:
     virtual void setLoggingEnabled(bool t_enabled);
     virtual bool openDatabase(const QString &t_filePath);
     virtual void closeDatabase();
+    QVariant RPC_readTransaction(QVariantMap p_parameters);
     /**
      * @brief updateSessionList
      * @param p_sessions: list of sessions stored in open database

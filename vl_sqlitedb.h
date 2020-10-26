@@ -43,6 +43,8 @@ public:
     AbstractLoggerDB::STORAGE_MODE getStorageMode() const override;
     std::function<bool(QString)> getDatabaseValidationFunction() const override;
 
+    QJsonDocument  readTransaction(const QString &p_transaction, const QString &p_session);
+
     static bool isValidDatabase(QString t_dbPath);
 
 public slots:

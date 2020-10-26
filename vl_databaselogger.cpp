@@ -13,12 +13,14 @@
 #include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
+#include <veinmodulerpc.h>
+#include <QJsonDocument>
 
 Q_LOGGING_CATEGORY(VEIN_LOGGER, VEIN_DEBUGNAME_LOGGER)
 
 namespace VeinLogger
 {
-class DataLoggerPrivate
+class DataLoggerPrivate: public QObject
 {
     explicit DataLoggerPrivate(DatabaseLogger *t_qPtr) : m_qPtr(t_qPtr)
     {
@@ -85,11 +87,17 @@ class DataLoggerPrivate
                 emit m_qPtr->sigSendEvent(systemEvent);
             }
 
+            QMap<QString,QString> tmpParamMap;
+            VfCpp::cVeinModuleRpc::Ptr tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_readTransaction",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_transaction", "QString"}})), &QObject::deleteLater);
+            m_rpcList[tmpval->rpcName()]=tmpval;
+
             initStateMachine();
 
             m_initDone = true;
         }
     }
+
+
 
     void setStatusText(const QString &t_status)
     {
@@ -351,6 +359,7 @@ class DataLoggerPrivate
     bool m_initDone=false;
     QString m_loggerStatusText="Logging inactive";
 
+    QMap<QString,VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
     int m_entityId;
     //entity name
@@ -650,6 +659,16 @@ void DatabaseLogger::updateSessionList(QStringList p_sessions)
 
 }
 
+QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
+    QString session = p_parameters["p_session"].toString();
+    QString transaction = p_parameters["p_transaction"].toString();
+    QJsonDocument retVal;
+    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)){
+        retVal=m_dPtr->m_database->readTransaction(transaction,session);
+    }
+    return QVariant::fromValue(retVal.toJson());
+}
+
 bool DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
@@ -911,10 +930,34 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     t_event->accept();
                 }
             }
+            else if(evData->type()==VeinComponent::RemoteProcedureData::dataType() &&
+                    evData->entityId() == m_dPtr->m_entityId) {
+                VeinComponent::RemoteProcedureData *rpcData=nullptr;
+                rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
+                if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
+                    if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
+                        const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
+                        m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
+                        cEvent->accept();
+                    }else if(!cEvent->isAccepted()){
+                        retVal = true;
+                        qWarning() << "No remote procedure with entityId:" << m_dPtr->m_entityId << "name:" << rpcData->procedureName();
+                        VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_dPtr->m_entityId).arg(rpcData->procedureName())));
+                        VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
+                        eData->setEntityId(m_dPtr->m_entityId);
+                        eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
+                        eData->setOriginalData(rpcData);
+                        eData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        eData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        VeinEvent::CommandEvent *errorEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, eData);
+                        errorEvent->setPeerId(cEvent->peerId());
+                        cEvent->accept();
+                        emit sigSendEvent(errorEvent);
+                    }
+                }
+            }
         }
     }
     return retVal;
 }
 }
-
-
