@@ -842,14 +842,21 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                             }
                             // Add status module data at the beginning
                             if(m_dPtr->m_dataSource->hasEntity(1150)) {
+
                                 for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
                                     tmpStaticComps.insert(1150,comp);
                                 }
                             }
 
                             for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
+                                if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
+                                    emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+                                }
                                 const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
                                 for(const QString &tmpComponentName : tmpComponents) {
+                                    if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false) {
+                                        emit sigAddComponent(tmpComponentName);
+                                    }
                                     QVariantMap tmpMap;
                                     tmpMap["entityId"]=tmpEntityId;
                                     tmpMap["compName"]=tmpComponentName;
