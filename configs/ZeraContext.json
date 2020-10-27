@@ -142,7 +142,7 @@
                 "Comment": "BurdenModule"
             },
             {
-                "EntityId": "1120",
+                "EntityId": "1020",
                 "Comment": "RangeModule"
             }
         ],
@@ -152,7 +152,7 @@
                 "Comment": "TransformerModule"
             },
             {
-                "EntityId": "1120",
+                "EntityId": "1020",
                 "Comment": "RangeModule"
             }
         ],
