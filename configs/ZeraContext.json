@@ -144,6 +144,22 @@
             {
                 "EntityId": "1020",
                 "Comment": "RangeModule"
+            },
+            {
+                "EntityId": "1070",
+                "Comment": "PowerModule"
+            },
+            {
+                "EntityId": "1071",
+                "Comment": "PowerModule"
+            },
+            {
+                "EntityId": "1072",
+                "Comment": "PowerModule"
+            },
+            {
+                "EntityId": "1050",
+                "Comment": "DFTModule"
             }
         ],
         "ZeraTransformer": [
