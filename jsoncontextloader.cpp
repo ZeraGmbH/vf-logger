@@ -212,8 +212,10 @@ QVector<QString> JsonContentSetLoader::contentSetList(const QString &p_session)
 {
     QSet<QString> retVal;
     try{
-        retVal.unite(zeraContentSetList(p_session).toList().toSet());
-        retVal.unite(customerContentSetList(p_session).toList().toSet());
+        QStringList listZeraContexts = zeraContentSetList(p_session).toList();
+        retVal.unite(QSet<QString>(listZeraContexts.begin(), listZeraContexts.end()));
+        QStringList listCustomerContexts = customerContentSetList(p_session).toList();
+        retVal.unite(QSet<QString>(listCustomerContexts.begin(), listCustomerContexts.end()));
     }catch(error &e){
         m_lastError=e;
     }
@@ -224,8 +226,10 @@ QVector<QString> JsonContentSetLoader::sessionList()
 {
     QSet<QString> retVal;
     try{
-        retVal.unite(zeraSessionList().toList().toSet());
-        retVal.unite(customerSessionList().toList().toSet());
+        QStringList listZeraSessions = zeraSessionList().toList();
+        retVal.unite(QSet<QString>(listZeraSessions.begin(), listZeraSessions.end()));
+        QStringList listCustomerSessions = customerSessionList().toList();
+        retVal.unite(QSet<QString>(listCustomerSessions.begin(), listCustomerSessions.end()));
     }catch(error &e){
         m_lastError=e;
     }
