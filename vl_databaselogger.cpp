@@ -846,47 +846,49 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         // we have a working database?
                         if(!sessionName.isEmpty() &&
                                 m_dPtr->m_database &&
-                                m_dPtr->m_database->databaseIsOpen() &&
-                                !m_dPtr->m_database->hasSessionName(sessionName)) {
-                            // Add session immediately: That helps us massively to create a smart user-interface
+                                m_dPtr->m_database->databaseIsOpen()){
+                            if(!m_dPtr->m_database->hasSessionName(sessionName)) {
+                                // Add session immediately: That helps us massively to create a smart user-interface
 
-                            QMultiHash<int, QString> tmpStaticComps;
-                            QList<QVariantMap> tmpStaticData;
+                                QMultiHash<int, QString> tmpStaticComps;
+                                QList<QVariantMap> tmpStaticData;
 
-                            // Add customer data at the beginning
-                            if(m_dPtr->m_dataSource->hasEntity(200)) {
-                                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
-                                    tmpStaticComps.insert(200,comp);
-                                }
-                            }
-                            // Add status module data at the beginning
-                            if(m_dPtr->m_dataSource->hasEntity(1150)) {
-
-                                for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
-                                    tmpStaticComps.insert(1150,comp);
-                                }
-                            }
-
-                            for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
-                                if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
-                                    emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
-                                }
-                                const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
-                                for(const QString &tmpComponentName : tmpComponents) {
-                                    if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false) {
-                                        emit sigAddComponent(tmpComponentName);
+                                // Add customer data at the beginning
+                                if(m_dPtr->m_dataSource->hasEntity(200)) {
+                                    for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
+                                        tmpStaticComps.insert(200,comp);
                                     }
-                                    QVariantMap tmpMap;
-                                    tmpMap["entityId"]=tmpEntityId;
-                                    tmpMap["compName"]=tmpComponentName;
-                                    tmpMap["value"]=m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
-                                    tmpMap["time"]=QDateTime::currentDateTime();
-                                    tmpStaticData.append(tmpMap);
                                 }
-                            }
+                                // Add status module data at the beginning
+                                if(m_dPtr->m_dataSource->hasEntity(1150)) {
 
-                            emit sigAddSession(sessionName,tmpStaticData);
-                        }
+                                    for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
+                                        tmpStaticComps.insert(1150,comp);
+                                    }
+                                }
+
+                                for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
+                                    if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
+                                        emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+                                    }
+                                    const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
+                                    for(const QString &tmpComponentName : tmpComponents) {
+                                        if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false) {
+                                            emit sigAddComponent(tmpComponentName);
+                                        }
+                                        QVariantMap tmpMap;
+                                        tmpMap["entityId"]=tmpEntityId;
+                                        tmpMap["compName"]=tmpComponentName;
+                                        tmpMap["value"]=m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
+                                        tmpMap["time"]=QDateTime::currentDateTime();
+                                        tmpStaticData.append(tmpMap);
+                                    }
+                                }
+
+                                emit sigAddSession(sessionName,tmpStaticData);
+                            }else{
+
+                            }
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
