@@ -79,6 +79,7 @@ public slots:
     virtual bool openDatabase(const QString &t_filePath);
     virtual void closeDatabase();
     QVariant RPC_readTransaction(QVariantMap p_parameters);
+    QVariant RPC_readSessionComponent(QVariantMap p_parameters);
     /**
      * @brief updateSessionList
      * @param p_sessions: list of sessions stored in open database
