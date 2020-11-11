@@ -66,6 +66,7 @@ class DataLoggerPrivate: public QObject
             componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
             componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
             componentData.insert(s_existingSessionsComponentName, QStringList());
+            componentData.insert(s_customerDataComponentName, QString());
 
             // TODO: Add more from modulemanager
             componentData.insert(s_sessionNameComponentName, QString());
@@ -379,6 +380,7 @@ class DataLoggerPrivate: public QObject
     static constexpr QLatin1String s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
     static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
     static constexpr QLatin1String s_existingSessionsComponentName = QLatin1String("ExistingSessions");
+    static constexpr QLatin1String s_customerDataComponentName = QLatin1String("CustomerData");
 
     // TODO: Add more from modulemanager
     static constexpr QLatin1String s_sessionNameComponentName = QLatin1String("sessionName");
@@ -426,6 +428,7 @@ constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentNa
 constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_existingSessionsComponentName;
 // TODO: Add more from modulemanager
+constexpr QLatin1String DataLoggerPrivate::s_customerDataComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_sessionNameComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_transactionNameComponentName;
@@ -842,11 +845,22 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
                         sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
+
+                        VeinComponent::ComponentData *customerCData = new VeinComponent::ComponentData();
+                        customerCData->setEntityId(m_dPtr->m_entityId);
+                        customerCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                        customerCData->setComponentName(DataLoggerPrivate::s_customerDataComponentName);
+                        customerCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                        customerCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+
+
                         QString sessionName = cData->newValue().toString();
                         // we have a working database?
                         if(!sessionName.isEmpty() &&
-                                m_dPtr->m_database &&
-                                m_dPtr->m_database->databaseIsOpen()){
+                           m_dPtr->m_database &&
+                           m_dPtr->m_database->databaseIsOpen()){
+
                             if(!m_dPtr->m_database->hasSessionName(sessionName)) {
                                 // Add session immediately: That helps us massively to create a smart user-interface
 
@@ -885,11 +899,17 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                                     }
                                 }
 
+                                // We are reading it like this because it is faster than writing it to the db and then reading it agian
+                                customerCData->setNewValue(m_dPtr->m_dataSource->getValue(200, "FileSelected"));
                                 emit sigAddSession(sessionName,tmpStaticData);
                             }else{
+                                QString customerdata=m_dPtr->m_database->readSessionComponent(sessionName,"CustomerData","FileSelected").toString();
+                                customerCData->setNewValue(customerdata);
+                            }
 
                             }
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
                         VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
