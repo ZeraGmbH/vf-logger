@@ -57,6 +57,7 @@ public slots:
     int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) override;
     void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
     void addLoggedValue(const  QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
+    QVariant readSessionComponent(const QString &p_session, const QString &p_enity, const QString &p_component) override;
 
     bool openDatabase(const QString &t_dbPath) override;
 

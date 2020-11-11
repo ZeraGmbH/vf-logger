@@ -88,6 +88,25 @@ class DBPrivate
     }
 
 
+    QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component){
+        QVariant retVal;
+        if(m_logDB.isOpen()){
+            m_sessionCustomerQuery.bindValue(":sessionname",p_session);
+            m_sessionCustomerQuery.bindValue(":entity",p_entity);
+            m_sessionCustomerQuery.bindValue(":component",p_component);
+            if (!m_sessionCustomerQuery.exec()){
+                QString err=m_sessionCustomerQuery.lastError().text();
+                return retVal;
+            }
+
+            while(m_sessionCustomerQuery.next()){
+                int fieldNo = m_sessionCustomerQuery.record().indexOf("component_value");
+                retVal=m_sessionCustomerQuery.value(fieldNo);
+            }
+        }
+        return retVal;
+    }
+
     QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session)
     {
         QJsonDocument  retVal;
@@ -193,6 +212,16 @@ class DBPrivate
      * @brief m_readTransactionQuery
      */
     QSqlQuery m_readTransactionQuery;
+
+
+    /**
+     * @brief m_sessionCustomerQuery
+     *
+     * Read session customer data file name
+     */
+    QSqlQuery m_sessionCustomerQuery;
+
+
 
     int m_valueMapQueryCounter=0;
     /**
@@ -549,6 +578,11 @@ void SQLiteDB::addLoggedValue(const QString &t_sessionName, QVector<int> t_trans
     addLoggedValue(sessionId, t_transactionIds, t_entityId, t_componentName, t_value, t_timestamp);
 }
 
+QVariant SQLiteDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
+{
+    return m_dPtr->readSessionComponent(p_session,p_entity,p_component);
+}
+
 bool SQLiteDB::openDatabase(const QString &t_dbPath)
 {
     QFileInfo fInfo(t_dbPath);
@@ -584,7 +618,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
             m_dPtr->m_sessionInsertQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_readTransactionQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionMappingInsertQuery = QSqlQuery(m_dPtr->m_logDB);
-
+            m_dPtr->m_sessionCustomerQuery = QSqlQuery(m_dPtr->m_logDB);
             //setup database if necessary
             QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
 
@@ -651,6 +685,15 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 m_dPtr->m_sessionInsertQuery.prepare("INSERT INTO sessions (id, session_name) VALUES (:id, :session_name);");
                 //ecexute after session was added to  get last used number
                 m_dPtr->m_sessionSequenceQuery.prepare("SELECT MAX(id) FROM sessions");
+
+
+                m_dPtr->m_sessionCustomerQuery.prepare("SELECT sessions.session_name, components.component_name,entities.entity_name, valuemap.component_value"
+                                                       " FROM sessions INNER JOIN"
+                                                       " sessions_valuemap ON sessions.id = sessions_valuemap.sessionsid INNER JOIN"
+                                                       " valuemap ON sessions_valuemap.valueid = valuemap.id INNER JOIN entities ON valuemap.entityiesid = entities.id INNER JOIN"
+                                                       " components ON valuemap.componentid = components.id"
+                                                       " WHERE session_name= :sessionname AND entity_name= :entity AND component_name= :component;");
+
 
                 //get next valuemap_id
                 if(m_dPtr->m_valueMapSequenceQuery.exec() == false) {
