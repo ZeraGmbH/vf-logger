@@ -871,8 +871,8 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         QString sessionName = cData->newValue().toString();
                         // we have a working database?
                         if(!sessionName.isEmpty() &&
-                           m_dPtr->m_database &&
-                           m_dPtr->m_database->databaseIsOpen()){
+                                m_dPtr->m_database &&
+                                m_dPtr->m_database->databaseIsOpen()){
 
                             if(!m_dPtr->m_database->hasSessionName(sessionName)) {
                                 // Add session immediately: That helps us massively to create a smart user-interface
@@ -920,7 +920,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                                 customerCData->setNewValue(customerdata);
                             }
 
-                            }
+                        }
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
                     }
@@ -972,30 +972,30 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     t_event->accept();
                 }
             }
-            else if(evData->type()==VeinComponent::RemoteProcedureData::dataType() &&
-                    evData->entityId() == m_dPtr->m_entityId) {
-                VeinComponent::RemoteProcedureData *rpcData=nullptr;
-                rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
-                if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
-                    if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
-                        const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
-                        m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
-                        cEvent->accept();
-                    }else if(!cEvent->isAccepted()){
-                        retVal = true;
-                        qWarning() << "No remote procedure with entityId:" << m_dPtr->m_entityId << "name:" << rpcData->procedureName();
-                        VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_dPtr->m_entityId).arg(rpcData->procedureName())));
-                        VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
-                        eData->setEntityId(m_dPtr->m_entityId);
-                        eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
-                        eData->setOriginalData(rpcData);
-                        eData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        eData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-                        VeinEvent::CommandEvent *errorEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, eData);
-                        errorEvent->setPeerId(cEvent->peerId());
-                        cEvent->accept();
-                        emit sigSendEvent(errorEvent);
-                    }
+        }
+        else if(evData->type()==VeinComponent::RemoteProcedureData::dataType() &&
+                evData->entityId() == m_dPtr->m_entityId) {
+            VeinComponent::RemoteProcedureData *rpcData=nullptr;
+            rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
+            if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
+                if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
+                    const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
+                    m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
+                    cEvent->accept();
+                }else if(!cEvent->isAccepted()){
+                    retVal = true;
+                    qWarning() << "No remote procedure with entityId:" << m_dPtr->m_entityId << "name:" << rpcData->procedureName();
+                    VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_dPtr->m_entityId).arg(rpcData->procedureName())));
+                    VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
+                    eData->setEntityId(m_dPtr->m_entityId);
+                    eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
+                    eData->setOriginalData(rpcData);
+                    eData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    eData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                    VeinEvent::CommandEvent *errorEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, eData);
+                    errorEvent->setPeerId(cEvent->peerId());
+                    cEvent->accept();
+                    emit sigSendEvent(errorEvent);
                 }
             }
         }
