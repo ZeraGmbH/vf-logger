@@ -648,6 +648,17 @@ void DatabaseLogger::closeDatabase()
     emit sigDatabaseUnloaded();
     updateSessionList(QStringList());
     m_dPtr->updateDBStorageInfo();
+
+    // set CustomerData component empty on databaseClosed
+    VeinComponent::ComponentData *customerCData = new VeinComponent::ComponentData();
+    customerCData->setEntityId(m_dPtr->m_entityId);
+    customerCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+    customerCData->setComponentName(DataLoggerPrivate::s_customerDataComponentName);
+    customerCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+    customerCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+    customerCData->setNewValue(QString());
+    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
+
     qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
 }
 
