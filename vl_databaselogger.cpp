@@ -93,6 +93,9 @@ class DataLoggerPrivate: public QObject
             m_rpcList[tmpval->rpcName()]=tmpval;
             tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_readSessionComponent",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_entity", "QString"},{"p_component", "QString"}})), &QObject::deleteLater);
             m_rpcList[tmpval->rpcName()]=tmpval;
+            tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_deleteSession",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})), &QObject::deleteLater);
+            m_rpcList[tmpval->rpcName()]=tmpval;
+
 
             initStateMachine();
 
@@ -673,6 +676,13 @@ void DatabaseLogger::updateSessionList(QStringList p_sessions)
     exisitingSessions ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingSessions));
 
+}
+
+QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters){
+    QVariant retVal;
+    QString session = p_parameters["p_session"].toString();
+    retVal=m_dPtr->m_database->deleteSession(session);
+    return retVal;
 }
 
 QVariant DatabaseLogger::RPC_readSessionComponent(QVariantMap p_parameters){

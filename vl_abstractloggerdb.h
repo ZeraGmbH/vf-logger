@@ -68,6 +68,7 @@ public slots:
     virtual QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session) = 0;
     virtual QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) = 0;
     virtual int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) =0;
+    virtual bool deleteSession(const QString &t_session) = 0;
     /**
      * @brief addLoggedValue
      * @param t_sessionId
