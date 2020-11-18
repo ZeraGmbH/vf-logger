@@ -54,6 +54,7 @@ public slots:
     int addTransaction(const QString &t_transactionName, const QString &t_sessionName, const QString &t_contentSets, const QString &t_guiContextName) override;
     bool addStartTime(int t_transactionId, QDateTime t_time) override;
     bool addStopTime(int t_transactionId,  QDateTime t_time) override;
+    bool deleteSession(const QString &t_session) override;
     int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) override;
     void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
     void addLoggedValue(const  QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;

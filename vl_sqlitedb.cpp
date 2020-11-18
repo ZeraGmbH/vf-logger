@@ -492,6 +492,22 @@ bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
     return false;
 }
 
+bool SQLiteDB::deleteSession(const QString &t_session)
+{
+    bool retVal=true;
+    // retrun false if any error occurs
+    try{
+        if(m_dPtr->m_sessionIds.contains(t_session)){
+            m_dPtr->m_sessionIds.remove(t_session);
+            emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
+    }
+    }catch(...){
+        retVal=false;
+    }
+
+return retVal;
+}
+
 int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_staticData)
 {
     int retVal = -1;
