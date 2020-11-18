@@ -491,16 +491,141 @@ bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
     }
     return false;
 }
-
+// @TODO: remove transaction rpc?
 bool SQLiteDB::deleteSession(const QString &t_session)
 {
     bool retVal=true;
     // retrun false if any error occurs
     try{
+        // Database has to be open!
+        if(m_dPtr->m_logDB.isOpen() != true){
+            throw false;
+        }
+
         if(m_dPtr->m_sessionIds.contains(t_session)){
+
+            // There is much to do here as you can see. Please use this function
+            // threaded and do not use to often.
+            // Furthermore notice that those queries are located here because
+            // the amount of class members is just not acceptable anymore, if I add them as members.
+            // Furthermore we can not prepare the queries, if we want to use lists.
+
+
+            QSqlQuery getSessionIdQuery(m_dPtr->m_logDB);
+            QSqlQuery getTransactionsIdsQuery(m_dPtr->m_logDB);
+            QSqlQuery getValueIdsQuery(m_dPtr->m_logDB);
+
+            QSqlQuery getStaticValueIdsQuery(m_dPtr->m_logDB);
+
+
+            QSqlQuery deletevalueTransQuery(m_dPtr->m_logDB);
+            QSqlQuery deletetransactionsQuery(m_dPtr->m_logDB);
+
+            // id used for static data and transaction data
+            QSqlQuery deleteValuesQuery(m_dPtr->m_logDB);
+
+
+            QSqlQuery deleteSessValueQuery(m_dPtr->m_logDB);
+            QSqlQuery deleteSessionQuery(m_dPtr->m_logDB);
+
+            getSessionIdQuery.prepare("SELECT id FROM sessions WHERE session_name=:sessionName");
+            getTransactionsIdsQuery.prepare("SELECT tr.id,se.session_name From transactions tr JOIN sessions se ON se.id = tr.sessionid WHERE se.id=:sessionId");
+            // getValueIdsQuery is prepare like this because bindValue will not accept lists, and batchExecution is not fitted
+            // for select statements. In consequence we build the query dynamic with those strings.
+            QString valueSelect1="SELECT tv.valueid FROM transactions_valuemap tv JOIN valuemap vm ON tv.valueid = vm.id JOIN transactions_valuemap tv2 ON vm.id = tv2.valueid WHERE tv2.transactionsid IN (";
+            QString valueSelect2=") GROUP BY tv.valueid  HAVING count(tv.transactionsid) = 1";
+
+            getStaticValueIdsQuery.prepare("SELECT sv.valueid FROM sessions_valuemap sv JOIN valuemap vm ON "
+                                           "sv.valueid = vm.id JOIN sessions_valuemap sv2 ON vm.id = sv2.valueid WHERE sv2.sessionsid = :sessionId GROUP BY sv.valueid  HAVING count(sv.sessionsid) = 1");
+            deletevalueTransQuery.prepare("Delete FROM transactions_valuemap WHERE transactionsid IN (?)");
+            deletetransactionsQuery.prepare("Delete FROM transactions  WHERE id IN (?)");
+            deleteValuesQuery.prepare("Delete From valuemap Where id IN (?)");
+            deleteSessValueQuery.prepare("Delete FROM sessions_valuemap WHERE sessionsid = :sessionId");
+            deleteSessionQuery.prepare("Delete From sessions Where id= :sessionId");
+
+
+            // query return values
+            QString sessionId;
+            QStringList transactionIds;
+            QStringList valueIds;
+            QStringList staticValueIds; // could use valueIds but I guess it is better readable like that.
+
+            // read session id
+            getSessionIdQuery.bindValue(":sessionName",t_session);
+            if(!getSessionIdQuery.exec()){
+                throw false;
+            }
+
+            int fieldNo = getSessionIdQuery.record().indexOf("id");
+            while (getSessionIdQuery.next()) {
+                sessionId = getSessionIdQuery.value(fieldNo).toString();
+            }
+
+            // read transactionsIds
+            getTransactionsIdsQuery.bindValue(":sessionId",sessionId);
+            if(!getTransactionsIdsQuery.exec()){
+                throw false;
+            }
+
+            fieldNo = getTransactionsIdsQuery.record().indexOf("id");
+            while (getTransactionsIdsQuery.next()) {
+                transactionIds.append(getTransactionsIdsQuery.value(fieldNo).toString());
+            }
+
+            // Create Query with strings.
+            QString tmp=transactionIds.join(",");
+            if(!getValueIdsQuery.exec(valueSelect1+tmp+valueSelect2)){
+                throw false;
+            }
+
+            fieldNo = getValueIdsQuery.record().indexOf("valueid");
+            while (getValueIdsQuery.next()) {
+                valueIds.append(getValueIdsQuery.value(fieldNo).toString());
+            }
+
+
+            // read all to delete static value ids
+            getStaticValueIdsQuery.bindValue(":sessionId", sessionId);
+            if(!getStaticValueIdsQuery.exec()){
+                throw false;
+            }
+
+            fieldNo = getStaticValueIdsQuery.record().indexOf("valueid");
+            while (getStaticValueIdsQuery.next()) {
+                staticValueIds.append(getStaticValueIdsQuery.value(fieldNo).toString());
+            }
+
+            // Do not change order. The order is important because an entry can
+            // not be deleted as long as the parent element still exists.
+
+            //delete session
+            deleteSessionQuery.bindValue(":sessionId",sessionId);
+            deleteSessionQuery.exec();
+            deleteSessionQuery.finish();
+            //clean transaction_valuemap
+            deletevalueTransQuery.addBindValue(transactionIds);
+            deletevalueTransQuery.execBatch();
+            deletevalueTransQuery.finish();
+            //clean session_valuemap
+            deleteSessValueQuery.bindValue(":sessionId",sessionId);
+            deleteSessValueQuery.exec();
+            deleteSessValueQuery.finish();
+            //delete transactions
+            deletetransactionsQuery.addBindValue(transactionIds);
+            deletetransactionsQuery.execBatch();
+            deletetransactionsQuery.finish();
+            //delete transactions values
+            deleteValuesQuery.addBindValue(valueIds);
+            deleteValuesQuery.execBatch();
+            deleteValuesQuery.finish();
+            //delete static values
+            deleteValuesQuery.addBindValue(staticValueIds);
+            deleteValuesQuery.execBatch();
+            deleteValuesQuery.finish();
+
             m_dPtr->m_sessionIds.remove(t_session);
             emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
-    }
+        }
     }catch(...){
         retVal=false;
     }
