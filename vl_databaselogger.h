@@ -78,6 +78,7 @@ public slots:
     virtual void setLoggingEnabled(bool t_enabled);
     virtual bool openDatabase(const QString &t_filePath);
     virtual void closeDatabase();
+    virtual void checkDatabaseStillValid();
     QVariant RPC_deleteSession(QVariantMap p_parameters);
     QVariant RPC_readTransaction(QVariantMap p_parameters);
     QVariant RPC_readSessionComponent(QVariantMap p_parameters);
