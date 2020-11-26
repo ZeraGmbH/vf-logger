@@ -8,6 +8,7 @@
 #include <QStateMachine>
 #include <QStorageInfo>
 #include <QMimeDatabase>
+#include <QFileSystemWatcher>
 
 #include <ve_commandevent.h>
 #include <vcmp_componentdata.h>
@@ -177,6 +178,12 @@ class DataLoggerPrivate: public QObject
 
             m_qPtr->setLoggingEnabled(false);
             setStatusText("Database loaded");
+
+            QFileInfo fInfo(m_databaseFilePath);
+            // To avoid fire storm on logging we watch the directory
+            if(m_deleteWatcher.addPath(fInfo.absolutePath())) {
+                QObject::connect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, m_qPtr, &DatabaseLogger::checkDatabaseStillValid);
+            }
         });
         QObject::connect(m_databaseErrorState, &QState::entered, [&](){
             qCWarning(VEIN_LOGGER) << "Entered m_databaseErrorState";
@@ -360,6 +367,9 @@ class DataLoggerPrivate: public QObject
      * @brief logging duration in ms
      */
     int m_scheduledLoggingDuration;
+
+    QFileSystemWatcher m_deleteWatcher;
+
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
     bool m_initDone=false;
@@ -648,6 +658,10 @@ void DatabaseLogger::closeDatabase()
     }
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
+    if(m_dPtr->m_deleteWatcher.directories().count()) {
+        m_dPtr->m_deleteWatcher.removePath(m_dPtr->m_deleteWatcher.directories()[0]);
+        QObject::disconnect(&m_dPtr->m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
+    }
     emit sigDatabaseUnloaded();
     updateSessionList(QStringList());
     m_dPtr->updateDBStorageInfo();
@@ -663,6 +677,22 @@ void DatabaseLogger::closeDatabase()
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
 
     qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
+}
+
+void DatabaseLogger::checkDatabaseStillValid()
+{
+    QFile dbFile(m_dPtr->m_databaseFilePath);
+    if(!dbFile.exists()) {
+        VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
+        dbFileNameCData->setEntityId(m_dPtr->m_entityId);
+        dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
+        dbFileNameCData->setNewValue(QString());
+        dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
+        closeDatabase();
+    }
 }
 
 void DatabaseLogger::updateSessionList(QStringList p_sessions)
