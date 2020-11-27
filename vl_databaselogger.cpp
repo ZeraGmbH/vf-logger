@@ -179,10 +179,24 @@ class DataLoggerPrivate: public QObject
             m_qPtr->setLoggingEnabled(false);
             setStatusText("Database loaded");
 
-            QFileInfo fInfo(m_databaseFilePath);
-            // To avoid fire storm on logging we watch the directory
-            if(m_deleteWatcher.addPath(fInfo.absolutePath())) {
+            QFileInfo fileInfo(m_databaseFilePath);
+            QStorageInfo storageInfo(fileInfo.absolutePath());
+            // and for USB sticks the path above mount point
+            // To avoid fire storm on logging we watch file's
+            QStringList watchedPaths;
+            watchedPaths.append(fileInfo.absolutePath());
+            if(!storageInfo.isRoot()) {
+                QDir tmpDir(fileInfo.absolutePath());
+                tmpDir.cdUp();
+                watchedPaths.append(tmpDir.path());
+            }
+            qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" / "))));
+            QStringList unWatchedPaths = m_deleteWatcher.addPaths(watchedPaths);
+            if(m_deleteWatcher.directories().count()) {
                 QObject::connect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, m_qPtr, &DatabaseLogger::checkDatabaseStillValid);
+            }
+            if(unWatchedPaths.count()) {
+                qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" / "))));
             }
         });
         QObject::connect(m_databaseErrorState, &QState::entered, [&](){
@@ -659,7 +673,10 @@ void DatabaseLogger::closeDatabase()
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
     if(m_dPtr->m_deleteWatcher.directories().count()) {
-        m_dPtr->m_deleteWatcher.removePath(m_dPtr->m_deleteWatcher.directories()[0]);
+        QStringList watchedDirs = m_dPtr->m_deleteWatcher.directories();
+        for(QString watchDir : watchedDirs) {
+            m_dPtr->m_deleteWatcher.removePath(watchDir);
+        }
         QObject::disconnect(&m_dPtr->m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
     }
     emit sigDatabaseUnloaded();
@@ -683,6 +700,7 @@ void DatabaseLogger::checkDatabaseStillValid()
 {
     QFile dbFile(m_dPtr->m_databaseFilePath);
     if(!dbFile.exists()) {
+        qWarning("Database file %s is gone - closing database...", qPrintable(m_dPtr->m_databaseFilePath));
         VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
         dbFileNameCData->setEntityId(m_dPtr->m_entityId);
         dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
