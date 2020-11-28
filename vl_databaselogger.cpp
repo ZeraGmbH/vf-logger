@@ -181,8 +181,8 @@ class DataLoggerPrivate: public QObject
 
             QFileInfo fileInfo(m_databaseFilePath);
             QStorageInfo storageInfo(fileInfo.absolutePath());
-            // and for USB sticks the path above mount point
-            // To avoid fire storm on logging we watch file's
+            // * To avoid fire storm on logging we watch file's dir
+            // * For removable devices: mount-point's parent dir
             QStringList watchedPaths;
             watchedPaths.append(fileInfo.absolutePath());
             if(!storageInfo.isRoot()) {
