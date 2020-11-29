@@ -282,6 +282,12 @@ class DataLoggerPrivate: public QObject
         bool retVal = false;
         QFileInfo fInfo(t_dbFilePath);
 
+        // try to create path
+        if(!fInfo.absoluteDir().exists()) {
+            QDir dir;
+            dir.mkpath(fInfo.absoluteDir().path());
+        }
+
         if(fInfo.absoluteDir().exists()) {
             if(fInfo.isFile() || fInfo.exists() == false) {
                 retVal = true;
