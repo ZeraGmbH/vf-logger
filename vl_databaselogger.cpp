@@ -396,6 +396,15 @@ class DataLoggerPrivate: public QObject
     QString m_loggerStatusText="Logging inactive";
 
     QMap<QString,VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
+    /**
+     * @brief m_sessionName
+     * stores the current session Name.
+     *
+     * We need this, when deleting a session, to compare values.
+     * That's a quite ugly solution. However using vf-cpp in future those things
+     * will work out better.
+     */
+    QString m_sessionName;
 
     int m_entityId;
     //entity name
@@ -736,6 +745,21 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters){
     QVariant retVal;
     QString session = p_parameters["p_session"].toString();
     retVal=m_dPtr->m_database->deleteSession(session);
+
+    // check if deleted session is current Session and if it is set sessionName empty
+    // We will not check retVal here. If something goes wrong and the session is still availabel the
+    // user can choose it again without risking undefined behavior.
+    if(session == m_dPtr->m_sessionName){
+        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
+        sessionNameCData ->setEntityId(m_dPtr->m_entityId);
+        sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        sessionNameCData ->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
+        sessionNameCData ->setNewValue(QString());
+        sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+        m_dPtr->m_sessionName="";
+        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+    }
     return retVal;
 }
 
@@ -857,6 +881,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         sessionNameCData ->setNewValue(QString());
                         sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
                         sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        m_dPtr->m_sessionName="";
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
 
                     }
@@ -933,6 +958,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
                         sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
+                        m_dPtr->m_sessionName=cData->newValue().toString();
 
                         VeinComponent::ComponentData *customerCData = new VeinComponent::ComponentData();
                         customerCData->setEntityId(m_dPtr->m_entityId);
@@ -996,6 +1022,7 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                             }
 
                         }
+
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
                     }
