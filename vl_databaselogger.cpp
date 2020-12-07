@@ -186,7 +186,7 @@ class DataLoggerPrivate: public QObject
             QStringList watchedPaths;
             watchedPaths.append(fileInfo.absolutePath());
             if(!storageInfo.isRoot()) {
-                QDir tmpDir(fileInfo.absolutePath());
+                QDir tmpDir(storageInfo.rootPath());
                 tmpDir.cdUp();
                 watchedPaths.append(tmpDir.path());
             }
