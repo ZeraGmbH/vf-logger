@@ -190,13 +190,13 @@ class DataLoggerPrivate: public QObject
                 tmpDir.cdUp();
                 watchedPaths.append(tmpDir.path());
             }
-            qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" / "))));
+            qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" + "))));
             QStringList unWatchedPaths = m_deleteWatcher.addPaths(watchedPaths);
             if(m_deleteWatcher.directories().count()) {
                 QObject::connect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, m_qPtr, &DatabaseLogger::checkDatabaseStillValid);
             }
             if(unWatchedPaths.count()) {
-                qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" / "))));
+                qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
             }
         });
         QObject::connect(m_databaseErrorState, &QState::entered, [&](){
