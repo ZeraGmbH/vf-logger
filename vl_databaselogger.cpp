@@ -34,7 +34,7 @@ class DataLoggerPrivate: public QObject
         if(m_database != nullptr)
         {
             m_database->deleteLater(); ///@todo: check if the delete works across threads
-            m_database=nullptr;
+            m_database = nullptr;
         }
         m_asyncDatabaseThread.quit();
         m_asyncDatabaseThread.wait();
@@ -105,8 +105,6 @@ class DataLoggerPrivate: public QObject
         }
     }
 
-
-
     void setStatusText(const QString &t_status)
     {
         if(m_loggerStatusText != t_status) {
@@ -134,14 +132,8 @@ class DataLoggerPrivate: public QObject
 
         //uninitialized -> ready
         m_databaseUninitializedState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseReady, m_databaseReadyState);
-        //uninitialized -> error
-        m_databaseUninitializedState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseError, m_databaseErrorState);
-        //ready -> error
-        m_databaseReadyState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseError, m_databaseErrorState);
         //ready -> uninitialized
         m_databaseReadyState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseUnloaded, m_databaseUninitializedState);
-        //error -> ready
-        m_databaseErrorState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseReady, m_databaseReadyState);
 
         //enabled -> disabled
         m_loggingEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLoggingStopped, m_loggingDisabledState);
@@ -164,7 +156,9 @@ class DataLoggerPrivate: public QObject
 
             emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseUninitializedCData));
             m_qPtr->setLoggingEnabled(false);
-            setStatusText("No database selected");
+            if(!m_noUninitMessage) {
+                setStatusText("No database selected");
+            }
         });
         QObject::connect(m_databaseReadyState, &QState::entered, [&](){
             // Now we have an open and valid database: Notify ready and some
@@ -208,36 +202,11 @@ class DataLoggerPrivate: public QObject
                 qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
             }
         });
-        QObject::connect(m_databaseErrorState, &QState::entered, [&](){
-            qCWarning(VEIN_LOGGER) << "Entered m_databaseErrorState";
-            VeinComponent::ComponentData *databaseErrorCData = new VeinComponent::ComponentData();
-            databaseErrorCData->setEntityId(m_entityId);
-            databaseErrorCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            databaseErrorCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
-            databaseErrorCData->setNewValue(false);
-            databaseErrorCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            databaseErrorCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseErrorCData));
-            m_qPtr->setLoggingEnabled(false);
-            setStatusText("Database error");
-
-            VeinComponent::ComponentData *dbErrorFileNameCData = new VeinComponent::ComponentData();
-            dbErrorFileNameCData->setEntityId(m_entityId);
-            dbErrorFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            dbErrorFileNameCData->setComponentName(DataLoggerPrivate::s_databaseErrorFileComponentName);
-            dbErrorFileNameCData->setNewValue(m_databaseFilePath);
-            dbErrorFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            dbErrorFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbErrorFileNameCData));
-
-            m_qPtr->closeDatabase();
-        });
         QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
             setStatusText("Logging data");
         });
         QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
-            if(m_stateMachine.configuration().contains(m_databaseErrorState) == false) { // do not override important notification
+            if(!m_noUninitMessage) {
                 // yes we are in logging disabled state - but the message 'Logging disabled' is a
                 // bit misleading: sounds as something is wrong and blocking further logging
                 //setStatusText("Logging disabled");
@@ -305,22 +274,27 @@ class DataLoggerPrivate: public QObject
         bool retVal = false;
         QFileInfo fInfo(t_dbFilePath);
 
-        // try to create path
-        if(!fInfo.absoluteDir().exists()) {
-            QDir dir;
-            dir.mkpath(fInfo.absoluteDir().path());
-        }
+        if(!fInfo.isRelative()) {
+            // try to create path
+            if(!fInfo.absoluteDir().exists()) {
+                QDir dir;
+                dir.mkpath(fInfo.absoluteDir().path());
+            }
 
-        if(fInfo.absoluteDir().exists()) {
-            if(fInfo.isFile() || fInfo.exists() == false) {
-                retVal = true;
+            if(fInfo.absoluteDir().exists()) {
+                if(fInfo.isFile() || fInfo.exists() == false) {
+                    retVal = true;
+                }
+                else {
+                    emit m_qPtr->sigDatabaseError(QString("Path is not a valid file location: %1").arg(t_dbFilePath));
+                }
             }
             else {
-                emit m_qPtr->sigDatabaseError(QString("Path is not a valid file location: %1").arg(t_dbFilePath));
+                emit m_qPtr->sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(t_dbFilePath));
             }
         }
         else {
-            emit m_qPtr->sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(t_dbFilePath));
+            emit m_qPtr->sigDatabaseError(QString("Relative paths are not accepted: %1").arg(t_dbFilePath));
         }
 
         return retVal;
@@ -386,6 +360,7 @@ class DataLoggerPrivate: public QObject
     int m_scheduledLoggingDuration;
 
     QFileSystemWatcher m_deleteWatcher;
+    bool m_noUninitMessage = false;
 
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
@@ -439,7 +414,6 @@ class DataLoggerPrivate: public QObject
     QState *m_databaseContainerState = new QState(m_parallelWrapperState);
     QState *m_databaseUninitializedState = new QState(m_databaseContainerState);
     QState *m_databaseReadyState = new QState(m_databaseContainerState);
-    QState *m_databaseErrorState = new QState(m_databaseContainerState);
 
     QState *m_loggingContainerState = new QState(m_parallelWrapperState);
     QState *m_loggingEnabledState = new QState(m_loggingContainerState);
@@ -529,6 +503,25 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
         loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
+    });
+
+    // db error handling
+    connect(this, &DatabaseLogger::sigDatabaseError, [this](const QString &t_errorString) {
+        qCWarning(VEIN_LOGGER) << t_errorString;
+
+        // error db filename notification
+        VeinComponent::ComponentData *dbErrorFileNameCData = new VeinComponent::ComponentData();
+        dbErrorFileNameCData->setEntityId(m_dPtr->m_entityId);
+        dbErrorFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        dbErrorFileNameCData->setComponentName(DataLoggerPrivate::s_databaseErrorFileComponentName);
+        dbErrorFileNameCData->setNewValue(m_dPtr->m_databaseFilePath);
+        dbErrorFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        dbErrorFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbErrorFileNameCData));
+
+        closeDatabase();
+        m_dPtr->m_noUninitMessage = true;
+        m_dPtr->setStatusText("Database error");
     });
 }
 
@@ -641,7 +634,7 @@ void DatabaseLogger::setLoggingEnabled(bool t_enabled)
 bool DatabaseLogger::openDatabase(const QString &t_filePath)
 {
     m_dPtr->m_databaseFilePath = t_filePath;
-
+    m_dPtr->m_noUninitMessage = false;
     // setup/init components
     QHash <QString, QVariant> fileInfoData;
     fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
@@ -672,12 +665,15 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
     if(validStorage == true) {
         m_dPtr->updateDBStorageInfo();
         if(m_dPtr->m_database != nullptr) {
+            disconnect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
             m_dPtr->m_database->deleteLater();
-            m_dPtr->m_database=nullptr;
+            m_dPtr->m_database = nullptr;
         }
         m_dPtr->m_asyncDatabaseThread.quit();
         m_dPtr->m_asyncDatabaseThread.wait();
-        m_dPtr->m_database=m_dPtr->m_databaseFactory();//new SQLiteDB(t_storageMode);
+        m_dPtr->m_database = m_dPtr->m_databaseFactory();//new SQLiteDB(t_storageMode);
+        // forward database's error my handler
+        connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
         m_dPtr->m_database->setStorageMode(m_dPtr->m_storageMode);
         m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
         m_dPtr->m_asyncDatabaseThread.start();
@@ -694,12 +690,6 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
         connect(m_dPtr->m_database, SIGNAL(sigNewSessionList(QStringList)), this, SLOT(updateSessionList(QStringList)));
 
-        // forward database's error messages to m_databaseReadyState and log below
-        connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
-        connect(this, &DatabaseLogger::sigDatabaseError, [](const QString &t_errorString) {
-            qCWarning(VEIN_LOGGER) << t_errorString;
-        });
-
         emit sigOpenDatabase(t_filePath);
     }
     return validStorage;
@@ -707,10 +697,12 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 
 void DatabaseLogger::closeDatabase()
 {
+    m_dPtr->m_noUninitMessage = false;
     setLoggingEnabled(false);
     if(m_dPtr->m_database != nullptr) {
+        disconnect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
         m_dPtr->m_database->deleteLater();
-        m_dPtr->m_database=nullptr;
+        m_dPtr->m_database = nullptr;
     }
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
