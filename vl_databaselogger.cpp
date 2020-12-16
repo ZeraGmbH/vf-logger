@@ -60,6 +60,7 @@ class DataLoggerPrivate: public QObject
             ///@todo load from persistent settings file?
             componentData.insert(s_databaseReadyComponentName, QVariant(false));
             componentData.insert(s_databaseFileComponentName, QVariant(QString()));
+            componentData.insert(s_databaseErrorFileComponentName, QVariant(QString()));
             componentData.insert(s_databaseFileMimeTypeComponentName, QVariant(QString()));
             componentData.insert(s_databaseFileSizeComponentName, QVariant(QString()));
             componentData.insert(s_filesystemInfoComponentName, QVariantMap());
@@ -213,6 +214,15 @@ class DataLoggerPrivate: public QObject
             m_qPtr->setLoggingEnabled(false);
             setStatusText("Database error");
 
+            VeinComponent::ComponentData *dbErrorFileNameCData = new VeinComponent::ComponentData();
+            dbErrorFileNameCData->setEntityId(m_entityId);
+            dbErrorFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+            dbErrorFileNameCData->setComponentName(DataLoggerPrivate::s_databaseErrorFileComponentName);
+            dbErrorFileNameCData->setNewValue(m_databaseFilePath);
+            dbErrorFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+            dbErrorFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbErrorFileNameCData));
+
             m_qPtr->closeDatabase();
         });
         QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
@@ -314,6 +324,7 @@ class DataLoggerPrivate: public QObject
             VeinComponent::ComponentData *storageCData = nullptr;
 
             fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, fInfo.absoluteFilePath());
+            fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
             fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeDB.mimeTypeForFile(fInfo, QMimeDatabase::MatchContent).name());
             fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fInfo.size());
 
@@ -417,6 +428,7 @@ class DataLoggerPrivate: public QObject
     static constexpr QLatin1String s_loggingEnabledComponentName = QLatin1String("LoggingEnabled");
     static constexpr QLatin1String s_databaseReadyComponentName = QLatin1String("DatabaseReady");
     static constexpr QLatin1String s_databaseFileComponentName = QLatin1String("DatabaseFile");
+    static constexpr QLatin1String s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
     static constexpr QLatin1String s_databaseFileMimeTypeComponentName = QLatin1String("DatabaseFileMimeType");
     static constexpr QLatin1String s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
     static constexpr QLatin1String s_filesystemInfoComponentName = QLatin1String("FilesystemInfo");
@@ -464,6 +476,7 @@ constexpr QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_databaseReadyComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_databaseFileComponentName;
+constexpr QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_databaseFileMimeTypeComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName;
 constexpr QLatin1String DataLoggerPrivate::s_filesystemInfoComponentName;
