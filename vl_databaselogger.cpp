@@ -238,7 +238,10 @@ class DataLoggerPrivate: public QObject
         });
         QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
             if(m_stateMachine.configuration().contains(m_databaseErrorState) == false) { // do not override important notification
-                setStatusText("Logging disabled");
+                // yes we are in logging disabled state - but the message 'Logging disabled' is a
+                // bit misleading: sounds as something is wrong and blocking further logging
+                //setStatusText("Logging disabled");
+                setStatusText("Database loaded");
             }
             m_batchedExecutionTimer.stop();
             updateDBFileSizeInfo();
