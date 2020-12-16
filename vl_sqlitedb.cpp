@@ -867,15 +867,12 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
 void SQLiteDB::runBatchedExecution()
 {
     // To avoid uneasy to debug suprises, check if the file is still there
-    // Costs are few: This is called at low frequency and the file has to be
-    // accessed anyway
+    // * Costs are few: This is called at low frequency and the file has to be
+    //   accessed anyway
+    // * Avoid further accesses - it won't come back and db-logger's watcher
+    //   will do actions necessary
     QFile dbFile(m_dPtr->m_logDB.databaseName());
-    if(!dbFile.exists()) {
-        // Avoid further accesses - it won't come back and db-logger's watcher
-        // will do other actions necessary
-        m_dPtr->m_logDB.close();
-    }
-    if(m_dPtr->m_logDB.isOpen()) {
+    if(dbFile.exists() && m_dPtr->m_logDB.isOpen()) {
         //addBindValue requires QList<QVariant>
         QList<QVariant> tmpTimestamps;
         QList<QVariant> tmpComponentIds;
