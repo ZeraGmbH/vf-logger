@@ -715,16 +715,7 @@ void DatabaseLogger::checkDatabaseStillValid()
 {
     QFile dbFile(m_dPtr->m_databaseFilePath);
     if(!dbFile.exists()) {
-        qWarning("Database file %s is gone - closing database...", qPrintable(m_dPtr->m_databaseFilePath));
-        VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
-        dbFileNameCData->setEntityId(m_dPtr->m_entityId);
-        dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
-        dbFileNameCData->setNewValue(QString());
-        dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
-        closeDatabase();
+        emit sigDatabaseError(QString("Database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
     }
 }
 
