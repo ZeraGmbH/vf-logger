@@ -61,7 +61,7 @@ public slots:
     QVariant readSessionComponent(const QString &p_session, const QString &p_enity, const QString &p_component) override;
 
     bool openDatabase(const QString &t_dbPath) override;
-    bool checkAvailableSpace(const QString &t_dbPath);
+    bool isDbStillWitable(const QString &t_dbPath);
 
     void runBatchedExecution() override;
 
