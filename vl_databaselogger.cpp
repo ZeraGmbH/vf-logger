@@ -697,8 +697,20 @@ void DatabaseLogger::closeDatabase()
         QObject::disconnect(&m_dPtr->m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
     }
     emit sigDatabaseUnloaded();
+
+    // set database file name empty
+    QString closedDb = m_dPtr->m_databaseFilePath;
+    m_dPtr->m_databaseFilePath.clear();
+    VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
+    dbFileNameCData->setEntityId(m_dPtr->m_entityId);
+    dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+    dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
+    dbFileNameCData->setNewValue(QString());
+    dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+    dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
+
     updateSessionList(QStringList());
-    m_dPtr->updateDBStorageInfo();
 
     // set CustomerData component empty on databaseClosed
     VeinComponent::ComponentData *customerCData = new VeinComponent::ComponentData();
@@ -710,7 +722,9 @@ void DatabaseLogger::closeDatabase()
     customerCData->setNewValue(QString());
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
 
-    qCDebug(VEIN_LOGGER) << "Unloaded database:" << m_dPtr->m_databaseFilePath;
+    m_dPtr->updateDBStorageInfo();
+
+    qCDebug(VEIN_LOGGER) << "Unloaded database:" << closedDb;
 }
 
 void DatabaseLogger::checkDatabaseStillValid()
