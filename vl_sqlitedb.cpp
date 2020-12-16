@@ -729,6 +729,9 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
         if(m_dPtr->m_logDB.isOpen()) {
             m_dPtr->m_logDB.close();
         }
+        if(!checkAvailableSpace(t_dbPath)) {
+            return retVal;
+        }
 
         m_dPtr->m_logDB.setDatabaseName(t_dbPath);
         if (!m_dPtr->m_logDB.open()) {
@@ -861,14 +864,34 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
     return retVal;
 }
 
+bool SQLiteDB::checkAvailableSpace(const QString &t_dbPath)
+{
+    QFileInfo fileInfo(t_dbPath);
+    QStorageInfo storageInfo(fileInfo.absoluteDir());
+    bool storageOK = true;
+    if(storageInfo.isValid()) {
+        qint64 promilleFree = (storageInfo.bytesAvailable() * 1000) / storageInfo.bytesTotal();
+        storageOK = promilleFree > 25 /* 2.5% */;
+        if(!storageOK) {
+            emit sigDatabaseError("Error volume is almost full");
+        }
+    }
+    return storageOK;
+}
+
 void SQLiteDB::runBatchedExecution()
 {
+    QString dbFileName = m_dPtr->m_logDB.databaseName();
+    if(!checkAvailableSpace(dbFileName)) {
+        return;
+    }
+
     // To avoid uneasy to debug suprises, check if the file is still there
     // * Costs are few: This is called at low frequency and the file has to be
     //   accessed anyway
     // * Avoid further accesses - it won't come back and db-logger's watcher
     //   will do actions necessary
-    QFile dbFile(m_dPtr->m_logDB.databaseName());
+    QFile dbFile(dbFileName);
     if(dbFile.exists() && m_dPtr->m_logDB.isOpen()) {
         //addBindValue requires QList<QVariant>
         QList<QVariant> tmpTimestamps;
