@@ -748,7 +748,7 @@ void DatabaseLogger::checkDatabaseStillValid()
 {
     QFile dbFile(m_dPtr->m_databaseFilePath);
     if(!dbFile.exists()) {
-        emit sigDatabaseError(QString("Database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
+        emit sigDatabaseError(QString("Watcher detected database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
     }
 }
 
