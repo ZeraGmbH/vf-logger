@@ -167,20 +167,28 @@ class DataLoggerPrivate: public QObject
             setStatusText("No database selected");
         });
         QObject::connect(m_databaseReadyState, &QState::entered, [&](){
-            VeinComponent::ComponentData *databaseReadyCData = new VeinComponent::ComponentData();
-            databaseReadyCData->setEntityId(m_entityId);
-            databaseReadyCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            databaseReadyCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
-            databaseReadyCData->setNewValue(true);
-            databaseReadyCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            databaseReadyCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseReadyCData));
+            // Now we have an open and valid database: Notify ready and some
+            // bits we were not sure to have at openDatabase
+            QHash <QString, QVariant> fileInfoData;
+            QFileInfo fileInfo(m_databaseFilePath);
+            QMimeDatabase mimeDB;
+            fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeDB.mimeTypeForFile(fileInfo, QMimeDatabase::MatchContent).name());
+            fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fileInfo.size());
+            fileInfoData.insert(DataLoggerPrivate::s_databaseReadyComponentName, true);
+            for(const QString &componentName : fileInfoData.keys())  {
+                VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
+                storageCData->setEntityId(m_entityId);
+                storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+                storageCData->setComponentName(componentName);
+                storageCData->setNewValue(fileInfoData.value(componentName));
+                storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
+            }
 
             m_qPtr->setLoggingEnabled(false);
             setStatusText("Database loaded");
 
-            QFileInfo fileInfo(m_databaseFilePath);
             QStorageInfo storageInfo(fileInfo.absolutePath());
             // * To avoid fire storm on logging we watch file's dir
             // * For removable devices: mount-point's parent dir
@@ -313,33 +321,6 @@ class DataLoggerPrivate: public QObject
         }
 
         return retVal;
-    }
-
-    void setDBFileInfo(const QString &t_dbFilePath)
-    {
-        QFileInfo fInfo(t_dbFilePath);
-        if(true) { //fInfo.exists())
-            QHash <QString, QVariant> fileInfoData;
-            QMimeDatabase mimeDB;
-            VeinComponent::ComponentData *storageCData = nullptr;
-
-            fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, fInfo.absoluteFilePath());
-            fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
-            fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeDB.mimeTypeForFile(fInfo, QMimeDatabase::MatchContent).name());
-            fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fInfo.size());
-
-            for(const QString &componentName : fileInfoData.keys())  {
-                storageCData= new VeinComponent::ComponentData();
-                storageCData->setEntityId(m_entityId);
-                storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                storageCData->setComponentName(componentName);
-                storageCData->setNewValue(fileInfoData.value(componentName));
-                storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-            }
-        }
     }
 
     void updateDBFileSizeInfo()
@@ -656,12 +637,37 @@ void DatabaseLogger::setLoggingEnabled(bool t_enabled)
 
 bool DatabaseLogger::openDatabase(const QString &t_filePath)
 {
-    const bool validStorage = m_dPtr->checkDBFilePath(t_filePath);
+    m_dPtr->m_databaseFilePath = t_filePath;
 
+    // setup/init components
+    QHash <QString, QVariant> fileInfoData;
+    fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
+    fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, t_filePath);
+    QString mimeInfo;
+    qint64 fileSize = 0;
+    // Mime & size are set (again) in database-ready - there we have a file definitely
+    QFileInfo fileInfo(t_filePath);
+    if(fileInfo.exists()) {
+        fileSize = fileInfo.size();
+        QMimeDatabase mimeDB;
+        mimeInfo = mimeDB.mimeTypeForFile(fileInfo, QMimeDatabase::MatchContent).name();
+    }
+    fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeInfo);
+    fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fileSize);
+    for(const QString &componentName : fileInfoData.keys())  {
+        VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
+        storageCData->setEntityId(m_dPtr->m_entityId);
+        storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        storageCData->setComponentName(componentName);
+        storageCData->setNewValue(fileInfoData.value(componentName));
+        storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
+    }
+
+    const bool validStorage = m_dPtr->checkDBFilePath(t_filePath); // throws sigDatabaseError on error
     if(validStorage == true) {
         m_dPtr->updateDBStorageInfo();
-        m_dPtr->setDBFileInfo(t_filePath);
-
         if(m_dPtr->m_database != nullptr) {
             m_dPtr->m_database->deleteLater();
             m_dPtr->m_database=nullptr;
@@ -673,7 +679,7 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
         m_dPtr->m_asyncDatabaseThread.start();
 
-        //will be queued connection due to thread affinity
+        // will be queued connection due to thread affinity
         connect(this, SIGNAL(sigAddLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)));
         connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));
         connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
@@ -688,8 +694,6 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 
         emit sigOpenDatabase(t_filePath);
     }
-
-    m_dPtr->m_databaseFilePath = t_filePath;
     return validStorage;
 }
 
@@ -883,15 +887,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                                 retVal = openDatabase(cData->newValue().toString());
                             }
                         }
-
-                        VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
-                        dbFileNameCData->setEntityId(m_dPtr->m_entityId);
-                        dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
-                        dbFileNameCData->setNewValue(cData->newValue());
-                        dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
 
                         // a good place to reset selected sessionName - however db-open ends up with
                         VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
