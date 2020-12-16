@@ -240,9 +240,6 @@ class DBPrivate
 SQLiteDB::SQLiteDB(QObject *t_parent) : AbstractLoggerDB(t_parent), m_dPtr(new DBPrivate(this))
 {
     m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE", "VFLogDB"); //default database
-    connect(this, &SQLiteDB::sigDatabaseError, [](const QString &t_error){
-        qCWarning(VEIN_LOGGER) << t_error;
-    });
 }
 
 SQLiteDB::~SQLiteDB()

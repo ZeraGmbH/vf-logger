@@ -685,12 +685,17 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
         connect(this, SIGNAL(sigAddSession(QString,QList<QVariantMap>)), m_dPtr->m_database, SLOT(addSession(QString,QList<QVariantMap>)));
         connect(this, SIGNAL(sigOpenDatabase(QString)), m_dPtr->m_database, SLOT(openDatabase(QString)));
-        connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
         connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
         connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
-        //run final batch instantly when logging is disabled
+        // run final batch instantly when logging is disabled
         connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
         connect(m_dPtr->m_database, SIGNAL(sigNewSessionList(QStringList)), this, SLOT(updateSessionList(QStringList)));
+
+        // forward database's error messages to m_databaseReadyState and log below
+        connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
+        connect(this, &DatabaseLogger::sigDatabaseError, [](const QString &t_errorString) {
+            qCWarning(VEIN_LOGGER) << t_errorString;
+        });
 
         emit sigOpenDatabase(t_filePath);
     }
