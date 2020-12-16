@@ -212,6 +212,8 @@ class DataLoggerPrivate: public QObject
             emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseErrorCData));
             m_qPtr->setLoggingEnabled(false);
             setStatusText("Database error");
+
+            m_qPtr->closeDatabase();
         });
         QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
             setStatusText("Logging data");
