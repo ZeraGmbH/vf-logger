@@ -388,14 +388,14 @@ void SQLiteDB::addComponent(const QString &t_componentName)
         }
         else {
             emit sigDatabaseError(QString("SQLiteDB::addComponent m_componentSequenceQuery failed: %1").arg(m_dPtr->m_componentSequenceQuery.lastError().text()));
-            Q_ASSERT(false);
+            return;
         }
 
         m_dPtr->m_componentInsertQuery.bindValue(":id", nextComponentId);
         m_dPtr->m_componentInsertQuery.bindValue(":component_name", t_componentName);
         if(m_dPtr->m_componentInsertQuery.exec() == false) {
             emit sigDatabaseError(QString("SQLiteDB::addComponent m_componentQuery failed: %1").arg(m_dPtr->m_componentInsertQuery.lastError().text()));
-            Q_ASSERT(false);
+            return;
         }
         m_dPtr->m_componentSequenceQuery.finish();
 
@@ -404,7 +404,7 @@ void SQLiteDB::addComponent(const QString &t_componentName)
         }
         else {
             emit sigDatabaseError(QString("Error in SQLiteDB::addComponent transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-            Q_ASSERT(false);
+            return;
         }
     }
 }
@@ -420,7 +420,7 @@ void SQLiteDB::addEntity(int t_entityId, QString t_entityName)
         }
         else {
             emit sigDatabaseError(QString("SQLiteDB::addEntity m_entityInsertQuery failed: %1").arg(m_dPtr->m_entityInsertQuery.lastError().text()));
-            Q_ASSERT(false);
+            return;
         }
     }
 }
@@ -447,7 +447,7 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
     }
     else {
         emit sigDatabaseError(QString("SQLiteDB::addTrancaction m_tranactionSequenceQuery failed: %1").arg(m_dPtr->m_transactionSequenceQuery.lastError().text()));
-        Q_ASSERT(false);
+        return retVal;
     }
 
     m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
@@ -458,7 +458,7 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
 
     if(m_dPtr->m_transactionInsertQuery.exec() == false) {
         emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
-        Q_ASSERT(false);
+        return retVal;
     }
     m_dPtr->m_transactionSequenceQuery.finish();
 
@@ -467,7 +467,6 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
     }
     else {
         emit sigDatabaseError(QString("Error in SQLiteDB::addTransaction transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-        Q_ASSERT(false);
     }
     return retVal;
 }
@@ -644,14 +643,14 @@ int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_stat
         }
         else {
             emit sigDatabaseError(QString("SQLiteDB::addSession m_sessionSequenceQuery failed: %1").arg(m_dPtr->m_sessionSequenceQuery.lastError().text()));
-            Q_ASSERT(false);
+            return retVal;
         }
 
         m_dPtr->m_sessionInsertQuery.bindValue(":id", nextsessionId);
         m_dPtr->m_sessionInsertQuery.bindValue(":session_name", t_sessionName);
         if(m_dPtr->m_sessionInsertQuery.exec() == false) {
             emit sigDatabaseError(QString("SQLiteDB::addSession m_sessionInsertQuery failed: %1").arg(m_dPtr->m_sessionInsertQuery.lastError().text()));
-            Q_ASSERT(false);
+            return retVal;
         }
         m_dPtr->m_sessionSequenceQuery.finish();
 
@@ -678,7 +677,7 @@ int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_stat
         }
         else {
             emit sigDatabaseError(QString("Error in SQLiteDB::addSession transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-            Q_ASSERT(false);
+            return retVal;
         }
     }
     return retVal;
@@ -742,10 +741,9 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
 
         if(dbError.type() != QSqlError::NoError) {
             emit sigDatabaseError(QString("Database connection failed error: %1").arg(dbError.text()));
-            Q_ASSERT(false);
+            return retVal;
         }
         else {
-            retVal = true;
             //the database was not open when these queries were initialized
             m_dPtr->m_valueMapInsertQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_valueMapSequenceQuery = QSqlQuery(m_dPtr->m_logDB);
@@ -839,8 +837,9 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 //get next valuemap_id
                 if(m_dPtr->m_valueMapSequenceQuery.exec() == false) {
                     emit sigDatabaseError(QString("Error executing m_valueMappingSequenceQuery: %1").arg(m_dPtr->m_valueMapSequenceQuery.lastError().text()));
-                    Q_ASSERT(false);
+                    return retVal;
                 }
+                retVal = true;
                 m_dPtr->m_valueMapSequenceQuery.next();
                 m_dPtr->m_valueMapQueryCounter = m_dPtr->m_valueMapSequenceQuery.value(0).toInt()+1;
                 //close the query as we read all data from it and it has to be closed to commit the transaction
@@ -925,14 +924,14 @@ void SQLiteDB::runBatchedExecution()
 
             if(m_dPtr->m_valueMapInsertQuery.execBatch() == false) {
                 emit sigDatabaseError(QString("Error executing m_valueMapInsertQuery: %1").arg(m_dPtr->m_valueMapInsertQuery.lastError().text()));
-                Q_ASSERT(false);
+                return;
             }
             //transaction_id, valuemap_id
             m_dPtr->m_transactionMappingInsertQuery.addBindValue(tmpTransactionIds.keys());
             m_dPtr->m_transactionMappingInsertQuery.addBindValue(tmpTransactionIds.values());
             if(m_dPtr->m_transactionMappingInsertQuery.execBatch() == false) {
                 emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
-                Q_ASSERT(false);
+                return;
             }
 
             // Add stop time to active transactions. we have to that here becaus a bathc might be written after the script is removed.
@@ -947,12 +946,12 @@ void SQLiteDB::runBatchedExecution()
 
             if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code
                 emit sigDatabaseError(QString("Error in database transaction commit: %1").arg(m_dPtr->m_logDB.lastError().text()));
-                Q_ASSERT(false);
+                return;
             }
         }
         else {
             emit sigDatabaseError(QString("Error in database transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-            Q_ASSERT(false);
+            return;
         }
         m_dPtr->m_batchVector.clear();
     }
@@ -1005,7 +1004,7 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
 
             if(m_dPtr->m_valueMapInsertQuery.execBatch() == false) {
                 emit sigDatabaseError(QString("Error executing m_valueMapInsertQuery: %1").arg(m_dPtr->m_valueMapInsertQuery.lastError().text()));
-                Q_ASSERT(false);
+                return;
             }
             m_dPtr->m_valueMapInsertQuery.finish();
 
@@ -1014,7 +1013,7 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
             m_dPtr->m_sessionMappingInsertQuery.addBindValue(tmpSessionIds.values());
             if(m_dPtr->m_sessionMappingInsertQuery.execBatch() == false) {
                 emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
-                Q_ASSERT(false);
+                return;
             }
 
             m_dPtr->m_sessionMappingInsertQuery.finish();
@@ -1031,12 +1030,12 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
 
             if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code
                 emit sigDatabaseError(QString("Error in database transaction commit: %1").arg(m_dPtr->m_logDB.lastError().text()));
-                Q_ASSERT(false);
+                return;
             }
         }
         else {
             emit sigDatabaseError(QString("Error in database transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-            Q_ASSERT(false);
+            return;
         }
         m_dPtr->m_batchVector.clear();
     }
