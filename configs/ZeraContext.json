@@ -134,6 +134,10 @@
         ],
         "ZeraBurden": [
             {
+                "EntityId": "1040",
+                "Comment": "RMSModule"
+            },
+            {
                 "EntityId": "1160",
                 "Comment": "BurdenModule"
             },
