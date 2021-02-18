@@ -334,7 +334,7 @@ void SQLiteDB::initLocalData()
 {
     QSqlQuery componentQuery("SELECT * FROM components;", m_dPtr->m_logDB);
     QSqlQuery entityQuery("SELECT * FROM entities;", m_dPtr->m_logDB);
-    QSqlQuery sessionQuery("SELECT * FROM sessions;", m_dPtr->m_logDB);
+    QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
     QSqlQuery transactionQuery("SELECT * FROM transactions;", m_dPtr->m_logDB);
 
     while (componentQuery.next()) {
@@ -500,7 +500,21 @@ bool SQLiteDB::deleteSession(const QString &t_session)
 
         if(m_dPtr->m_sessionIds.contains(t_session)){
 
-            // There is much to do here as you can see. Please use this function
+            QSqlQuery updateSessionQuery(m_dPtr->m_logDB);
+            updateSessionQuery.prepare("Update sessions set session_name=:sessionNameNew WHERE session_name=:sessionNameOld");
+            QString strNewName = QString(QStringLiteral("_DELETED_") + t_session).left(254);
+            updateSessionQuery.bindValue(":sessionNameNew", strNewName);
+            updateSessionQuery.bindValue(":sessionNameOld", t_session);
+            updateSessionQuery.exec();
+            updateSessionQuery.finish();
+
+            /* Code below is correct and everything but takes ages for a simple db:
+             * On a fresh db with fresh session recording 10s ZeraAll causes delete
+             * session take 70s!!!
+             * And maybe once we have nothing to do we can offer a undo RPC :)
+             */
+
+            /*// There is much to do here as you can see. Please use this function
             // threaded and do not use to often.
             // Furthermore notice that those queries are located here because
             // the amount of class members is just not acceptable anymore, if I add them as members.
@@ -617,7 +631,7 @@ bool SQLiteDB::deleteSession(const QString &t_session)
             //delete static values
             deleteValuesQuery.addBindValue(staticValueIds);
             deleteValuesQuery.execBatch();
-            deleteValuesQuery.finish();
+            deleteValuesQuery.finish();*/
 
             m_dPtr->m_sessionIds.remove(t_session);
             emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
