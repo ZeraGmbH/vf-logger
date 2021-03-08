@@ -47,6 +47,7 @@ set(PUBLIC_HEADER
 
 set(PRIVATE_HEADER
     vl_globallabels.h
+    vl_databaseloggerprivate.h
     )
 
 file(GLOB RESOURCES 
