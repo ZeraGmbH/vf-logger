@@ -365,8 +365,8 @@ void SQLiteDB::initLocalData()
     sessionQuery.finish();
 
     while (transactionQuery.next()) {
-        int transactionId = sessionQuery.value(0).toInt();
-        QString transactionName = sessionQuery.value(1).toString();
+        int transactionId = transactionQuery.value(0).toInt();
+        QString transactionName = transactionQuery.value(2).toString();
 
         vCDebug(VEIN_LOGGER) << "Found transaction:" << transactionId << transactionName;
         m_dPtr->m_transactionIds.insert(transactionId, transactionName);
