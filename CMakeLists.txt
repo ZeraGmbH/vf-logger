@@ -41,13 +41,12 @@ set(PUBLIC_HEADER
     vl_abstractloggerdb.h
     vl_databaselogger.h
     vl_datasource.h
-    vl_qmllogger.h
     vl_sqlitedb.h
     )
 
 set(PRIVATE_HEADER
-    vl_globallabels.h
     vl_databaseloggerprivate.h
+    vl_globallabels.h
     )
 
 file(GLOB RESOURCES 
