@@ -134,7 +134,7 @@ void DatabaseLogger::initOnce(){
         m_scheduledLoggingCountdown = createComponent("ScheduledLoggingCountdown",0,cVeinModuleComponent::Direction::out);
         m_existingSessions = createComponent("ExistingSessions","",cVeinModuleComponent::Direction::out);
         m_customerData = createComponent("CustomerData","",cVeinModuleComponent::Direction::out);
-        m_sessionName = createComponent("sessionName","",cVeinModuleComponent::Direction::inOut,new QRegExpValidator(QRegExp("^([aA-zZ]|[0-9]|[_,-,+,])*$")));
+        m_sessionName = createComponent("sessionName","",cVeinModuleComponent::Direction::inOut,new QRegExpValidator(QRegExp("^([aA-zZ]|[0-9]|[\\s]|[_,-,+,\\,\\/])*$")));
         connect(m_sessionName .component().toStrongRef().data(),&VeinAbstractComponent::sigValueChanged,this,&DatabaseLogger::openSession);
         m_availableContentSets = createComponent("availableContentSets",QStringList(),cVeinModuleComponent::Direction::out);
         m_sessionProxy = createProxyComponent(1,"Session","SessionProxy");
