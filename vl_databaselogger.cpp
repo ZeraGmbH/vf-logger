@@ -113,7 +113,7 @@ void DatabaseLogger::initOnce(){
     }
                 return retVal;
     });
-        m_loggingEnabled = createComponent("LoggingEnabled",false,cVeinModuleComponent::Direction::inOut,enabledValidator);
+        m_loggingEnabled = createComponent("LoggingEnabled",false,cVeinModuleComponent::Direction::out,enabledValidator);
         m_activeTransaction = createComponent("AcitveTransactions",QStringList(),cVeinModuleComponent::Direction::out);
         m_databaseReady =  createComponent("DatabaseReady",false);
         m_databaseFile = createComponent("DatabaseFile","",cVeinModuleComponent::Direction::inOut,new QRegExpValidator(QRegExp("^([a-z]{0}|.*\.db)$")));
