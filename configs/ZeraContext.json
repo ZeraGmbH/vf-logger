@@ -192,6 +192,12 @@
                 ]
             }
         ],
+        "ZeraQuartzReference": [
+            {
+                "EntityId": "1130",
+                "Comment": "SECModule"
+            }
+        ],
         "ZeraAll": [
             {
                 "EntityId": "1040",
@@ -296,6 +302,7 @@
         ],
         "com5003-ref-session.json": [
             "ZeraDCReference",
+            "ZeraQuartzReference",
             "ZeraAll"
         ],
         "mt310s2-meas-session.json": [
