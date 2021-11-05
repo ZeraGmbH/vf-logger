@@ -14,7 +14,7 @@
 #include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
-#include <veinmodulerpc.h>
+#include <vf-cpp-rpc.h>
 #include <QJsonDocument>
 
 Q_LOGGING_CATEGORY(VEIN_LOGGER, VEIN_DEBUGNAME_LOGGER)
