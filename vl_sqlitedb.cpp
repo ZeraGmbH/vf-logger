@@ -739,7 +739,10 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
     QFileInfo fInfo(t_dbPath);
     bool retVal = false;
     if(fInfo.absoluteDir().exists()) {
-        if(!fInfo.isWritable()){
+        // if file exists check if writable. If file
+        // does not exist it can not be writable.
+        // In this case go on and create file.
+        if(fInfo.exists() && !fInfo.isWritable()){
             emit sigDatabaseError(QString("Database is read only"));
             return retVal;
         }
