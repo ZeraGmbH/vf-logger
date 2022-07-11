@@ -382,29 +382,29 @@ class DataLoggerPrivate: public QObject
     //entity name
     QLatin1String m_entityName;
     //component names
-    static constexpr QLatin1String s_entityNameComponentName = QLatin1String("EntityName");
-    static constexpr QLatin1String s_loggingStatusTextComponentName = QLatin1String("LoggingStatus");
-    static constexpr QLatin1String s_loggingEnabledComponentName = QLatin1String("LoggingEnabled");
-    static constexpr QLatin1String s_databaseReadyComponentName = QLatin1String("DatabaseReady");
-    static constexpr QLatin1String s_databaseFileComponentName = QLatin1String("DatabaseFile");
-    static constexpr QLatin1String s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
-    static constexpr QLatin1String s_databaseFileMimeTypeComponentName = QLatin1String("DatabaseFileMimeType");
-    static constexpr QLatin1String s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
-    static constexpr QLatin1String s_filesystemInfoComponentName = QLatin1String("FilesystemInfo");
-    static constexpr QLatin1String s_filesystemFreePropertyName = QLatin1String("FilesystemFree");
-    static constexpr QLatin1String s_filesystemTotalPropertyName = QLatin1String("FilesystemTotal");
-    static constexpr QLatin1String s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
-    static constexpr QLatin1String s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
-    static constexpr QLatin1String s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
-    static constexpr QLatin1String s_existingSessionsComponentName = QLatin1String("ExistingSessions");
-    static constexpr QLatin1String s_customerDataComponentName = QLatin1String("CustomerData");
+    static const QLatin1String s_entityNameComponentName;
+    static const QLatin1String s_loggingStatusTextComponentName;
+    static const QLatin1String s_loggingEnabledComponentName;
+    static const QLatin1String s_databaseReadyComponentName;
+    static const QLatin1String s_databaseFileComponentName;
+    static const QLatin1String s_databaseErrorFileComponentName;
+    static const QLatin1String s_databaseFileMimeTypeComponentName;
+    static const QLatin1String s_databaseFileSizeComponentName;
+    static const QLatin1String s_filesystemInfoComponentName;
+    static const QLatin1String s_filesystemFreePropertyName;
+    static const QLatin1String s_filesystemTotalPropertyName;
+    static const QLatin1String s_scheduledLoggingEnabledComponentName;
+    static const QLatin1String s_scheduledLoggingDurationComponentName;
+    static const QLatin1String s_scheduledLoggingCountdownComponentName;
+    static const QLatin1String s_existingSessionsComponentName;
 
     // TODO: Add more from modulemanager
-    static constexpr QLatin1String s_sessionNameComponentName = QLatin1String("sessionName");
-    static constexpr QLatin1String s_guiContextComponentName = QLatin1String("guiContext");
-    static constexpr QLatin1String s_transactionNameComponentName = QLatin1String("transactionName");
-    static constexpr QLatin1String s_currentContentSetsComponentName = QLatin1String("currentContentSets");
-    static constexpr QLatin1String s_availableContentSetsComponentName = QLatin1String("availableContentSets");
+    static const QLatin1String s_customerDataComponentName;
+    static const QLatin1String s_sessionNameComponentName;
+    static const QLatin1String s_guiContextComponentName;
+    static const QLatin1String s_transactionNameComponentName;
+    static const QLatin1String s_currentContentSetsComponentName;
+    static const QLatin1String s_availableContentSetsComponentName;
 
     QStateMachine m_stateMachine;
     //QStatemachine does not support ParallelState
@@ -428,29 +428,29 @@ class DataLoggerPrivate: public QObject
     DatabaseLogger *m_qPtr=nullptr;
     friend class DatabaseLogger;
 };
-//constexpr definition, see: https://stackoverflow.com/questions/8016780/undefined-reference-to-static-constexpr-char
-constexpr QLatin1String DataLoggerPrivate::s_entityNameComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_databaseReadyComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_databaseFileComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_databaseFileMimeTypeComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_filesystemInfoComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_filesystemFreePropertyName;
-constexpr QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName;
-constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_existingSessionsComponentName;
+
+const QLatin1String DataLoggerPrivate::s_entityNameComponentName = QLatin1String("EntityName");
+const QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName  = QLatin1String("LoggingStatus");
+const QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName = QLatin1String("LoggingEnabled");
+const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1String("DatabaseReady");
+const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
+const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
+const QLatin1String DataLoggerPrivate::s_databaseFileMimeTypeComponentName = QLatin1String("DatabaseFileMimeType");
+const QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
+const QLatin1String DataLoggerPrivate::s_filesystemInfoComponentName = QLatin1String("FilesystemInfo");
+const QLatin1String DataLoggerPrivate::s_filesystemFreePropertyName = QLatin1String("FilesystemFree");
+const QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName = QLatin1String("FilesystemTotal");
+const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
+const QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
+const QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
+const QLatin1String DataLoggerPrivate::s_existingSessionsComponentName = QLatin1String("ExistingSessions");
 // TODO: Add more from modulemanager
-constexpr QLatin1String DataLoggerPrivate::s_customerDataComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_sessionNameComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_guiContextComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_transactionNameComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_currentContentSetsComponentName;
-constexpr QLatin1String DataLoggerPrivate::s_availableContentSetsComponentName;
+const QLatin1String DataLoggerPrivate::s_customerDataComponentName = QLatin1String("CustomerData");
+const QLatin1String DataLoggerPrivate::s_sessionNameComponentName = QLatin1String("sessionName");
+const QLatin1String DataLoggerPrivate::s_guiContextComponentName = QLatin1String("guiContext");
+const QLatin1String DataLoggerPrivate::s_transactionNameComponentName = QLatin1String("transactionName");
+const QLatin1String DataLoggerPrivate::s_currentContentSetsComponentName = QLatin1String("currentContentSets");
+const QLatin1String DataLoggerPrivate::s_availableContentSetsComponentName = QLatin1String("availableContentSets");
 
 DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
     VeinEvent::EventSystem(t_parent),
