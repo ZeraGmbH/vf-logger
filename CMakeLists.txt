@@ -125,7 +125,7 @@ install(FILES
 # announce headers - target perspective
 target_include_directories(VfLogger
     PUBLIC
-    $<INSTALL_INTERFACE:include/VfLogger>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/VfLogger>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
