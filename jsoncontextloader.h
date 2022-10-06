@@ -32,7 +32,7 @@
  * }
  * @endcode
  *
- * To files are needed. One for defualt configuration.
+ * Two files are needed. One for default configuration.
  * This file is not editable (zeraContentSetPath).
  * And one editable file (customerContentSetPath).
  * The ouptut of this class merges the results of both files.

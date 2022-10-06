@@ -54,27 +54,6 @@ file(GLOB RESOURCES
     )
 
 
-set(zeraContentSetFile "${PROJECT_SOURCE_DIR}/configs/ZeraContext.json")
-set(customerContentSetFile "${PROJECT_SOURCE_DIR}/configs/CustomerContext.json")
-
-# Note 1: In OE we do not (yet) have jsonlint-php so it must be optional
-# Note 2: In case we make COMMAND in target below conditional on JSONLINT,
-#         qt-creator does not display source-capabilities. That's what the
-#         'echo' dance is for
-find_program (JSONLINT NAMES jsonlint-php echo)
-if(${JSONLINT} MATCHES ".*echo.*")
-    message(WARNING "Program jsonlint-php not found. On Fedora install php-jsonlint")
-endif()
-
-# targets to see files in qt-creator and check for validity
-add_custom_target(content-set-zera ALL
-    SOURCES ${zeraContentSetFile}
-    COMMAND ${JSONLINT} ${zeraContentSetFile}
-    )
-add_custom_target(content-set-customer ALL
-    SOURCES ${customerContentSetFile}
-    COMMAND ${JSONLINT} ${customerContentSetFile}
-    )
 
 
 
@@ -148,8 +127,6 @@ write_basic_package_version_file(
 # configure *Config.cmake
 configure_file(VfLoggerConfig.cmake.in VfLoggerConfig.cmake @ONLY)
 
-
-
 # install *Config(Version).cmake
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/VfLoggerConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/VfLoggerConfigVersion.cmake"
@@ -168,19 +145,5 @@ install(
     FILES ${PUBLIC_HEADER}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
     )
-    
-# install ContentSet files
-install(
-    FILES ${zeraContentSetFile}
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/zera/configs/
-    )
 
-install(
-    FILES ${customerContentSetFile}
-    DESTINATION /home/operator/logger-contentsets/
-    )
-
-# spawn out some info on configuration
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
-
