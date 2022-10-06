@@ -61,7 +61,7 @@ public:
      * @param p_customerContentSetPath
      * @return true on success
      */
-    bool init(const QString &p_zeraContentSetPath, const QString &p_customerContentSetPath);
+    bool init(const QString &p_zeraContentSetPath);
     /**
      * @brief readContentSet
      * @param p_contentSetName: contentSet to read (<contentSetName>)
@@ -69,49 +69,15 @@ public:
      */
     QMap<QString,QVector<QString>>  readContentSet(const QString &p_contentSetName);
     /**
-     * @brief addContentSet
-     * @param p_contentSetName
-     * @param p_session
-     * @param p_entityComponentMap
-     * @return true on success
-     *
-     * Add new contentSet to custmerContentSetPath file.
-     */
-    bool addContentSet(const QString &p_contentSetName, const QString &p_session, QMap<QString,QVector<QString>>  p_entityComponentMap);
-    /**
-     * @brief removeContentSet
-     * @param p_contentSetName
-     * @return true on success
-     *
-     * Remove contentSet from customerContentSetPath file.
-     *
-     * @ref error
-     */
-    bool removeContentSet(const QString &p_contentSetName);
-    /**
      * @brief contentSetList
      * @param p_session
      * @return List with available contentSets in the give session
      */
     QVector<QString> contentSetList(const QString &p_session);
-    /**
-     * @brief sessionList
-     * @return List of Available sessions
-     */
-    QVector<QString> sessionList();
-    /**
-     * @brief readLasterror
-     * @return returns the last occured error.
-     *
-     *
-     */
-    error readLasterror();
 private:
     QVector<QString> zeraContentSetList(const QString &p_session);
-    QVector<QString> customerContentSetList(const QString &p_file);
 
     QVector<QString> zeraSessionList();
-    QVector<QString> customerSessionList();
 
     QVector<QString> readSessionListFromFile(const QString &p_session);
 
@@ -121,7 +87,6 @@ private:
 
 private:
     QString m_zeraContentSetPath;
-    QString m_customerContentSetPath;
     error m_lastError;
 
     const QString c_session = QLatin1String("Sessions");

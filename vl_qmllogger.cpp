@@ -10,16 +10,13 @@ namespace VeinLogger
 
 
 QString QmlLogger::m_zeraContentSetPath="";
-QString QmlLogger::m_customerContentSetPath="";
 
 QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 {
     VF_ASSERT(s_dbLogger != nullptr, "Required static logging instance is not set");
     connect(s_dbLogger, SIGNAL(sigLoggingEnabledChanged(bool)), this, SIGNAL(loggingEnabledChanged(bool)));
     VF_ASSERT(!m_zeraContentSetPath.isEmpty(), "zeraContentSetPath is not set");
-    VF_ASSERT(!m_customerContentSetPath.isEmpty(), "customerContentSetPath is not set");
-    m_contentSetLoader.init(m_zeraContentSetPath,m_customerContentSetPath);
-
+    m_contentSetLoader.init(m_zeraContentSetPath);
 }
 
 QString QmlLogger::sessionName() const
@@ -78,8 +75,8 @@ void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
 
 void QmlLogger::setContentSetPaths(QString p_zeraPath, QString p_customerPath)
 {
-    m_zeraContentSetPath=p_zeraPath;
-    m_customerContentSetPath=p_customerPath;
+    Q_UNUSED(p_customerPath)
+    m_zeraContentSetPath = p_zeraPath;
 }
 
 QMultiHash<int, QString> QmlLogger::getLoggedValues() const
