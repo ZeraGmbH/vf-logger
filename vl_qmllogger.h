@@ -105,7 +105,6 @@ signals:
 private:
     static DatabaseLogger *s_dbLogger;
     static QString m_zeraContentSetPath;
-    static QString m_customerContentSetPath;
     QString m_session;
     QString m_sessionName;
     QString m_transactionName;
