@@ -43,6 +43,7 @@ set(PUBLIC_HEADER
     vl_datasource.h
     vl_qmllogger.h
     vl_sqlitedb.h
+    vf_loggercontenthandler.h
     )
 
 set(PRIVATE_HEADER
