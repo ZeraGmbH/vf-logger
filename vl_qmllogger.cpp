@@ -1,9 +1,9 @@
 #include "vl_qmllogger.h"
-
+#include "vl_globallabels.h"
+#include "vf_loggercontenthandler.h"
 #include <vl_databaselogger.h>
 #include <QCoreApplication>
 #include <QQmlEngine>
-#include "vl_globallabels.h"
 
 namespace VeinLogger
 {
