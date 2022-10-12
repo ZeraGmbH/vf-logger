@@ -103,10 +103,12 @@ QStringList QmlLogger::getAvailableContentSets()
 QVariantMap QmlLogger::readContentSets()
 {
     QVariantMap resultMap;
-    for(auto contentSet : m_contentSets) {
-        QMap<QString,QVector<QString>> map = m_contentSetLoader.readContentSet(contentSet);
-        for(QString key: map.keys()){
-            resultMap[key]=QVariant::fromValue(QStringList(map[key].toList()));
+    for(auto &contentSet : m_contentSets) {
+        typedef QMap<int, QStringList> TEcMap;
+        TEcMap ecMap = m_loggerContentHandler->getEntityComponents(contentSet);
+        TEcMap::const_iterator iter;
+        for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
+            resultMap[QString::number(iter.key())] = iter.value();
         }
     }
     return resultMap;
