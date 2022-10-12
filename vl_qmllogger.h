@@ -63,7 +63,7 @@ public:
 
     QMultiHash<int, QString> getLoggedValues() const;
 
-    Q_INVOKABLE QStringList readSession();
+    Q_INVOKABLE QStringList getAvailableContentSets();
     Q_INVOKABLE QVariantMap readContentSets();
 
     int getTransactionId() const;

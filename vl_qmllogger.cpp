@@ -95,10 +95,9 @@ QMultiHash<int, QString> QmlLogger::getLoggedValues() const
     return m_loggedValues;
 }
 
-QStringList QmlLogger::readSession()
+QStringList QmlLogger::getAvailableContentSets()
 {
-    QStringList result(m_contentSetLoader.contentSetList(m_session).toList());
-    return result;
+    return m_loggerContentHandler->getAvailableContentSets();
 }
 
 QVariantMap QmlLogger::readContentSets()
@@ -199,6 +198,7 @@ void QmlLogger::setSession(const QString &t_session)
         return;
 
     m_session =  t_session;
+    m_loggerContentHandler->setSession(m_session);
     emit sessionChanged(t_session);
 }
 
