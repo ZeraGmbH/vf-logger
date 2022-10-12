@@ -7,10 +7,6 @@
 #include <QMultiHash>
 #include <QDateTime>
 
-#include "jsoncontextloader.h"
-
-
-
 namespace VeinLogger
 {
 class DatabaseLogger;
@@ -58,7 +54,6 @@ public:
     bool isLoggedComponent(int t_entityId, const QString &t_componentName) const;
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
-    static void setContentSetPaths(QString p_zeraPath,QString p_customerPath);
     static void setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler);
 
     QMultiHash<int, QString> getLoggedValues() const;
@@ -99,7 +94,6 @@ signals:
 
 private:
     static DatabaseLogger *s_dbLogger;
-    static QString m_zeraContentSetPath;
     static QString m_configFileDir;
     static std::shared_ptr<LoggerContentHandler> m_loggerContentHandler;
     QString m_session;
@@ -112,7 +106,6 @@ private:
     QString m_guiContext;
     QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;
-    JsonContentSetLoader m_contentSetLoader;
 };
 } // namespace VeinLogger
 
