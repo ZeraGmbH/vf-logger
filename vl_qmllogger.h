@@ -2,6 +2,7 @@
 #define VEINLOGGER_QMLLOGGER_H
 
 #include "globalIncludes.h"
+#include <vf_loggercontenthandler.h>
 #include <QtQuick/QQuickItem>
 #include <QMultiHash>
 #include <QDateTime>
@@ -57,14 +58,8 @@ public:
     bool isLoggedComponent(int t_entityId, const QString &t_componentName) const;
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
-    /**
-     * @brief setContentSetPaths
-     * @param p_zeraPath: path to Zera contentSet file
-     * @param p_customerPath: path to Customer contentSet file
-     *
-     * @todo remove this with association to jsonContextReader
-     */
     static void setContentSetPaths(QString p_zeraPath,QString p_customerPath);
+    static void setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler);
 
     QMultiHash<int, QString> getLoggedValues() const;
 
@@ -105,6 +100,8 @@ signals:
 private:
     static DatabaseLogger *s_dbLogger;
     static QString m_zeraContentSetPath;
+    static QString m_configFileDir;
+    static std::shared_ptr<LoggerContentHandler> m_loggerContentHandler;
     QString m_session;
     QString m_sessionName;
     QString m_transactionName;
