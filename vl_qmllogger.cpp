@@ -8,7 +8,6 @@
 namespace VeinLogger
 {
 
-QString QmlLogger::m_zeraContentSetPath="";
 QString QmlLogger::m_configFileDir;
 DatabaseLogger *QmlLogger::s_dbLogger = nullptr;
 std::shared_ptr<LoggerContentHandler> QmlLogger::m_loggerContentHandler;
@@ -17,9 +16,6 @@ QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 {
     VF_ASSERT(s_dbLogger != nullptr, "Required static logging instance is not set");
     connect(s_dbLogger, SIGNAL(sigLoggingEnabledChanged(bool)), this, SIGNAL(loggingEnabledChanged(bool)));
-    VF_ASSERT(!m_zeraContentSetPath.isEmpty(), "zeraContentSetPath is not set");
-    m_contentSetLoader.init(m_zeraContentSetPath);
-
     VF_ASSERT(m_loggerContentHandler != nullptr, "Required static json content handler instance is not set");
     m_loggerContentHandler->setConfigFileDir(m_configFileDir);
 }
@@ -76,12 +72,6 @@ void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
 {
     Q_ASSERT(t_dbLogger != nullptr);
     s_dbLogger = t_dbLogger;
-}
-
-void QmlLogger::setContentSetPaths(QString p_zeraPath, QString p_customerPath)
-{
-    Q_UNUSED(p_customerPath)
-    m_zeraContentSetPath = p_zeraPath;
 }
 
 void QmlLogger::setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler)
