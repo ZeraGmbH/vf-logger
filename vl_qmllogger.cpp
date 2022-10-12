@@ -8,8 +8,10 @@
 namespace VeinLogger
 {
 
-
 QString QmlLogger::m_zeraContentSetPath="";
+QString QmlLogger::m_configFileDir;
+DatabaseLogger *QmlLogger::s_dbLogger = nullptr;
+std::shared_ptr<LoggerContentHandler> QmlLogger::m_loggerContentHandler;
 
 QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 {
@@ -17,6 +19,9 @@ QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
     connect(s_dbLogger, SIGNAL(sigLoggingEnabledChanged(bool)), this, SIGNAL(loggingEnabledChanged(bool)));
     VF_ASSERT(!m_zeraContentSetPath.isEmpty(), "zeraContentSetPath is not set");
     m_contentSetLoader.init(m_zeraContentSetPath);
+
+    VF_ASSERT(m_loggerContentHandler != nullptr, "Required static json content handler instance is not set");
+    m_loggerContentHandler->setConfigFileDir(m_configFileDir);
 }
 
 QString QmlLogger::sessionName() const
@@ -77,6 +82,12 @@ void QmlLogger::setContentSetPaths(QString p_zeraPath, QString p_customerPath)
 {
     Q_UNUSED(p_customerPath)
     m_zeraContentSetPath = p_zeraPath;
+}
+
+void QmlLogger::setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler)
+{
+    m_configFileDir = configFileDir;
+    m_loggerContentHandler = loggerContentHandler;
 }
 
 QMultiHash<int, QString> QmlLogger::getLoggedValues() const
@@ -221,8 +232,6 @@ void QmlLogger::setTransactionId(int transactionId)
     m_transactionId = transactionId;
 }
 
-
-DatabaseLogger *QmlLogger::s_dbLogger = nullptr;
 } // namespace VeinLogger
 
 void registerTypes()
