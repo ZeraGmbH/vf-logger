@@ -8,16 +8,17 @@
 namespace VeinLogger
 {
 
-QString QmlLogger::m_configFileDir;
+QList<QmlLogger::LoggerConfigEnvironment> QmlLogger::m_loggerConfigEnvironment;
 DatabaseLogger *QmlLogger::s_dbLogger = nullptr;
-std::shared_ptr<LoggerContentHandler> QmlLogger::m_loggerContentHandler;
 
 QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 {
     VF_ASSERT(s_dbLogger != nullptr, "Required static logging instance is not set");
     connect(s_dbLogger, SIGNAL(sigLoggingEnabledChanged(bool)), this, SIGNAL(loggingEnabledChanged(bool)));
-    VF_ASSERT(m_loggerContentHandler != nullptr, "Required static json content handler instance is not set");
-    m_loggerContentHandler->setConfigFileDir(m_configFileDir);
+    for(auto &env: m_loggerConfigEnvironment) {
+        VF_ASSERT(env.m_loggerContentHandler != nullptr, "Required static json content handler instance is not set");
+        env.m_loggerContentHandler->setConfigFileDir(env.m_configFileDir);
+    }
 }
 
 QString QmlLogger::sessionName() const
@@ -76,8 +77,7 @@ void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
 
 void QmlLogger::setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler)
 {
-    m_configFileDir = configFileDir;
-    m_loggerContentHandler = loggerContentHandler;
+    m_loggerConfigEnvironment.append({configFileDir, loggerContentHandler});
 }
 
 QMultiHash<int, QString> QmlLogger::getLoggedValues() const
@@ -87,19 +87,47 @@ QMultiHash<int, QString> QmlLogger::getLoggedValues() const
 
 QStringList QmlLogger::getAvailableContentSets()
 {
-    return m_loggerContentHandler->getAvailableContentSets();
+    QStringList ret;
+    for(auto &confEnv: m_loggerConfigEnvironment) {
+        ret.append(confEnv.m_loggerContentHandler->getAvailableContentSets());
+    }
+    return ret;
+}
+
+static void mergeComponents(QMap<int, QStringList> &resultMap, int entityID, const QStringList &componentsToSet)
+{
+    if(!resultMap.contains(entityID)) {
+        resultMap[entityID] = componentsToSet;
+    }
+    else if(!resultMap[entityID].isEmpty()) {
+        if(componentsToSet.isEmpty()) {
+            resultMap[entityID] = componentsToSet;
+        }
+        else {
+            QStringList tmpList = resultMap[entityID] + componentsToSet;
+            tmpList.removeDuplicates();
+            resultMap[entityID] = tmpList;
+        }
+    }
 }
 
 QVariantMap QmlLogger::readContentSets()
 {
-    QVariantMap resultMap;
+    typedef QMap<int, QStringList> TEcMap;
+    TEcMap tmpResultMap;
     for(auto &contentSet : m_contentSets) {
-        typedef QMap<int, QStringList> TEcMap;
-        TEcMap ecMap = m_loggerContentHandler->getEntityComponents(contentSet);
-        TEcMap::const_iterator iter;
-        for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
-            resultMap[QString::number(iter.key())] = iter.value();
+        for(auto &confEnv: m_loggerConfigEnvironment) {
+            TEcMap ecMap = confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
+            TEcMap::const_iterator iter;
+            for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
+                mergeComponents(tmpResultMap, iter.key(), iter.value());
+            }
         }
+    }
+    QVariantMap resultMap;
+    TEcMap::const_iterator iter;
+    for(iter=tmpResultMap.constBegin(); iter!=tmpResultMap.constEnd(); ++iter) {
+        resultMap[QString::number(iter.key())] = tmpResultMap[iter.key()];
     }
     return resultMap;
 }
@@ -190,7 +218,9 @@ void QmlLogger::setSession(const QString &t_session)
         return;
 
     m_session =  t_session;
-    m_loggerContentHandler->setSession(m_session);
+    for (auto &env : m_loggerConfigEnvironment) {
+        env.m_loggerContentHandler->setSession(m_session);
+    }
     emit sessionChanged(t_session);
 }
 
