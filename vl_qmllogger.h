@@ -94,8 +94,11 @@ signals:
 
 private:
     static DatabaseLogger *s_dbLogger;
-    static QString m_configFileDir;
-    static std::shared_ptr<LoggerContentHandler> m_loggerContentHandler;
+    struct LoggerConfigEnvironment {
+        QString m_configFileDir;
+        std::shared_ptr<LoggerContentHandler> m_loggerContentHandler;
+    };
+    static QList<LoggerConfigEnvironment> m_loggerConfigEnvironment;
     QString m_session;
     QString m_sessionName;
     QString m_transactionName;
