@@ -42,6 +42,9 @@ target_link_libraries(VfLogger
     VeinMeta::VfQml
     VeinMeta::VfStorageHash
     VeinMeta::VfCpp
+    VeinMeta::VfTcp
+    VeinMeta::VfNet2
+    VeinMeta::VfProtobuf
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})
