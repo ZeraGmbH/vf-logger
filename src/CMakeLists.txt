@@ -17,6 +17,7 @@ set(PUBLIC_HEADER
 
 set(PRIVATE_HEADER
     vl_globallabels.h
+    vl_componentunion.h
     )
 
 file(GLOB RESOURCES
