@@ -6,7 +6,21 @@ CREATE TABLE transactions_valuemap (transactionsid integer(10) NOT NULL, valueid
 CREATE TABLE sessions_valuemap (sessionsid integer(10) NOT NULL, valueid integer(10) NOT NULL, PRIMARY KEY (sessionsid, valueid), FOREIGN KEY(valueid) REFERENCES valuemap(id), FOREIGN KEY(sessionsid) REFERENCES sessions(id));
 CREATE TABLE valuemap (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, value_timestamp timestamp, component_value numeric(19, 0), componentid integer(10), entityiesid integer(10), FOREIGN KEY(entityiesid) REFERENCES entities(id), FOREIGN KEY(componentid) REFERENCES components(id));
 
-/*CREATE VIEW valueview AS SELECT sessions.session_name, transactions.transaction_name, entities.entity_name, component.component_name, valuemap.value_timestamp, valuemap.component_value FROM sessions INNER JOIN transactions ON sessions.id = transactions.sessionid INNER JOIN valuemap ON transactions.id = valuemap.transactionid INNER JOIN entities ON valuemap.* = entities.id INNER JOIN component ON valuemap.componentid = component.id; */
+/*
+SELECT
+        sessions.session_name,
+        transactions.transaction_name,
+        entities.entity_name,
+        components.component_name,
+        valuemap.value_timestamp,
+        valuemap.component_value
+FROM sessions
+INNER JOIN transactions ON sessions.id = transactions.sessionid
+INNER JOIN transactions_valuemap ON transactions.id = transactions_valuemap.transactionsid
+INNER JOIN valuemap ON valuemap.id = transactions_valuemap.valueid
+INNER JOIN entities ON valuemap.entityiesid = entities.id
+INNER JOIN components ON valuemap.componentid = components.id
+ORDER BY valuemap.value_timestamp
 
 /* shows the data in a human readable / CSV processable form */;
 /* example output:
