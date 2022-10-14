@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>sqlite/schema_sqlite.sql</file>
+        <file>../sqlite/schema_sqlite.sql</file>
     </qresource>
 </RCC>
