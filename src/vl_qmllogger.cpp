@@ -2,6 +2,7 @@
 #include "vl_globallabels.h"
 #include "vf_loggercontenthandler.h"
 #include <vl_databaselogger.h>
+#include <vl_componentunion.h>
 #include <QCoreApplication>
 #include <QQmlEngine>
 
@@ -94,23 +95,6 @@ QStringList QmlLogger::getAvailableContentSets()
     return ret;
 }
 
-static void mergeComponents(QMap<int, QStringList> &resultMap, int entityID, const QStringList &componentsToSet)
-{
-    if(!resultMap.contains(entityID)) {
-        resultMap[entityID] = componentsToSet;
-    }
-    else if(!resultMap[entityID].isEmpty()) {
-        if(componentsToSet.isEmpty()) {
-            resultMap[entityID] = componentsToSet;
-        }
-        else {
-            QStringList tmpList = resultMap[entityID] + componentsToSet;
-            tmpList.removeDuplicates();
-            resultMap[entityID] = tmpList;
-        }
-    }
-}
-
 QVariantMap QmlLogger::readContentSets()
 {
     typedef QMap<int, QStringList> TEcMap;
@@ -120,7 +104,7 @@ QVariantMap QmlLogger::readContentSets()
             TEcMap ecMap = confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
             TEcMap::const_iterator iter;
             for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
-                mergeComponents(tmpResultMap, iter.key(), iter.value());
+                ComponentUnion::uniteComponents(tmpResultMap, iter.key(), iter.value());
             }
         }
     }

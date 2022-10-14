@@ -14,7 +14,7 @@ set(PROJECT_VERSION "${VfLogger_VERSION_MAJOR}.${VfLogger_VERSION_MINOR}.${VfLog
 include(FeatureSummary)
 include(GNUInstallDirs)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick CONFIG  )
+find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick Test CONFIG)
 find_package(VfHelpers REQUIRED)
 find_package(VfEvent REQUIRED)
 find_package(VfComponent REQUIRED)
@@ -26,5 +26,8 @@ find_package(VfProtobuf REQUIRED)
 find_package(VfCpp REQUIRED)
 
 add_subdirectory(src)
+
+enable_testing()
+add_subdirectory(tests)
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
