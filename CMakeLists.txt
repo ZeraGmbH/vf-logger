@@ -22,7 +22,6 @@ find_package(VfQml REQUIRED)
 find_package(VfStorageHash REQUIRED)
 find_package(VfTcp REQUIRED)
 find_package(VfNet2 REQUIRED)
-find_package(VfProtobuf REQUIRED)
 find_package(VfCpp REQUIRED)
 
 add_subdirectory(src)

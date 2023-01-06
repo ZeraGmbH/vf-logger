@@ -9,7 +9,6 @@ find_dependency(VfStorageHash REQUIRED)
 find_dependency(VfTcp REQUIRED)
 find_dependency(VfNet2 REQUIRED)
 find_dependency(VfCpp REQUIRED)
-find_dependency(VfProtobuf REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/VfLoggerTargets.cmake")
 
