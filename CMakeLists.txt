@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.1)
 project(vf-logger LANGUAGES CXX)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(VfLogger_VERSION_MAJOR "0")
 set(VfLogger_VERSION_MINOR "0")
