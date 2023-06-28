@@ -37,11 +37,11 @@ target_link_libraries(VfLogger
     Qt5::Qml
     Qt5::Sql
     Qt5::Quick
-    VeinMeta::VfHelpers
-    VeinMeta::VfEvent
-    VeinMeta::VfComponent
+    Zera::VfHelpers
+    Zera::VfEvent
+    Zera::VfComponent
+    Zera::VfStorageHash
     VeinMeta::VfQml
-    VeinMeta::VfStorageHash
     VeinMeta::VfCpp
     VeinMeta::VfTcp
     VeinMeta::VfNet2
@@ -50,14 +50,7 @@ target_link_libraries(VfLogger
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(VfLogger PROPERTIES SOVERSION ${VfLogger_VERSION_MAJOR})
 
-include(GenerateExportHeader)
 generate_export_header(VfLogger)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/vflogger_export.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
-    )
-
 install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/vflogger_export.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
@@ -67,8 +60,7 @@ target_include_directories(VfLogger
     PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/VfLogger>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     )
 
 install(TARGETS VfLogger
@@ -84,7 +76,6 @@ write_basic_package_version_file(
     )
 
 configure_file(VfLoggerConfig.cmake.in VfLoggerConfig.cmake @ONLY)
-
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/VfLoggerConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/VfLoggerConfigVersion.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/VfLogger
