@@ -42,9 +42,9 @@ target_link_libraries(VfLogger
     Zera::VfComponent
     Zera::VfStorageHash
     Zera::VfNet2
-    VeinMeta::VfQml
+    Zera::VfTcp
+    Zera::VfQml
     VeinMeta::VfCpp
-    VeinMeta::VfTcp
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})
