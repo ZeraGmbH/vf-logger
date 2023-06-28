@@ -17,7 +17,6 @@ find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick Test CONFIG)
 find_package(VeinFramework REQUIRED)
 find_package(VfQml REQUIRED)
 find_package(VfTcp REQUIRED)
-find_package(VfNet2 REQUIRED)
 find_package(VfCpp REQUIRED)
 
 add_subdirectory(src)
