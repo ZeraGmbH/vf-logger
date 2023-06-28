@@ -11,13 +11,11 @@ set(PROJECT_VERSION "${VfLogger_VERSION_MAJOR}.${VfLogger_VERSION_MINOR}.${VfLog
 
 include(FeatureSummary)
 include(GNUInstallDirs)
+include(GenerateExportHeader)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick Test CONFIG)
-find_package(VfHelpers REQUIRED)
-find_package(VfEvent REQUIRED)
-find_package(VfComponent REQUIRED)
+find_package(VeinFramework REQUIRED)
 find_package(VfQml REQUIRED)
-find_package(VfStorageHash REQUIRED)
 find_package(VfTcp REQUIRED)
 find_package(VfNet2 REQUIRED)
 find_package(VfCpp REQUIRED)
