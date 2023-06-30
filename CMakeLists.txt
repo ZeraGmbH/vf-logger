@@ -15,7 +15,6 @@ include(GenerateExportHeader)
 
 find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick Test CONFIG)
 find_package(VeinFramework REQUIRED)
-find_package(VfCpp REQUIRED)
 
 add_subdirectory(src)
 

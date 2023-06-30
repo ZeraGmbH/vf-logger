@@ -44,7 +44,7 @@ target_link_libraries(VfLogger
     Zera::VfNet2
     Zera::VfTcp
     Zera::VfQml
-    VeinMeta::VfCpp
+    Zera::VfCpp
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})
