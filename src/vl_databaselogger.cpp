@@ -808,13 +808,10 @@ QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
     return QVariant::fromValue(retVal.toJson());
 }
 
-bool DatabaseLogger::processEvent(QEvent *t_event)
+void DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
     using namespace VeinComponent;
-
-    bool retVal = false;
-
     if(t_event->type()==CommandEvent::eventType()) {
         CommandEvent *cEvent = nullptr;
         EventData *evData = nullptr;
@@ -837,7 +834,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
 
                 ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
                 if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                    retVal = true;
                     setLoggingEnabled(cData->newValue().toBool());
                 }
 
@@ -867,7 +863,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         if(transactionIds.length() != 0) {
                             emit sigAddLoggedValue(sessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
                         }
-                        retVal = true;
                     }
                 }
             }
@@ -880,11 +875,10 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
                         if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
                             if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database
-                                retVal = true;
                                 closeDatabase();
                             }
                             else {
-                                retVal = openDatabase(cData->newValue().toString());
+                                openDatabase(cData->newValue().toString());
                             }
                         }
 
@@ -914,7 +908,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
                         //do not accept values that are already set
                         if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
-                            retVal = true;
                             if(cData->newValue().toBool() == true) {
                                 emit sigLogSchedulerActivated();
                             }
@@ -931,7 +924,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                         invalidTime = !conversionOk;
 
                         if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration) {
-                            retVal = true;
                             m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
                             if(logDurationMsecs > 0) {
                                 m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
@@ -1100,7 +1092,6 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
                     m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
                     cEvent->accept();
                 }else if(!cEvent->isAccepted()){
-                    retVal = true;
                     qWarning() << "No remote procedure with entityId:" << m_dPtr->m_entityId << "name:" << rpcData->procedureName();
                     VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_dPtr->m_entityId).arg(rpcData->procedureName())));
                     VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
@@ -1117,6 +1108,5 @@ bool DatabaseLogger::processEvent(QEvent *t_event)
             }
         }
     }
-    return retVal;
 }
 }

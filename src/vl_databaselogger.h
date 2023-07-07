@@ -30,6 +30,7 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 public:
     explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
+    virtual void processEvent(QEvent *t_event) override;
     /**
      * @brief addScript
      * @param t_script
@@ -89,10 +90,6 @@ public slots:
      * This function updates the Vein Component ExistingSessions to p_sessions
      */
     virtual void updateSessionList(QStringList p_sessions);
-
-    // EventSystem interface
-public:
-    virtual bool processEvent(QEvent *t_event) override;
 
 private:
     void initEntity();
