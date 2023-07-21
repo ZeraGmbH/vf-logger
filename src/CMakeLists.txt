@@ -37,7 +37,6 @@ target_link_libraries(VfLogger
     Qt5::Qml
     Qt5::Sql
     Qt5::Quick
-    Zera::VfHelpers
     Zera::VfEvent
     Zera::VfComponent
     Zera::VfStorageHash
