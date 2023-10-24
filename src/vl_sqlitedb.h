@@ -56,7 +56,6 @@ public slots:
     bool addStopTime(int t_transactionId,  QDateTime t_time) override;
     bool deleteSession(const QString &t_session) override;
     int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) override;
-    void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
     void addLoggedValue(const  QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
     QVariant readSessionComponent(const QString &p_session, const QString &p_enity, const QString &p_component) override;
 
@@ -66,6 +65,7 @@ public slots:
     void runBatchedExecution() override;
 
 private:
+    void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
 
 private:
