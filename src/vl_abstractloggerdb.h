@@ -69,29 +69,6 @@ public slots:
     virtual QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) = 0;
     virtual int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) =0;
     virtual bool deleteSession(const QString &t_session) = 0;
-    /**
-     * @brief addLoggedValue
-     * @param t_sessionId
-     * @param t_transactionIds
-     * @param t_entityId
-     * @param t_componentName
-     * @param t_value
-     * @param t_timestamp
-     *
-     * @todo Remove sessionId. Its not necessary and forces the user to store only in one session at the same time.
-     */
-    virtual void addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
-    /**
-     * @brief addLoggedValue
-     * @param t_sessionName
-     * @param t_transactionIds
-     * @param t_entityId
-     * @param t_componentName
-     * @param t_value
-     * @param t_timestamp
-     *
-     * @todo Remove sessionName. Its not necessary and forces the user to store only in one session at the same time.
-     */
     virtual void addLoggedValue(const QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) =0;
 
     virtual bool openDatabase(const QString &t_dbPath) =0;

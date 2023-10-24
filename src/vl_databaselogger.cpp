@@ -679,7 +679,7 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         m_dPtr->m_asyncDatabaseThread.start();
 
         // will be queued connection due to thread affinity
-        connect(this, SIGNAL(sigAddLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)), m_dPtr->m_database, SLOT(addLoggedValue(QString,QVector<int>,int,QString,QVariant,QDateTime)));
+        connect(this, &DatabaseLogger::sigAddLoggedValue, m_dPtr->m_database, &AbstractLoggerDB::addLoggedValue);
         connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));
         connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
         connect(this, SIGNAL(sigAddSession(QString,QList<QVariantMap>)), m_dPtr->m_database, SLOT(addSession(QString,QList<QVariantMap>)));
