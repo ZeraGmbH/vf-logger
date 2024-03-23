@@ -60,7 +60,7 @@ class DataSourcePrivateQml : public DataSourcePrivate
 
 class DataSourcePrivateStorage : public DataSourcePrivate
 {
-    DataSourcePrivateStorage(VeinStorage::VeinHash *t_dataSource, DataSource *t_public) : DataSourcePrivate(t_public), m_dataSource(t_dataSource)
+    DataSourcePrivateStorage(VeinEvent::StorageSystem *t_dataSource, DataSource *t_public) : DataSourcePrivate(t_public), m_dataSource(t_dataSource)
     {
 
     }
@@ -87,7 +87,7 @@ class DataSourcePrivateStorage : public DataSourcePrivate
         return m_dataSource->getEntityComponents(t_entityId);
     }
 
-    VeinStorage::VeinHash *m_dataSource=nullptr;
+    VeinEvent::StorageSystem *m_dataSource = nullptr;
     friend class DataSource;
 };
 
@@ -96,7 +96,7 @@ DataSource::DataSource(VeinApiQml::VeinQml *t_dataSource, QObject *t_parent) : Q
 
 }
 
-DataSource::DataSource(VeinStorage::VeinHash *t_dataSource, QObject *t_parent) : QObject(t_parent), m_dPtr(new DataSourcePrivateStorage(t_dataSource, this))
+DataSource::DataSource(VeinEvent::StorageSystem *t_dataSource, QObject *t_parent) : QObject(t_parent), m_dPtr(new DataSourcePrivateStorage(t_dataSource, this))
 {
 
 }
