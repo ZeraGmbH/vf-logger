@@ -812,7 +812,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
     using namespace VeinComponent;
-    if(t_event->type()==CommandEvent::eventType()) {
+    if(t_event->type()==CommandEvent::getQEventType()) {
         CommandEvent *cEvent = nullptr;
         EventData *evData = nullptr;
         cEvent = static_cast<CommandEvent *>(t_event);
