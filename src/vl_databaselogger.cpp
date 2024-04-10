@@ -247,7 +247,6 @@ class DataLoggerPrivate: public QObject
                 const double totalGB = storDevice.bytesTotal()/1.0e9;
 
                 QVariantMap storageData;
-                storageData.insert(DataLoggerPrivate::s_filesystemFreePropertyName, availGB);
                 storageData.insert(DataLoggerPrivate::s_filesystemTotalPropertyName, totalGB);
 
                 storageInfoMap.insert(storDevice.rootPath(), storageData);
@@ -384,7 +383,6 @@ class DataLoggerPrivate: public QObject
     static const QLatin1String s_databaseFileComponentName;
     static const QLatin1String s_databaseErrorFileComponentName;
     static const QLatin1String s_databaseFileSizeComponentName;
-    static const QLatin1String s_filesystemFreePropertyName;
     static const QLatin1String s_filesystemTotalPropertyName;
     static const QLatin1String s_scheduledLoggingEnabledComponentName;
     static const QLatin1String s_scheduledLoggingDurationComponentName;
@@ -429,7 +427,6 @@ const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1Str
 const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
 const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
 const QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
-const QLatin1String DataLoggerPrivate::s_filesystemFreePropertyName = QLatin1String("FilesystemFree");
 const QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName = QLatin1String("FilesystemTotal");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
