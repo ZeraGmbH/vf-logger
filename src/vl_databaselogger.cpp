@@ -61,7 +61,6 @@ class DataLoggerPrivate: public QObject
             componentData.insert(s_databaseReadyComponentName, QVariant(false));
             componentData.insert(s_databaseFileComponentName, QVariant(QString()));
             componentData.insert(s_databaseErrorFileComponentName, QVariant(QString()));
-            componentData.insert(s_databaseFileSizeComponentName, QVariant(QString()));
             componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
             componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
             componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
@@ -163,7 +162,6 @@ class DataLoggerPrivate: public QObject
             // bits we were not sure to have at openDatabase
             QHash <QString, QVariant> fileInfoData;
             QFileInfo fileInfo(m_databaseFilePath);
-            fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fileInfo.size());
             fileInfoData.insert(DataLoggerPrivate::s_databaseReadyComponentName, true);
             for(const QString &componentName : fileInfoData.keys())  {
                 VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
@@ -209,7 +207,6 @@ class DataLoggerPrivate: public QObject
                 setStatusText("Database loaded");
             }
             m_batchedExecutionTimer.stop();
-            updateDBFileSizeInfo();
         });
         QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
             VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
@@ -266,22 +263,6 @@ class DataLoggerPrivate: public QObject
         }
 
         return retVal;
-    }
-
-    void updateDBFileSizeInfo()
-    {
-        QFileInfo fInfo(m_databaseFilePath);
-        if(fInfo.exists()) {
-            VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
-            storageCData->setEntityId(m_entityId);
-            storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            storageCData->setComponentName(DataLoggerPrivate::s_databaseFileSizeComponentName);
-            storageCData->setNewValue(QVariant(fInfo.size()));
-            storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-        }
     }
 
     void updateSchedulerCountdown()
@@ -356,7 +337,6 @@ class DataLoggerPrivate: public QObject
     static const QLatin1String s_databaseReadyComponentName;
     static const QLatin1String s_databaseFileComponentName;
     static const QLatin1String s_databaseErrorFileComponentName;
-    static const QLatin1String s_databaseFileSizeComponentName;
     static const QLatin1String s_scheduledLoggingEnabledComponentName;
     static const QLatin1String s_scheduledLoggingDurationComponentName;
     static const QLatin1String s_scheduledLoggingCountdownComponentName;
@@ -399,7 +379,6 @@ const QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName = QLatin1St
 const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1String("DatabaseReady");
 const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
 const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
-const QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
@@ -440,7 +419,6 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]() {
-        m_dPtr->updateDBFileSizeInfo();
         if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState)) {
             m_dPtr->m_batchedExecutionTimer.stop();
         }
@@ -599,13 +577,6 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
     QHash <QString, QVariant> fileInfoData;
     fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
     fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, t_filePath);
-    qint64 fileSize = 0;
-    // Size is set (again) in database-ready - there we have a file definitely
-    QFileInfo fileInfo(t_filePath);
-    if(fileInfo.exists()) {
-        fileSize = fileInfo.size();
-    }
-    fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fileSize);
     for(const QString &componentName : fileInfoData.keys())  {
         VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
         storageCData->setEntityId(m_dPtr->m_entityId);
