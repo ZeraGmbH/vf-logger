@@ -61,7 +61,6 @@ class DataLoggerPrivate: public QObject
             componentData.insert(s_databaseReadyComponentName, QVariant(false));
             componentData.insert(s_databaseFileComponentName, QVariant(QString()));
             componentData.insert(s_databaseErrorFileComponentName, QVariant(QString()));
-            componentData.insert(s_databaseFileMimeTypeComponentName, QVariant(QString()));
             componentData.insert(s_databaseFileSizeComponentName, QVariant(QString()));
             componentData.insert(s_filesystemInfoComponentName, QVariantMap());
             componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
@@ -165,8 +164,6 @@ class DataLoggerPrivate: public QObject
             // bits we were not sure to have at openDatabase
             QHash <QString, QVariant> fileInfoData;
             QFileInfo fileInfo(m_databaseFilePath);
-            QMimeDatabase mimeDB;
-            fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeDB.mimeTypeForFile(fileInfo, QMimeDatabase::MatchContent).name());
             fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fileInfo.size());
             fileInfoData.insert(DataLoggerPrivate::s_databaseReadyComponentName, true);
             for(const QString &componentName : fileInfoData.keys())  {
@@ -388,7 +385,6 @@ class DataLoggerPrivate: public QObject
     static const QLatin1String s_databaseReadyComponentName;
     static const QLatin1String s_databaseFileComponentName;
     static const QLatin1String s_databaseErrorFileComponentName;
-    static const QLatin1String s_databaseFileMimeTypeComponentName;
     static const QLatin1String s_databaseFileSizeComponentName;
     static const QLatin1String s_filesystemInfoComponentName;
     static const QLatin1String s_filesystemFreePropertyName;
@@ -435,7 +431,6 @@ const QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName = QLatin1St
 const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1String("DatabaseReady");
 const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
 const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
-const QLatin1String DataLoggerPrivate::s_databaseFileMimeTypeComponentName = QLatin1String("DatabaseFileMimeType");
 const QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
 const QLatin1String DataLoggerPrivate::s_filesystemInfoComponentName = QLatin1String("FilesystemInfo");
 const QLatin1String DataLoggerPrivate::s_filesystemFreePropertyName = QLatin1String("FilesystemFree");
@@ -639,16 +634,12 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
     QHash <QString, QVariant> fileInfoData;
     fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
     fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, t_filePath);
-    QString mimeInfo;
     qint64 fileSize = 0;
-    // Mime & size are set (again) in database-ready - there we have a file definitely
+    // Size is set (again) in database-ready - there we have a file definitely
     QFileInfo fileInfo(t_filePath);
     if(fileInfo.exists()) {
         fileSize = fileInfo.size();
-        QMimeDatabase mimeDB;
-        mimeInfo = mimeDB.mimeTypeForFile(fileInfo, QMimeDatabase::MatchContent).name();
     }
-    fileInfoData.insert(DataLoggerPrivate::s_databaseFileMimeTypeComponentName, mimeInfo);
     fileInfoData.insert(DataLoggerPrivate::s_databaseFileSizeComponentName, fileSize);
     for(const QString &componentName : fileInfoData.keys())  {
         VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
