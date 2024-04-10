@@ -237,32 +237,6 @@ class DataLoggerPrivate: public QObject
         m_stateMachine.start();
     }
 
-    void updateDBStorageInfo()
-    {
-        const auto storages = QStorageInfo::mountedVolumes();
-        QVariantMap storageInfoMap;
-        for(const auto storDevice : storages)  {
-            if(storDevice.fileSystemType().contains("tmpfs") == false) {
-                const double availGB = storDevice.bytesFree()/1.0e9;
-                const double totalGB = storDevice.bytesTotal()/1.0e9;
-
-                QVariantMap storageData;
-                storageData.insert(DataLoggerPrivate::s_filesystemTotalPropertyName, totalGB);
-
-                storageInfoMap.insert(storDevice.rootPath(), storageData);
-            }
-        }
-
-        VeinComponent::ComponentData *storageCData= new VeinComponent::ComponentData();
-        storageCData->setEntityId(m_entityId);
-        storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        storageCData->setNewValue(storageInfoMap);
-        storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-    }
-
     bool checkDBFilePath(const QString &t_dbFilePath)
     {
         bool retVal = false;
@@ -383,7 +357,6 @@ class DataLoggerPrivate: public QObject
     static const QLatin1String s_databaseFileComponentName;
     static const QLatin1String s_databaseErrorFileComponentName;
     static const QLatin1String s_databaseFileSizeComponentName;
-    static const QLatin1String s_filesystemTotalPropertyName;
     static const QLatin1String s_scheduledLoggingEnabledComponentName;
     static const QLatin1String s_scheduledLoggingDurationComponentName;
     static const QLatin1String s_scheduledLoggingCountdownComponentName;
@@ -427,7 +400,6 @@ const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1Str
 const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
 const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
 const QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
-const QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName = QLatin1String("FilesystemTotal");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
@@ -647,7 +619,6 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath); // throws sigDatabaseError on error
     if(validStorage == true) {
-        m_dPtr->updateDBStorageInfo();
         if(m_dPtr->m_database != nullptr) {
             disconnect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
             m_dPtr->m_database->deleteLater();
@@ -722,8 +693,6 @@ void DatabaseLogger::closeDatabase()
     customerCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
     customerCData->setNewValue(QString());
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
-
-    m_dPtr->updateDBStorageInfo();
 
     qCDebug(VEIN_LOGGER) << "Unloaded database:" << closedDb;
 }
