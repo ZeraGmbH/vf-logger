@@ -60,7 +60,6 @@ class DataLoggerPrivate: public QObject
             ///@todo load from persistent settings file?
             componentData.insert(s_databaseReadyComponentName, QVariant(false));
             componentData.insert(s_databaseFileComponentName, QVariant(QString()));
-            componentData.insert(s_databaseErrorFileComponentName, QVariant(QString()));
             componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
             componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
             componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
@@ -336,7 +335,6 @@ class DataLoggerPrivate: public QObject
     static const QLatin1String s_loggingEnabledComponentName;
     static const QLatin1String s_databaseReadyComponentName;
     static const QLatin1String s_databaseFileComponentName;
-    static const QLatin1String s_databaseErrorFileComponentName;
     static const QLatin1String s_scheduledLoggingEnabledComponentName;
     static const QLatin1String s_scheduledLoggingDurationComponentName;
     static const QLatin1String s_scheduledLoggingCountdownComponentName;
@@ -378,7 +376,6 @@ const QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName  = QLati
 const QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName = QLatin1String("LoggingEnabled");
 const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1String("DatabaseReady");
 const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
-const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
@@ -446,17 +443,6 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
     // db error handling
     connect(this, &DatabaseLogger::sigDatabaseError, [this](const QString &t_errorString) {
         qCWarning(VEIN_LOGGER) << t_errorString;
-
-        // error db filename notification
-        VeinComponent::ComponentData *dbErrorFileNameCData = new VeinComponent::ComponentData();
-        dbErrorFileNameCData->setEntityId(m_dPtr->m_entityId);
-        dbErrorFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        dbErrorFileNameCData->setComponentName(DataLoggerPrivate::s_databaseErrorFileComponentName);
-        dbErrorFileNameCData->setNewValue(m_dPtr->m_databaseFilePath);
-        dbErrorFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        dbErrorFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbErrorFileNameCData));
-
         closeDatabase();
         m_dPtr->m_noUninitMessage = true;
         m_dPtr->setStatusText("Database error");
@@ -575,7 +561,6 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
     m_dPtr->m_noUninitMessage = false;
     // setup/init components
     QHash <QString, QVariant> fileInfoData;
-    fileInfoData.insert(DataLoggerPrivate::s_databaseErrorFileComponentName, QString());
     fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, t_filePath);
     for(const QString &componentName : fileInfoData.keys())  {
         VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
