@@ -184,7 +184,8 @@ class DataLoggerPrivate: public QObject
             if(!storageInfo.isRoot()) {
                 QDir tmpDir(storageInfo.rootPath());
                 tmpDir.cdUp();
-                watchedPaths.append(tmpDir.path());
+                if(!tmpDir.isRoot())
+                    watchedPaths.append(tmpDir.path());
             }
             qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" + "))));
             QStringList unWatchedPaths = m_deleteWatcher.addPaths(watchedPaths);
