@@ -62,7 +62,6 @@ class DataLoggerPrivate: public QObject
             componentData.insert(s_databaseFileComponentName, QVariant(QString()));
             componentData.insert(s_databaseErrorFileComponentName, QVariant(QString()));
             componentData.insert(s_databaseFileSizeComponentName, QVariant(QString()));
-            componentData.insert(s_filesystemInfoComponentName, QVariantMap());
             componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
             componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
             componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
@@ -258,7 +257,6 @@ class DataLoggerPrivate: public QObject
         VeinComponent::ComponentData *storageCData= new VeinComponent::ComponentData();
         storageCData->setEntityId(m_entityId);
         storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        storageCData->setComponentName(s_filesystemInfoComponentName);
         storageCData->setNewValue(storageInfoMap);
         storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
         storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
@@ -386,7 +384,6 @@ class DataLoggerPrivate: public QObject
     static const QLatin1String s_databaseFileComponentName;
     static const QLatin1String s_databaseErrorFileComponentName;
     static const QLatin1String s_databaseFileSizeComponentName;
-    static const QLatin1String s_filesystemInfoComponentName;
     static const QLatin1String s_filesystemFreePropertyName;
     static const QLatin1String s_filesystemTotalPropertyName;
     static const QLatin1String s_scheduledLoggingEnabledComponentName;
@@ -432,7 +429,6 @@ const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1Str
 const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
 const QLatin1String DataLoggerPrivate::s_databaseErrorFileComponentName = QLatin1String("DatabaseErrorFile");
 const QLatin1String DataLoggerPrivate::s_databaseFileSizeComponentName = QLatin1String("DatabaseFileSize");
-const QLatin1String DataLoggerPrivate::s_filesystemInfoComponentName = QLatin1String("FilesystemInfo");
 const QLatin1String DataLoggerPrivate::s_filesystemFreePropertyName = QLatin1String("FilesystemFree");
 const QLatin1String DataLoggerPrivate::s_filesystemTotalPropertyName = QLatin1String("FilesystemTotal");
 const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
