@@ -17,8 +17,6 @@
 #include <vf-cpp-rpc.h>
 #include <QJsonDocument>
 
-Q_LOGGING_CATEGORY(VEIN_LOGGER, VEIN_DEBUGNAME_LOGGER)
-
 namespace VeinLogger
 {
 class DataLoggerPrivate: public QObject
@@ -403,14 +401,14 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
     case AbstractLoggerDB::STORAGE_MODE::TEXT: {
         m_dPtr->m_entityId = 2;
         m_dPtr->m_entityName = QLatin1String("_LoggingSystem");
-        qCDebug(VEIN_LOGGER) << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
+        qInfo() << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
     }
     case AbstractLoggerDB::STORAGE_MODE::BINARY: {
         //use different id and entity name
         m_dPtr->m_entityId = 200000;
         m_dPtr->m_entityName = QLatin1String("_BinaryLoggingSystem");
-        qCDebug(VEIN_LOGGER) << "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
+        qInfo() <<  "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_dPtr->m_entityId;
         break;
     }
     }
@@ -443,7 +441,7 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
 
     // db error handling
     connect(this, &DatabaseLogger::sigDatabaseError, [this](const QString &t_errorString) {
-        qCWarning(VEIN_LOGGER) << t_errorString;
+        qWarning() << t_errorString;
         closeDatabase();
         m_dPtr->m_noUninitMessage = true;
         m_dPtr->setStatusText("Database error");
@@ -651,7 +649,7 @@ void DatabaseLogger::closeDatabase()
     customerCData->setNewValue(QString());
     emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
 
-    qCDebug(VEIN_LOGGER) << "Unloaded database:" << closedDb;
+    qInfo() << "Unloaded database:" << closedDb;
 }
 
 void DatabaseLogger::checkDatabaseStillValid()

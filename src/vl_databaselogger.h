@@ -1,7 +1,7 @@
 #ifndef VL_DATALOGGER_H
 #define VL_DATALOGGER_H
 
-#include "globalIncludes.h"
+#include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include <ve_eventsystem.h>
 #include <QDateTime>

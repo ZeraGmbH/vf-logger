@@ -1,8 +1,6 @@
 #ifndef VL_GLOBALLABELS_H
 #define VL_GLOBALLABELS_H
 
-#include "globalIncludes.h"
-
 class VLGlobalLabels {
 public:
     const static QString allComponentsName() { return QStringLiteral("__ALL_COMPONENTS__"); }

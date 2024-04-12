@@ -1,7 +1,7 @@
 #ifndef VEINLOGGER_QMLLOGGER_H
 #define VEINLOGGER_QMLLOGGER_H
 
-#include "globalIncludes.h"
+#include "vflogger_export.h"
 #include <vf_loggercontenthandler.h>
 #include <QtQuick/QQuickItem>
 #include <QMultiHash>
