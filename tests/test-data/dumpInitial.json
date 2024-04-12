@@ -1,0 +1,32 @@
+{
+    "0": {
+        "DevMode": false,
+        "Entities": null,
+        "EntityName": "_System",
+        "Error_Messages": null,
+        "LoggedComponents": {
+        },
+        "ModulesPaused": false,
+        "Session": "",
+        "SessionsAvailable": [
+        ]
+    },
+    "10": {
+        "ComponentName1": 1,
+        "ComponentName2": 2,
+        "ComponentName3": 3,
+        "EntityName": "EntityName10"
+    },
+    "11": {
+        "ComponentName1": 1,
+        "ComponentName2": 2,
+        "ComponentName3": 3,
+        "EntityName": "EntityName11"
+    },
+    "12": {
+        "ComponentName1": 1,
+        "ComponentName2": 2,
+        "ComponentName3": 3,
+        "EntityName": "EntityName12"
+    }
+}
