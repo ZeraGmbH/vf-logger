@@ -26,6 +26,12 @@ add_definitions(-DJSON_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/json-test-files")
 
 SETUP_TESTS(
     test_componentunion
+    test_contentsets
     test_jsonloggercontentloader
     test_loggercontentsessionloader
     )
+
+target_sources(test_contentsets
+    PRIVATE
+    test-data/test-data.qrc
+)
