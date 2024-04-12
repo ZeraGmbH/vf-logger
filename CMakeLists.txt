@@ -13,10 +13,10 @@ include(FeatureSummary)
 include(GNUInstallDirs)
 include(GenerateExportHeader)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Qml Sql Quick Test CONFIG)
+find_package(Qt5 REQUIRED COMPONENTS Core Qml Quick Sql Test CONFIG)
 find_package(VeinFramework REQUIRED)
 
-add_subdirectory(src)
+add_subdirectory(lib)
 
 enable_testing()
 add_subdirectory(tests)

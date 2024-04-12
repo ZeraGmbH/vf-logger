@@ -6,10 +6,10 @@
 #include <ve_eventsystem.h>
 #include <QDateTime>
 
+class DataLoggerPrivate;
 
 namespace VeinLogger
 {
-class DataLoggerPrivate;
 class DataSource;
 class QmlLogger;
 

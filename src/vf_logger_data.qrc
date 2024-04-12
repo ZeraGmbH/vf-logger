@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>../sqlite/schema_sqlite.sql</file>
-        <file>../sqlite/query_data_human_readable_sqlite.sql</file>
-        <file>../sqlite/query_data_sqlite.sql</file>
-        <file>../sqlite/testdata_sqlite.sql</file>
-    </qresource>
-</RCC>

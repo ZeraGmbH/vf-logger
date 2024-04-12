@@ -20,12 +20,10 @@ add_library(VfLogger SHARED
     ${RESOURCES}
     )
 
+# As long as vf-script is in we need QML/Quick and they must be private
+# to not get GUI in... (in vf-script they are private either)
 target_link_libraries(VfLogger
     PRIVATE
-    Qt5::Core
-    Qt5::Qml
-    Qt5::Sql
-    Qt5::Quick
     Zera::VfEvent
     Zera::VfComponent
     Zera::VfStorageHash
@@ -33,6 +31,10 @@ target_link_libraries(VfLogger
     Zera::VfTcp
     Zera::VfQml
     Zera::VfCpp
+    Qt5::Core
+    Qt5::Qml
+    Qt5::Sql
+    Qt5::Quick
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})
