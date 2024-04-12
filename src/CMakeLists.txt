@@ -2,23 +2,13 @@ file(GLOB SOURCES
     *.cpp
     )
 
-#Exclude psql files
+file(GLOB HEADERS
+    *.h
+    )
+
+# Exclude psql files
 list(REMOVE_ITEM SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/vl_postgresdatabase.cpp")
-
-set(PUBLIC_HEADER
-    globalIncludes.h
-    vl_abstractloggerdb.h
-    vl_databaselogger.h
-    vl_datasource.h
-    vl_qmllogger.h
-    vl_sqlitedb.h
-    vf_loggercontenthandler.h
-    )
-
-set(PRIVATE_HEADER
-    vl_globallabels.h
-    vl_componentunion.h
-    )
+list(REMOVE_ITEM HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/vl_postgresdatabase.h")
 
 file(GLOB RESOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/*.qrc
@@ -26,8 +16,7 @@ file(GLOB RESOURCES
 
 add_library(VfLogger SHARED
     ${SOURCES}
-    ${PUBLIC_HEADER}
-    ${PRIVATE_HEADER}
+    ${HEADERS}
     ${RESOURCES}
     )
 
@@ -87,6 +76,6 @@ install(EXPORT VfLoggerExport
     )
 
 install(
-    FILES ${PUBLIC_HEADER}
+    FILES ${HEADERS}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VfLogger
     )
