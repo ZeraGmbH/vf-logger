@@ -2,7 +2,6 @@
 #define VEINLOGGER_QMLLOGGER_H
 
 #include "vflogger_export.h"
-#include <vf_loggercontenthandler.h>
 #include <QtQuick/QQuickItem>
 #include <QMultiHash>
 #include <QDateTime>
@@ -54,7 +53,6 @@ public:
     bool isLoggedComponent(int t_entityId, const QString &t_componentName) const;
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
-    static void setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler);
 
     QMultiHash<int, QString> getLoggedValues() const;
 
@@ -94,11 +92,6 @@ signals:
 
 private:
     static DatabaseLogger *s_dbLogger;
-    struct LoggerConfigEnvironment {
-        QString m_configFileDir;
-        std::shared_ptr<LoggerContentHandler> m_loggerContentHandler;
-    };
-    static QList<LoggerConfigEnvironment> m_loggerConfigEnvironment;
     QString m_session;
     QString m_sessionName;
     QString m_transactionName;
