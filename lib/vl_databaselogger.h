@@ -8,58 +8,34 @@
 
 class DataLoggerPrivate;
 
+namespace VeinScript
+{
+class ScriptSystem;
+}
+
 namespace VeinLogger
 {
 class DataSource;
 class QmlLogger;
 
-/**
- * @brief The DatabaseLogger class
- * Interface to vein logger
- *
- * @todo add rpc to start recording
- * @todo add rpc to stop recording
- * @todo add rpc to add contentSet
- * @todo add rpc to remove contentSet
- * @todo add rpc to create snapshot
- */
 class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 {
     Q_OBJECT
-
 public:
     explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
     virtual void processEvent(QEvent *t_event) override;
-    /**
-     * @brief addScript
-     * @param t_script
-     *
-     * Adds a script and starts a transaction
-     *
-     */
-    virtual void addScript(QmlLogger *t_script);
-    /**
-     * @brief removeScript
-     * @param t_script
-     *
-     * Removes a script and stops a transaction
-     */
-    virtual void removeScript(QmlLogger *t_script);
+
+    static void loadScripts(VeinScript::ScriptSystem *scriptSystem);
+    // This is start/stop logging!!!
+    void addScript(QmlLogger *script);
+    void removeScript(QmlLogger *script);
+
     bool loggingEnabled() const;
     int entityId() const;
     QString entityName() const;
 
 signals:
-    /**
-     * @brief sigAddLoggedValue
-     * @param t_sessionName: used session Name
-     * @param t_transactionIds: sql id of transaction
-     * @param t_entityId: sql entity id of value
-     * @param t_componentName: sql component id of value
-     * @param t_value: value: itself
-     * @param t_timestamp: time the value change occured
-     */
     void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void sigAddEntity(int t_entityId, const QString &t_entityName);
     void sigAddComponent(const QString &t_componentName);

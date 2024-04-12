@@ -2,12 +2,14 @@
 #include "dataloggerprivate.h"
 #include "vl_datasource.h"
 #include "vl_qmllogger.h"
+#include <vsc_scriptsystem.h>
 #include <ve_commandevent.h>
 #include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
 #include <QHash>
+#include <QDir>
 #include <QJsonDocument>
 
 namespace VeinLogger
@@ -78,23 +80,23 @@ DatabaseLogger::~DatabaseLogger()
     delete m_dPtr;
 }
 
-void DatabaseLogger::addScript(QmlLogger *t_script)
+void DatabaseLogger::addScript(QmlLogger *script)
 {
     const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates) && m_dPtr->m_loggerScripts.contains(t_script) == false) {
-        m_dPtr->m_loggerScripts.append(t_script);
+    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates) && m_dPtr->m_loggerScripts.contains(script) == false) {
+        m_dPtr->m_loggerScripts.append(script);
         //writes the values from the data source to the database, some values may never change so they need to be initialized
-        if(t_script->initializeValues() == true) {
-            const QString tmpsessionName = t_script->sessionName();
-            const QVector<QString> tmpTransactionName = {t_script->transactionName()};
-            QString tmpContentSets = t_script->contentSets().join(QLatin1Char(','));
+        if(script->initializeValues() == true) {
+            const QString tmpsessionName = script->sessionName();
+            const QVector<QString> tmpTransactionName = {script->transactionName()};
+            QString tmpContentSets = script->contentSets().join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            t_script->setTransactionId(m_dPtr->m_database->addTransaction(t_script->transactionName(),t_script->sessionName(), tmpContentSets, t_script->guiContext()));
-            const QVector<int> tmpTransactionIds = {t_script->getTransactionId()};
+            script->setTransactionId(m_dPtr->m_database->addTransaction(script->transactionName(),script->sessionName(), tmpContentSets, script->guiContext()));
+            const QVector<int> tmpTransactionIds = {script->getTransactionId()};
             // add starttime to transaction. stop time is set in batch execution.
-            m_dPtr->m_database->addStartTime(t_script->getTransactionId(),QDateTime::currentDateTime());
+            m_dPtr->m_database->addStartTime(script->getTransactionId(),QDateTime::currentDateTime());
 
-            QMultiHash<int, QString> tmpLoggedValues = t_script->getLoggedValues();
+            QMultiHash<int, QString> tmpLoggedValues = script->getLoggedValues();
 
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
@@ -131,10 +133,9 @@ void DatabaseLogger::addScript(QmlLogger *t_script)
     }
 }
 
-void DatabaseLogger::removeScript(QmlLogger *t_script)
+void DatabaseLogger::removeScript(QmlLogger *script)
 {
-    m_dPtr->m_loggerScripts.removeAll(t_script);
-
+    m_dPtr->m_loggerScripts.removeAll(script);
 }
 
 bool DatabaseLogger::loggingEnabled() const
@@ -634,6 +635,19 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                 }
             }
         }
+    }
+}
+
+void DatabaseLogger::loadScripts(VeinScript::ScriptSystem *scriptSystem)
+{
+    const QDir virtualFiles(":/qml");
+    const QStringList scriptList = virtualFiles.entryList();
+    for(const QString &scriptFilePath : scriptList)
+    {
+        const QString dataLocation = QString("%1/%2").arg(virtualFiles.path(), scriptFilePath);
+        qDebug() << "Loading script:" << dataLocation;
+        if(scriptSystem->loadScriptFromFile(dataLocation) == false)
+            qWarning() << "Error loading script file:" << scriptFilePath;
     }
 }
 }

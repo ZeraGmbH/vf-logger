@@ -23,6 +23,8 @@ add_library(VfLogger SHARED
 # As long as vf-script is in we need QML/Quick and they must be private
 # to not get GUI in... (in vf-script they are private either)
 target_link_libraries(VfLogger
+    PUBLIC
+    VeinMeta::VfScript
     PRIVATE
     Zera::VfEvent
     Zera::VfComponent

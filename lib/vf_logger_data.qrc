@@ -4,5 +4,6 @@
         <file>sqlite/query_data_human_readable_sqlite.sql</file>
         <file>sqlite/query_data_sqlite.sql</file>
         <file>sqlite/testdata_sqlite.sql</file>
+        <file>qml/data_logger.qml</file>
     </qresource>
 </RCC>
