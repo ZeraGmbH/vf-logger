@@ -1,4 +1,5 @@
 #include "vl_sqlitedb.h"
+#include <vh_logging.h>
 #include <QMetaType>
 #include <QDebug>
 #include <QJsonDocument>
@@ -340,8 +341,6 @@ void SQLiteDB::initLocalData()
     while (componentQuery.next()) {
         int componentId = componentQuery.value(0).toInt();
         QString componentName = componentQuery.value(1).toString();
-
-        vCDebug(VEIN_LOGGER) << "Found component:" << componentId << componentName;
         m_dPtr->m_componentIds.insert(componentName, componentId);
     }
     componentQuery.finish();
@@ -349,8 +348,6 @@ void SQLiteDB::initLocalData()
     while (entityQuery.next()) {
         int entityId = entityQuery.value(0).toInt();
         QString entityName = entityQuery.value(1).toString();
-
-        vCDebug(VEIN_LOGGER) << "Found entity:" << entityId << entityName;
         m_dPtr->m_entityIds.append(entityId);
     }
     entityQuery.finish();
@@ -358,8 +355,6 @@ void SQLiteDB::initLocalData()
     while (sessionQuery.next()) {
         int sessionId = sessionQuery.value(0).toInt();
         QString sessionName = sessionQuery.value(1).toString();
-
-        vCDebug(VEIN_LOGGER) << "Found session:" << sessionId << sessionName;
         m_dPtr->m_sessionIds.insert(sessionName, sessionId);
     }
     sessionQuery.finish();
@@ -367,8 +362,6 @@ void SQLiteDB::initLocalData()
     while (transactionQuery.next()) {
         int transactionId = sessionQuery.value(0).toInt();
         QString transactionName = sessionQuery.value(1).toString();
-
-        vCDebug(VEIN_LOGGER) << "Found transaction:" << transactionId << transactionName;
         m_dPtr->m_transactionIds.insert(transactionId, transactionName);
     }
     transactionQuery.finish();
@@ -662,7 +655,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 schemaVersionQuery.first();
                 if(schemaVersionQuery.value(0) == 0) { //if there is no database schema or if the file does not exist, then this will create the database and initialize the schema
                     m_dPtr->m_queryReader.setFileName("://sqlite/schema_sqlite.sql");
-                    qCDebug(VEIN_LOGGER) << "No schema found in db:"<< t_dbPath << "creating schema from:" << m_dPtr->m_queryReader.fileName();
+                    qInfo() << "No schema found in db:"<< t_dbPath << "creating schema from:" << m_dPtr->m_queryReader.fileName();
                     m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
                     QTextStream queryStreamIn(&m_dPtr->m_queryReader);
                     QStringList commandQueue = queryStreamIn.readAll().split(";");
@@ -675,7 +668,6 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                         if(tmpQuery.exec(tmpCommand) == false)
                         {
                             //ignore warnings as sqlite throws warnings for comments and empty statements
-                            //qCWarning(VEIN_LOGGER) << "Error executing schema query:" << tmpQuery.lastQuery() << tmpQuery.lastError();
                         }
                     }
                 }
@@ -854,10 +846,6 @@ void SQLiteDB::runBatchedExecution()
                 addStopTime(id ,QDateTime::currentDateTime());
             }
 
-            if(tmpValuemapIds.isEmpty() == false) {
-                vCDebug(VEIN_LOGGER) << "Batched" << tmpValuemapIds.length() << "queries";
-            }
-
             if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code
                 emit sigDatabaseError(QString("Error in database transaction commit: %1").arg(m_dPtr->m_logDB.lastError().text()));
                 return;
@@ -939,10 +927,6 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
             // The result is an sql conflict.
             for(int id : activeTransactions.values()) {
                 addStopTime(id ,QDateTime::currentDateTime());
-            }
-
-            if(tmpValuemapIds.isEmpty() == false) {
-                vCDebug(VEIN_LOGGER) << "Batched" << tmpValuemapIds.length() << "queries";
             }
 
             if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code

@@ -1,15 +1,12 @@
 #ifndef VEINLOGGER_SQLITEDB_H
 #define VEINLOGGER_SQLITEDB_H
 
-#include "globalIncludes.h"
+#include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
-
 #include <QVector>
 #include <QDateTime>
 #include <QVariant>
-
 #include <functional>
-
 
 namespace VeinLogger
 {
