@@ -15,11 +15,17 @@ function(SETUP_TESTS)
         target_link_libraries(${_testname}
             PUBLIC
             Qt5::Test
+            Zera::VfFrameworkTest
+            Zera::VfQml
             VfLogger
             )
     endforeach()
 endfunction()
 
+add_definitions(-DJSON_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/json-test-files")
+
 SETUP_TESTS(
     test_componentunion
+    test_jsonloggercontentloader
+    test_loggercontentsessionloader
     )

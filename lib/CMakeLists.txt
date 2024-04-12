@@ -26,6 +26,7 @@ target_link_libraries(VfLogger
     PUBLIC
     VeinMeta::VfScript
     PRIVATE
+    zera-json-params
     Zera::VfEvent
     Zera::VfComponent
     Zera::VfStorageHash

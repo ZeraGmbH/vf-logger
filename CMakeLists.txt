@@ -16,6 +16,7 @@ include(GenerateExportHeader)
 find_package(Qt5 REQUIRED COMPONENTS Core Sql Test Qml Quick CONFIG)
 find_package(VeinFramework REQUIRED)
 find_package(VfScript REQUIRED)
+find_package(zera-json-params REQUIRED)
 
 add_subdirectory(lib)
 
