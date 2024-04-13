@@ -34,8 +34,10 @@ target_link_libraries(VfLogger
     Zera::VfTcp
     Zera::VfQml
     Zera::VfCpp
+    Zera::ModmanBase
     Qt5::Core
     Qt5::Sql
+    Qt5::Concurrent
     Qt5::Qml
     Qt5::Quick
     )
