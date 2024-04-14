@@ -1,5 +1,9 @@
 <RCC>
     <qresource prefix="/">
+        <file>contentsets/test-session.json</file>
+        <file>sessions/test-session.json</file>
         <file>dumpInitial.json</file>
+        <file>dumpSetContentSetInvalid.json</file>
+        <file>dumpSetContentSetValidByString.json</file>
     </qresource>
 </RCC>

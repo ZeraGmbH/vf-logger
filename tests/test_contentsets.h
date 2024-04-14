@@ -12,8 +12,12 @@ class test_contentsets : public QObject
 {
     Q_OBJECT
 private slots:
+    void initTestCase();
     void init();
-    void checkEntities();
+    void cleanup();
+    void loggerSetupProperly();
+    void contentSetsSelectValid();
+    void contentSetsSelectInvalid();
 private:
     void setupServer();
     std::unique_ptr<TestVeinServer> m_server;

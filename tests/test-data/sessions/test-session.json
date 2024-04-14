@@ -1,0 +1,19 @@
+{
+    "modules" : [
+        {
+          "name" : "EntityName10",
+          "configFile" : "foo.xml",
+          "id": 10
+        },
+        {
+          "name" : "EntityName11",
+          "configFile" : "foo.xml",
+          "id": 11
+        },
+        {
+          "name" : "EntityName12",
+          "configFile" : "foo.xml",
+          "id": 12
+        }
+    ]
+}
