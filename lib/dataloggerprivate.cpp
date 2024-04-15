@@ -63,7 +63,7 @@ void DataLoggerPrivate::initOnce()
         componentData.insert(s_databaseFileComponentName, QVariant(QString()));
         componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
         componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
-        componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0.0));
+        componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0));
         componentData.insert(s_existingSessionsComponentName, QStringList());
         componentData.insert(s_customerDataComponentName, QString());
 
@@ -71,8 +71,8 @@ void DataLoggerPrivate::initOnce()
         componentData.insert(s_sessionNameComponentName, QString());
         componentData.insert(s_guiContextComponentName, QString());
         componentData.insert(s_transactionNameComponentName, QString());
-        componentData.insert(s_currentContentSetsComponentName, QStringList());
-        componentData.insert(s_availableContentSetsComponentName, QStringList());
+        componentData.insert(s_currentContentSetsComponentName, QVariantList());
+        componentData.insert(s_availableContentSetsComponentName, QVariantList());
 
         for(const QString &componentName : componentData.keys()) {
             initialData = new VeinComponent::ComponentData();
