@@ -1,23 +1,4 @@
 {
-    "0": {
-        "DevMode": false,
-        "Entities": [
-            0,
-            1,
-            10,
-            11,
-            12
-        ],
-        "EntityName": "_System",
-        "Error_Messages": null,
-        "LoggedComponents": {
-        },
-        "ModulesPaused": false,
-        "Session": "test-session.json",
-        "SessionsAvailable": [
-            "test-session.json"
-        ]
-    },
     "2": {
         "CustomerData": "",
         "DatabaseFile": "",
@@ -25,6 +6,8 @@
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
         ],
+        "LoggedComponents": {
+        },
         "LoggingEnabled": false,
         "LoggingStatus": "Database loaded",
         "ScheduledLoggingCountdown": 0,

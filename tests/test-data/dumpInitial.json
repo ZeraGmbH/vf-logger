@@ -10,20 +10,11 @@
         ],
         "EntityName": "_System",
         "Error_Messages": null,
-        "LoggedComponents": {
-        },
         "ModulesPaused": false,
         "Session": "test-session.json",
         "SessionsAvailable": [
             "test-session.json"
         ]
-    },
-    "1": {
-        "EntityName": "_ScriptSystem",
-        "Scripts": [
-            "{\"scriptData\":\"import QtQuick 2.0\\nimport VeinEntity 1.0\\nimport VeinLogger 1.0\\n\\nVeinLogger {\\n    initializeValues: true;\\n    sessionName: loggerEntity.sessionName;\\n    transactionName: loggerEntity.transactionName;\\n    guiContext: loggerEntity.guiContext;\\n\\n\\n    readonly property QtObject systemEntity: VeinEntity.getEntity(\\\"_System\\\");\\n    readonly property QtObject loggerEntity: VeinEntity.getEntity(\\\"_LoggingSystem\\\");\\n    readonly property string sysSession: systemEntity.Session\\n    onSysSessionChanged: {\\n        session = systemEntity.Session;\\n        loggerEntity.availableContentSets = getAvailableContentSets();\\n    }\\n\\n    readonly property var sysContentSets: loggerEntity.currentContentSets;\\n    onSysContentSetsChanged: {\\n        // update VeinLogger property contentSet\\n        contentSets = loggerEntity.currentContentSets;\\n\\n        var loggedComponentsFromContentSets = readContentSets();\\n\\n        clearLoggerEntries();\\n        systemEntity.LoggedComponents = loggedComponentsFromContentSets;\\n    }\\n\\n    readonly property bool scriptRunning: loggingEnabled\\n    onScriptRunningChanged: {\\n        if(scriptRunning === true) {\\n            console.log(\\\"starting logging at\\\", new Date().toLocaleTimeString());\\n            startLogging();\\n        }\\n        else {\\n            stopLogging();\\n            console.log(\\\"stopped logging at\\\", new Date().toLocaleTimeString());\\n        }\\n    }\\n\\n    // Still makes sense to view/access LoggedComponents\\n    readonly property var loggedValues: systemEntity.LoggedComponents\\n    onLoggedValuesChanged: {\\n        clearLoggerEntries();\\n        for(var entityID in loggedValues) {\\n            var componentsArray = loggedValues[entityID];\\n            // specific components configured\\n            if(componentsArray.length > 0) {\\n                for(var componentConfigured = 0; componentConfigured < componentsArray.length; ++componentConfigured) {\\n                    addLoggerEntry(entityID, componentsArray[componentConfigured]);\\n                }\\n            }\\n            else {\\n                // We need to add a special component name to inform logger\\n                // to store all components\\n                addLoggerEntry(entityID, \\\"__ALL_COMPONENTS__\\\");\\n            }\\n        }\\n    }\\n    Component.onCompleted: console.info(\\\"QML Data logger running\\\")\\n}\\n\",\"scriptName\":\":/qml/data_logger.qml\",\"scriptSignature\":\"\"}"
-        ],
-        "addScript()": null
     },
     "10": {
         "ComponentName1": 1,
@@ -50,6 +41,8 @@
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
         ],
+        "LoggedComponents": {
+        },
         "LoggingEnabled": false,
         "LoggingStatus": "Database loaded",
         "ScheduledLoggingCountdown": 0,

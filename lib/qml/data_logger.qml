@@ -25,7 +25,7 @@ VeinLogger {
         var loggedComponentsFromContentSets = readContentSets();
 
         clearLoggerEntries();
-        systemEntity.LoggedComponents = loggedComponentsFromContentSets;
+        loggerEntity.LoggedComponents = loggedComponentsFromContentSets;
     }
 
     readonly property bool scriptRunning: loggingEnabled
@@ -41,7 +41,7 @@ VeinLogger {
     }
 
     // Still makes sense to view/access LoggedComponents
-    readonly property var loggedValues: systemEntity.LoggedComponents
+    readonly property var loggedValues: loggerEntity.LoggedComponents
     onLoggedValuesChanged: {
         clearLoggerEntries();
         for(var entityID in loggedValues) {

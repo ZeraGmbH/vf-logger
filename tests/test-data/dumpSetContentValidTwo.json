@@ -1,15 +1,11 @@
 {
-    "0": {
-        "DevMode": false,
-        "Entities": [
-            0,
-            1,
-            10,
-            11,
-            12
+    "2": {
+        "CustomerData": "",
+        "DatabaseFile": "",
+        "DatabaseReady": false,
+        "EntityName": "_LoggingSystem",
+        "ExistingSessions": [
         ],
-        "EntityName": "_System",
-        "Error_Messages": null,
         "LoggedComponents": {
             "10": [
             ],
@@ -18,19 +14,6 @@
                 "ComponentName2"
             ]
         },
-        "ModulesPaused": false,
-        "Session": "test-session.json",
-        "SessionsAvailable": [
-            "test-session.json"
-        ]
-    },
-    "2": {
-        "CustomerData": "",
-        "DatabaseFile": "",
-        "DatabaseReady": false,
-        "EntityName": "_LoggingSystem",
-        "ExistingSessions": [
-        ],
         "LoggingEnabled": false,
         "LoggingStatus": "Database loaded",
         "ScheduledLoggingCountdown": 0,
