@@ -140,6 +140,22 @@ void test_contentsets::contentSetsSelectValidListAll()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
+void test_contentsets::contentSetsSelectValidListSequence()
+{
+    m_server->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet2");
+    m_server->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+
+    QFile file(":/dumpSetContentValid.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_contentsets::setupServer()
 {
     m_server = std::make_unique<TestVeinServer>();

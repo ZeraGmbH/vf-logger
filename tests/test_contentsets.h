@@ -22,6 +22,7 @@ private slots:
     void contentSetsSelectValidListTwo();
     void contentSetsSelectValidListTwoSame();
     void contentSetsSelectValidListAll();
+    void contentSetsSelectValidListSequence();
 private:
     void setupServer();
     std::unique_ptr<TestVeinServer> m_server;
