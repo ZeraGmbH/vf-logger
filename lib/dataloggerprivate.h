@@ -73,13 +73,13 @@ public:
     static const QLatin1String s_scheduledLoggingCountdownComponentName;
     static const QLatin1String s_existingSessionsComponentName;
 
-    // TODO: Add more from modulemanager
     static const QLatin1String s_customerDataComponentName;
     static const QLatin1String s_sessionNameComponentName;
     static const QLatin1String s_guiContextComponentName;
     static const QLatin1String s_transactionNameComponentName;
     static const QLatin1String s_currentContentSetsComponentName;
     static const QLatin1String s_availableContentSetsComponentName;
+    static const QLatin1String loggedComponentsComponentName;
 
     QStateMachine m_stateMachine;
     //QStatemachine does not support ParallelState

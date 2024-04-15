@@ -35,6 +35,7 @@ target_link_libraries(VfLogger
     Zera::VfQml
     Zera::VfCpp
     Zera::ModmanBase
+    Zera::VfConvenientCode
     Qt5::Core
     Qt5::Sql
     Qt5::Concurrent

@@ -44,7 +44,7 @@ void test_contentsets::loggerSetupProperly()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>());
+    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId << 10 << 11 << 12);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
@@ -59,7 +59,7 @@ void test_contentsets::contentSetsSelectValid()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
@@ -74,7 +74,7 @@ void test_contentsets::contentSetsSelectInvalid()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
@@ -89,7 +89,7 @@ void test_contentsets::contentSetsSelectValidList()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
@@ -104,7 +104,7 @@ void test_contentsets::contentSetsSelectValidListTwo()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
@@ -119,7 +119,7 @@ void test_contentsets::contentSetsSelectValidListTwoSame()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
@@ -134,7 +134,7 @@ void test_contentsets::contentSetsSelectValidListAll()
 
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     // Just to remember: All Entities complete independent of context set configured
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));

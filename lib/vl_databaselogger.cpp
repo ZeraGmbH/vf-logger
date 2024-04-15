@@ -8,6 +8,7 @@
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
+#include <vf_server_component_setter.h>
 #include <QHash>
 #include <QDir>
 #include <QJsonDocument>
@@ -400,7 +401,13 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                 Q_ASSERT(cData != nullptr);
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
-                    if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
+                    if(cData->componentName() == DataLoggerPrivate::loggedComponentsComponentName) {
+                        // Do what systemcomponent had done to LoggedComponents when it was there
+                        // We HAVE to send a new event since we are sitting below VeinHash
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, cData->componentName(), cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
+                    }
+                    else if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
                         if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
                             if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database
                                 closeDatabase();

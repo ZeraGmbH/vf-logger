@@ -19,6 +19,7 @@ const QLatin1String DataLoggerPrivate::s_guiContextComponentName = QLatin1String
 const QLatin1String DataLoggerPrivate::s_transactionNameComponentName = QLatin1String("transactionName");
 const QLatin1String DataLoggerPrivate::s_currentContentSetsComponentName = QLatin1String("currentContentSets");
 const QLatin1String DataLoggerPrivate::s_availableContentSetsComponentName = QLatin1String("availableContentSets");
+const QLatin1String DataLoggerPrivate::loggedComponentsComponentName = QLatin1String("LoggedComponents");
 
 using namespace VeinLogger;
 
@@ -66,6 +67,7 @@ void DataLoggerPrivate::initOnce()
         componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0));
         componentData.insert(s_existingSessionsComponentName, QStringList());
         componentData.insert(s_customerDataComponentName, QString());
+        componentData.insert(loggedComponentsComponentName, QVariantMap());
 
         // TODO: Add more from modulemanager
         componentData.insert(s_sessionNameComponentName, QString());
