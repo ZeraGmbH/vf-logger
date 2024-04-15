@@ -12,6 +12,10 @@
         "Error_Messages": null,
         "LoggedComponents": {
             "10": [
+            ],
+            "11": [
+                "ComponentName1",
+                "ComponentName2"
             ]
         },
         "ModulesPaused": false,
@@ -37,7 +41,10 @@
             "TestSet2",
             "ZeraAll"
         ],
-        "currentContentSets": "TestSet1",
+        "currentContentSets": [
+            "TestSet1",
+            "TestSet2"
+        ],
         "guiContext": "",
         "sessionName": "",
         "transactionName": ""

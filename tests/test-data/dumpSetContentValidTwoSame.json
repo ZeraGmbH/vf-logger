@@ -37,7 +37,10 @@
             "TestSet2",
             "ZeraAll"
         ],
-        "currentContentSets": "TestSet1",
+        "currentContentSets": [
+            "TestSet1",
+            "TestSet1"
+        ],
         "guiContext": "",
         "sessionName": "",
         "transactionName": ""

@@ -79,6 +79,67 @@ void test_contentsets::contentSetsSelectInvalid()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
+void test_contentsets::contentSetsSelectValidList()
+{
+    m_server->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+
+    QFile file(":/dumpSetContentValid.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_contentsets::contentSetsSelectValidListTwo()
+{
+    m_server->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet2");
+
+    QFile file(":/dumpSetContentValidTwo.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_contentsets::contentSetsSelectValidListTwoSame()
+{
+    m_server->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet1");
+
+    QFile file(":/dumpSetContentValidTwoSame.json"); // we would not expect two identical...
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_contentsets::contentSetsSelectValidListAll()
+{
+    m_server->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+
+    QFile file(":/dumpSetContentAll.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << systemEntityId << dataLoggerEntityId); // LoggedComponents will go to logger...
+
+    // Just to remember: All Entities complete independent of context set configured
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_contentsets::setupServer()
 {
     m_server = std::make_unique<TestVeinServer>();

@@ -3,7 +3,11 @@
         <file>contentsets/test-session.json</file>
         <file>sessions/test-session.json</file>
         <file>dumpInitial.json</file>
+        <file>dumpSetContentAll.json</file>
         <file>dumpSetContentSetInvalid.json</file>
         <file>dumpSetContentSetValidByString.json</file>
+        <file>dumpSetContentValid.json</file>
+        <file>dumpSetContentValidTwo.json</file>
+        <file>dumpSetContentValidTwoSame.json</file>
     </qresource>
 </RCC>
