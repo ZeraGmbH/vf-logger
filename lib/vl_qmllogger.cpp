@@ -122,12 +122,6 @@ void QmlLogger::addLoggerEntry(int t_entityId, const QString &t_componentName)
         m_loggedValues.insert(t_entityId, t_componentName);
 }
 
-void QmlLogger::removeLoggerEntry(int t_entityId, const QString &t_componentName)
-{
-    if(m_loggedValues.contains(t_entityId, t_componentName))
-        m_loggedValues.remove(t_entityId, t_componentName);
-}
-
 void QmlLogger::clearLoggerEntries()
 {
     m_loggedValues.clear();

@@ -72,7 +72,6 @@ public slots:
     void startLogging();
     void stopLogging();
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
-    void removeLoggerEntry(int t_entityId, const QString &t_componentName);
     void clearLoggerEntries();
     void setSessionName(QString t_sessionName);
     void setTransactionName(const QString &t_transactionName);
