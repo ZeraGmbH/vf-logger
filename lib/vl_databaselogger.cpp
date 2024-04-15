@@ -3,8 +3,6 @@
 #include "vl_datasource.h"
 #include "vl_qmllogger.h"
 #include <vsc_scriptsystem.h>
-#include <ve_commandevent.h>
-#include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
@@ -337,6 +335,12 @@ QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
     return QVariant::fromValue(retVal.toJson());
 }
 
+void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData)
+{
+    QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, cData->componentName(), cData->oldValue(), cData->newValue());
+    emit sigSendEvent(event);
+}
+
 void DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
@@ -401,12 +405,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                 Q_ASSERT(cData != nullptr);
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
-                    if(cData->componentName() == DataLoggerPrivate::loggedComponentsComponentName) {
-                        // Do what systemcomponent had done to LoggedComponents when it was there
-                        // We HAVE to send a new event since we are sitting below VeinHash
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, cData->componentName(), cData->oldValue(), cData->newValue());
-                        emit sigSendEvent(event);
-                    }
+                    if(cData->componentName() == DataLoggerPrivate::loggedComponentsComponentName)
+                        handleLoggedComponentsTransaction(cData);
                     else if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
                         if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
                             if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database

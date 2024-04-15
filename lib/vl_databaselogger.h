@@ -4,6 +4,8 @@
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include <ve_eventsystem.h>
+#include <ve_commandevent.h>
+#include <vcmp_componentdata.h>
 #include <QDateTime>
 
 class DataLoggerPrivate;
@@ -69,6 +71,7 @@ public slots:
 
 private:
     void initEntity();
+    void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
 
     DataLoggerPrivate *m_dPtr=nullptr;
 };
