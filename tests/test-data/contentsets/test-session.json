@@ -8,13 +8,11 @@
     "TestSet2": [
         {
             "EntityId": 11,
-            "Comment": "EntityName11"
-        }
-    ],
-    "TestSet3": [
-        {
-            "EntityId": 12,
-            "Comment": "EntityName12"
+            "Comment": "EntityName11",
+            "Components": [
+                "ComponentName1",
+                "ComponentName2"
+            ]
         }
     ]
 }

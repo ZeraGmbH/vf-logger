@@ -58,7 +58,6 @@
         "availableContentSets": [
             "TestSet1",
             "TestSet2",
-            "TestSet3",
             "ZeraAll"
         ],
         "currentContentSets": [

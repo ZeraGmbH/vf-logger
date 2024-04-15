@@ -18,6 +18,10 @@ private slots:
     void loggerSetupProperly();
     void contentSetsSelectValid();
     void contentSetsSelectInvalid();
+    void contentSetsSelectValidList();
+    void contentSetsSelectValidListTwo();
+    void contentSetsSelectValidListTwoSame();
+    void contentSetsSelectValidListAll();
 private:
     void setupServer();
     std::unique_ptr<TestVeinServer> m_server;
