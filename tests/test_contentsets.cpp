@@ -5,7 +5,7 @@
 #include "testdumpreporter.h"
 #include "vl_datasource.h"
 #include "vl_qmllogger.h"
-#include "vl_sqlitedb.h"
+#include "testloggerdb.h"
 #include <timemachineobject.h>
 #include <QBuffer>
 #include <QTest>
@@ -182,7 +182,7 @@ void test_contentsets::setupServer()
     m_server->simulAllModulesLoaded("test-session.json", QStringList() << "test-session.json");
 
     const VeinLogger::DBFactory sqliteFactory = [](){
-        return new VeinLogger::SQLiteDB();
+        return new TestLoggerDB();
     };
     m_dataLoggerSystem = std::make_unique<ZeraDBLogger>(new VeinLogger::DataSource(m_storage), sqliteFactory); //takes ownership of DataSource
     VeinLogger::QmlLogger::setStaticLogger(m_dataLoggerSystem.get());
