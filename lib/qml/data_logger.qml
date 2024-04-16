@@ -17,6 +17,7 @@ VeinLogger {
         loggerEntity.availableContentSets = getAvailableContentSets();
     }
 
+    // next candidate for C++
     readonly property var sysContentSets: loggerEntity.currentContentSets;
     onSysContentSetsChanged: {
         // update VeinLogger property contentSet
@@ -40,24 +41,5 @@ VeinLogger {
         }
     }
 
-    // Still makes sense to view/access LoggedComponents
-    readonly property var loggedValues: loggerEntity.LoggedComponents
-    onLoggedValuesChanged: {
-        clearLoggerEntries();
-        for(var entityID in loggedValues) {
-            var componentsArray = loggedValues[entityID];
-            // specific components configured
-            if(componentsArray.length > 0) {
-                for(var componentConfigured = 0; componentConfigured < componentsArray.length; ++componentConfigured) {
-                    addLoggerEntry(entityID, componentsArray[componentConfigured]);
-                }
-            }
-            else {
-                // We need to add a special component name to inform logger
-                // to store all components
-                addLoggerEntry(entityID, "__ALL_COMPONENTS__");
-            }
-        }
-    }
     Component.onCompleted: console.info("QML Data logger running")
 }

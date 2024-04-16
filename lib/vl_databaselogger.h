@@ -37,6 +37,9 @@ public:
     int entityId() const;
     QString entityName() const;
 
+    // TODO make private
+    void clearLoggerEntries();
+
 signals:
     void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
     void sigAddEntity(int t_entityId, const QString &t_entityName);
@@ -72,8 +75,12 @@ public slots:
 private:
     void initEntity();
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
+    void handleLoggedComponentsChange(QVariant newValue);
     void handleVeinDbSessionNameSet(QString sessionName, VeinComponent::ComponentData *customerCData);
+    bool isLoggedComponent(int entityId, const QString &componentName) const;
+    void addLoggerEntry(int t_entityId, const QString &t_componentName);
 
+    QMultiHash<int, QString> m_loggedValues;
     DataLoggerPrivate *m_dPtr=nullptr;
 };
 }

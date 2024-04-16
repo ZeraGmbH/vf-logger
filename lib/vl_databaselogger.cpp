@@ -96,7 +96,7 @@ void DatabaseLogger::addScript(QmlLogger *script)
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(script->getTransactionId(),QDateTime::currentDateTime());
 
-            QMultiHash<int, QString> tmpLoggedValues = script->getLoggedValues();
+            QMultiHash<int, QString> tmpLoggedValues = m_loggedValues;
 
             for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
                 const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
@@ -338,8 +338,62 @@ QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
 
 void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData)
 {
-    QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, cData->componentName(), cData->oldValue(), cData->newValue());
+    QVariant oldValue = cData->oldValue();
+    QVariant newValue = cData->newValue();
+
+    if(oldValue != newValue)
+        handleLoggedComponentsChange(newValue);
+
+    QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, cData->componentName(), oldValue, newValue);
     emit sigSendEvent(event);
+}
+
+void DatabaseLogger::handleLoggedComponentsChange(QVariant newValue)
+{
+    if(static_cast<QMetaType::Type>(newValue.type()) != QMetaType::QVariantMap) {
+        qWarning("DatabaseLogger::handleLoggedComponentsChange: wrong type");
+        return;
+    }
+    clearLoggerEntries();
+
+    QVariantMap entityComponentMap = newValue.toMap();
+    QStringList entityIdsStr = entityComponentMap.keys();
+    for(const auto &entityIdStr : entityIdsStr) {
+        QVariantList componentList = entityComponentMap[entityIdStr].toList();
+        if(componentList.size()) {
+            for(auto &component : qAsConst(componentList))
+                addLoggerEntry(entityIdStr.toInt(), component.toString());
+        }
+        else {
+            // We need to add a special component name to inform logger
+            // to store all components
+            addLoggerEntry(entityIdStr.toInt(), VLGlobalLabels::allComponentsName());
+        }
+    }
+}
+
+bool DatabaseLogger::isLoggedComponent(int entityId, const QString &componentName) const
+{
+    bool storeComponent = false;
+    if(m_loggedValues.contains(entityId, VLGlobalLabels::allComponentsName())) {
+        QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
+        storeComponent = !componentsNoStore.contains(componentName);
+    }
+    else
+        storeComponent = m_loggedValues.contains(entityId, componentName);
+    return storeComponent;
+
+}
+
+void DatabaseLogger::addLoggerEntry(int t_entityId, const QString &t_componentName)
+{
+    if(m_loggedValues.contains(t_entityId, t_componentName) == false)
+        m_loggedValues.insert(t_entityId, t_componentName);
+}
+
+void DatabaseLogger::clearLoggerEntries()
+{
+    m_loggedValues.clear();
 }
 
 void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName, VeinComponent::ComponentData *customerCData)
@@ -427,7 +481,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
                     //check all scripts if they want to log the changed value
                     for(const QmlLogger *entry : scripts) {
-                        if(entry->isLoggedComponent(evData->entityId(), cData->componentName())) {
+                        if(isLoggedComponent(evData->entityId(), cData->componentName())) {
                             sessionName = entry->sessionName();
                             transactionIds.append(entry->getTransactionId());
                         }
@@ -560,14 +614,13 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         customerCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
                         customerCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
 
-
-
                         QString sessionName = cData->newValue().toString();
                         // we have a working database?
                         if(!sessionName.isEmpty() &&
                                 m_dPtr->m_database &&
-                                m_dPtr->m_database->databaseIsOpen())
+                                m_dPtr->m_database->databaseIsOpen()) {
                             handleVeinDbSessionNameSet(sessionName, customerCData);
+                        }
 
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));

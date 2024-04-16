@@ -1,5 +1,4 @@
 #include "vl_qmllogger.h"
-#include "vl_globallabels.h"
 #include "loggercontentsetconfig.h"
 #include <vl_databaselogger.h>
 #include <vl_componentunion.h>
@@ -52,28 +51,10 @@ bool QmlLogger::initializeValues() const
     return m_initializeValues;
 }
 
-bool QmlLogger::isLoggedComponent(int t_entityId, const QString &t_componentName) const
-{
-    bool storeComponent = false;
-    if(m_loggedValues.contains(t_entityId, VLGlobalLabels::allComponentsName())) {
-        QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
-        storeComponent = !componentsNoStore.contains(t_componentName);
-    }
-    else {
-        storeComponent = m_loggedValues.contains(t_entityId, t_componentName);
-    }
-    return storeComponent;
-}
-
 void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
 {
     Q_ASSERT(t_dbLogger != nullptr);
     s_dbLogger = t_dbLogger;
-}
-
-QMultiHash<int, QString> QmlLogger::getLoggedValues() const
-{
-    return m_loggedValues;
 }
 
 QStringList QmlLogger::getAvailableContentSets()
@@ -116,15 +97,9 @@ void QmlLogger::stopLogging()
     s_dbLogger->removeScript(this);
 }
 
-void QmlLogger::addLoggerEntry(int t_entityId, const QString &t_componentName)
-{
-    if(m_loggedValues.contains(t_entityId, t_componentName) == false)
-        m_loggedValues.insert(t_entityId, t_componentName);
-}
-
 void QmlLogger::clearLoggerEntries()
 {
-    m_loggedValues.clear();
+    s_dbLogger->clearLoggerEntries();
 }
 
 void QmlLogger::setSessionName(QString t_sessionName)
