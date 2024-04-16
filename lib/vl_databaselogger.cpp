@@ -341,6 +341,56 @@ void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentD
     emit sigSendEvent(event);
 }
 
+void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName, VeinComponent::ComponentData *customerCData)
+{
+    if(!m_dPtr->m_database->hasSessionName(sessionName)) {
+        // Add session immediately: That helps us massively to create a smart user-interface
+
+        QMultiHash<int, QString> tmpStaticComps;
+        QList<QVariantMap> tmpStaticData;
+
+        // Add customer data at the beginning
+        if(m_dPtr->m_dataSource->hasEntity(200)) {
+            for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
+                tmpStaticComps.insert(200,comp);
+            }
+        }
+        // Add status module data at the beginning
+        if(m_dPtr->m_dataSource->hasEntity(1150)) {
+
+            for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
+                tmpStaticComps.insert(1150,comp);
+            }
+        }
+
+        for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
+            if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
+                emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+            }
+            const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
+            for(const QString &tmpComponentName : tmpComponents) {
+                if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false) {
+                    emit sigAddComponent(tmpComponentName);
+                }
+                QVariantMap tmpMap;
+                tmpMap["entityId"]=tmpEntityId;
+                tmpMap["compName"]=tmpComponentName;
+                tmpMap["value"]=m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
+                tmpMap["time"]=QDateTime::currentDateTime();
+                tmpStaticData.append(tmpMap);
+            }
+        }
+
+        // We are reading it like this because it is faster than writing it to the db and then reading it agian
+        customerCData->setNewValue(m_dPtr->m_dataSource->getValue(200, "FileSelected"));
+        emit sigAddSession(sessionName,tmpStaticData);
+    }
+    else {
+        QString customerdata=m_dPtr->m_database->readSessionComponent(sessionName,"CustomerData","FileSelected").toString();
+        customerCData->setNewValue(customerdata);
+    }
+}
+
 void DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
@@ -515,55 +565,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         // we have a working database?
                         if(!sessionName.isEmpty() &&
                                 m_dPtr->m_database &&
-                                m_dPtr->m_database->databaseIsOpen()){
-
-                            if(!m_dPtr->m_database->hasSessionName(sessionName)) {
-                                // Add session immediately: That helps us massively to create a smart user-interface
-
-                                QMultiHash<int, QString> tmpStaticComps;
-                                QList<QVariantMap> tmpStaticData;
-
-                                // Add customer data at the beginning
-                                if(m_dPtr->m_dataSource->hasEntity(200)) {
-                                    for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
-                                        tmpStaticComps.insert(200,comp);
-                                    }
-                                }
-                                // Add status module data at the beginning
-                                if(m_dPtr->m_dataSource->hasEntity(1150)) {
-
-                                    for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
-                                        tmpStaticComps.insert(1150,comp);
-                                    }
-                                }
-
-                                for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
-                                    if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
-                                        emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
-                                    }
-                                    const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
-                                    for(const QString &tmpComponentName : tmpComponents) {
-                                        if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false) {
-                                            emit sigAddComponent(tmpComponentName);
-                                        }
-                                        QVariantMap tmpMap;
-                                        tmpMap["entityId"]=tmpEntityId;
-                                        tmpMap["compName"]=tmpComponentName;
-                                        tmpMap["value"]=m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
-                                        tmpMap["time"]=QDateTime::currentDateTime();
-                                        tmpStaticData.append(tmpMap);
-                                    }
-                                }
-
-                                // We are reading it like this because it is faster than writing it to the db and then reading it agian
-                                customerCData->setNewValue(m_dPtr->m_dataSource->getValue(200, "FileSelected"));
-                                emit sigAddSession(sessionName,tmpStaticData);
-                            }else{
-                                QString customerdata=m_dPtr->m_database->readSessionComponent(sessionName,"CustomerData","FileSelected").toString();
-                                customerCData->setNewValue(customerdata);
-                            }
-
-                        }
+                                m_dPtr->m_database->databaseIsOpen())
+                            handleVeinDbSessionNameSet(sessionName, customerCData);
 
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
