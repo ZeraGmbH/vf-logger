@@ -50,11 +50,8 @@ public:
     QString session() const;
     bool loggingEnabled() const;
     bool initializeValues() const;
-    bool isLoggedComponent(int t_entityId, const QString &t_componentName) const;
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
-
-    QMultiHash<int, QString> getLoggedValues() const;
 
     Q_INVOKABLE QStringList getAvailableContentSets();
     Q_INVOKABLE QVariantMap readContentSets();
@@ -71,8 +68,10 @@ public:
 public slots:
     void startLogging();
     void stopLogging();
-    void addLoggerEntry(int t_entityId, const QString &t_componentName);
+
+    // Temporary hack - has to go next
     void clearLoggerEntries();
+
     void setSessionName(QString t_sessionName);
     void setTransactionName(const QString &t_transactionName);
     void setInitializeValues(bool t_initializeValues);
@@ -99,7 +98,6 @@ private:
     QDateTime m_stopTime;
     QStringList m_contentSets;
     QString m_guiContext;
-    QMultiHash<int, QString> m_loggedValues;
     bool m_initializeValues=false;
 };
 } // namespace VeinLogger
