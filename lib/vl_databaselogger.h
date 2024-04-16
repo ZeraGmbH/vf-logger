@@ -72,6 +72,7 @@ public slots:
 private:
     void initEntity();
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
+    void handleVeinDbSessionNameSet(QString sessionName, VeinComponent::ComponentData *customerCData);
 
     DataLoggerPrivate *m_dPtr=nullptr;
 };
