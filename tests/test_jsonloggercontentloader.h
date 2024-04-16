@@ -7,9 +7,6 @@ class test_jsonloggercontentloader : public QObject
 {
     Q_OBJECT
 private slots:
-    void init();
-    void cleanup();
-
     void noSessionSetEmptyAvailableContentSets();
 
     void testSimpleAvailContentSets();

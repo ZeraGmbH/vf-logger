@@ -1,15 +1,9 @@
 #include "test_jsonloggercontentloader.h"
 #include "jsonloggercontentloader.h"
-#include <QTest>
 #include <QFileInfo>
+#include <QTest>
 
-void test_jsonloggercontentloader::init()
-{
-}
-
-void test_jsonloggercontentloader::cleanup()
-{
-}
+QTEST_MAIN(test_jsonloggercontentloader)
 
 void test_jsonloggercontentloader::noSessionSetEmptyAvailableContentSets()
 {
@@ -75,6 +69,3 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsDcRef()
     QCOMPARE(components[1], "ACT_DFTPN2");
     QCOMPARE(components[2], "ACT_DFTPN3");
 }
-
-
-QTEST_MAIN(test_jsonloggercontentloader)
