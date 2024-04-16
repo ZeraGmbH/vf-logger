@@ -28,8 +28,6 @@ class ZeraDBLoggerPrivate
     }
 
     ZeraDBLogger *m_qPtr=nullptr;
-    //need an instance to call VeinLogger::AbstractLoggerDB::isValidDatabase
-    VeinLogger::AbstractLoggerDB *m_validationDB;
 
     friend class ZeraDBLogger;
 };
@@ -38,13 +36,10 @@ ZeraDBLogger::ZeraDBLogger(VeinLogger::DataSource *t_dataSource, VeinLogger::DBF
     VeinLogger::DatabaseLogger(t_dataSource, t_factoryFunction, parent),
     m_dPtr(new ZeraDBLoggerPrivate(this))
 {
-    //create a database for validation
-    m_dPtr->m_validationDB = t_factoryFunction(); //this class takes ownership
 }
 
 ZeraDBLogger::~ZeraDBLogger()
 {
-    delete m_dPtr->m_validationDB;
     delete m_dPtr;
 }
 
