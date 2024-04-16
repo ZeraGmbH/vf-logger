@@ -102,7 +102,8 @@ QJsonDocument TestLoggerDB::readTransaction(const QString &p_transaction, const 
 
 QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
 {
-
+    if(p_entity == "CustomerData" && p_component == "FileSelected")
+        return "test_customer_data.json";
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> staticData)

@@ -14,6 +14,7 @@ private slots:
     void openDatabaseErrorLate();
     void openDatabaseOk();
     void setSessionNotExistentInDb();
+    void setSessionExistentInDb();
 private:
     TestLoggerSystem m_testSystem;
 };
