@@ -20,6 +20,8 @@ target_link_libraries(vf-logger-testlib
     PUBLIC
     VfLogger
     Zera::zera-timers-testlib
+    Zera::VfFrameworkTest
+    Zera::VfQml
 )
 
 set_target_properties(vf-logger-testlib PROPERTIES VERSION ${PROJECT_VERSION})
