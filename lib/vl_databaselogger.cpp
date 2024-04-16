@@ -1,4 +1,5 @@
 #include "vl_databaselogger.h"
+#include "vl_globallabels.h"
 #include "dataloggerprivate.h"
 #include "vl_datasource.h"
 #include "vl_qmllogger.h"
@@ -105,7 +106,7 @@ void DatabaseLogger::addScript(QmlLogger *script)
                             emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
                         }
                         QStringList componentNamesToAdd;
-                        if(tmpComponentName == QStringLiteral("__ALL_COMPONENTS__")) {
+                        if(tmpComponentName == VLGlobalLabels::allComponentsName()) {
                             componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
                         }
                         else {
