@@ -4,10 +4,10 @@ project(vf-logger LANGUAGES CXX)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(VfLogger_VERSION_MAJOR "0")
-set(VfLogger_VERSION_MINOR "0")
-set(VfLogger_VERSION_PATCH "1")
-set(PROJECT_VERSION "${VfLogger_VERSION_MAJOR}.${VfLogger_VERSION_MINOR}.${VfLogger_VERSION_PATCH}")
+set(PROJECT_VERSION_MAJOR "0")
+set(PROJECT_VERSION_MINOR "0")
+set(PROJECT_VERSION_PATCH "1")
+set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
 include(FeatureSummary)
 include(GNUInstallDirs)
@@ -18,9 +18,10 @@ find_package(VeinFramework REQUIRED)
 find_package(VfScript REQUIRED)
 find_package(zera-json-params REQUIRED)
 
-add_subdirectory(lib)
-
 enable_testing()
+
+add_subdirectory(lib)
 add_subdirectory(tests)
+add_subdirectory(testlib)
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
