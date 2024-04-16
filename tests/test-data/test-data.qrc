@@ -2,7 +2,10 @@
     <qresource prefix="/">
         <file>contentsets/test-session.json</file>
         <file>sessions/test-session.json</file>
+        <file>dumpDbOpenErrorEarly.json</file>
+        <file>dumpDbOpenErrorLate.json</file>
         <file>dumpDbOpenOk.json</file>
+        <file>dumpDbSetSessionNew.json</file>
         <file>dumpInitial.json</file>
         <file>dumpSetContentAll.json</file>
         <file>dumpSetContentSetInvalid.json</file>
