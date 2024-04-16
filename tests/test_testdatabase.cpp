@@ -79,3 +79,23 @@ void test_testdatabase::setSessionNotExistentInDb()
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
+
+void test_testdatabase::setSessionExistentInDb()
+{
+    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    m_testSystem.waitForDbThread();
+
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionAdded);
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "TestSession1");
+    m_testSystem.waitForDbThread();
+
+    QCOMPARE(spy.count(), 0); // Already existing in db -> no session added
+
+    QFile file(":/dumpDbSetSessionAvail.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
