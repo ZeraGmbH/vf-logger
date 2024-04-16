@@ -3,23 +3,17 @@
 
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
-#include <ve_eventsystem.h>
+#include "vl_qmllogger.h"
+#include "vl_datasource.h"
 #include <ve_commandevent.h>
+#include <vsc_scriptsystem.h>
 #include <vcmp_componentdata.h>
 #include <QDateTime>
 
 class DataLoggerPrivate;
 
-namespace VeinScript
-{
-class ScriptSystem;
-}
-
 namespace VeinLogger
 {
-class DataSource;
-class QmlLogger;
-
 class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 {
     Q_OBJECT
@@ -57,20 +51,14 @@ signals:
     void sigLogSchedulerActivated();
     void sigLogSchedulerDeactivated();
 public slots:
-    virtual void setLoggingEnabled(bool t_enabled);
-    virtual bool openDatabase(const QString &t_filePath);
-    virtual void closeDatabase();
-    virtual void checkDatabaseStillValid();
+    void setLoggingEnabled(bool t_enabled);
+    bool openDatabase(const QString &t_filePath);
+    void closeDatabase();
+    void checkDatabaseStillValid();
     QVariant RPC_deleteSession(QVariantMap p_parameters);
     QVariant RPC_readTransaction(QVariantMap p_parameters);
     QVariant RPC_readSessionComponent(QVariantMap p_parameters);
-    /**
-     * @brief updateSessionList
-     * @param p_sessions: list of sessions stored in open database
-     *
-     * This function updates the Vein Component ExistingSessions to p_sessions
-     */
-    virtual void updateSessionList(QStringList p_sessions);
+    void updateSessionList(QStringList p_sessions);
 
 private:
     void initEntity();

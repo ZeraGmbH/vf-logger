@@ -1,9 +1,6 @@
 #include "vl_databaselogger.h"
 #include "vl_globallabels.h"
 #include "dataloggerprivate.h"
-#include "vl_datasource.h"
-#include "vl_qmllogger.h"
-#include <vsc_scriptsystem.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
@@ -238,10 +235,9 @@ void DatabaseLogger::closeDatabase()
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
     if(m_dPtr->m_deleteWatcher.directories().count()) {
-        QStringList watchedDirs = m_dPtr->m_deleteWatcher.directories();
-        for(QString watchDir : watchedDirs) {
+        const QStringList watchedDirs = m_dPtr->m_deleteWatcher.directories();
+        for(const QString &watchDir : watchedDirs)
             m_dPtr->m_deleteWatcher.removePath(watchDir);
-        }
         QObject::disconnect(&m_dPtr->m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
     }
     emit sigDatabaseUnloaded();
@@ -592,7 +588,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
                             errData->setErrorDescription(QString("Invalid logging duration: %1").arg(cData->newValue().toString()));
 
-                            sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
+                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
                         }
                     }
                     // TODO: Add more from modulemanager
