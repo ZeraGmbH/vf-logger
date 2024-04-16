@@ -15,7 +15,11 @@ private slots:
     void initTestCase();
     void init();
     void cleanup();
+
+    void openDatabaseErrorEarly();
+    void openDatabaseErrorLate();
     void openDatabaseOk();
+    void setSessionNotExistentInDb();
 private:
     void setupServer();
     void waitForDbThread();

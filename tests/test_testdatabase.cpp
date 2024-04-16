@@ -3,12 +3,14 @@
 #include <jsonloggercontentsessionloader.h>
 #include <loggercontentsetconfig.h>
 #include "testdumpreporter.h"
+#include <modulemanagersetupfacade.h>
 #include "vl_datasource.h"
 #include "vl_qmllogger.h"
 #include "testloggerdb.h"
 #include <timemachineobject.h>
 #include <QBuffer>
 #include <QThread>
+#include <QSignalSpy>
 #include <QTest>
 
 QTEST_MAIN(test_testdatabase)
@@ -17,6 +19,7 @@ void test_testdatabase::initTestCase()
 {
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<JsonLoggerContentLoader>());
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
+    ModuleManagerSetupFacade::registerMetaTypeStreamOperators();
 }
 
 void test_testdatabase::init()
@@ -33,15 +36,45 @@ void test_testdatabase::cleanup()
     TimeMachineObject::feedEventLoop();
 }
 
-
 static int constexpr systemEntityId = 0;
 //static int constexpr scriptEntityId = 1;
 static int constexpr dataLoggerEntityId = 2;
 
+void test_testdatabase::openDatabaseErrorEarly()
+{
+    m_server->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorEarly);
+    waitForDbThread();
+
+    QFile file(":/dumpDbOpenErrorEarly.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::openDatabaseErrorLate()
+{
+    m_server->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorLate);
+    waitForDbThread();
+
+    QFile file(":/dumpDbOpenErrorEarly.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_testdatabase::openDatabaseOk()
 {
     m_server->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-
     waitForDbThread();
 
     QFile file(":/dumpDbOpenOk.json");
@@ -53,7 +86,29 @@ void test_testdatabase::openDatabaseOk()
     m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
 
+void test_testdatabase::setSessionNotExistentInDb()
+{
+    m_server->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    waitForDbThread();
+
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionAdded);
+    m_server->setComponent(dataLoggerEntityId, "sessionName", "foo");
+    waitForDbThread();
+    // no cutomerdata / statusmodule yet (see DatabaseLogger::handleVeinDbSessionNameSet for details)
+    // => no dump on details on session static (created at start) data
+    QCOMPARE(spy.count(), 1);
+
+    QFile file(":/dumpDbSetSessionNew.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QByteArray jsonDumped;
+    QBuffer buff(&jsonDumped);
+    m_storage->dumpToFile(&buff, QList<int>() << dataLoggerEntityId);
+
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_testdatabase::setupServer()
@@ -105,8 +160,7 @@ void test_testdatabase::waitForDbThread()
     // * QThread::yieldCurrentThread()
     // * Get TestLoggerDB object & QSignalSpy::Wait
     // did not work or were unreproducable
-    for(int i=0; i<3; i++) {
-        QThread::currentThread()->msleep(1);
-        TimeMachineObject::feedEventLoop();
-    }
+    TimeMachineObject::feedEventLoop();
+    QThread::currentThread()->msleep(5);
+    TimeMachineObject::feedEventLoop();
 }

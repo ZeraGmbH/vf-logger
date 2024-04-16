@@ -2,11 +2,15 @@
 #define TESTLOGGERDB_H
 
 #include "vl_abstractloggerdb.h"
+#include <QJsonObject>
 
 class TestLoggerDB : public VeinLogger::AbstractLoggerDB
 {
     Q_OBJECT
 public:
+    static TestLoggerDB* getInstance();
+    TestLoggerDB();
+    virtual ~TestLoggerDB();
     bool hasEntityId(int entityId) const override;
     bool hasComponentName(const QString &componentName) const override;
     bool hasSessionName(const QString &sessionName) const override;
@@ -31,12 +35,18 @@ public:
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp) override;
 
     static const QLatin1String DBNameOpenOk;
-    static const QLatin1String DBNameOpenError;
+    static const QLatin1String DBNameOpenErrorEarly;
+    static const QLatin1String DBNameOpenErrorLate;
     bool openDatabase(const QString &dbPath) override;
 
     void runBatchedExecution() override;
+
+signals:
+    void sigSessionAdded(QJsonObject sessionInfo);
 private:
+    static TestLoggerDB* m_instance;
     QString m_openDbPath;
+    QStringList m_sessionNames = QStringList() << "TestSession1" << "TestSession2";
     STORAGE_MODE m_storageMode = AbstractLoggerDB::STORAGE_MODE::TEXT;
 };
 

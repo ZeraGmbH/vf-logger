@@ -1,8 +1,29 @@
 #include "testloggerdb.h"
 #include <timemachineobject.h>
+#include <QJsonArray>
+
+TestLoggerDB* TestLoggerDB::m_instance = nullptr;
 
 const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/DB_NAME_OPEN_OK");
-const QLatin1String TestLoggerDB::DBNameOpenError = QLatin1String("DB_NAME_OPEN_ERR");
+const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
+const QLatin1String TestLoggerDB::DBNameOpenErrorLate = QLatin1String("/tmp/DB_NAME_OPEN_ERR");
+
+TestLoggerDB *TestLoggerDB::getInstance()
+{
+    return m_instance;
+}
+
+TestLoggerDB::TestLoggerDB()
+{
+    Q_ASSERT(!m_instance);
+    m_instance = this;
+}
+
+TestLoggerDB::~TestLoggerDB()
+{
+    Q_ASSERT(m_instance == this);
+    m_instance = nullptr;
+}
 
 bool TestLoggerDB::hasEntityId(int entityId) const
 {
@@ -16,7 +37,7 @@ bool TestLoggerDB::hasComponentName(const QString &componentName) const
 
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
 {
-
+    return m_sessionNames.contains(sessionName);
 }
 
 bool TestLoggerDB::databaseIsOpen() const
@@ -86,7 +107,21 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> staticData)
 {
+    // for vf-logger
+    m_sessionNames.append(sessionName);
+    emit sigNewSessionList(m_sessionNames);
 
+    // for test
+    QJsonArray array;
+    for(int i=0; i<staticData.count(); i++) {
+        QJsonObject entry = QJsonObject::fromVariantMap(staticData[i]);
+        array.append(entry);
+    }
+    QJsonObject staticJson;
+    staticJson.insert(sessionName, array);
+    emit sigSessionAdded(staticJson);
+
+    return m_sessionNames.count();
 }
 
 bool TestLoggerDB::deleteSession(const QString &session)
@@ -104,25 +139,14 @@ bool TestLoggerDB::openDatabase(const QString &dbPath)
     // This one seems to run in another thread so we can use emit
     if(dbPath == DBNameOpenOk) {
         m_openDbPath = dbPath;
-        emit sigNewSessionList(QStringList() << "TestSession1" << "TestSession2");
-        /*QMetaObject::invokeMethod(this,
-                                  "sigNewSessionList",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(QStringList, QStringList() << "TestSession1" << "TestSession2"));*/
+        emit sigNewSessionList(m_sessionNames);
         TimeMachineObject::feedEventLoop();
 
         emit sigDatabaseReady();
-        /*QMetaObject::invokeMethod(this,
-                                  "sigDatabaseReady",
-                                  Qt::QueuedConnection);*/
         TimeMachineObject::feedEventLoop();
     }
     else
         emit sigDatabaseError("Could not open test database");
-        /*QMetaObject::invokeMethod(this,
-                                  "sigDatabaseError",
-                                  Qt::QueuedConnection,
-                                  Q_ARG(QString, "Could not open test database"));*/
     return !m_openDbPath.isEmpty();
 }
 
