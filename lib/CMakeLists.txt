@@ -25,18 +25,15 @@ add_library(VfLogger SHARED
 target_link_libraries(VfLogger
     PUBLIC
     VeinMeta::VfScript
-    PRIVATE
-    zera-json-params
     Zera::VfEvent
     Zera::VfComponent
     Zera::VfStorageHash
-    Zera::VfNet2
-    Zera::VfTcp
     Zera::VfQml
     Zera::VfCpp
     Zera::ModmanBase
     Zera::VfConvenientCode
-    Qt5::Core
+    PRIVATE
+    zera-json-params
     Qt5::Sql
     Qt5::Concurrent
     Qt5::Qml
@@ -44,7 +41,7 @@ target_link_libraries(VfLogger
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(VfLogger PROPERTIES SOVERSION ${VfLogger_VERSION_MAJOR})
+set_target_properties(VfLogger PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 
 generate_export_header(VfLogger)
 install(FILES
