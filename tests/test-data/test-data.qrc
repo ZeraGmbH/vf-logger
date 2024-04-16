@@ -2,6 +2,7 @@
     <qresource prefix="/">
         <file>contentsets/test-session.json</file>
         <file>sessions/test-session.json</file>
+        <file>dumpDbOpenOk.json</file>
         <file>dumpInitial.json</file>
         <file>dumpSetContentAll.json</file>
         <file>dumpSetContentSetInvalid.json</file>

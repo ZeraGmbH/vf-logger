@@ -214,11 +214,11 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
         connect(this, SIGNAL(sigAddSession(QString,QList<QVariantMap>)), m_dPtr->m_database, SLOT(addSession(QString,QList<QVariantMap>)));
         connect(this, SIGNAL(sigOpenDatabase(QString)), m_dPtr->m_database, SLOT(openDatabase(QString)));
-        connect(m_dPtr->m_database, SIGNAL(sigDatabaseReady()), this, SIGNAL(sigDatabaseReady()));
+        connect(m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
         connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
         // run final batch instantly when logging is disabled
         connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
-        connect(m_dPtr->m_database, SIGNAL(sigNewSessionList(QStringList)), this, SLOT(updateSessionList(QStringList)));
+        connect(m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
 
         emit sigOpenDatabase(t_filePath);
     }

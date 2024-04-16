@@ -18,6 +18,7 @@ function(SETUP_TESTS)
             Zera::VfFrameworkTest
             Zera::VfQml
             VfLogger
+            vf-logger-testlib
             )
     endforeach()
 endfunction()
@@ -27,11 +28,17 @@ add_definitions(-DJSON_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/json-test-files")
 SETUP_TESTS(
     test_componentunion
     test_contentsets
+    test_testdatabase
     test_jsonloggercontentloader
     test_loggercontentsessionloader
     )
 
 target_sources(test_contentsets
+    PRIVATE
+    test-data/test-data.qrc
+)
+
+target_sources(test_testdatabase
     PRIVATE
     test-data/test-data.qrc
 )
