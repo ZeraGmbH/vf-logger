@@ -652,7 +652,7 @@ void DatabaseLogger::loadScripts(VeinScript::ScriptSystem *scriptSystem)
     for(const QString &scriptFilePath : scriptList)
     {
         const QString dataLocation = QString("%1/%2").arg(virtualFiles.path(), scriptFilePath);
-        qDebug() << "Loading script:" << dataLocation;
+        qInfo() << "Loading script:" << dataLocation;
         if(scriptSystem->loadScriptFromFile(dataLocation) == false)
             qWarning() << "Error loading script file:" << scriptFilePath;
     }
