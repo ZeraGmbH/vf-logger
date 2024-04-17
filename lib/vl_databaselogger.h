@@ -64,7 +64,7 @@ private:
     void initEntity();
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
-    void handleVeinDbSessionNameSet(QString sessionName, VeinComponent::ComponentData *customerCData);
+    QVariant handleVeinDbSessionNameSet(QString sessionName);
     bool isLoggedComponent(int entityId, const QString &componentName) const;
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
 
