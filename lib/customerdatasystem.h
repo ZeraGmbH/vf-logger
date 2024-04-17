@@ -31,22 +31,15 @@ public:
     };
 
     explicit CustomerDataSystem(QString cutomerDataPath, QObject *parent = nullptr);
+    static QStringList getComponentNames();
 
     VF_COMPONENT(entityName, "EntityName", "Entity name")
     static constexpr QLatin1String s_entityName = modman_util::to_latin1("CustomerData");
 
-    // EventSystem interface
-public:
     void processEvent(QEvent *t_event) override;
-    /**
-   * @brief Adds the CustomerData entity and the components via vein framework
-   */
     void initializeEntity();
 
 public slots:
-    /**
-   * @brief Writes customerdata to file via QSaveFile
-   */
     void writeCustomerdata();
 
 signals:
