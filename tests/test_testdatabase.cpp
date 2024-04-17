@@ -20,7 +20,6 @@ void test_testdatabase::cleanup()
 void test_testdatabase::openDatabaseErrorEarly()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorEarly);
-    TimeMachineObject::feedEventLoop();;
 
     QFile file(":/dumpDbOpenErrorEarly.json");
     QVERIFY(file.open(QFile::ReadOnly));
@@ -34,7 +33,6 @@ void test_testdatabase::openDatabaseErrorEarly()
 void test_testdatabase::openDatabaseErrorLate()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorLate);
-    TimeMachineObject::feedEventLoop();;
 
     QFile file(":/dumpDbOpenErrorEarly.json");
     QVERIFY(file.open(QFile::ReadOnly));
@@ -48,7 +46,6 @@ void test_testdatabase::openDatabaseErrorLate()
 void test_testdatabase::openDatabaseOk()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-    TimeMachineObject::feedEventLoop();;
 
     QFile file(":/dumpDbOpenOk.json");
     QVERIFY(file.open(QFile::ReadOnly));
@@ -62,11 +59,9 @@ void test_testdatabase::openDatabaseOk()
 void test_testdatabase::createSessionNoCustomerDataSystem()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-    TimeMachineObject::feedEventLoop();;
 
     QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
-    TimeMachineObject::feedEventLoop();;
 
     QCOMPARE(spy.count(), 1); // is empty...
     QJsonObject componentDataSessionStatic = spy[0][0].toJsonObject();
@@ -100,11 +95,9 @@ void test_testdatabase::selectExistingSession()
 {
     m_testSystem.appendCustomerDataSystem();
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-    TimeMachineObject::feedEventLoop();;
 
     QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    TimeMachineObject::feedEventLoop();;
 
     // see DatabaseLogger::handleVeinDbSessionNameSet: If a session is already existent
     // => no session static components added
@@ -123,7 +116,6 @@ void test_testdatabase::createSession()
 {
     m_testSystem.appendCustomerDataSystem();
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-    TimeMachineObject::feedEventLoop();;
 
     QSignalSpy spySessionStaticComponents(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
     // DatabaseLogger::handleVeinDbSessionNameSet takes care on inserting entities/components in db
@@ -131,7 +123,6 @@ void test_testdatabase::createSession()
     QSignalSpy spyDbComponentsAdded(TestLoggerDB::getInstance(), &TestLoggerDB::sigComponentAdded);
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
-    TimeMachineObject::feedEventLoop();;
 
     QCOMPARE(spySessionStaticComponents.count(), 1);
     QCOMPARE(spyDbEntitiesAdded.count(), 1);
@@ -165,7 +156,6 @@ void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
     QSignalSpy spyDbComponentsAdded(TestLoggerDB::getInstance(), &TestLoggerDB::sigComponentAdded);
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
-    TimeMachineObject::feedEventLoop();;
 
     QCOMPARE(spySessionStaticComponents.count(), 1);
     QCOMPARE(spyDbEntitiesAdded.count(), 0);
@@ -189,7 +179,6 @@ void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
 void test_testdatabase::removeDbFileForUsbStickGone()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-    TimeMachineObject::feedEventLoop();;
 
     QFile fileOpenOk(":/dumpDbOpenOk.json");
     QVERIFY(fileOpenOk.open(QFile::ReadOnly));
