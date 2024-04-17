@@ -30,7 +30,6 @@ public:
     virtual QString databasePath() const = 0;
     virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
     virtual STORAGE_MODE getStorageMode() const = 0;
-    virtual std::function<bool(QString)> getDatabaseValidationFunction() const = 0;
 
 signals:
     void sigDatabaseError(const QString &t_errorString);
