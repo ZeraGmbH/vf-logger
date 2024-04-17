@@ -269,16 +269,11 @@ void DatabaseLogger::checkDatabaseStillValid()
         emit sigDatabaseError(QString("Watcher detected database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
 }
 
-void DatabaseLogger::updateSessionList(QStringList p_sessions)
+void DatabaseLogger::updateSessionList(QStringList sessionNames)
 {
-    VeinComponent::ComponentData *exisitingSessions = new VeinComponent::ComponentData();
-    exisitingSessions ->setEntityId(m_dPtr->m_entityId);
-    exisitingSessions ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-    exisitingSessions ->setComponentName(DataLoggerPrivate::s_existingSessionsComponentName);
-    exisitingSessions ->setNewValue(p_sessions);
-    exisitingSessions ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-    exisitingSessions ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, exisitingSessions));
+    QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_existingSessionsComponentName,
+                                                           QVariant(), sessionNames);
+    emit sigSendEvent(event);
 }
 
 QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters){

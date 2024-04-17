@@ -58,7 +58,7 @@ public slots:
     QVariant RPC_deleteSession(QVariantMap p_parameters);
     QVariant RPC_readTransaction(QVariantMap p_parameters);
     QVariant RPC_readSessionComponent(QVariantMap p_parameters);
-    void updateSessionList(QStringList p_sessions);
+    void updateSessionList(QStringList sessionNames);
 
 private:
     void initEntity();
