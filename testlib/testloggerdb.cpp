@@ -124,7 +124,7 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
         return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
 }
 
-int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> staticData)
+int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> componentValuesStoredOncePerSession)
 {
     // for vf-logger
     m_dbSessionNames.append(sessionName);
@@ -132,20 +132,22 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> stat
 
     // for test sequence regression
     m_dataWriteIdCount++;
-    QJsonObject jsonData;
-    for(int i=0; i<staticData.count(); i++) {
-        QVariantMap variantEntry = staticData[i];
+    QMap<QString, QVariantMap> componentValuesSorted;
+    for(int i=0; i<componentValuesStoredOncePerSession.count(); i++) {
+        QVariantMap variantEntry = componentValuesStoredOncePerSession[i];
         Q_ASSERT(variantEntry.contains("time"));
         // timestamps must be there but are not suited for textfile dumps
         variantEntry["time"] = QDateTime::fromSecsSinceEpoch(m_dataWriteIdCount, Qt::UTC);
 
-        // Ensure sorting
-        QJsonObject jsonEntry = QJsonObject::fromVariantMap(variantEntry);
-        Q_ASSERT(jsonEntry.contains("compName"));
-        jsonData.insert(jsonEntry["compName"].toString(), jsonEntry);
+        Q_ASSERT(variantEntry.contains("compName"));
+        componentValuesSorted.insert(variantEntry["compName"].toString(), variantEntry);
+    }
+    QJsonArray jsonArray;
+    for(const QVariantMap &variantEntry : componentValuesSorted) {
+        jsonArray.append(QJsonObject::fromVariantMap(variantEntry));
     }
     QJsonObject staticJson;
-    staticJson.insert(sessionName, jsonData);
+    staticJson.insert(sessionName, jsonArray);
     emit sigSessionStaticDataAdded(staticJson);
 
     return m_dbSessionNames.count();
