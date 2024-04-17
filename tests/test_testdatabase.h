@@ -23,6 +23,7 @@ private slots:
     void createSessionWithCustomerDataAlreadyCreated();
 
     void removeDbFileForUsbStickGone();
+    void openSelectExistingSessionAndClose(); // TODO bugs
 private:
     TestLoggerSystem m_testSystem;
 };

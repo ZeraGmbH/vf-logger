@@ -195,3 +195,26 @@ void test_testdatabase::removeDbFileForUsbStickGone()
     jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
+
+void test_testdatabase::openSelectExistingSessionAndClose()
+{
+    m_testSystem.appendCustomerDataSystem();
+    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    QCOMPARE(spy.count(), 0);
+
+    QFile file(":/dumpDbSetSessionAvail.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
+    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", "");
+    QFile fileDbClose(":/dumpDbOpenSetSessionAndClose.json");
+    QVERIFY(fileDbClose.open(QFile::ReadOnly));
+    jsonExpected = fileDbClose.readAll();
+    jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
