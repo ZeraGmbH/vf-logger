@@ -203,9 +203,10 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         // forward database's error my handler
         connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
         m_dPtr->m_database->setStorageMode(m_dPtr->m_storageMode);
-        m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
-        m_dPtr->m_asyncDatabaseThread.start();
-
+        if(m_dPtr->m_database->requiresOwnThread()) {
+            m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
+            m_dPtr->m_asyncDatabaseThread.start();
+        }
         // will be queued connection due to thread affinity
         connect(this, &DatabaseLogger::sigAddLoggedValue, m_dPtr->m_database, &AbstractLoggerDB::addLoggedValue);
         connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));

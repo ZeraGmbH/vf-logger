@@ -22,6 +22,8 @@ public:
         BINARY = 1,
     };
 
+    virtual bool requiresOwnThread() = 0;
+
     virtual bool hasEntityId(int t_entityId) const = 0;
     virtual bool hasComponentName(const QString &t_componentName) const = 0;
     virtual bool hasSessionName(const QString &dbSessionName) const = 0;

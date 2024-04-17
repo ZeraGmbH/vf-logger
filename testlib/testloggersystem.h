@@ -22,7 +22,6 @@ public:
     static QString getCustomerDataPath();
     void cleanup();
     void setComponent(int entityId, QString componentName, QVariant newValue);
-    static void waitForDbThread();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
 private:
     std::unique_ptr<TestVeinServer> m_server;

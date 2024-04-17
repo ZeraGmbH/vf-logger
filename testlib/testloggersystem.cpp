@@ -94,17 +94,6 @@ void TestLoggerSystem::setComponent(int entityId, QString componentName, QVarian
     m_server->setComponent(entityId, componentName, newValue);
 }
 
-void TestLoggerSystem::waitForDbThread()
-{
-    // Ugly but we tried so much to receive signals from database thread e.g:
-    // * QThread::yieldCurrentThread()
-    // * Get TestLoggerDB object & QSignalSpy::Wait
-    // did not work or were unreproducable
-    TimeMachineObject::feedEventLoop();
-    QThread::currentThread()->msleep(5);
-    TimeMachineObject::feedEventLoop();
-}
-
 QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)
 {
     QByteArray jsonDumped;

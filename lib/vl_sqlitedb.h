@@ -30,6 +30,8 @@ public:
     explicit SQLiteDB(QObject *t_parent = nullptr);
     ~SQLiteDB();
 
+    bool requiresOwnThread() override { return true; }
+
     bool hasEntityId(int t_entityId) const override;
     bool hasComponentName(const QString &t_componentName) const override;
     bool hasSessionName(const QString &t_sessionName) const override;

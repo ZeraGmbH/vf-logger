@@ -10,6 +10,9 @@ class TestLoggerDB : public VeinLogger::AbstractLoggerDB
 public:
     TestLoggerDB();
     virtual ~TestLoggerDB();
+
+    bool requiresOwnThread() override { return false; }
+
     bool hasEntityId(int entityId) const override;
     bool hasComponentName(const QString &componentName) const override;
     bool hasSessionName(const QString &sessionName) const override;
