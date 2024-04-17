@@ -392,54 +392,45 @@ void DatabaseLogger::clearLoggerEntries()
     m_loggedValues.clear();
 }
 
-void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName, VeinComponent::ComponentData *customerCData)
+QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
+    QVariant sessionCustomerDataName;
     if(!m_dPtr->m_database->hasSessionName(sessionName)) {
         // Add session immediately: That helps us massively to create a smart user-interface
-
         QMultiHash<int, QString> tmpStaticComps;
+        // Add customer data once per session
+        if(m_dPtr->m_dataSource->hasEntity(200))
+            for(const QString &comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200))
+                tmpStaticComps.insert(200, comp);
+        // Add status module once per session
+        if(m_dPtr->m_dataSource->hasEntity(1150))
+            for(const QString &comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150))
+                tmpStaticComps.insert(1150, comp);
+
         QList<QVariantMap> tmpStaticData;
-
-        // Add customer data at the beginning
-        if(m_dPtr->m_dataSource->hasEntity(200)) {
-            for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200)){
-                tmpStaticComps.insert(200,comp);
-            }
-        }
-        // Add status module data at the beginning
-        if(m_dPtr->m_dataSource->hasEntity(1150)) {
-
-            for(QString comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150)){
-                tmpStaticComps.insert(1150,comp);
-            }
-        }
-
         for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
-            if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
+            if(!m_dPtr->m_database->hasEntityId(tmpEntityId))
                 emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
-            }
             const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
             for(const QString &tmpComponentName : tmpComponents) {
-                if(m_dPtr->m_database->hasComponentName(tmpComponentName) == false) {
+                if(!m_dPtr->m_database->hasComponentName(tmpComponentName))
                     emit sigAddComponent(tmpComponentName);
-                }
                 QVariantMap tmpMap;
-                tmpMap["entityId"]=tmpEntityId;
-                tmpMap["compName"]=tmpComponentName;
-                tmpMap["value"]=m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
-                tmpMap["time"]=QDateTime::currentDateTime();
+                tmpMap["entityId"] = tmpEntityId;
+                tmpMap["compName"] = tmpComponentName;
+                tmpMap["value"] = m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
+                tmpMap["time"] = QDateTime::currentDateTime();
                 tmpStaticData.append(tmpMap);
             }
         }
 
         // We are reading it like this because it is faster than writing it to the db and then reading it agian
-        customerCData->setNewValue(m_dPtr->m_dataSource->getValue(200, "FileSelected"));
-        emit sigAddSession(sessionName,tmpStaticData);
+        sessionCustomerDataName = m_dPtr->m_dataSource->getValue(200, "FileSelected");
+        emit sigAddSession(sessionName, tmpStaticData);
     }
-    else {
-        QString customerdata=m_dPtr->m_database->readSessionComponent(sessionName,"CustomerData","FileSelected").toString();
-        customerCData->setNewValue(customerdata);
-    }
+    else
+        sessionCustomerDataName = m_dPtr->m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();
+    return sessionCustomerDataName;
 }
 
 void DatabaseLogger::processEvent(QEvent *t_event)
@@ -591,35 +582,25 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
                         }
                     }
-                    // TODO: Add more from modulemanager
                     else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName) {
-                        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
-                        sessionNameCData->setEntityId(m_dPtr->m_entityId);
-                        sessionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        sessionNameCData->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
-                        sessionNameCData->setNewValue(cData->newValue());
-                        sessionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        sessionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                        m_dPtr->m_sessionName=cData->newValue().toString();
-
-                        VeinComponent::ComponentData *customerCData = new VeinComponent::ComponentData();
-                        customerCData->setEntityId(m_dPtr->m_entityId);
-                        customerCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        customerCData->setComponentName(DataLoggerPrivate::s_customerDataComponentName);
-                        customerCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        customerCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        m_dPtr->m_sessionName = cData->newValue().toString();
 
                         QString sessionName = cData->newValue().toString();
                         // we have a working database?
+                        QVariant sessionCustomerDataName;
                         if(!sessionName.isEmpty() &&
                                 m_dPtr->m_database &&
                                 m_dPtr->m_database->databaseIsOpen()) {
-                            handleVeinDbSessionNameSet(sessionName, customerCData);
+                            sessionCustomerDataName = handleVeinDbSessionNameSet(sessionName);
                         }
 
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
+                        QEvent *event;
+                        event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
+                                                                       cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
+                        event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+                                                                       QVariant(), sessionCustomerDataName);
+                        emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
                         VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
