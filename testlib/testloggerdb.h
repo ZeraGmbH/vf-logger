@@ -53,7 +53,7 @@ signals:
 
 private:
     static TestLoggerDB* m_instance;
-    bool m_customerDataAlreadyInDbSession;
+    bool m_customerDataAlreadyInDbSession = false;
     QString m_openDbPath;
     QStringList m_dbSessionNames = QStringList() << "DbTestSession1" << "DbTestSession2";
     STORAGE_MODE m_storageMode = AbstractLoggerDB::STORAGE_MODE::TEXT;
