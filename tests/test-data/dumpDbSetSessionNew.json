@@ -7,7 +7,7 @@
         "ExistingSessions": [
             "DbTestSession1",
             "DbTestSession2",
-            "foo"
+            "NotExistingDbSession"
         ],
         "LoggedComponents": {
         },
@@ -24,7 +24,7 @@
         "currentContentSets": [
         ],
         "guiContext": "",
-        "sessionName": "foo",
+        "sessionName": "NotExistingDbSession",
         "transactionName": ""
     }
 }

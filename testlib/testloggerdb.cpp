@@ -17,8 +17,7 @@ TestLoggerDB *TestLoggerDB::getInstance()
 
 void TestLoggerDB::setCustomerDataSupported(bool supported)
 {
-    if(m_instance)
-        m_customerDataSupported = supported;
+    m_customerDataSupported = supported;
 }
 
 TestLoggerDB::TestLoggerDB()
@@ -29,8 +28,17 @@ TestLoggerDB::TestLoggerDB()
 
 TestLoggerDB::~TestLoggerDB()
 {
+    deleteDbFile();
     Q_ASSERT(m_instance == this);
     m_instance = nullptr;
+}
+
+void TestLoggerDB::deleteDbFile()
+{
+    if(!m_openDbPath.isEmpty()) {
+        QFile fileForWatcher(m_openDbPath);
+        fileForWatcher.remove();
+    }
 }
 
 bool TestLoggerDB::hasEntityId(int entityId) const
@@ -122,15 +130,23 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> stat
     m_dbSessionNames.append(sessionName);
     emit sigNewSessionList(m_dbSessionNames);
 
-    // for test
-    QJsonArray array;
+    // for test sequence regression
+    m_dataWriteIdCount++;
+    QJsonObject jsonData;
     for(int i=0; i<staticData.count(); i++) {
-        QJsonObject entry = QJsonObject::fromVariantMap(staticData[i]);
-        array.append(entry);
+        QVariantMap variantEntry = staticData[i];
+        Q_ASSERT(variantEntry.contains("time"));
+        // timestamps must be there but are not suited for textfile dumps
+        variantEntry["time"] = QDateTime::fromSecsSinceEpoch(m_dataWriteIdCount, Qt::UTC);
+
+        // Ensure sorting
+        QJsonObject jsonEntry = QJsonObject::fromVariantMap(variantEntry);
+        Q_ASSERT(jsonEntry.contains("compName"));
+        jsonData.insert(jsonEntry["compName"].toString(), jsonEntry);
     }
     QJsonObject staticJson;
-    staticJson.insert(sessionName, array);
-    emit sigSessionAdded(staticJson);
+    staticJson.insert(sessionName, jsonData);
+    emit sigSessionStaticDataAdded(staticJson);
 
     return m_dbSessionNames.count();
 }
@@ -149,6 +165,9 @@ bool TestLoggerDB::openDatabase(const QString &dbPath)
 {
     // This one seems to run in another thread so we can use emit
     if(dbPath == DBNameOpenOk) {
+        QFile fileForWatcher(dbPath);
+        fileForWatcher.open(QIODevice::WriteOnly);
+        fileForWatcher.close();
         m_openDbPath = dbPath;
         emit sigNewSessionList(m_dbSessionNames);
         TimeMachineObject::feedEventLoop();
@@ -156,8 +175,10 @@ bool TestLoggerDB::openDatabase(const QString &dbPath)
         emit sigDatabaseReady();
         TimeMachineObject::feedEventLoop();
     }
-    else
+    else {
+        m_openDbPath.clear();
         emit sigDatabaseError("Could not open test database");
+    }
     return !m_openDbPath.isEmpty();
 }
 
