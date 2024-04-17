@@ -288,11 +288,6 @@ AbstractLoggerDB::STORAGE_MODE SQLiteDB::getStorageMode() const
     return m_dPtr->m_storageMode;
 }
 
-std::function<bool (QString)> SQLiteDB::getDatabaseValidationFunction() const
-{
-    return isValidDatabase;
-}
-
 QJsonDocument SQLiteDB::readTransaction(const QString &p_transaction, const QString &p_session)
 {
    return m_dPtr->readTransaction(p_transaction, p_session);

@@ -78,11 +78,6 @@ VeinLogger::AbstractLoggerDB::STORAGE_MODE TestLoggerDB::getStorageMode() const
     return m_storageMode;
 }
 
-std::function<bool (QString)> TestLoggerDB::getDatabaseValidationFunction() const
-{
-
-}
-
 void TestLoggerDB::initLocalData()
 {
 

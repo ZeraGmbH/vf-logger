@@ -18,7 +18,6 @@ public:
     QString databasePath() const override;
     void setStorageMode(STORAGE_MODE storageMode) override;
     STORAGE_MODE getStorageMode() const override;
-    std::function<bool(QString)> getDatabaseValidationFunction() const override;
 
     void initLocalData() override;
     void addComponent(const QString &componentName) override;
