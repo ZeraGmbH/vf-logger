@@ -13,11 +13,13 @@ private slots:
     void openDatabaseErrorEarly();
     void openDatabaseErrorLate();
     void openDatabaseOk();
+
     void setSessionNotExistentInDb();
     void setSessionExistentInDb();
     void setupCustomerData();
     void setSessionNotExistentWithCustomerData();
 
+    void removeDbFileForUsbStickGone();
 private:
     TestLoggerSystem m_testSystem;
 };
