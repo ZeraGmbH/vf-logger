@@ -14,10 +14,13 @@ private slots:
     void openDatabaseErrorLate();
     void openDatabaseOk();
 
-    void setSessionNotExistentInDb();
-    void setSessionExistentInDb();
+    void createSessionNoCustomerDataSystem();
+
+    // from here all have customer data system
     void setupCustomerData();
-    void setSessionNotExistentWithCustomerData();
+    void selectExistingSession();
+    void createSession();
+    void createSessionWithCustomerDataAlreadyCreated();
 
     void removeDbFileForUsbStickGone();
 private:

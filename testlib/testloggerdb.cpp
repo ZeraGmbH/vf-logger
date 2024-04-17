@@ -4,7 +4,6 @@
 #include <QJsonArray>
 
 TestLoggerDB* TestLoggerDB::m_instance = nullptr;
-bool TestLoggerDB::m_customerDataSupported = false;
 
 const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/DB_NAME_OPEN_OK");
 const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
@@ -15,9 +14,9 @@ TestLoggerDB *TestLoggerDB::getInstance()
     return m_instance;
 }
 
-void TestLoggerDB::setCustomerDataSupported(bool supported)
+void TestLoggerDB::setCustomerDataAlreadyInDbSession(bool inSession)
 {
-    m_customerDataSupported = supported;
+    m_customerDataAlreadyInDbSession = inSession;
 }
 
 TestLoggerDB::TestLoggerDB()
@@ -44,13 +43,13 @@ void TestLoggerDB::deleteDbFile()
 bool TestLoggerDB::hasEntityId(int entityId) const
 {
     if(entityId == customerDataEntityId)
-        return m_customerDataSupported;
+        return m_customerDataAlreadyInDbSession;
 }
 
 bool TestLoggerDB::hasComponentName(const QString &componentName) const
 {
     if(CustomerDataSystem::getComponentNames().contains(componentName))
-        return m_customerDataSupported;
+        return m_customerDataAlreadyInDbSession;
 }
 
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
@@ -85,12 +84,12 @@ void TestLoggerDB::initLocalData()
 
 void TestLoggerDB::addComponent(const QString &componentName)
 {
-
+    emit sigComponentAdded(componentName);
 }
 
 void TestLoggerDB::addEntity(int entityId, QString entityName)
 {
-
+    emit sigEntityAdded(entityId, entityName);
 }
 
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QString &contentSets, const QString &guiContextName)
