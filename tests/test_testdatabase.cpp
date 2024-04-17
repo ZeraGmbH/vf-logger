@@ -64,10 +64,10 @@ void test_testdatabase::setSessionNotExistentInDb()
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
     m_testSystem.waitForDbThread();
 
-    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionAdded);
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "foo");
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
     m_testSystem.waitForDbThread();
-    // no cutomerdata / statusmodule yet (see DatabaseLogger::handleVeinDbSessionNameSet for details)
+    // no customerdata / statusmodule yet (see DatabaseLogger::handleVeinDbSessionNameSet for details)
     // => no dump on details on session static (created at start) data
     QCOMPARE(spy.count(), 1);
 
@@ -85,7 +85,7 @@ void test_testdatabase::setSessionExistentInDb()
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
     m_testSystem.waitForDbThread();
 
-    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionAdded);
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
     m_testSystem.waitForDbThread();
 
@@ -119,18 +119,22 @@ void test_testdatabase::setSessionNotExistentWithCustomerData()
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
     m_testSystem.waitForDbThread();
 
-    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionAdded);
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "foo");
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigSessionStaticDataAdded);
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
     m_testSystem.waitForDbThread();
-    // no cutomerdata / statusmodule yet (see DatabaseLogger::handleVeinDbSessionNameSet for details)
-    // => no dump on details on session static (created at start) data
     QCOMPARE(spy.count(), 1);
 
-    QFile file(":/dumpDbSetSessionNew.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
+    QFile fileComponentData(":/dumpComponentsOnSessionNewWithCustomerdata.json");
+    QVERIFY(fileComponentData.open(QFile::ReadOnly));
+    QByteArray componentsExpected = fileComponentData.readAll();
 
-    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QJsonObject componentsReceived = spy[0][0].toJsonObject();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(componentsExpected, QJsonDocument(componentsReceived).toJson()));
 
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QFile fileVein(":/dumpDbSetSessionNew.json");
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray veinJsonExpected = fileVein.readAll();
+
+    QByteArray veinJsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(veinJsonExpected, veinJsonDumped));
 }

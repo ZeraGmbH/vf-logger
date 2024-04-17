@@ -3,6 +3,7 @@
         <file>contentsets/test-session.json</file>
         <file>sessions/test-session.json</file>
 
+        <file>dumpComponentsOnSessionNewWithCustomerdata.json</file>
         <file>dumpDbCustomerDataInitial.json</file>
         <file>dumpDbOpenErrorEarly.json</file>
         <file>dumpDbOpenErrorLate.json</file>
