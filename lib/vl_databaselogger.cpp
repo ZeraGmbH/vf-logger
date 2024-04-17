@@ -245,29 +245,19 @@ void DatabaseLogger::closeDatabase()
     }
     emit sigDatabaseUnloaded();
 
-    // set database file name empty
     QString closedDb = m_dPtr->m_databaseFilePath;
     m_dPtr->m_databaseFilePath.clear();
-    VeinComponent::ComponentData *dbFileNameCData = new VeinComponent::ComponentData();
-    dbFileNameCData->setEntityId(m_dPtr->m_entityId);
-    dbFileNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-    dbFileNameCData->setComponentName(DataLoggerPrivate::s_databaseFileComponentName);
-    dbFileNameCData->setNewValue(QString());
-    dbFileNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-    dbFileNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, dbFileNameCData));
+
+    // set vein database file name empty
+    QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
+                                                           QVariant(), QString());
+    emit sigSendEvent(event);
+    // set CustomerData component empty
+    event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+                                                   QVariant(), QString());
+    emit sigSendEvent(event);
 
     updateSessionList(QStringList());
-
-    // set CustomerData component empty on databaseClosed
-    VeinComponent::ComponentData *customerCData = new VeinComponent::ComponentData();
-    customerCData->setEntityId(m_dPtr->m_entityId);
-    customerCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-    customerCData->setComponentName(DataLoggerPrivate::s_customerDataComponentName);
-    customerCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-    customerCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-    customerCData->setNewValue(QString());
-    emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, customerCData));
 
     qInfo() << "Unloaded database:" << closedDb;
 }
@@ -275,9 +265,8 @@ void DatabaseLogger::closeDatabase()
 void DatabaseLogger::checkDatabaseStillValid()
 {
     QFile dbFile(m_dPtr->m_databaseFilePath);
-    if(!dbFile.exists()) {
+    if(!dbFile.exists())
         emit sigDatabaseError(QString("Watcher detected database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
-    }
 }
 
 void DatabaseLogger::updateSessionList(QStringList p_sessions)
