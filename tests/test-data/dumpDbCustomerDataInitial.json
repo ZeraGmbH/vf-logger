@@ -1,0 +1,152 @@
+{
+    "2": {
+        "CustomerData": "",
+        "DatabaseFile": "",
+        "DatabaseReady": false,
+        "EntityName": "_LoggingSystem",
+        "ExistingSessions": [
+        ],
+        "LoggedComponents": {
+        },
+        "LoggingEnabled": false,
+        "LoggingStatus": "Database loaded",
+        "ScheduledLoggingCountdown": 0,
+        "ScheduledLoggingDuration": null,
+        "ScheduledLoggingEnabled": false,
+        "availableContentSets": [
+            "TestSet1",
+            "TestSet2",
+            "ZeraAll"
+        ],
+        "currentContentSets": [
+        ],
+        "guiContext": "",
+        "sessionName": "",
+        "transactionName": ""
+    },
+    "200": {
+        "EntityName": "CustomerData",
+        "FileSelected": "",
+        "INF_ModuleInterface": {
+            "ComponentInfo": {
+                "EntityName": {
+                    "Description": "Entity name"
+                },
+                "FileSelected": {
+                    "Description": "Currently selected customer data file"
+                },
+                "PAR_CustomerCity": {
+                    "Description": "City of the address"
+                },
+                "PAR_CustomerComment": {
+                    "Description": "Free form text comment"
+                },
+                "PAR_CustomerCountry": {
+                    "Description": "Country of the address"
+                },
+                "PAR_CustomerFirstName": {
+                    "Description": "First name"
+                },
+                "PAR_CustomerLastName": {
+                    "Description": "Last name"
+                },
+                "PAR_CustomerNumber": {
+                    "Description": "Customer number"
+                },
+                "PAR_CustomerPostalCode": {
+                    "Description": "Postal/Zip code of the address"
+                },
+                "PAR_CustomerStreet": {
+                    "Description": "Street of the address"
+                },
+                "PAR_DatasetComment": {
+                    "Description": "Free form text comment"
+                },
+                "PAR_DatasetIdentifier": {
+                    "Description": "Unique identifier"
+                },
+                "PAR_LocationCity": {
+                    "Description": "City of the address"
+                },
+                "PAR_LocationComment": {
+                    "Description": "Free form text comment"
+                },
+                "PAR_LocationCountry": {
+                    "Description": "Country of the address"
+                },
+                "PAR_LocationFirstName": {
+                    "Description": "First name"
+                },
+                "PAR_LocationLastName": {
+                    "Description": "Last name"
+                },
+                "PAR_LocationNumber": {
+                    "Description": "Location number"
+                },
+                "PAR_LocationPostalCode": {
+                    "Description": "Postal/Zip code of the address"
+                },
+                "PAR_LocationStreet": {
+                    "Description": "Street of the address"
+                },
+                "PAR_MeterComment": {
+                    "Description": "Free form text comment"
+                },
+                "PAR_MeterFactoryNumber": {
+                    "Description": "Meter factory number"
+                },
+                "PAR_MeterManufacturer": {
+                    "Description": "Meter manufacturer"
+                },
+                "PAR_MeterOwner": {
+                    "Description": "Meter owner"
+                },
+                "PAR_PowerGridComment": {
+                    "Description": "Free form text comment"
+                },
+                "PAR_PowerGridOperator": {
+                    "Description": "Power grid operator"
+                },
+                "PAR_PowerGridSupplier": {
+                    "Description": "Power grid supplier"
+                }
+            },
+            "ProcedureInfo": {
+                "customerDataAdd(QString fileName)": {
+                    "Description": "fileName: The file name to store the new file, does not accept names of existing files"
+                },
+                "customerDataRemove(QString fileName)": {
+                    "Description": "fileName: the name of the file to be removed"
+                },
+                "customerDataSearch(QVariantMap searchMap)": {
+                    "Description": "searchMap: regular expression values in the map are tested against all files"
+                }
+            }
+        },
+        "PAR_CustomerCity": "",
+        "PAR_CustomerComment": "",
+        "PAR_CustomerCountry": "",
+        "PAR_CustomerFirstName": "",
+        "PAR_CustomerLastName": "",
+        "PAR_CustomerNumber": "",
+        "PAR_CustomerPostalCode": "",
+        "PAR_CustomerStreet": "",
+        "PAR_DatasetComment": "",
+        "PAR_DatasetIdentifier": "",
+        "PAR_LocationCity": "",
+        "PAR_LocationComment": "",
+        "PAR_LocationCountry": "",
+        "PAR_LocationFirstName": "",
+        "PAR_LocationLastName": "",
+        "PAR_LocationNumber": "",
+        "PAR_LocationPostalCode": "",
+        "PAR_LocationStreet": "",
+        "PAR_MeterComment": "",
+        "PAR_MeterFactoryNumber": "",
+        "PAR_MeterManufacturer": "",
+        "PAR_MeterOwner": "",
+        "PAR_PowerGridComment": "",
+        "PAR_PowerGridOperator": "",
+        "PAR_PowerGridSupplier": ""
+    }
+}

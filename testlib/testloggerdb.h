@@ -8,7 +8,6 @@ class TestLoggerDB : public VeinLogger::AbstractLoggerDB
 {
     Q_OBJECT
 public:
-    static TestLoggerDB* getInstance();
     TestLoggerDB();
     virtual ~TestLoggerDB();
     bool hasEntityId(int entityId) const override;
@@ -41,12 +40,17 @@ public:
 
     void runBatchedExecution() override;
 
+// Test specific additions
+    static TestLoggerDB* getInstance();
+    static void setCustomerDataSupported(bool supported);
 signals:
     void sigSessionAdded(QJsonObject sessionInfo);
+
 private:
     static TestLoggerDB* m_instance;
+    static bool m_customerDataSupported;
     QString m_openDbPath;
-    QStringList m_sessionNames = QStringList() << "TestSession1" << "TestSession2";
+    QStringList m_dbSessionNames = QStringList() << "DbTestSession1" << "DbTestSession2";
     STORAGE_MODE m_storageMode = AbstractLoggerDB::STORAGE_MODE::TEXT;
 };
 
