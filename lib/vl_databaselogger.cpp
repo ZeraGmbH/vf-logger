@@ -628,26 +628,14 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
-                        VeinComponent::ComponentData *currentContentSetsCData = new VeinComponent::ComponentData();
-                        currentContentSetsCData->setEntityId(m_dPtr->m_entityId);
-                        currentContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        currentContentSetsCData->setComponentName(DataLoggerPrivate::s_currentContentSetsComponentName);
-                        currentContentSetsCData->setNewValue(cData->newValue());
-                        currentContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        currentContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, currentContentSetsCData));
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
+                                                                               cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
-                        VeinComponent::ComponentData *availableContentSetsCData = new VeinComponent::ComponentData();
-                        availableContentSetsCData->setEntityId(m_dPtr->m_entityId);
-                        availableContentSetsCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        availableContentSetsCData->setComponentName(DataLoggerPrivate::s_availableContentSetsComponentName);
-                        availableContentSetsCData->setNewValue(cData->newValue());
-                        availableContentSetsCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        availableContentSetsCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, availableContentSetsCData));
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_availableContentSetsComponentName,
+                                                                               cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
                     }
 
                     t_event->accept();

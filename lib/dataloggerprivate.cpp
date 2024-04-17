@@ -1,5 +1,6 @@
 #include "dataloggerprivate.h"
 #include <vcmp_entitydata.h>
+#include <vf_server_component_setter.h>
 #include <QFileInfo>
 #include <QStorageInfo>
 
@@ -146,19 +147,11 @@ void DataLoggerPrivate::initStateMachine()
     m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
 
     QObject::connect(m_databaseUninitializedState, &QState::entered, [&]() {
-        VeinComponent::ComponentData *databaseUninitializedCData = new VeinComponent::ComponentData();
-        databaseUninitializedCData->setEntityId(m_entityId);
-        databaseUninitializedCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        databaseUninitializedCData->setComponentName(DataLoggerPrivate::s_databaseReadyComponentName);
-        databaseUninitializedCData->setNewValue(false);
-        databaseUninitializedCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        databaseUninitializedCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, databaseUninitializedCData));
+        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
+        emit m_qPtr->sigSendEvent(event);
         m_qPtr->setLoggingEnabled(false);
-        if(!m_noUninitMessage) {
+        if(!m_noUninitMessage)
             setStatusText("No database selected");
-        }
     });
     QObject::connect(m_databaseReadyState, &QState::entered, [&](){
         // Now we have an open and valid database: Notify ready and some
@@ -167,14 +160,8 @@ void DataLoggerPrivate::initStateMachine()
         QFileInfo fileInfo(m_databaseFilePath);
         fileInfoData.insert(DataLoggerPrivate::s_databaseReadyComponentName, true);
         for(const QString &componentName : fileInfoData.keys())  {
-            VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
-            storageCData->setEntityId(m_entityId);
-            storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-            storageCData->setComponentName(componentName);
-            storageCData->setNewValue(fileInfoData.value(componentName));
-            storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-            emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
+            QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, componentName, QVariant(), fileInfoData.value(componentName));
+            emit m_qPtr->sigSendEvent(event);
         }
 
         m_qPtr->setLoggingEnabled(false);
