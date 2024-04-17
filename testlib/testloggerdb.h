@@ -29,7 +29,7 @@ public:
 
     QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session) override;
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
-    int addSession(const QString &sessionName, QList<QVariantMap> staticData) override;
+    int addSession(const QString &sessionName, QList<QVariantMap> componentValuesStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp) override;
 
