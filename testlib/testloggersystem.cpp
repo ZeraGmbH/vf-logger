@@ -20,6 +20,8 @@ TestLoggerSystem::TestLoggerSystem()
 
 void TestLoggerSystem::setupServer()
 {
+    QDir dir;
+    dir.mkpath(getCustomerDataPath());
     m_server = std::make_unique<TestVeinServer>();
     m_storage = m_server->getStorage();
 
@@ -66,7 +68,6 @@ void TestLoggerSystem::appendCustomerDataSystem()
     m_customerDataSystem = std::make_unique<CustomerDataSystem>(getCustomerDataPath());
     m_server->appendEventSystem(m_customerDataSystem.get());
     m_customerDataSystem->initializeEntity();
-    TestLoggerDB::setCustomerDataSupported(true);
     TimeMachineObject::feedEventLoop();
 }
 
@@ -82,7 +83,6 @@ void TestLoggerSystem::cleanup()
     TimeMachineObject::feedEventLoop();
     m_scriptSystem = nullptr;
     TimeMachineObject::feedEventLoop();
-    TestLoggerDB::setCustomerDataSupported(false);
     m_customerDataSystem = nullptr;
     TimeMachineObject::feedEventLoop();
     QDir dir(getCustomerDataPath());

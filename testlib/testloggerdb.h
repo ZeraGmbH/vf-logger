@@ -41,14 +41,16 @@ public:
 
 // Test specific additions
     static TestLoggerDB* getInstance();
-    static void setCustomerDataSupported(bool supported);
+    void setCustomerDataAlreadyInDbSession(bool inSession);
     void deleteDbFile();
 signals:
     void sigSessionStaticDataAdded(QJsonObject sessionInfo);
+    void sigEntityAdded(int entityId, QString entityName);
+    void sigComponentAdded(QString componentName);
 
 private:
     static TestLoggerDB* m_instance;
-    static bool m_customerDataSupported;
+    bool m_customerDataAlreadyInDbSession;
     QString m_openDbPath;
     QStringList m_dbSessionNames = QStringList() << "DbTestSession1" << "DbTestSession2";
     STORAGE_MODE m_storageMode = AbstractLoggerDB::STORAGE_MODE::TEXT;
