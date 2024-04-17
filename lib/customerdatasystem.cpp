@@ -93,6 +93,11 @@ CustomerDataSystem::CustomerDataSystem(QString cutomerDataPath, QObject *parent)
     connect(this, &CustomerDataSystem::sigDataValueChanged, this, &CustomerDataSystem::updateDataFile);
 }
 
+QStringList CustomerDataSystem::getComponentNames()
+{
+    return s_componentIntrospection.keys();
+}
+
 void CustomerDataSystem::processEvent(QEvent *t_event)
 {
     if(t_event->type() == VeinEvent::CommandEvent::getQEventType()) {
@@ -209,7 +214,7 @@ void CustomerDataSystem::initializeEntity()
     VeinComponent::ComponentData *initData=nullptr;
     VeinComponent::RemoteProcedureData *rpcData=nullptr;
 
-    const QList<QString> tmpComponentList = CustomerDataSystem::s_componentIntrospection.keys();
+    const QList<QString> tmpComponentList = getComponentNames();
     for(const QString &tmpComponentName : qAsConst(tmpComponentList)) {
         QJsonObject tmpComponentObject;
         tmpComponentObject.insert("Description", CustomerDataSystem::s_componentIntrospection.value(tmpComponentName));
@@ -265,7 +270,7 @@ void CustomerDataSystem::initializeEntity()
 
 void CustomerDataSystem::unloadFile(){
     VeinComponent::ComponentData *initData=nullptr;
-    const QList<QString> tmpComponentList = CustomerDataSystem::s_componentIntrospection.keys();
+    const QList<QString> tmpComponentList = getComponentNames();
     for(const QString &tmpComponentName : qAsConst(tmpComponentList)) {
         if(tmpComponentName != CustomerDataSystem::s_entityNameComponentName) {
             initData = new VeinComponent::ComponentData();
@@ -320,7 +325,7 @@ bool CustomerDataSystem::parseCustomerDataFile(const QString &t_fileName)
             const QJsonObject tmpObject = m_currentCustomerDocument.object();
             QStringList documentKeyList(tmpObject.keys());
             QSet<QString> entries(documentKeyList.begin(), documentKeyList.end());
-            QStringList componentNameList = s_componentIntrospection.keys();
+            QStringList componentNameList = getComponentNames();
             QSet<QString> componentNames(componentNameList.begin(), componentNameList.end());
             //remove hostile entries that have no use in the file
             componentNames.remove(CustomerDataSystem::s_entityNameComponentName);
@@ -358,7 +363,7 @@ bool CustomerDataSystem::parseCustomerDataFile(const QString &t_fileName)
         }
     }
     else {
-        QStringList componentNameList(s_componentIntrospection.keys());
+        QStringList componentNameList(getComponentNames());
         QSet<QString> componentNames(componentNameList.begin(), componentNameList.end());
         componentNames.remove(CustomerDataSystem::s_entityNameComponentName);
         componentNames.remove(CustomerDataSystem::s_fileSelectedComponentName);
@@ -442,7 +447,7 @@ void CustomerDataSystem::customerDataAdd(const QUuid &t_callId, const QVariantMa
                 if(newCustomerDataFile.open(QIODevice::WriteOnly)) {
                     QJsonDocument dataDocument;
                     QJsonObject rootObject;
-                    QList<QString> entries = CustomerDataSystem::s_componentIntrospection.keys();
+                    QList<QString> entries = getComponentNames();
                     //remove entries that have no use in the file
                     entries.removeAll(CustomerDataSystem::s_entityNameComponentName);
                     entries.removeAll(CustomerDataSystem::s_fileSelectedComponentName);
