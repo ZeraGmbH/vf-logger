@@ -1,7 +1,7 @@
 {
     "2": {
         "CustomerData": "",
-        "DatabaseFile": "/tmp/DB_NAME_OPEN_OK",
+        "DatabaseFile": "/tmp/veindb-test/DB_NAME_OPEN_OK",
         "DatabaseReady": true,
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [

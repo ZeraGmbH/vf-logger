@@ -5,7 +5,7 @@
 
 TestLoggerDB* TestLoggerDB::m_instance = nullptr;
 
-const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/DB_NAME_OPEN_OK");
+const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/veindb-test/DB_NAME_OPEN_OK");
 const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
 const QLatin1String TestLoggerDB::DBNameOpenErrorLate = QLatin1String("/tmp/DB_NAME_OPEN_ERR");
 
