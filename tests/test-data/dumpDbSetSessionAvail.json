@@ -1,12 +1,12 @@
 {
     "2": {
-        "CustomerData": "test_customer_data.json",
+        "CustomerData": "/tmp/test-vf-logger-customerdata/test_customer_data.json",
         "DatabaseFile": "/tmp/DB_NAME_OPEN_OK",
         "DatabaseReady": true,
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
-            "TestSession1",
-            "TestSession2"
+            "DbTestSession1",
+            "DbTestSession2"
         ],
         "LoggedComponents": {
         },
@@ -23,7 +23,7 @@
         "currentContentSets": [
         ],
         "guiContext": "",
-        "sessionName": "TestSession1",
+        "sessionName": "DbTestSession1",
         "transactionName": ""
     }
 }

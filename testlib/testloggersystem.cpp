@@ -9,6 +9,7 @@
 #include <timemachineobject.h>
 #include <QBuffer>
 #include <QThread>
+#include <QDir>
 
 TestLoggerSystem::TestLoggerSystem()
 {
@@ -60,6 +61,20 @@ void TestLoggerSystem::setupServer()
     TimeMachineObject::feedEventLoop();
 }
 
+void TestLoggerSystem::appendCustomerDataSystem()
+{
+    m_customerDataSystem = std::make_unique<CustomerDataSystem>(getCustomerDataPath());
+    m_server->appendEventSystem(m_customerDataSystem.get());
+    m_customerDataSystem->initializeEntity();
+    TestLoggerDB::setCustomerDataSupported(true);
+    TimeMachineObject::feedEventLoop();
+}
+
+QString TestLoggerSystem::getCustomerDataPath()
+{
+    return "/tmp/test-vf-logger-customerdata/";
+}
+
 void TestLoggerSystem::cleanup()
 {
     m_server = nullptr;
@@ -67,6 +82,11 @@ void TestLoggerSystem::cleanup()
     TimeMachineObject::feedEventLoop();
     m_scriptSystem = nullptr;
     TimeMachineObject::feedEventLoop();
+    TestLoggerDB::setCustomerDataSupported(false);
+    m_customerDataSystem = nullptr;
+    TimeMachineObject::feedEventLoop();
+    QDir dir(getCustomerDataPath());
+    dir.removeRecursively();
 }
 
 void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)

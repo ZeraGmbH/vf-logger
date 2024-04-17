@@ -1,8 +1,10 @@
 #include "testloggerdb.h"
+#include "testloggersystem.h"
 #include <timemachineobject.h>
 #include <QJsonArray>
 
 TestLoggerDB* TestLoggerDB::m_instance = nullptr;
+bool TestLoggerDB::m_customerDataSupported = false;
 
 const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/DB_NAME_OPEN_OK");
 const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
@@ -11,6 +13,12 @@ const QLatin1String TestLoggerDB::DBNameOpenErrorLate = QLatin1String("/tmp/DB_N
 TestLoggerDB *TestLoggerDB::getInstance()
 {
     return m_instance;
+}
+
+void TestLoggerDB::setCustomerDataSupported(bool supported)
+{
+    if(m_instance)
+        m_customerDataSupported = supported;
 }
 
 TestLoggerDB::TestLoggerDB()
@@ -27,17 +35,19 @@ TestLoggerDB::~TestLoggerDB()
 
 bool TestLoggerDB::hasEntityId(int entityId) const
 {
-
+    if(entityId == customerDataEntityId)
+        return m_customerDataSupported;
 }
 
 bool TestLoggerDB::hasComponentName(const QString &componentName) const
 {
-
+    if(CustomerDataSystem::getComponentNames().contains(componentName))
+        return m_customerDataSupported;
 }
 
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
 {
-    return m_sessionNames.contains(sessionName);
+    return m_dbSessionNames.contains(sessionName);
 }
 
 bool TestLoggerDB::databaseIsOpen() const
@@ -103,14 +113,14 @@ QJsonDocument TestLoggerDB::readTransaction(const QString &p_transaction, const 
 QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
 {
     if(p_entity == "CustomerData" && p_component == "FileSelected")
-        return "test_customer_data.json";
+        return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> staticData)
 {
     // for vf-logger
-    m_sessionNames.append(sessionName);
-    emit sigNewSessionList(m_sessionNames);
+    m_dbSessionNames.append(sessionName);
+    emit sigNewSessionList(m_dbSessionNames);
 
     // for test
     QJsonArray array;
@@ -122,7 +132,7 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> stat
     staticJson.insert(sessionName, array);
     emit sigSessionAdded(staticJson);
 
-    return m_sessionNames.count();
+    return m_dbSessionNames.count();
 }
 
 bool TestLoggerDB::deleteSession(const QString &session)
@@ -140,7 +150,7 @@ bool TestLoggerDB::openDatabase(const QString &dbPath)
     // This one seems to run in another thread so we can use emit
     if(dbPath == DBNameOpenOk) {
         m_openDbPath = dbPath;
-        emit sigNewSessionList(m_sessionNames);
+        emit sigNewSessionList(m_dbSessionNames);
         TimeMachineObject::feedEventLoop();
 
         emit sigDatabaseReady();

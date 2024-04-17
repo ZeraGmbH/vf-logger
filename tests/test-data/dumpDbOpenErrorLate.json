@@ -5,8 +5,8 @@
         "DatabaseReady": true,
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
-            "TestSession1",
-            "TestSession2"
+            "DbTestSession1",
+            "DbTestSession2"
         ],
         "LoggedComponents": {
         },

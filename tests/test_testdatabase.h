@@ -15,6 +15,9 @@ private slots:
     void openDatabaseOk();
     void setSessionNotExistentInDb();
     void setSessionExistentInDb();
+    void setupCustomerData();
+    void setSessionNotExistentWithCustomerData();
+
 private:
     TestLoggerSystem m_testSystem;
 };
