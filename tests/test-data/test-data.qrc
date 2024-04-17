@@ -5,6 +5,7 @@
 
         <file>dumpComponentsOnSessionNewWithCustomerdata.json</file>
         <file>dumpDbCustomerDataInitial.json</file>
+        <file>dumpDbFileRemoved.json</file>
         <file>dumpDbOpenErrorEarly.json</file>
         <file>dumpDbOpenErrorLate.json</file>
         <file>dumpDbOpenOk.json</file>
