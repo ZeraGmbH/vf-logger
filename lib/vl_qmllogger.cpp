@@ -13,7 +13,7 @@ DatabaseLogger *QmlLogger::s_dbLogger = nullptr;
 QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
 {
     VF_ASSERT(s_dbLogger != nullptr, "Required static logging instance is not set");
-    connect(s_dbLogger, SIGNAL(sigLoggingEnabledChanged(bool)), this, SIGNAL(loggingEnabledChanged(bool)));
+    connect(s_dbLogger, &DatabaseLogger::sigLoggingEnabledChanged, this, &QmlLogger::loggingEnabledChanged);
 }
 
 QString QmlLogger::sessionName() const

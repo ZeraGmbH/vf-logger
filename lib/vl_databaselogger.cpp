@@ -193,7 +193,7 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath); // throws sigDatabaseError on error
     if(validStorage == true) {
         if(m_dPtr->m_database != nullptr) {
-            disconnect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
+            disconnect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
             m_dPtr->m_database->deleteLater();
             m_dPtr->m_database = nullptr;
         }
@@ -201,23 +201,25 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         m_dPtr->m_asyncDatabaseThread.wait();
         m_dPtr->m_database = m_dPtr->m_databaseFactory();//new SQLiteDB(t_storageMode);
         // forward database's error my handler
-        connect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
+        connect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
         m_dPtr->m_database->setStorageMode(m_dPtr->m_storageMode);
         if(m_dPtr->m_database->requiresOwnThread()) {
             m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
             m_dPtr->m_asyncDatabaseThread.start();
         }
-        // will be queued connection due to thread affinity
+
+        // connections to m_dPtr->m_database are queued for requiresOwnThread() == true
         connect(this, &DatabaseLogger::sigAddLoggedValue, m_dPtr->m_database, &AbstractLoggerDB::addLoggedValue);
-        connect(this, SIGNAL(sigAddEntity(int, QString)), m_dPtr->m_database, SLOT(addEntity(int, QString)));
-        connect(this, SIGNAL(sigAddComponent(QString)), m_dPtr->m_database, SLOT(addComponent(QString)));
+        connect(this, &DatabaseLogger::sigAddEntity, m_dPtr->m_database, &AbstractLoggerDB::addEntity);
+        connect(this, &DatabaseLogger::sigAddComponent, m_dPtr->m_database, &AbstractLoggerDB::addComponent);
         connect(this, &DatabaseLogger::sigAddSession, m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::addSession);
         connect(this, &DatabaseLogger::sigOpenDatabase, m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::openDatabase);
         connect(m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
-        connect(&m_dPtr->m_batchedExecutionTimer, SIGNAL(timeout()), m_dPtr->m_database, SLOT(runBatchedExecution()));
-        // run final batch instantly when logging is disabled
-        connect(m_dPtr->m_loggingDisabledState, SIGNAL(entered()), m_dPtr->m_database, SLOT(runBatchedExecution()));
         connect(m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
+
+        connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_dPtr->m_database, &AbstractLoggerDB::runBatchedExecution);
+        // run final batch instantly when logging is disabled
+        connect(m_dPtr->m_loggingDisabledState, &QAbstractState::entered, m_dPtr->m_database, &AbstractLoggerDB::runBatchedExecution);
 
         emit sigOpenDatabase(t_filePath);
     }
@@ -229,7 +231,7 @@ void DatabaseLogger::closeDatabase()
     m_dPtr->m_noUninitMessage = false;
     setLoggingEnabled(false);
     if(m_dPtr->m_database != nullptr) {
-        disconnect(m_dPtr->m_database, SIGNAL(sigDatabaseError(QString)), this, SIGNAL(sigDatabaseError(QString)));
+        disconnect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
         m_dPtr->m_database->deleteLater();
         m_dPtr->m_database = nullptr;
     }
