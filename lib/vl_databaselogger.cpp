@@ -308,7 +308,7 @@ QVariant DatabaseLogger::RPC_readSessionComponent(QVariantMap p_parameters){
 }
 
 
-
+// Interesting but not used anywhere
 QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
     QString session = p_parameters["p_session"].toString();
     QString transaction = p_parameters["p_transaction"].toString();
