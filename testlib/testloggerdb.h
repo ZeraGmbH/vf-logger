@@ -46,6 +46,7 @@ public:
     static TestLoggerDB* getInstance();
     void setCustomerDataAlreadyInDbSession(bool inSession);
     void deleteDbFile();
+    QByteArray getLoggedValues();
 signals:
     void sigSessionStaticDataAdded(QJsonObject sessionInfo);
     void sigEntityAdded(int entityId, QString entityName);
@@ -58,6 +59,16 @@ private:
     QStringList m_dbSessionNames = QStringList() << "DbTestSession1" << "DbTestSession2";
     STORAGE_MODE m_storageMode = AbstractLoggerDB::STORAGE_MODE::TEXT;
     int m_dataWriteIdCount = 0;
+    QMap<int, QString> m_entitiesAdded;
+    QSet<QString> m_componentsAdded;
+    struct LoggedValue {
+        QString sessionName;
+        int entityId;
+        QString componentName;
+        QVariant value;
+        int dataWriteIdCount;
+    };
+    QList<LoggedValue> m_loggedValues;
 };
 
 #endif // TESTLOGGERDB_H

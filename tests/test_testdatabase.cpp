@@ -218,3 +218,59 @@ void test_testdatabase::openSelectExistingSessionAndClose()
     jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
+
+void test_testdatabase::recordVeinDump()
+{
+    startLoggerWithComponents();
+
+    QFile file(":/dumpDbRecordInitial.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::recordOneContentSet()
+{
+    startLoggerWithComponents();
+
+    QFile file(":/dumpRecordOneContentSet.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestLoggerDB::getInstance()->getLoggedValues();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::startLoggerWithComponents()
+{
+    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+
+    setInitialVeinComponents();
+
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem.setComponent(dataLoggerEntityId, "transactionName", "TestTransaction");
+    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+
+    setLoggerOnComponents();
+}
+
+void test_testdatabase::setInitialVeinComponents()
+{
+    for(int entityId=10; entityId<=12; entityId++) {
+        m_testSystem.setComponent(entityId, "ComponentName1", 1);
+        m_testSystem.setComponent(entityId, "ComponentName2", 2);
+        m_testSystem.setComponent(entityId, "ComponentName3", 3);
+    }
+}
+
+void test_testdatabase::setLoggerOnComponents()
+{
+    for(int i=1; i<=2; i++) {
+        for(int entityId=10; entityId<=12; entityId++) {
+            m_testSystem.setComponent(entityId, "ComponentName1", i+entityId+0);
+            m_testSystem.setComponent(entityId, "ComponentName2", i+entityId+1);
+            m_testSystem.setComponent(entityId, "ComponentName3", i+entityId+2);
+        }
+    }
+}
