@@ -1,9 +1,12 @@
 #include "vl_databaselogger.h"
 #include "vl_globallabels.h"
 #include "dataloggerprivate.h"
+#include "loggercontentsetconfig.h"
+#include <vl_componentunion.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
+#include <vf_client_component_setter.h>
 #include <vf_server_component_setter.h>
 #include <QHash>
 #include <QDir>
@@ -86,7 +89,7 @@ void DatabaseLogger::addScript(QmlLogger *script)
         if(script->initializeValues() == true) {
             const QString tmpsessionName = script->sessionName();
             const QVector<QString> tmpTransactionName = {script->transactionName()};
-            QString tmpContentSets = script->contentSets().join(QLatin1Char(','));
+            QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
             //add a new transaction and store ids in script.
             script->setTransactionId(m_dPtr->m_database->addTransaction(script->transactionName(),script->sessionName(), tmpContentSets, script->guiContext()));
             const QVector<int> tmpTransactionIds = {script->getTransactionId()};
@@ -612,8 +615,18 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
-                                                                               cData->oldValue(), cData->newValue());
+                        m_contentSets = cData->newValue().toStringList();
+                        QVariantMap loggedComponents = readContentSets();
+                        clearLoggerEntries();
+
+                        QEvent* event;
+                        // Client: we choose same as a client would - it can still access availableContentSets
+                        event = VfClientComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::loggedComponentsComponentName,
+                                                                       QVariant(), loggedComponents);
+                        emit sigSendEvent(event);
+
+                        event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
+                                                                       cData->oldValue(), cData->newValue());
                         emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
@@ -666,4 +679,26 @@ void DatabaseLogger::loadScripts(VeinScript::ScriptSystem *scriptSystem)
             qWarning() << "Error loading script file:" << scriptFilePath;
     }
 }
+
+QVariantMap DatabaseLogger::readContentSets()
+{
+    typedef QMap<int, QStringList> TEcMap;
+    TEcMap tmpResultMap;
+    for(auto &contentSet : m_contentSets) {
+        for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment()) {
+            TEcMap ecMap = confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
+            TEcMap::const_iterator iter;
+            for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
+                ComponentUnion::uniteComponents(tmpResultMap, iter.key(), iter.value());
+            }
+        }
+    }
+    QVariantMap resultMap;
+    TEcMap::const_iterator iter;
+    for(iter=tmpResultMap.constBegin(); iter!=tmpResultMap.constEnd(); ++iter) {
+        resultMap[QString::number(iter.key())] = tmpResultMap[iter.key()];
+    }
+    return resultMap;
+}
+
 }

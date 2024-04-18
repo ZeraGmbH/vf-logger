@@ -67,7 +67,9 @@ private:
     QVariant handleVeinDbSessionNameSet(QString sessionName);
     bool isLoggedComponent(int entityId, const QString &componentName) const;
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
+    QVariantMap readContentSets();
 
+    QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
     DataLoggerPrivate *m_dPtr=nullptr;
 };

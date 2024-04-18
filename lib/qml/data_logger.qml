@@ -17,18 +17,6 @@ VeinLogger {
         loggerEntity.availableContentSets = getAvailableContentSets();
     }
 
-    // next candidate for C++
-    readonly property var sysContentSets: loggerEntity.currentContentSets;
-    onSysContentSetsChanged: {
-        // update VeinLogger property contentSet
-        contentSets = loggerEntity.currentContentSets;
-
-        var loggedComponentsFromContentSets = readContentSets();
-
-        clearLoggerEntries();
-        loggerEntity.LoggedComponents = loggedComponentsFromContentSets;
-    }
-
     readonly property bool scriptRunning: loggingEnabled
     onScriptRunningChanged: {
         if(scriptRunning === true) {

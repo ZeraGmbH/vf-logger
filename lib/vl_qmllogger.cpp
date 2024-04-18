@@ -1,7 +1,6 @@
 #include "vl_qmllogger.h"
 #include "loggercontentsetconfig.h"
 #include <vl_databaselogger.h>
-#include <vl_componentunion.h>
 #include <QCoreApplication>
 #include <QQmlEngine>
 
@@ -24,11 +23,6 @@ QString QmlLogger::sessionName() const
 QString QmlLogger::transactionName() const
 {
     return m_transactionName;
-}
-
-QStringList QmlLogger::contentSets() const
-{
-    return m_contentSets;
 }
 
 QString QmlLogger::guiContext() const
@@ -62,27 +56,6 @@ QStringList QmlLogger::getAvailableContentSets()
     return LoggerContentSetConfig::getAvailableContentSets();
 }
 
-QVariantMap QmlLogger::readContentSets()
-{
-    typedef QMap<int, QStringList> TEcMap;
-    TEcMap tmpResultMap;
-    for(auto &contentSet : m_contentSets) {
-        for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment()) {
-            TEcMap ecMap = confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
-            TEcMap::const_iterator iter;
-            for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
-                ComponentUnion::uniteComponents(tmpResultMap, iter.key(), iter.value());
-            }
-        }
-    }
-    QVariantMap resultMap;
-    TEcMap::const_iterator iter;
-    for(iter=tmpResultMap.constBegin(); iter!=tmpResultMap.constEnd(); ++iter) {
-        resultMap[QString::number(iter.key())] = tmpResultMap[iter.key()];
-    }
-    return resultMap;
-}
-
 void QmlLogger::startLogging()
 {
     bool validConditions = true;
@@ -101,11 +74,6 @@ void QmlLogger::startLogging()
 void QmlLogger::stopLogging()
 {
     s_dbLogger->removeScript(this);
-}
-
-void QmlLogger::clearLoggerEntries()
-{
-    s_dbLogger->clearLoggerEntries();
 }
 
 void QmlLogger::setSessionName(QString t_sessionName)
@@ -131,15 +99,6 @@ void QmlLogger::setInitializeValues(bool t_initializeValues)
         return;
     m_initializeValues = t_initializeValues;
     emit initializeValuesChanged(t_initializeValues);
-}
-
-void QmlLogger::setContentSets(const QStringList &t_contentSets)
-{
-    if (m_contentSets == t_contentSets)
-        return;
-
-    m_contentSets =  t_contentSets;
-    emit contentSetsChanged(t_contentSets);
 }
 
 void QmlLogger::setGuiContext(const QString &t_guiContext)
