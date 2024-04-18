@@ -18,24 +18,28 @@ TestLoggerSystem::TestLoggerSystem()
     ModuleManagerSetupFacade::registerMetaTypeStreamOperators();
 }
 
-void TestLoggerSystem::setupServer()
+void TestLoggerSystem::setupServer(int entityCount, int componentCount)
 {
     QDir dir;
     dir.mkpath(getCustomerDataPath());
+
     m_server = std::make_unique<TestVeinServer>();
     m_storage = m_server->getStorage();
 
-    // in production modulemagaer there is this lambda hopping
-    // here we can sequentialize by TimeMachineObject::feedEventLoop()
-    for(int entityId = 10; entityId<13; entityId++) {
+    const int baseEntityId = 10;
+    const int baseComponentNum = 1;
+    for(int entityId = baseEntityId; entityId<baseEntityId+entityCount; entityId++) {
         QString entityName = QString("EntityName%1").arg(entityId);
         m_server->addEntity(entityId, entityName);
-        for(int component=1; component<=3; component++) {
+        for(int component=baseComponentNum; component<baseComponentNum+componentCount; component++) {
             QString componentName = QString("ComponentName%1").arg(component);
-            m_server->addComponent(entityId, componentName, component, false);
+            m_server->addComponent(entityId, componentName, QVariant(), false);
+            m_componentsCreated[entityId].append(componentName);
         }
     }
 
+    // in production modulemagaer there is this lambda hopping
+    // here we can sequentialize by TimeMachineObject::feedEventLoop()
     m_scriptSystem = std::make_unique<VeinScript::ScriptSystem>();
     m_server->appendEventSystem(m_scriptSystem.get());
 
@@ -92,6 +96,11 @@ void TestLoggerSystem::cleanup()
 void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)
 {
     m_server->setComponent(entityId, componentName, newValue);
+}
+
+QMap<int, QList<QString> > TestLoggerSystem::getComponentsCreated()
+{
+    return m_componentsCreated;
 }
 
 QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)

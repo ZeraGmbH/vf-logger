@@ -1,17 +1,15 @@
 {
     "2": {
         "CustomerData": "",
-        "DatabaseFile": "/tmp/veindb-test/DB_NAME_OPEN_OK",
-        "DatabaseReady": true,
+        "DatabaseFile": "",
+        "DatabaseReady": false,
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
-            "DbTestSession1",
-            "DbTestSession2"
         ],
         "LoggedComponents": {
         },
         "LoggingEnabled": false,
-        "LoggingStatus": "Database loaded",
+        "LoggingStatus": "Database error",
         "ScheduledLoggingCountdown": 0,
         "ScheduledLoggingDuration": null,
         "ScheduledLoggingEnabled": false,

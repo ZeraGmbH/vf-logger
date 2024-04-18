@@ -17,11 +17,13 @@ class TestLoggerSystem
 {
 public:
     TestLoggerSystem();
-    void setupServer();
+    void setupServer(int entityCount=2, int componentCount=2);
     void appendCustomerDataSystem();
     static QString getCustomerDataPath();
     void cleanup();
     void setComponent(int entityId, QString componentName, QVariant newValue);
+
+    QMap<int, QList<QString>> getComponentsCreated();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
 private:
     std::unique_ptr<TestVeinServer> m_server;
@@ -30,6 +32,8 @@ private:
     std::unique_ptr<VeinApiQml::VeinQml> m_qmlSystem;
     std::unique_ptr<ZeraDBLogger> m_dataLoggerSystem;
     std::unique_ptr<CustomerDataSystem> m_customerDataSystem;
+
+    QMap<int, QList<QString>> m_componentsCreated;
 };
 
 #endif // TESTLOGGERSYSTEM_H

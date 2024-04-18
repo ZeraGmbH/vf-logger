@@ -30,7 +30,7 @@ TestLoggerDB::~TestLoggerDB()
 {
     deleteDbFile();
     if(m_instance != this)
-        qFatal("Seems we have another m_instance!");
+        qFatal("Seems another instance was created!");
     m_instance = nullptr;
 }
 
@@ -42,9 +42,25 @@ void TestLoggerDB::deleteDbFile()
     }
 }
 
-QByteArray TestLoggerDB::getLoggedValues()
+QByteArray TestLoggerDB::getJsonDumpedComponentStored()
 {
-    QJsonArray loggedArray;
+    QJsonObject initialData;
+    for(auto entityIter=m_initialValues.cbegin(); entityIter!=m_initialValues.cend(); entityIter++) {
+        const int entityId = entityIter.key();
+        const QMap<QString, InitialValue> &component = entityIter.value();
+        QJsonObject entityValues;
+        for(auto componentIter=component.cbegin(); componentIter!=component.cend(); componentIter++) {
+            QString componentName = componentIter.key();
+            InitialValue value = componentIter.value();
+            QJsonObject componentValues;
+            componentValues.insert("sessionName", value.sessionName);
+            componentValues.insert("value", value.value.toString());
+            entityValues.insert(componentName, componentValues);
+        }
+        initialData.insert(QString::number(entityId), entityValues);
+    }
+
+    QJsonArray recordedData;
     for(const auto &loggedVal : qAsConst(m_loggedValues)) {
         QJsonObject entry;
         entry.insert("sessionName", loggedVal.sessionName);
@@ -52,11 +68,19 @@ QByteArray TestLoggerDB::getLoggedValues()
         entry.insert("componentName", loggedVal.componentName);
         entry.insert("entity_component_value", loggedVal.value.toJsonValue());
         entry.insert("writeId", loggedVal.dataWriteIdCount);
-        loggedArray.append(entry);
+        recordedData.append(entry);
     }
+
     QJsonObject loggedValues;
-    loggedValues.insert("LoggedValues", loggedArray);
+    loggedValues.insert("AddSessionValues", m_sessionOnceComponentsAdded);
+    loggedValues.insert("OnLoggerStartValues", initialData);
+    loggedValues.insert("ValuesRecordedChronological", recordedData);
     return QJsonDocument(loggedValues).toJson();
+}
+
+void TestLoggerDB::valuesFromNowOnAreRecorded()
+{
+    m_valuesAreInitial = false;
 }
 
 bool TestLoggerDB::hasEntityId(int entityId) const
@@ -155,14 +179,15 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> comp
     m_dbSessionNames.append(sessionName);
     emit sigNewSessionList(m_dbSessionNames);
 
-    // for test sequence regression
-    m_dataWriteIdCount++;
+    // for test
+    m_valueWriteCount++;
+
     QMap<QString, QVariantMap> componentValuesSorted;
     for(int i=0; i<componentValuesStoredOncePerSession.count(); i++) {
         QVariantMap variantEntry = componentValuesStoredOncePerSession[i];
         Q_ASSERT(variantEntry.contains("time"));
         // timestamps must be there but are not suited for textfile dumps
-        variantEntry["time"] = QDateTime::fromSecsSinceEpoch(m_dataWriteIdCount, Qt::UTC);
+        variantEntry["time"] = QDateTime::fromSecsSinceEpoch(m_valueWriteCount, Qt::UTC);
 
         Q_ASSERT(variantEntry.contains("compName"));
         componentValuesSorted.insert(variantEntry["compName"].toString(), variantEntry);
@@ -173,7 +198,7 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> comp
     }
     QJsonObject staticJson;
     staticJson.insert(sessionName, jsonArray);
-    emit sigSessionStaticDataAdded(staticJson);
+    m_sessionOnceComponentsAdded.append(staticJson);
 
     return m_dbSessionNames.count();
 }
@@ -188,10 +213,17 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
     Q_UNUSED(timestamp)
     if(!transactionIds.contains(testTransactionId))
         qFatal("Unexpected transaction ids!");
-    // for test sequence regression
-    m_dataWriteIdCount++;
-    LoggedValue logVal = { sessionName, entityId, componentName, value, m_dataWriteIdCount};
-    m_loggedValues.append(logVal);
+
+    m_valueWriteCount++;
+
+    if(m_valuesAreInitial) {
+        InitialValue initVal = { sessionName, value };
+        m_initialValues[entityId][componentName] = initVal;
+    }
+    else {
+        LoggedValue logVal = { sessionName, entityId, componentName, value, m_valueWriteCount};
+        m_loggedValues.append(logVal);
+    }
 }
 
 bool TestLoggerDB::openDatabase(const QString &dbPath)

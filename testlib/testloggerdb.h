@@ -3,6 +3,10 @@
 
 #include "vl_abstractloggerdb.h"
 #include <QJsonObject>
+#include <QJsonArray>
+#include <QSet>
+#include <QMap>
+#include <QList>
 
 class TestLoggerDB : public VeinLogger::AbstractLoggerDB
 {
@@ -44,24 +48,38 @@ public:
 
 // Test specific additions
     static TestLoggerDB* getInstance();
+    QByteArray getJsonDumpedComponentStored();
+
     void setCustomerDataAlreadyInDbSession(bool inSession);
     void deleteDbFile();
-    QByteArray getLoggedValues();
+    void valuesFromNowOnAreRecorded();
 signals:
-    void sigSessionStaticDataAdded(QJsonObject sessionInfo);
     void sigEntityAdded(int entityId, QString entityName);
     void sigComponentAdded(QString componentName);
 
 private:
-    static TestLoggerDB* m_instance;
     bool m_customerDataAlreadyInDbSession = false;
+    int m_valueWriteCount = 0;
+
     QString m_openDbPath;
     QStringList m_dbSessionNames = QStringList() << "DbTestSession1" << "DbTestSession2";
     STORAGE_MODE m_storageMode = AbstractLoggerDB::STORAGE_MODE::TEXT;
-    int m_dataWriteIdCount = 0;
+
     QMap<int, QString> m_entitiesAdded;
     QSet<QString> m_componentsAdded;
-    struct LoggedValue {
+
+    QJsonArray m_sessionOnceComponentsAdded;
+
+    bool m_valuesAreInitial = true;
+    struct InitialValue
+    {
+        QString sessionName;
+        QVariant value;
+    };
+    QMap<int, QMap<QString, InitialValue>> m_initialValues;
+
+    struct LoggedValue
+    {
         QString sessionName;
         int entityId;
         QString componentName;
@@ -69,6 +87,8 @@ private:
         int dataWriteIdCount;
     };
     QList<LoggedValue> m_loggedValues;
+
+    static TestLoggerDB* m_instance;
 };
 
 #endif // TESTLOGGERDB_H
