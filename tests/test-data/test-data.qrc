@@ -10,6 +10,8 @@
         <file>dumpDbOpenErrorLate.json</file>
         <file>dumpDbOpenOk.json</file>
         <file>dumpDbOpenSetSessionAndClose.json</file>
+        <file>dumpDbRecordInitial.json</file>
+        <file>dumpRecordOneContentSet.json</file>
         <file>dumpDbSetSessionAvail.json</file>
         <file>dumpDbSetSessionNew.json</file>
         <file>dumpInitial.json</file>

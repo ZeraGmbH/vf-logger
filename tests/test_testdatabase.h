@@ -24,7 +24,13 @@ private slots:
 
     void removeDbFileForUsbStickGone();
     void openSelectExistingSessionAndClose(); // TODO bugs
+
+    void recordVeinDump();
+    void recordOneContentSet();
 private:
+    void startLoggerWithComponents();
+    void setInitialVeinComponents();
+    void setLoggerOnComponents();
     TestLoggerSystem m_testSystem;
 };
 

@@ -21,14 +21,16 @@ void TestLoggerDB::setCustomerDataAlreadyInDbSession(bool inSession)
 
 TestLoggerDB::TestLoggerDB()
 {
-    Q_ASSERT(!m_instance);
+    if(m_instance)
+        qFatal("m_instance is set!");
     m_instance = this;
 }
 
 TestLoggerDB::~TestLoggerDB()
 {
     deleteDbFile();
-    Q_ASSERT(m_instance == this);
+    if(m_instance != this)
+        qFatal("Seems we have another m_instance!");
     m_instance = nullptr;
 }
 
@@ -40,16 +42,35 @@ void TestLoggerDB::deleteDbFile()
     }
 }
 
+QByteArray TestLoggerDB::getLoggedValues()
+{
+    QJsonArray loggedArray;
+    for(const auto &loggedVal : qAsConst(m_loggedValues)) {
+        QJsonObject entry;
+        entry.insert("sessionName", loggedVal.sessionName);
+        entry.insert("entityId", loggedVal.entityId);
+        entry.insert("componentName", loggedVal.componentName);
+        entry.insert("entity_component_value", loggedVal.value.toJsonValue());
+        entry.insert("writeId", loggedVal.dataWriteIdCount);
+        loggedArray.append(entry);
+    }
+    QJsonObject loggedValues;
+    loggedValues.insert("LoggedValues", loggedArray);
+    return QJsonDocument(loggedValues).toJson();
+}
+
 bool TestLoggerDB::hasEntityId(int entityId) const
 {
     if(entityId == customerDataEntityId)
         return m_customerDataAlreadyInDbSession;
+    return m_entitiesAdded.contains(entityId);
 }
 
 bool TestLoggerDB::hasComponentName(const QString &componentName) const
 {
     if(CustomerDataSystem::getComponentNames().contains(componentName))
         return m_customerDataAlreadyInDbSession;
+    return m_componentsAdded.contains(componentName);
 }
 
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
@@ -79,37 +100,47 @@ VeinLogger::AbstractLoggerDB::STORAGE_MODE TestLoggerDB::getStorageMode() const
 
 void TestLoggerDB::initLocalData()
 {
-
 }
 
 void TestLoggerDB::addComponent(const QString &componentName)
 {
+    m_componentsAdded.insert(componentName);
     emit sigComponentAdded(componentName);
 }
 
 void TestLoggerDB::addEntity(int entityId, QString entityName)
 {
+    m_entitiesAdded.insert(entityId, entityName);
     emit sigEntityAdded(entityId, entityName);
 }
 
+static const int testTransactionId = 42;
+
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QString &contentSets, const QString &guiContextName)
 {
-
+    return testTransactionId;
 }
 
 bool TestLoggerDB::addStartTime(int transactionId, QDateTime time)
 {
-
+    Q_UNUSED(time);
+    if(transactionId != testTransactionId)
+        qFatal("Unexpected transaction id: %i!", transactionId);
+    return true;
 }
 
 bool TestLoggerDB::addStopTime(int transactionId, QDateTime time)
 {
-
+    Q_UNUSED(time);
+    if(transactionId != testTransactionId)
+        qFatal("Unexpected transaction id: %i!", transactionId);
+    return true;
 }
 
 QJsonDocument TestLoggerDB::readTransaction(const QString &p_transaction, const QString &p_session)
 {
-
+    Q_UNUSED(p_transaction)
+    Q_UNUSED(p_session)
 }
 
 QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
@@ -154,7 +185,13 @@ bool TestLoggerDB::deleteSession(const QString &session)
 
 void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp)
 {
-
+    Q_UNUSED(timestamp)
+    if(!transactionIds.contains(testTransactionId))
+        qFatal("Unexpected transaction ids!");
+    // for test sequence regression
+    m_dataWriteIdCount++;
+    LoggedValue logVal = { sessionName, entityId, componentName, value, m_dataWriteIdCount};
+    m_loggedValues.append(logVal);
 }
 
 bool TestLoggerDB::openDatabase(const QString &dbPath)
