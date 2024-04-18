@@ -1,25 +1,29 @@
 <RCC>
     <qresource prefix="/">
         <file>contentsets/test-session.json</file>
+
         <file>sessions/test-session.json</file>
 
-        <file>dumpComponentsOnSessionNewWithCustomerdata.json</file>
-        <file>dumpDbCustomerDataInitial.json</file>
-        <file>dumpDbFileRemoved.json</file>
-        <file>dumpDbOpenErrorEarly.json</file>
-        <file>dumpDbOpenErrorLate.json</file>
-        <file>dumpDbOpenOk.json</file>
-        <file>dumpDbOpenSetSessionAndClose.json</file>
-        <file>dumpDbRecordInitial.json</file>
-        <file>dumpRecordOneContentSet.json</file>
-        <file>dumpDbSetSessionAvail.json</file>
-        <file>dumpDbSetSessionNew.json</file>
-        <file>dumpInitial.json</file>
-        <file>dumpSetContentAll.json</file>
-        <file>dumpSetContentSetInvalid.json</file>
-        <file>dumpSetContentSetValidByString.json</file>
-        <file>dumpSetContentValid.json</file>
-        <file>dumpSetContentValidTwo.json</file>
-        <file>dumpSetContentValidTwoSame.json</file>
+        <file>recording-dumps/dumpCreateSession.json</file>
+        <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
+        <file>recording-dumps/dumpRecordOneContentSet.json</file>
+        <file>recording-dumps/dumpSelectExistingSession.json</file>
+
+        <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
+        <file>vein-dumps/dumpDbFileRemoved.json</file>
+        <file>vein-dumps/dumpDbOpenErrorEarly.json</file>
+        <file>vein-dumps/dumpDbOpenErrorLate.json</file>
+        <file>vein-dumps/dumpDbOpenOk.json</file>
+        <file>vein-dumps/dumpDbOpenSetSessionAndClose.json</file>
+        <file>vein-dumps/dumpDbRecordInitial.json</file>
+        <file>vein-dumps/dumpDbSetSessionAvail.json</file>
+        <file>vein-dumps/dumpDbSetSessionNew.json</file>
+        <file>vein-dumps/dumpInitial.json</file>
+        <file>vein-dumps/dumpSetContentAll.json</file>
+        <file>vein-dumps/dumpSetContentSetInvalid.json</file>
+        <file>vein-dumps/dumpSetContentSetValidByString.json</file>
+        <file>vein-dumps/dumpSetContentValid.json</file>
+        <file>vein-dumps/dumpSetContentValidTwo.json</file>
+        <file>vein-dumps/dumpSetContentValidTwoSame.json</file>
     </qresource>
 </RCC>

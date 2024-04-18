@@ -27,10 +27,12 @@ private slots:
 
     void recordVeinDump();
     void recordOneContentSet();
+
 private:
-    void startLoggerWithComponents();
-    void setInitialVeinComponents();
-    void setLoggerOnComponents();
+    void loadDatabase();
+    void setComponentValues(int valuesEmittedPerComponent);
+    void startLogging();
+
     TestLoggerSystem m_testSystem;
 };
 

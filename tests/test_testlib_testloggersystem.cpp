@@ -6,7 +6,7 @@ QTEST_MAIN(test_testlib_testloggersystem)
 
 void test_testlib_testloggersystem::init()
 {
-    m_testSystem.setupServer();
+    m_testSystem.setupServer(3, 3);
 }
 
 void test_testlib_testloggersystem::cleanup()
@@ -16,11 +16,11 @@ void test_testlib_testloggersystem::cleanup()
 
 void test_testlib_testloggersystem::systemSetupProperly()
 {
-    QFile file(":/dumpInitial.json");
+    QFile file(":/vein-dumps/dumpInitial.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QByteArray jsonDumped = m_testSystem.dumpStorage(QList<int>() << systemEntityId << dataLoggerEntityId << 10 << 11 << 12);
+    QByteArray jsonDumped = m_testSystem.dumpStorage(QList<int>() << systemEntityId << dataLoggerEntityId << m_testSystem.getComponentsCreated().keys());
 
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }

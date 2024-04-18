@@ -17,21 +17,21 @@
         ]
     },
     "10": {
-        "ComponentName1": 1,
-        "ComponentName2": 2,
-        "ComponentName3": 3,
+        "ComponentName1": null,
+        "ComponentName2": null,
+        "ComponentName3": null,
         "EntityName": "EntityName10"
     },
     "11": {
-        "ComponentName1": 1,
-        "ComponentName2": 2,
-        "ComponentName3": 3,
+        "ComponentName1": null,
+        "ComponentName2": null,
+        "ComponentName3": null,
         "EntityName": "EntityName11"
     },
     "12": {
-        "ComponentName1": 1,
-        "ComponentName2": 2,
-        "ComponentName3": 3,
+        "ComponentName1": null,
+        "ComponentName2": null,
+        "ComponentName3": null,
         "EntityName": "EntityName12"
     },
     "2": {
