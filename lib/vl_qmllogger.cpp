@@ -85,11 +85,17 @@ QVariantMap QmlLogger::readContentSets()
 
 void QmlLogger::startLogging()
 {
-    if(!m_sessionName.isEmpty() && !m_transactionName.isEmpty()){
-        VF_ASSERT(m_sessionName.isEmpty() == false, "Logging requires a valid sessionName");
-        VF_ASSERT(m_transactionName.isEmpty() == false, "Logging requires a valid transactionName");
-        s_dbLogger->addScript(this);
+    bool validConditions = true;
+    if(m_sessionName.isEmpty()) {
+        validConditions = false;
+        qWarning("Logging requires a valid sessionName!");
     }
+    if(m_transactionName.isEmpty()) {
+        validConditions = false;
+        qWarning("Logging requires a valid transactionName!");
+    }
+    if(validConditions)
+        s_dbLogger->addScript(this);
 }
 
 void QmlLogger::stopLogging()
