@@ -90,7 +90,7 @@ void test_testdatabase::selectExistingSession()
 
     // see DatabaseLogger::handleVeinDbSessionNameSet: If a session is already existent
     // => no session static components added
-    QFile fileRecording(":/recording-dumps/dumpSelectExistingSession.json");
+    QFile fileRecording(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(fileRecording.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileRecording.readAll();
     QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
@@ -269,6 +269,50 @@ void test_testdatabase::recordAllContentSets()
     setComponentValues(2);
 
     QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::noRecordTransactionMissing()
+{
+    m_testSystem.setupServer(3, 3);
+    loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    setComponentValues(1);
+
+    // see startLogging()
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    //m_testSystem.setComponent(dataLoggerEntityId, "transactionName", "TestTransaction");
+    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+
+    setComponentValues(2);
+
+    QFile file(":/recording-dumps/dumpRecordNotStarted.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::noRecordSessionMissing()
+{
+    m_testSystem.setupServer(3, 3);
+    loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    setComponentValues(1);
+
+    // see startLogging()
+    //m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem.setComponent(dataLoggerEntityId, "transactionName", "TestTransaction");
+    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+
+    setComponentValues(2);
+
+    QFile file(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
