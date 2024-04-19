@@ -90,17 +90,13 @@ void DataLoggerPrivate::initOnce()
             emit m_qPtr->sigSendEvent(systemEvent);
         }
 
-        QMap<QString,QString> tmpParamMap;
-        VfCpp::cVeinModuleRpc::Ptr tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_readTransaction",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_transaction", "QString"}})), &QObject::deleteLater);
-        m_rpcList[tmpval->rpcName()]=tmpval;
+        VfCpp::cVeinModuleRpc::Ptr tmpval;
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_readSessionComponent",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_entity", "QString"},{"p_component", "QString"}})), &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_deleteSession",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})), &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
-
         initStateMachine();
-
         m_initDone = true;
     }
 }
