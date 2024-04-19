@@ -301,16 +301,6 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters){
     return retVal;
 }
 
-QVariant DatabaseLogger::RPC_readSessionComponent(QVariantMap p_parameters){
-    QVariant retVal;
-    QString session = p_parameters["p_session"].toString();
-    QString entity = p_parameters["p_entity"].toString();
-    QString component = p_parameters["p_component"].toString();
-    retVal=m_dPtr->m_database->readSessionComponent(session,entity,component);
-    return retVal;
-}
-
-
 void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData)
 {
     QVariant oldValue = cData->oldValue();

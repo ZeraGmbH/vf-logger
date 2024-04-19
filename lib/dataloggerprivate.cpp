@@ -91,8 +91,6 @@ void DataLoggerPrivate::initOnce()
         }
 
         VfCpp::cVeinModuleRpc::Ptr tmpval;
-        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_readSessionComponent",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"},{"p_entity", "QString"},{"p_component", "QString"}})), &QObject::deleteLater);
-        m_rpcList[tmpval->rpcName()]=tmpval;
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_deleteSession",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})), &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 

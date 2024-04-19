@@ -56,7 +56,6 @@ public slots:
     void closeDatabase();
     void checkDatabaseStillValid();
     QVariant RPC_deleteSession(QVariantMap p_parameters);
-    QVariant RPC_readSessionComponent(QVariantMap p_parameters);
     void updateSessionList(QStringList sessionNames);
 
 private:
