@@ -108,27 +108,6 @@ class DBPrivate
         return retVal;
     }
 
-    QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session)
-    {
-        QJsonDocument  retVal;
-        QJsonArray     recordsArray;
-        m_readTransactionQuery.bindValue(":transaction",p_transaction);
-        m_readTransactionQuery.bindValue(":sessionname",p_session);
-        if (!m_readTransactionQuery.exec())return QJsonDocument();
-
-        while(m_readTransactionQuery.next())
-        {
-            QJsonObject recordObject;
-            for(int x=0; x < m_readTransactionQuery.record().count(); x++)
-            {
-                recordObject.insert( m_readTransactionQuery.record().fieldName(x),QJsonValue::fromVariant(m_readTransactionQuery.value(x)) );
-            }
-            recordsArray.push_back(recordObject);
-        }
-        retVal.setArray(recordsArray);
-        return retVal;
-    }
-
     QHash<QString, int> m_sessionIds;
     QHash<int, QString> m_transactionIds;
     QVector<int> m_entityIds;
@@ -286,11 +265,6 @@ void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode)
 AbstractLoggerDB::STORAGE_MODE SQLiteDB::getStorageMode() const
 {
     return m_dPtr->m_storageMode;
-}
-
-QJsonDocument SQLiteDB::readTransaction(const QString &p_transaction, const QString &p_session)
-{
-   return m_dPtr->readTransaction(p_transaction, p_session);
 }
 
 bool SQLiteDB::isValidDatabase(QString t_dbPath)

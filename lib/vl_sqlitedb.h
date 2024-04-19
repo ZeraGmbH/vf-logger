@@ -41,8 +41,6 @@ public:
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode) override;
     AbstractLoggerDB::STORAGE_MODE getStorageMode() const override;
 
-    QJsonDocument  readTransaction(const QString &p_transaction, const QString &p_session) override;
-
     static bool isValidDatabase(QString t_dbPath);
 
 public slots:
