@@ -309,6 +309,29 @@ void test_testdatabase::openRunLogAndClose()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
+void test_testdatabase::guiContextMakesItIntoDbAndVein()
+{
+    m_testSystem.setupServer();
+    loadDatabase();
+    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigAddTransaction);
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "TestGuiContext");
+
+    startLogging();
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy[0][0], "TestTransaction");
+    QCOMPARE(spy[0][1], "DbTestSession1");
+    QCOMPARE(spy[0][2], "TestSet1");
+    QCOMPARE(spy[0][3], "TestGuiContext");
+
+    QFile file(":/vein-dumps/dumpDbGuiContext.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 
 void test_testdatabase::loadDatabase()
 {

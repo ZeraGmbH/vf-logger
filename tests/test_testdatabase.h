@@ -14,7 +14,6 @@ private slots:
     void openDatabaseOk();
 
     void createSessionNoCustomerDataSystem();
-
     void setupCustomerData();
     void selectExistingSession();
     void createSession();
@@ -30,6 +29,7 @@ private slots:
     void noRecordSessionMissing();
     void removeDbFileForUsbStickGone();
     void openRunLogAndClose(); // TODO bugs
+    void guiContextMakesItIntoDbAndVein();
 
 private:
     void loadDatabase();

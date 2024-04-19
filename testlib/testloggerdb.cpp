@@ -142,6 +142,7 @@ static const int testTransactionId = 42;
 
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QString &contentSets, const QString &guiContextName)
 {
+    emit sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
     return testTransactionId;
 }
 

@@ -55,6 +55,7 @@ public:
 signals:
     void sigEntityAdded(int entityId, QString entityName);
     void sigComponentAdded(QString componentName);
+    void sigAddTransaction(const QString &transactionName, const QString &sessionName, const QString &contentSets, const QString &guiContextName);
 
 private:
     bool m_customerDataAlreadyInDbSession = false;
