@@ -316,9 +316,8 @@ QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
     QString session = p_parameters["p_session"].toString();
     QString transaction = p_parameters["p_transaction"].toString();
     QJsonDocument retVal;
-    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)){
+    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
         retVal=m_dPtr->m_database->readTransaction(transaction,session);
-    }
     return QVariant::fromValue(retVal.toJson());
 }
 
@@ -326,7 +325,6 @@ void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentD
 {
     QVariant oldValue = cData->oldValue();
     QVariant newValue = cData->newValue();
-
     if(oldValue != newValue)
         handleLoggedComponentsChange(newValue);
 
@@ -386,7 +384,6 @@ QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
     QVariant sessionCustomerDataName;
     if(!m_dPtr->m_database->hasSessionName(sessionName)) {
-        // Add session immediately: That helps us massively to create a smart user-interface
         QMultiHash<int, QString> tmpStaticComps;
         // Add customer data once per session
         if(m_dPtr->m_dataSource->hasEntity(200))
@@ -464,20 +461,15 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         }
                     }
 
-                    if(sessionName.length() > 0)
-                    {
-                        if(m_dPtr->m_database->hasSessionName(sessionName) == false) {
+                    if(sessionName.length() > 0) {
+                        if(m_dPtr->m_database->hasSessionName(sessionName) == false)
                             emit sigAddSession(sessionName,QList<QVariantMap>());
-                        }
-                        if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false) {
+                        if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
-                        }
-                        if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false) {
+                        if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false)
                             emit sigAddComponent(cData->componentName());
-                        }
-                        if(transactionIds.length() != 0) {
+                        if(transactionIds.length() != 0)
                             emit sigAddLoggedValue(sessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
-                        }
                     }
                 }
             }
@@ -528,9 +520,9 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
                             if(logDurationMsecs > 0) {
                                 m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
-                                if(activeStates.contains(requiredStates)) {
-                                    m_dPtr->m_schedulingTimer.start(); //restart timer
-                                }
+                                if(activeStates.contains(requiredStates))
+                                    m_dPtr->m_schedulingTimer.start();
+
                                 VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
                                 schedulingDurationData->setEntityId(m_dPtr->m_entityId);
                                 schedulingDurationData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -541,9 +533,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
 
                                 emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDurationData));
                             }
-                            else {
+                            else
                                 invalidTime = true;
-                            }
                         }
                         if(invalidTime) {
                             VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
@@ -563,8 +554,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         // we have a working database?
                         QVariant sessionCustomerDataName;
                         if(!sessionName.isEmpty() &&
-                                m_dPtr->m_database &&
-                                m_dPtr->m_database->databaseIsOpen()) {
+                           m_dPtr->m_database &&
+                           m_dPtr->m_database->databaseIsOpen()) {
                             sessionCustomerDataName = handleVeinDbSessionNameSet(sessionName);
                         }
 
@@ -626,7 +617,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
                     m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
                     cEvent->accept();
-                }else if(!cEvent->isAccepted()){
+                }
+                else if(!cEvent->isAccepted()) {
                     qWarning() << "No remote procedure with entityId:" << m_dPtr->m_entityId << "name:" << rpcData->procedureName();
                     VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_dPtr->m_entityId).arg(rpcData->procedureName())));
                     VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
@@ -649,8 +641,7 @@ void DatabaseLogger::loadScripts(VeinScript::ScriptSystem *scriptSystem)
 {
     const QDir virtualFiles(":/qml");
     const QStringList scriptList = virtualFiles.entryList();
-    for(const QString &scriptFilePath : scriptList)
-    {
+    for(const QString &scriptFilePath : scriptList) {
         const QString dataLocation = QString("%1/%2").arg(virtualFiles.path(), scriptFilePath);
         qInfo() << "Loading script:" << dataLocation;
         if(scriptSystem->loadScriptFromFile(dataLocation) == false)
@@ -665,10 +656,8 @@ QVariantMap DatabaseLogger::readContentSets()
     for(auto &contentSet : m_contentSets) {
         for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment()) {
             TEcMap ecMap = confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
-            TEcMap::const_iterator iter;
-            for(iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter) {
+            for(TEcMap::const_iterator iter=ecMap.constBegin(); iter!=ecMap.constEnd(); ++iter)
                 ComponentUnion::uniteComponents(tmpResultMap, iter.key(), iter.value());
-            }
         }
     }
     QVariantMap resultMap;
