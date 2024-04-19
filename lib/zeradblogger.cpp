@@ -12,39 +12,7 @@
 
 #include <functional>
 
-class ZeraDBLoggerPrivate
-{
-
-    enum RPCResultCodes {
-        RPC_CANCELED = -64,
-        RPC_EINVAL = -EINVAL, //invalid parameters
-        RPC_SUCCESS = 0
-    };
-
-    ZeraDBLoggerPrivate(ZeraDBLogger *t_qPtr) :
-        m_qPtr(t_qPtr)
-    {
-
-    }
-
-    ZeraDBLogger *m_qPtr=nullptr;
-
-    friend class ZeraDBLogger;
-};
-
 ZeraDBLogger::ZeraDBLogger(VeinLogger::DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *parent) :
-    VeinLogger::DatabaseLogger(t_dataSource, t_factoryFunction, parent),
-    m_dPtr(new ZeraDBLoggerPrivate(this))
+    VeinLogger::DatabaseLogger(t_dataSource, t_factoryFunction, parent)
 {
 }
-
-ZeraDBLogger::~ZeraDBLogger()
-{
-    delete m_dPtr;
-}
-
-void ZeraDBLogger::processEvent(QEvent *t_event)
-{
-    VeinLogger::DatabaseLogger::processEvent(t_event);
-}
-
