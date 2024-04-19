@@ -49,15 +49,6 @@ public:
     QString m_loggerStatusText="Logging inactive";
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
-    /**
-     * @brief m_sessionName
-     * stores the current session Name.
-     *
-     * We need this, when deleting a session, to compare values.
-     * That's a quite ugly solution. However using vf-cpp in future those things
-     * will work out better.
-     */
-    QString m_sessionName;
 
     int m_entityId;
     //entity name

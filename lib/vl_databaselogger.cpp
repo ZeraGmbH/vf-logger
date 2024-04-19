@@ -87,10 +87,10 @@ void DatabaseLogger::addScript(QmlLogger *script)
         m_dPtr->m_loggerScripts.append(script);
         //writes the values from the data source to the database, some values may never change so they need to be initialized
         if(script->initializeValues() == true) {
-            const QString tmpsessionName = script->sessionName();
+            const QString tmpsessionName = m_dbSessionName;
             QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            script->setTransactionId(m_dPtr->m_database->addTransaction(m_transactionName, script->sessionName(), tmpContentSets, script->guiContext()));
+            script->setTransactionId(m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, script->guiContext()));
             const QVector<int> tmpTransactionIds = {script->getTransactionId()};
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(script->getTransactionId(),QDateTime::currentDateTime());
@@ -155,6 +155,11 @@ QString DatabaseLogger::entityName() const
 QString DatabaseLogger::getTransactionName() const
 {
     return m_transactionName;
+}
+
+QString DatabaseLogger::getDbSessionName() const
+{
+    return m_dbSessionName;
 }
 
 void DatabaseLogger::setLoggingEnabled(bool t_enabled)
@@ -283,15 +288,14 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
     emit sigSendEvent(event);
 }
 
-QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters){
-    QVariant retVal;
+QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters)
+{
     QString session = p_parameters["p_session"].toString();
-    retVal=m_dPtr->m_database->deleteSession(session);
-
+    QVariant retVal = m_dPtr->m_database->deleteSession(session);
     // check if deleted session is current Session and if it is set sessionName empty
-    // We will not check retVal here. If something goes wrong and the session is still availabel the
+    // We will not check retVal here. If something goes wrong and the session is still available the
     // user can choose it again without risking undefined behavior.
-    if(session == m_dPtr->m_sessionName){
+    if(session == m_dbSessionName) {
         VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
         sessionNameCData ->setEntityId(m_dPtr->m_entityId);
         sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
@@ -299,7 +303,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters){
         sessionNameCData ->setNewValue(QString());
         sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
         sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-        m_dPtr->m_sessionName="";
+        m_dbSessionName = "";
         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
     }
     return retVal;
@@ -434,26 +438,24 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                 }
 
                 if(activeStates.contains(requiredStates)) {
-                    QString sessionName = "";
                     QVector<int> transactionIds;
                     const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
                     //check all scripts if they want to log the changed value
                     for(const QmlLogger *entry : scripts) {
                         if(isLoggedComponent(evData->entityId(), cData->componentName())) {
-                            sessionName = entry->sessionName();
                             transactionIds.append(entry->getTransactionId());
                         }
                     }
 
-                    if(sessionName.length() > 0) {
-                        if(m_dPtr->m_database->hasSessionName(sessionName) == false)
-                            emit sigAddSession(sessionName,QList<QVariantMap>());
-                        if(m_dPtr->m_database->hasEntityId(evData->entityId()) == false)
+                    if(!m_dbSessionName.isEmpty()) {
+                        if(!m_dPtr->m_database->hasSessionName(m_dbSessionName))
+                            emit sigAddSession(m_dbSessionName, QList<QVariantMap>());
+                        if(!m_dPtr->m_database->hasEntityId(evData->entityId()))
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
-                        if(m_dPtr->m_database->hasComponentName(cData->componentName()) == false)
+                        if(!m_dPtr->m_database->hasComponentName(cData->componentName()))
                             emit sigAddComponent(cData->componentName());
                         if(transactionIds.length() != 0)
-                            emit sigAddLoggedValue(sessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
+                            emit sigAddLoggedValue(m_dbSessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
                     }
                 }
             }
@@ -477,7 +479,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
                                                                                cData->oldValue(), QString());
                         emit sigSendEvent(event);
-                        m_dPtr->m_sessionName="";
+                        m_dbSessionName = "";
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
                         QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
@@ -532,7 +534,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         }
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_sessionNameComponentName) {
-                        m_dPtr->m_sessionName = cData->newValue().toString();
+                        m_dbSessionName = cData->newValue().toString();
 
                         QString sessionName = cData->newValue().toString();
                         // we have a working database?
