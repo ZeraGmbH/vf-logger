@@ -29,6 +29,9 @@ private slots:
     void recordTwoContentSets();
     void recordAllContentSets();
 
+    void noRecordTransactionMissing();
+    void noRecordSessionMissing();
+
 private:
     void loadDatabase();
     void setComponentValues(int valuesEmittedPerComponent);
