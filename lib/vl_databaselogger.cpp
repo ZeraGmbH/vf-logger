@@ -90,7 +90,7 @@ void DatabaseLogger::addScript(QmlLogger *script)
             const QString tmpsessionName = m_dbSessionName;
             QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, script->guiContext());
+            m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
             const QVector<int> tmpTransactionIds = { m_transactionId };
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
@@ -552,15 +552,10 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_guiContextComponentName) {
-                        VeinComponent::ComponentData *guiContextCData = new VeinComponent::ComponentData();
-                        guiContextCData->setEntityId(m_dPtr->m_entityId);
-                        guiContextCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        guiContextCData->setComponentName(DataLoggerPrivate::s_guiContextComponentName);
-                        guiContextCData->setNewValue(cData->newValue());
-                        guiContextCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        guiContextCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
+                        m_guiContext = cData->newValue().toString();
+                        QEvent *event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_guiContextComponentName,
+                                                                       cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
                         m_transactionName = cData->newValue().toString();

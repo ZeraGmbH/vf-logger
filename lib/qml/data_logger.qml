@@ -4,7 +4,6 @@ import VeinLogger 1.0
 
 VeinLogger {
     initializeValues: true;
-    guiContext: loggerEntity.guiContext;
 
     readonly property QtObject systemEntity: VeinEntity.getEntity("_System");
     readonly property QtObject loggerEntity: VeinEntity.getEntity("_LoggingSystem");

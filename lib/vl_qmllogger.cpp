@@ -15,11 +15,6 @@ QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
     connect(s_dbLogger, &DatabaseLogger::sigLoggingEnabledChanged, this, &QmlLogger::loggingEnabledChanged);
 }
 
-QString QmlLogger::guiContext() const
-{
-    return m_guiContext;
-}
-
 QString QmlLogger::session() const
 {
     return m_session;
@@ -72,14 +67,6 @@ void QmlLogger::setInitializeValues(bool t_initializeValues)
         return;
     m_initializeValues = t_initializeValues;
     emit initializeValuesChanged(t_initializeValues);
-}
-
-void QmlLogger::setGuiContext(const QString &t_guiContext)
-{
-    if(m_guiContext == t_guiContext)
-        return;
-    m_guiContext = t_guiContext;
-    emit guiContextChanged(t_guiContext);
 }
 
 void QmlLogger::setSession(const QString &t_session)
