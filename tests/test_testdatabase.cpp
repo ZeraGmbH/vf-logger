@@ -161,49 +161,6 @@ void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(veinJsonExpected, veinJsonDumped));
 }
 
-void test_testdatabase::removeDbFileForUsbStickGone()
-{
-    m_testSystem.setupServer();
-    loadDatabase();
-
-    QFile fileOpenOk(":/vein-dumps/dumpDbOpenOk.json");
-    QVERIFY(fileOpenOk.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileOpenOk.readAll();
-    QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
-
-    TestLoggerDB::getInstance()->deleteDbFile();
-    TimeMachineObject::feedEventLoop();;
-
-    QFile fileRemoved(":/vein-dumps/dumpDbFileRemoved.json");
-    QVERIFY(fileRemoved.open(QFile::ReadOnly));
-    jsonExpected = fileRemoved.readAll();
-    jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
-}
-
-void test_testdatabase::openSelectExistingSessionAndClose()
-{
-    m_testSystem.setupServer();
-    m_testSystem.appendCustomerDataSystem();
-    loadDatabase();
-
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-
-    QFile fileVein(":/vein-dumps/dumpDbSetSessionAvail.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
-    QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
-
-    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", "");
-    QFile fileDbClose(":/vein-dumps/dumpDbOpenSetSessionAndClose.json");
-    QVERIFY(fileDbClose.open(QFile::ReadOnly));
-    jsonExpected = fileDbClose.readAll();
-    jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
-}
-
 void test_testdatabase::recordVeinDump()
 {
     m_testSystem.setupServer();
@@ -318,6 +275,40 @@ void test_testdatabase::noRecordSessionMissing()
     QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
+
+void test_testdatabase::removeDbFileForUsbStickGone()
+{
+    m_testSystem.setupServer();
+    loadDatabase();
+
+    QFile fileOpenOk(":/vein-dumps/dumpDbOpenOk.json");
+    QVERIFY(fileOpenOk.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileOpenOk.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
+    TestLoggerDB::getInstance()->deleteDbFile();
+    TimeMachineObject::feedEventLoop();;
+
+    QFile fileRemoved(":/vein-dumps/dumpDbFileRemoved.json");
+    QVERIFY(fileRemoved.open(QFile::ReadOnly));
+    jsonExpected = fileRemoved.readAll();
+    jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::openRunLogAndClose()
+{
+    recordOneContentSet();
+
+    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", "");
+    QFile fileDbClose(":/vein-dumps/dumpOpenRunLogAndClose.json");
+    QVERIFY(fileDbClose.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileDbClose.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 
 void test_testdatabase::loadDatabase()
 {
