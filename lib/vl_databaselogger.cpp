@@ -491,46 +491,30 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         handleLoggedComponentsTransaction(cData);
                     else if(cData->componentName() == DataLoggerPrivate::s_databaseFileComponentName) {
                         if(m_dPtr->m_database == nullptr || cData->newValue() != m_dPtr->m_databaseFilePath) {
-                            if(cData->newValue().toString().isEmpty()) { //unsetting the file component = closing the database
+                            if(cData->newValue().toString().isEmpty()) //unsetting the file component = closing the database
                                 closeDatabase();
-                            }
-                            else {
+                            else
                                 openDatabase(cData->newValue().toString());
-                            }
                         }
 
                         // a good place to reset selected sessionName - however db-open ends up with
-                        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
-                        sessionNameCData ->setEntityId(m_dPtr->m_entityId);
-                        sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        sessionNameCData ->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
-                        sessionNameCData ->setNewValue(QString());
-                        sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
+                                                                               cData->oldValue(), QString());
+                        emit sigSendEvent(event);
                         m_dPtr->m_sessionName="";
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
-
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                        VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
-                        loggingEnabledCData->setEntityId(m_dPtr->m_entityId);
-                        loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
-                        loggingEnabledCData->setNewValue(cData->newValue());
-                        loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
+                                                                               cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
                         //do not accept values that are already set
                         if(cData->newValue().toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
-                            if(cData->newValue().toBool() == true) {
+                            if(cData->newValue().toBool() == true)
                                 emit sigLogSchedulerActivated();
-                            }
-                            else {
+                            else
                                 emit sigLogSchedulerDeactivated();
-                            }
                             setLoggingEnabled(false);
                         }
                     }
@@ -604,15 +588,9 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
-                        VeinComponent::ComponentData *transactionNameCData = new VeinComponent::ComponentData();
-                        transactionNameCData->setEntityId(m_dPtr->m_entityId);
-                        transactionNameCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                        transactionNameCData->setComponentName(DataLoggerPrivate::s_transactionNameComponentName);
-                        transactionNameCData->setNewValue(cData->newValue());
-                        transactionNameCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                        transactionNameCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, transactionNameCData));
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_transactionNameComponentName,
+                                                                               cData->oldValue(), cData->newValue());
+                        emit sigSendEvent(event);
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_currentContentSetsComponentName) {
                         m_contentSets = cData->newValue().toStringList();
