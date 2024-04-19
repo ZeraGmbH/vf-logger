@@ -53,7 +53,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     const VeinLogger::DBFactory sqliteFactory = [](){
         return new TestLoggerDB();
     };
-    m_dataLoggerSystem = std::make_unique<ZeraDBLogger>(new VeinLogger::DataSource(m_storage), sqliteFactory); //takes ownership of DataSource
+    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(new VeinLogger::DataSource(m_storage), sqliteFactory); //takes ownership of DataSource
     VeinLogger::QmlLogger::setStaticLogger(m_dataLoggerSystem.get());
 
     m_server->appendEventSystem(m_dataLoggerSystem.get());

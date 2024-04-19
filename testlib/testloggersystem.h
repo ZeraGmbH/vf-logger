@@ -2,9 +2,9 @@
 #define TESTLOGGERSYSTEM_H
 
 #include "customerdatasystem.h"
+#include "vl_databaselogger.h"
 #include "vsc_scriptsystem.h"
 #include "veinqml.h"
-#include <zeradblogger.h>
 #include <testveinserver.h>
 #include <QObject>
 #include <memory>
@@ -30,7 +30,7 @@ private:
     VeinEvent::StorageSystem* m_storage;
     std::unique_ptr<VeinScript::ScriptSystem> m_scriptSystem;
     std::unique_ptr<VeinApiQml::VeinQml> m_qmlSystem;
-    std::unique_ptr<ZeraDBLogger> m_dataLoggerSystem;
+    std::unique_ptr<VeinLogger::DatabaseLogger> m_dataLoggerSystem;
     std::unique_ptr<CustomerDataSystem> m_customerDataSystem;
 
     QMap<int, QList<QString>> m_componentsCreated;
