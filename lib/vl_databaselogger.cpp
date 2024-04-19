@@ -448,8 +448,6 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     }
 
                     if(!m_dbSessionName.isEmpty()) {
-                        if(!m_dPtr->m_database->hasSessionName(m_dbSessionName))
-                            emit sigAddSession(m_dbSessionName, QList<QVariantMap>());
                         if(!m_dPtr->m_database->hasEntityId(evData->entityId()))
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
                         if(!m_dPtr->m_database->hasComponentName(cData->componentName()))
