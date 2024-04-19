@@ -7,7 +7,6 @@ class test_testdatabase : public QObject
 {
     Q_OBJECT
 private slots:
-    void init();
     void cleanup();
 
     void openDatabaseErrorEarly();
@@ -27,6 +26,8 @@ private slots:
 
     void recordVeinDump();
     void recordOneContentSet();
+    void recordTwoContentSets();
+    void recordAllContentSets();
 
 private:
     void loadDatabase();

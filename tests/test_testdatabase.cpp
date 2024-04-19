@@ -7,11 +7,6 @@
 
 QTEST_MAIN(test_testdatabase)
 
-void test_testdatabase::init()
-{
-    m_testSystem.setupServer();
-}
-
 void test_testdatabase::cleanup()
 {
     m_testSystem.cleanup();
@@ -19,6 +14,7 @@ void test_testdatabase::cleanup()
 
 void test_testdatabase::openDatabaseErrorEarly()
 {
+    m_testSystem.setupServer();
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorEarly);
 
     QFile file(":/vein-dumps/dumpDbOpenErrorEarly.json");
@@ -30,6 +26,7 @@ void test_testdatabase::openDatabaseErrorEarly()
 
 void test_testdatabase::openDatabaseErrorLate()
 {
+    m_testSystem.setupServer();
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorLate);
 
     QFile file(":/vein-dumps/dumpDbOpenErrorLate.json");
@@ -41,6 +38,7 @@ void test_testdatabase::openDatabaseErrorLate()
 
 void test_testdatabase::openDatabaseOk()
 {
+    m_testSystem.setupServer();
     loadDatabase();
 
     QFile file(":/vein-dumps/dumpDbOpenOk.json");
@@ -52,6 +50,7 @@ void test_testdatabase::openDatabaseOk()
 
 void test_testdatabase::createSessionNoCustomerDataSystem()
 {
+    m_testSystem.setupServer();
     loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
@@ -70,6 +69,7 @@ void test_testdatabase::createSessionNoCustomerDataSystem()
 
 void test_testdatabase::setupCustomerData()
 {
+    m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
 
     QFile file(":/vein-dumps/dumpDbCustomerDataInitial.json");
@@ -83,6 +83,7 @@ void test_testdatabase::setupCustomerData()
 
 void test_testdatabase::selectExistingSession()
 {
+    m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
     loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
@@ -104,6 +105,7 @@ void test_testdatabase::selectExistingSession()
 
 void test_testdatabase::createSession()
 {
+    m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
     loadDatabase();
 
@@ -132,6 +134,7 @@ void test_testdatabase::createSession()
 
 void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
 {
+    m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
     loadDatabase();
     TestLoggerDB::getInstance()->setCustomerDataAlreadyInDbSession(true);
@@ -160,6 +163,7 @@ void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
 
 void test_testdatabase::removeDbFileForUsbStickGone()
 {
+    m_testSystem.setupServer();
     loadDatabase();
 
     QFile fileOpenOk(":/vein-dumps/dumpDbOpenOk.json");
@@ -180,6 +184,7 @@ void test_testdatabase::removeDbFileForUsbStickGone()
 
 void test_testdatabase::openSelectExistingSessionAndClose()
 {
+    m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
     loadDatabase();
 
@@ -201,6 +206,7 @@ void test_testdatabase::openSelectExistingSessionAndClose()
 
 void test_testdatabase::recordVeinDump()
 {
+    m_testSystem.setupServer();
     loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     startLogging();
@@ -214,6 +220,7 @@ void test_testdatabase::recordVeinDump()
 
 void test_testdatabase::recordOneContentSet()
 {
+    m_testSystem.setupServer(3, 3);
     loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     setComponentValues(1);
@@ -224,6 +231,44 @@ void test_testdatabase::recordOneContentSet()
     setComponentValues(2);
 
     QFile file(":/recording-dumps/dumpRecordOneContentSet.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::recordTwoContentSets()
+{
+    m_testSystem.setupServer(3, 3);
+    loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet2");
+    setComponentValues(1);
+
+    startLogging();
+    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+
+    setComponentValues(2);
+
+    QFile file(":/recording-dumps/dumpRecordTwoContentSets.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::recordAllContentSets()
+{
+    m_testSystem.setupServer(3, 3);
+    loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    setComponentValues(1);
+
+    startLogging();
+    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+
+    setComponentValues(2);
+
+    QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();

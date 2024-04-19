@@ -6,7 +6,9 @@
 
         <file>recording-dumps/dumpCreateSession.json</file>
         <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
+        <file>recording-dumps/dumpRecordAllContentSets.json</file>
         <file>recording-dumps/dumpRecordOneContentSet.json</file>
+        <file>recording-dumps/dumpRecordTwoContentSets.json</file>
         <file>recording-dumps/dumpSelectExistingSession.json</file>
 
         <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
