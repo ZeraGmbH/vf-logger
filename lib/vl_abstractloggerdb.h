@@ -47,7 +47,6 @@ public slots:
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 
-    virtual QJsonDocument readTransaction(const QString &transactionName, const QString &dbSessionName) = 0;
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
     virtual int addSession(const QString &dbSessionName,QList<QVariantMap> componentValuesStoredOncePerSession) =0;
     virtual bool deleteSession(const QString &sessionName) = 0;

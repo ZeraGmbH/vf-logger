@@ -33,7 +33,6 @@ public:
     bool addStartTime(int transactionId, QDateTime time) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
 
-    QJsonDocument readTransaction(const QString &p_transaction, const QString &p_session) override;
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
     int addSession(const QString &sessionName, QList<QVariantMap> componentValuesStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
