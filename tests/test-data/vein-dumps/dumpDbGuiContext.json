@@ -1,0 +1,32 @@
+{
+    "2": {
+        "CustomerData": "/tmp/test-vf-logger-customerdata/test_customer_data.json",
+        "DatabaseFile": "/tmp/veindb-test/DB_NAME_OPEN_OK",
+        "DatabaseReady": true,
+        "EntityName": "_LoggingSystem",
+        "ExistingSessions": [
+            "DbTestSession1",
+            "DbTestSession2"
+        ],
+        "LoggedComponents": {
+            "10": [
+            ]
+        },
+        "LoggingEnabled": true,
+        "LoggingStatus": "Logging data",
+        "ScheduledLoggingCountdown": 0,
+        "ScheduledLoggingDuration": null,
+        "ScheduledLoggingEnabled": false,
+        "availableContentSets": [
+            "TestSet1",
+            "TestSet2",
+            "ZeraAll"
+        ],
+        "currentContentSets": [
+            "TestSet1"
+        ],
+        "guiContext": "TestGuiContext",
+        "sessionName": "DbTestSession1",
+        "transactionName": "TestTransaction"
+    }
+}

@@ -13,6 +13,7 @@
 
         <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
         <file>vein-dumps/dumpDbFileRemoved.json</file>
+        <file>vein-dumps/dumpDbGuiContext.json</file>
         <file>vein-dumps/dumpDbOpenErrorEarly.json</file>
         <file>vein-dumps/dumpDbOpenErrorLate.json</file>
         <file>vein-dumps/dumpDbOpenOk.json</file>
