@@ -16,11 +16,11 @@
         <file>vein-dumps/dumpDbOpenErrorEarly.json</file>
         <file>vein-dumps/dumpDbOpenErrorLate.json</file>
         <file>vein-dumps/dumpDbOpenOk.json</file>
-        <file>vein-dumps/dumpDbOpenSetSessionAndClose.json</file>
         <file>vein-dumps/dumpDbRecordInitial.json</file>
         <file>vein-dumps/dumpDbSetSessionAvail.json</file>
         <file>vein-dumps/dumpDbSetSessionNew.json</file>
         <file>vein-dumps/dumpInitial.json</file>
+        <file>vein-dumps/dumpOpenRunLogAndClose.json</file>
         <file>vein-dumps/dumpSetContentAll.json</file>
         <file>vein-dumps/dumpSetContentSetInvalid.json</file>
         <file>vein-dumps/dumpSetContentSetValidByString.json</file>

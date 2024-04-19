@@ -21,16 +21,16 @@ private slots:
     void createSession();
     void createSessionWithCustomerDataAlreadyCreated();
 
-    void removeDbFileForUsbStickGone();
-    void openSelectExistingSessionAndClose(); // TODO bugs
-
     void recordVeinDump();
     void recordOneContentSet();
     void recordTwoContentSets();
     void recordAllContentSets();
 
+    // corner cases
     void noRecordTransactionMissing();
     void noRecordSessionMissing();
+    void removeDbFileForUsbStickGone();
+    void openRunLogAndClose(); // TODO bugs
 
 private:
     void loadDatabase();

@@ -7,6 +7,8 @@
         "ExistingSessions": [
         ],
         "LoggedComponents": {
+            "10": [
+            ]
         },
         "LoggingEnabled": false,
         "LoggingStatus": "No database selected",
@@ -19,9 +21,10 @@
             "ZeraAll"
         ],
         "currentContentSets": [
+            "TestSet1"
         ],
         "guiContext": "",
         "sessionName": "",
-        "transactionName": ""
+        "transactionName": "TestTransaction"
     }
 }
