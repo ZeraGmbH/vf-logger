@@ -71,6 +71,7 @@ private:
     QMultiHash<int, QString> m_loggedValues;
     QString m_transactionName;
     QString m_dbSessionName;
+    int m_transactionId;
     DataLoggerPrivate *m_dPtr = nullptr;
 };
 }
