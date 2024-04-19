@@ -31,6 +31,7 @@ public:
     int entityId() const;
     QString entityName() const;
     QString getTransactionName() const;
+    QString getDbSessionName() const;
 
 signals:
     void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
@@ -69,7 +70,8 @@ private:
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
     QString m_transactionName;
-    DataLoggerPrivate *m_dPtr=nullptr;
+    QString m_dbSessionName;
+    DataLoggerPrivate *m_dPtr = nullptr;
 };
 }
 

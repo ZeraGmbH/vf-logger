@@ -15,11 +15,6 @@ QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
     connect(s_dbLogger, &DatabaseLogger::sigLoggingEnabledChanged, this, &QmlLogger::loggingEnabledChanged);
 }
 
-QString QmlLogger::sessionName() const
-{
-    return m_sessionName;
-}
-
 QString QmlLogger::guiContext() const
 {
     return m_guiContext;
@@ -54,7 +49,7 @@ QStringList QmlLogger::getAvailableContentSets()
 void QmlLogger::startLogging()
 {
     bool validConditions = true;
-    if(m_sessionName.isEmpty()) {
+    if(s_dbLogger->getDbSessionName().isEmpty()) {
         validConditions = false;
         qWarning("Logging requires a valid sessionName!");
     }
@@ -69,15 +64,6 @@ void QmlLogger::startLogging()
 void QmlLogger::stopLogging()
 {
     s_dbLogger->removeScript(this);
-}
-
-void QmlLogger::setSessionName(QString t_sessionName)
-{
-    if (m_sessionName != t_sessionName)
-    {
-        m_sessionName = t_sessionName;
-        emit sessionNameChanged(t_sessionName);
-    }
 }
 
 void QmlLogger::setInitializeValues(bool t_initializeValues)
