@@ -72,6 +72,8 @@ private:
     QString m_transactionName;
     QString m_dbSessionName;
     int m_transactionId;
+    QString m_guiContext;
+
     DataLoggerPrivate *m_dPtr = nullptr;
 };
 }

@@ -15,11 +15,9 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
     Q_OBJECT
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
-    Q_PROPERTY(QString guiContext READ guiContext WRITE setGuiContext NOTIFY guiContextChanged)
     Q_PROPERTY(QString session READ session WRITE setSession NOTIFY sessionChanged)
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
-    QString guiContext() const;
     QString session() const;
     bool loggingEnabled() const;
     bool initializeValues() const;
@@ -39,12 +37,10 @@ public slots:
     void stopLogging();
 
     void setInitializeValues(bool t_initializeValues);
-    void setGuiContext(const QString &t_guiContext);
     void setSession(const QString &t_session);
 
 signals:
     void sessionChanged(QString t_session);
-    void guiContextChanged(QString t_guiContext);
     void loggingEnabledChanged(bool t_loggingEnabled);
     void initializeValuesChanged(bool t_initializeValues);
 
@@ -53,7 +49,6 @@ private:
     QString m_session;
     QDateTime m_startTime;
     QDateTime m_stopTime;
-    QString m_guiContext;
     bool m_initializeValues=false;
 };
 } // namespace VeinLogger
