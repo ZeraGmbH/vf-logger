@@ -311,16 +311,6 @@ QVariant DatabaseLogger::RPC_readSessionComponent(QVariantMap p_parameters){
 }
 
 
-// Interesting but not used anywhere
-QVariant DatabaseLogger::RPC_readTransaction(QVariantMap p_parameters){
-    QString session = p_parameters["p_session"].toString();
-    QString transaction = p_parameters["p_transaction"].toString();
-    QJsonDocument retVal;
-    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
-        retVal=m_dPtr->m_database->readTransaction(transaction,session);
-    return QVariant::fromValue(retVal.toJson());
-}
-
 void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData)
 {
     QVariant oldValue = cData->oldValue();
