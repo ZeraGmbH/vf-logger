@@ -15,7 +15,6 @@ private slots:
 
     void createSessionNoCustomerDataSystem();
 
-    // from here all have customer data system
     void setupCustomerData();
     void selectExistingSession();
     void createSession();
