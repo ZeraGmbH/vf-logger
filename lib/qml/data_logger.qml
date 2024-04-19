@@ -5,7 +5,6 @@ import VeinLogger 1.0
 VeinLogger {
     initializeValues: true;
     sessionName: loggerEntity.sessionName;
-    transactionName: loggerEntity.transactionName;
     guiContext: loggerEntity.guiContext;
 
 

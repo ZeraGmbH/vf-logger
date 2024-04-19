@@ -14,7 +14,6 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
 {
     Q_OBJECT
     Q_PROPERTY(QString sessionName READ sessionName WRITE setSessionName NOTIFY sessionNameChanged)
-    Q_PROPERTY(QString transactionName READ transactionName WRITE setTransactionName NOTIFY transactionNameChanged)
     Q_PROPERTY(bool loggingEnabled READ loggingEnabled NOTIFY loggingEnabledChanged)
     Q_PROPERTY(bool initializeValues READ initializeValues WRITE setInitializeValues NOTIFY initializeValuesChanged)
     Q_PROPERTY(QString guiContext READ guiContext WRITE setGuiContext NOTIFY guiContextChanged)
@@ -22,7 +21,6 @@ class VFLOGGER_EXPORT QmlLogger : public QQuickItem
 public:
     explicit QmlLogger(QQuickItem *t_parent = nullptr);
     QString sessionName() const;
-    QString transactionName() const;
     QString guiContext() const;
     QString session() const;
     bool loggingEnabled() const;
@@ -46,14 +44,12 @@ public slots:
     void stopLogging();
 
     void setSessionName(QString t_sessionName);
-    void setTransactionName(const QString &t_transactionName);
     void setInitializeValues(bool t_initializeValues);
     void setGuiContext(const QString &t_guiContext);
     void setSession(const QString &t_session);
 
 signals:
     void sessionNameChanged(QString t_sessionName);
-    void transactionNameChanged(QString t_transactionName);
     void sessionChanged(QString t_session);
     void guiContextChanged(QString t_guiContext);
     void loggingEnabledChanged(bool t_loggingEnabled);
@@ -63,7 +59,6 @@ private:
     static DatabaseLogger *s_dbLogger;
     QString m_session;
     QString m_sessionName;
-    QString m_transactionName;
     int m_transactionId;
     QDateTime m_startTime;
     QDateTime m_stopTime;

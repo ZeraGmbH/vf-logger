@@ -20,11 +20,6 @@ QString QmlLogger::sessionName() const
     return m_sessionName;
 }
 
-QString QmlLogger::transactionName() const
-{
-    return m_transactionName;
-}
-
 QString QmlLogger::guiContext() const
 {
     return m_guiContext;
@@ -63,7 +58,7 @@ void QmlLogger::startLogging()
         validConditions = false;
         qWarning("Logging requires a valid sessionName!");
     }
-    if(m_transactionName.isEmpty()) {
+    if(s_dbLogger->getTransactionName().isEmpty()) {
         validConditions = false;
         qWarning("Logging requires a valid transactionName!");
     }
@@ -82,14 +77,6 @@ void QmlLogger::setSessionName(QString t_sessionName)
     {
         m_sessionName = t_sessionName;
         emit sessionNameChanged(t_sessionName);
-    }
-}
-
-void QmlLogger::setTransactionName(const QString &t_transactionName)
-{
-    if (m_transactionName != t_transactionName) {
-        m_transactionName= t_transactionName;
-        emit transactionNameChanged(t_transactionName);
     }
 }
 
