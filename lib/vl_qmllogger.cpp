@@ -112,16 +112,6 @@ void QmlLogger::setStartTime(const QDateTime &startTime)
     m_startTime = startTime;
 }
 
-int QmlLogger::getTransactionId() const
-{
-    return m_transactionId;
-}
-
-void QmlLogger::setTransactionId(int transactionId)
-{
-    m_transactionId = transactionId;
-}
-
 } // namespace VeinLogger
 
 void registerTypes()

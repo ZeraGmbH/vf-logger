@@ -90,10 +90,10 @@ void DatabaseLogger::addScript(QmlLogger *script)
             const QString tmpsessionName = m_dbSessionName;
             QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            script->setTransactionId(m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, script->guiContext()));
-            const QVector<int> tmpTransactionIds = {script->getTransactionId()};
+            m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, script->guiContext());
+            const QVector<int> tmpTransactionIds = { m_transactionId };
             // add starttime to transaction. stop time is set in batch execution.
-            m_dPtr->m_database->addStartTime(script->getTransactionId(),QDateTime::currentDateTime());
+            m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
 
             QMultiHash<int, QString> tmpLoggedValues = m_loggedValues;
 
@@ -443,7 +443,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     //check all scripts if they want to log the changed value
                     for(const QmlLogger *entry : scripts) {
                         if(isLoggedComponent(evData->entityId(), cData->componentName())) {
-                            transactionIds.append(entry->getTransactionId());
+                            transactionIds.append(m_transactionId);
                         }
                     }
 

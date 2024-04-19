@@ -28,9 +28,6 @@ public:
 
     Q_INVOKABLE QStringList getAvailableContentSets();
 
-    int getTransactionId() const;
-    void setTransactionId(int transactionId);
-
     QDateTime getStartTime() const;
     void setStartTime(const QDateTime &startTime);
 
@@ -54,7 +51,6 @@ signals:
 private:
     static DatabaseLogger *s_dbLogger;
     QString m_session;
-    int m_transactionId;
     QDateTime m_startTime;
     QDateTime m_stopTime;
     QString m_guiContext;
