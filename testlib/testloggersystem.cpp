@@ -22,6 +22,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
 {
     QDir dir;
     dir.mkpath(getCustomerDataPath());
+    m_componentsCreated.clear();
 
     m_server = std::make_unique<TestVeinServer>();
     m_storage = m_server->getStorage();
