@@ -30,9 +30,7 @@ public:
     bool loggingEnabled() const;
     int entityId() const;
     QString entityName() const;
-
-    // TODO make private
-    void clearLoggerEntries();
+    QString getTransactionName() const;
 
 signals:
     void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
@@ -65,10 +63,12 @@ private:
     QVariant handleVeinDbSessionNameSet(QString sessionName);
     bool isLoggedComponent(int entityId, const QString &componentName) const;
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
+    void clearLoggerEntries();
     QVariantMap readContentSets();
 
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
+    QString m_transactionName;
     DataLoggerPrivate *m_dPtr=nullptr;
 };
 }

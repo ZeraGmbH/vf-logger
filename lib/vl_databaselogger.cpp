@@ -88,10 +88,9 @@ void DatabaseLogger::addScript(QmlLogger *script)
         //writes the values from the data source to the database, some values may never change so they need to be initialized
         if(script->initializeValues() == true) {
             const QString tmpsessionName = script->sessionName();
-            const QVector<QString> tmpTransactionName = {script->transactionName()};
             QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
             //add a new transaction and store ids in script.
-            script->setTransactionId(m_dPtr->m_database->addTransaction(script->transactionName(),script->sessionName(), tmpContentSets, script->guiContext()));
+            script->setTransactionId(m_dPtr->m_database->addTransaction(m_transactionName, script->sessionName(), tmpContentSets, script->guiContext()));
             const QVector<int> tmpTransactionIds = {script->getTransactionId()};
             // add starttime to transaction. stop time is set in batch execution.
             m_dPtr->m_database->addStartTime(script->getTransactionId(),QDateTime::currentDateTime());
@@ -151,6 +150,11 @@ int DatabaseLogger::entityId() const
 QString DatabaseLogger::entityName() const
 {
     return m_dPtr->m_entityName;
+}
+
+QString DatabaseLogger::getTransactionName() const
+{
+    return m_transactionName;
 }
 
 void DatabaseLogger::setLoggingEnabled(bool t_enabled)
@@ -559,6 +563,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, guiContextCData));
                     }
                     else if(cData->componentName() == DataLoggerPrivate::s_transactionNameComponentName) {
+                        m_transactionName = cData->newValue().toString();
                         QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_transactionNameComponentName,
                                                                                cData->oldValue(), cData->newValue());
                         emit sigSendEvent(event);
