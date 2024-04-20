@@ -39,7 +39,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
         }
     }
 
-    // in production modulemagaer there is this lambda hopping
+    // in production modulemanager there is this lambda hopping
     // here we can sequentialize by TimeMachineObject::feedEventLoop()
     m_scriptSystem = std::make_unique<VeinScript::ScriptSystem>();
     m_server->appendEventSystem(m_scriptSystem.get());
