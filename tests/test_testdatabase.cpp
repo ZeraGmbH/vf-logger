@@ -183,7 +183,6 @@ void test_testdatabase::recordOneContentSet()
     setComponentValues(1);
 
     startLogging();
-    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
 
     setComponentValues(2);
 
@@ -202,7 +201,6 @@ void test_testdatabase::recordTwoContentSets()
     setComponentValues(1);
 
     startLogging();
-    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
 
     setComponentValues(2);
 
@@ -221,7 +219,6 @@ void test_testdatabase::recordAllContentSets()
     setComponentValues(1);
 
     startLogging();
-    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
 
     setComponentValues(2);
 
@@ -239,11 +236,7 @@ void test_testdatabase::noRecordTransactionMissing()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     setComponentValues(1);
 
-    // see startLogging()
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    //m_testSystem.setComponent(dataLoggerEntityId, "transactionName", "TestTransaction");
-    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
-    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+    startLogging("DbTestSession1", "");
 
     setComponentValues(2);
 
@@ -261,11 +254,7 @@ void test_testdatabase::noRecordSessionMissing()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     setComponentValues(1);
 
-    // see startLogging()
-    //m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    m_testSystem.setComponent(dataLoggerEntityId, "transactionName", "TestTransaction");
-    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
-    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+    startLogging("", "TestTransaction");
 
     setComponentValues(2);
 
@@ -353,10 +342,11 @@ void test_testdatabase::setComponentValues(int valuesEmittedPerComponent)
     }
 }
 
-void test_testdatabase::startLogging()
+void test_testdatabase::startLogging(QString sessionName, QString transactionName)
 {
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    m_testSystem.setComponent(dataLoggerEntityId, "transactionName", "TestTransaction");
+    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", sessionName);
+    m_testSystem.setComponent(dataLoggerEntityId, "transactionName", transactionName);
     m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
 }
 
