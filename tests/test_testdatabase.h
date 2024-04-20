@@ -34,7 +34,7 @@ private slots:
 private:
     void loadDatabase();
     void setComponentValues(int valuesEmittedPerComponent);
-    void startLogging();
+    void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
 
     TestLoggerSystem m_testSystem;
 };
