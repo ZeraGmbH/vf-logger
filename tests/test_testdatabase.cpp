@@ -229,6 +229,21 @@ void test_testdatabase::recordAllContentSets()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
+void test_testdatabase::recordStartStop()
+{
+    recordAllContentSets();
+
+    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", false);
+
+    setComponentValues(10);
+
+    QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_testdatabase::noRecordTransactionMissing()
 {
     m_testSystem.setupServer(3, 3);

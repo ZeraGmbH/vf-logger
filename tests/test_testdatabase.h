@@ -23,6 +23,7 @@ private slots:
     void recordOneContentSet();
     void recordTwoContentSets();
     void recordAllContentSets();
+    void recordStartStop();
 
     // corner cases
     void noRecordTransactionMissing();
