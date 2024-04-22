@@ -22,7 +22,7 @@ protected:
     virtual QStringList getEntityComponents(int t_entityId) const =0;
 
 private:
-    DataSource *m_qPtr=nullptr;
+    DataSource *m_qPtr = nullptr;
     friend class DataSource;
 };
 
@@ -61,7 +61,8 @@ class DataSourcePrivateStorage : public DataSourcePrivate
 
 DataSource::DataSource(VeinEvent::StorageSystem *t_dataSource, QObject *t_parent) :
     QObject(t_parent),
-    m_dPtr(new DataSourcePrivateStorage(t_dataSource, this))
+    m_dPtr(new DataSourcePrivateStorage(t_dataSource, this)),
+    m_storageSystem(t_dataSource)
 {
 }
 
@@ -94,6 +95,11 @@ QStringList DataSource::getEntityComponentsForStore(int t_entityId)
         retList.removeAll(noStoreLabel);
     }
     return retList;
+}
+
+VeinEvent::StorageSystem *DataSource::getStorageSystem()
+{
+    return m_storageSystem;
 }
 
 } // namespace VeinLogger
