@@ -25,8 +25,11 @@ public:
     QString getEntityName(int t_entityId) const;
     QStringList getEntityComponentsForStore(int t_entityId);
 
+    VeinEvent::StorageSystem *getStorageSystem();
+
 private:
-    DataSourcePrivate *m_dPtr=nullptr;
+    DataSourcePrivate *m_dPtr = nullptr;
+    VeinEvent::StorageSystem *m_storageSystem;
 };
 
 } // namespace VeinLogger
