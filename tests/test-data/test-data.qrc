@@ -1,8 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>contentsets/test-session.json</file>
-
-        <file>sessions/test-session.json</file>
+        <file>contentsets/test-session1.json</file>
+        <file>contentsets/test-session2.json</file>
+        <file>sessions/test-session1.json</file>
+        <file>sessions/test-session2.json</file>
 
         <file>recording-dumps/dumpCreateSession.json</file>
         <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
@@ -26,6 +27,9 @@
         <file>vein-dumps/dumpSetContentSetInvalid.json</file>
         <file>vein-dumps/dumpSetContentSetValidByString.json</file>
         <file>vein-dumps/dumpSetContentValid.json</file>
+        <file>vein-dumps/dumpSetContentValid3SessionChange.json</file>
+        <file>vein-dumps/dumpSetContentValid4SessionChange.json</file>
+        <file>vein-dumps/dumpSetContentValidAllSessionChange.json</file>
         <file>vein-dumps/dumpSetContentValidTwo.json</file>
         <file>vein-dumps/dumpSetContentValidTwoSame.json</file>
     </qresource>

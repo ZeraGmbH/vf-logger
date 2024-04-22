@@ -11,9 +11,10 @@
         "EntityName": "_System",
         "Error_Messages": null,
         "ModulesPaused": false,
-        "Session": "test-session.json",
+        "Session": "test-session1.json",
         "SessionsAvailable": [
-            "test-session.json"
+            "test-session1.json",
+            "test-session2.json"
         ]
     },
     "10": {

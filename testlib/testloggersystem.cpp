@@ -36,7 +36,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     VeinApiQml::VeinQml::setStaticInstance(m_qmlSystem.get());
     m_server->appendEventSystem(m_qmlSystem.get());
     TimeMachineObject::feedEventLoop();
-    m_server->simulAllModulesLoaded("test-session.json", QStringList() << "test-session.json");
+    m_server->simulAllModulesLoaded("test-session1.json", QStringList() << "test-session1.json" << "test-session2.json");
 
     const VeinLogger::DBFactory sqliteFactory = [](){
         return new TestLoggerDB();
@@ -56,10 +56,9 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     TimeMachineObject::feedEventLoop();
 }
 
-
-void TestLoggerSystem::removeEntitiesAddedInSetup()
+void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityId)
 {
-    m_server->removeEntitiesAdded();
+    m_server->changeSession(sessionPath, baseEntityId);
 }
 
 void TestLoggerSystem::appendCustomerDataSystem()

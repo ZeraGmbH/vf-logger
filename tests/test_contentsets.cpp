@@ -15,7 +15,7 @@ void test_contentsets::cleanup()
     m_testSystem.cleanup();
 }
 
-void test_contentsets::contentSetsSelectValid()
+void test_contentsets::contentSetsSelectValidStringToBeFixed()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", "TestSet1"); // this is a bug - stored value must be a list!!!
 
@@ -37,7 +37,7 @@ void test_contentsets::contentSetsSelectInvalid()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_contentsets::contentSetsSelectValidList()
+void test_contentsets::contentSetsSelectValid()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
 
@@ -48,7 +48,7 @@ void test_contentsets::contentSetsSelectValidList()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_contentsets::contentSetsSelectValidListTwo()
+void test_contentsets::contentSetsSelectValidTwo()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet2");
 
@@ -59,7 +59,7 @@ void test_contentsets::contentSetsSelectValidListTwo()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_contentsets::contentSetsSelectValidListTwoSame()
+void test_contentsets::contentSetsSelectValidTwoSame()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet1");
 
@@ -70,7 +70,7 @@ void test_contentsets::contentSetsSelectValidListTwoSame()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_contentsets::contentSetsSelectValidListAll()
+void test_contentsets::contentSetsSelectValidAll()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
 
@@ -82,12 +82,48 @@ void test_contentsets::contentSetsSelectValidListAll()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_contentsets::contentSetsSelectValidListSequence()
+void test_contentsets::contentSetsSelectValidSequence()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet2");
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
 
     QFile file(":/vein-dumps/dumpSetContentValid.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_contentsets::contentSetsSelectValid3SessionChange()
+{
+    m_testSystem.changeSession();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet3");
+
+    QFile file(":/vein-dumps/dumpSetContentValid3SessionChange.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_contentsets::contentSetsSelectValid4SessionChange()
+{
+    m_testSystem.changeSession();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet4");
+
+    QFile file(":/vein-dumps/dumpSetContentValid4SessionChange.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_contentsets::contentSetsSelectValidAllSessionChange()
+{
+    m_testSystem.changeSession();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+
+    QFile file(":/vein-dumps/dumpSetContentValidAllSessionChange.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();

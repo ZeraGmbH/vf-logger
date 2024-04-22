@@ -1,0 +1,18 @@
+{
+    "TestSet3": [
+        {
+            "EntityId": 20,
+            "Comment": "EntityName10",
+            "Components": [
+                "ComponentName1",
+                "ComponentName2"
+            ]
+        }
+    ],
+    "TestSet4": [
+        {
+            "EntityId": 21,
+            "Comment": "EntityName11"
+        }
+    ]
+}
