@@ -10,13 +10,18 @@ private slots:
     void init();
     void cleanup();
 
-    void contentSetsSelectValid();
+    void contentSetsSelectValidStringToBeFixed();
     void contentSetsSelectInvalid();
-    void contentSetsSelectValidList();
-    void contentSetsSelectValidListTwo();
-    void contentSetsSelectValidListTwoSame();
-    void contentSetsSelectValidListAll();
-    void contentSetsSelectValidListSequence();
+    void contentSetsSelectValid();
+    void contentSetsSelectValidTwo();
+    void contentSetsSelectValidTwoSame();
+    void contentSetsSelectValidAll();
+    void contentSetsSelectValidSequence();
+
+    void contentSetsSelectValid3SessionChange();
+    void contentSetsSelectValid4SessionChange();
+    void contentSetsSelectValidAllSessionChange();
+
 private:
     TestLoggerSystem m_testSystem;
 };

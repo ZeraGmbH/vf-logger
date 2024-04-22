@@ -31,6 +31,7 @@ private slots:
     void removeDbFileForUsbStickGone();
     void openRunLogAndClose(); // TODO bugs
     void guiContextMakesItIntoDbAndVein();
+    // TODO: Stop recording on session change
 
 private:
     void loadDatabase();

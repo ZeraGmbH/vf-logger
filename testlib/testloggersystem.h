@@ -18,7 +18,7 @@ class TestLoggerSystem
 public:
     TestLoggerSystem();
     void setupServer(int entityCount=2, int componentCount=2);
-    void removeEntitiesAddedInSetup();
+    void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     void cleanup();
 
     void appendCustomerDataSystem();

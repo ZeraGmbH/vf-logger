@@ -1,0 +1,30 @@
+{
+    "2": {
+        "CustomerData": "",
+        "DatabaseFile": "",
+        "DatabaseReady": false,
+        "EntityName": "_LoggingSystem",
+        "ExistingSessions": [
+        ],
+        "LoggedComponents": {
+            "21": [
+            ]
+        },
+        "LoggingEnabled": false,
+        "LoggingStatus": "Database loaded",
+        "ScheduledLoggingCountdown": 0,
+        "ScheduledLoggingDuration": null,
+        "ScheduledLoggingEnabled": false,
+        "availableContentSets": [
+            "TestSet3",
+            "TestSet4",
+            "ZeraAll"
+        ],
+        "currentContentSets": [
+            "TestSet4"
+        ],
+        "guiContext": "",
+        "sessionName": "",
+        "transactionName": ""
+    }
+}
