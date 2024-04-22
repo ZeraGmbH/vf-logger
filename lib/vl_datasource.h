@@ -17,7 +17,6 @@ class VFLOGGER_EXPORT DataSource : public QObject
 {
     Q_OBJECT
 public:
-    explicit DataSource(VeinApiQml::VeinQml *t_dataSource, QObject *t_parent=nullptr);
     explicit DataSource(VeinEvent::StorageSystem *t_dataSource, QObject *t_parent=nullptr);
     ~DataSource();
 

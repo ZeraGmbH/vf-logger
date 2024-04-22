@@ -91,14 +91,10 @@ class DataSourcePrivateStorage : public DataSourcePrivate
     friend class DataSource;
 };
 
-DataSource::DataSource(VeinApiQml::VeinQml *t_dataSource, QObject *t_parent) : QObject(t_parent), m_dPtr(new DataSourcePrivateQml(t_dataSource, this))
+DataSource::DataSource(VeinEvent::StorageSystem *t_dataSource, QObject *t_parent) :
+    QObject(t_parent),
+    m_dPtr(new DataSourcePrivateStorage(t_dataSource, this))
 {
-
-}
-
-DataSource::DataSource(VeinEvent::StorageSystem *t_dataSource, QObject *t_parent) : QObject(t_parent), m_dPtr(new DataSourcePrivateStorage(t_dataSource, this))
-{
-
 }
 
 DataSource::~DataSource()
