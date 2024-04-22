@@ -26,38 +26,6 @@ private:
     friend class DataSource;
 };
 
-class DataSourcePrivateQml : public DataSourcePrivate
-{
-    DataSourcePrivateQml(VeinApiQml::VeinQml *t_dataSource, DataSource *t_public) : DataSourcePrivate(t_public), m_dataSource(t_dataSource)
-    {
-
-    }
-    ~DataSourcePrivateQml() {}
-
-    virtual bool hasEntity(int t_entityId) const override
-    {
-        return m_dataSource->getEntityById(t_entityId);
-    }
-
-    QVariant getValue(int t_entityId, const QString &t_componentName) const override
-    {
-        return m_dataSource->getEntityById(t_entityId)->value(t_componentName);
-    }
-
-    QString getEntityName(int t_entityId) const override
-    {
-        return m_dataSource->getEntityById(t_entityId)->value(QString("EntityName")).toString();
-    }
-
-    QStringList getEntityComponents(int t_entityId) const override
-    {
-        return m_dataSource->getEntityById(t_entityId)->keys();
-    }
-
-    VeinApiQml::VeinQml *m_dataSource=nullptr;
-    friend class DataSource;
-};
-
 class DataSourcePrivateStorage : public DataSourcePrivate
 {
     DataSourcePrivateStorage(VeinEvent::StorageSystem *t_dataSource, DataSource *t_public) : DataSourcePrivate(t_public), m_dataSource(t_dataSource)
