@@ -15,7 +15,6 @@ TestLoggerSystem::TestLoggerSystem()
 {
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<JsonLoggerContentLoader>());
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
-    ModuleManagerSetupFacade::registerMetaTypeStreamOperators();
 }
 
 void TestLoggerSystem::setupServer(int entityCount, int componentCount)
