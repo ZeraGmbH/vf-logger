@@ -424,6 +424,19 @@ QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     return sessionCustomerDataName;
 }
 
+void VeinLogger::DatabaseLogger::tryInitModmanSessionComponent()
+{
+    if(!m_modmanSessionComponent) {
+        VeinEvent::StorageSystem *storage = m_dPtr->m_dataSource->getStorageSystem();
+        m_modmanSessionComponent = storage->getComponent(0, "Session");
+        if(m_modmanSessionComponent && m_modmanSessionComponent->getValue().isValid()) {
+            onModmanSessionChange(m_modmanSessionComponent->getValue());
+            connect(m_modmanSessionComponent.get(), &VeinEvent::StorageComponentInterface::sigValueChange,
+                    this, &DatabaseLogger::onModmanSessionChange);
+        }
+    }
+}
+
 void DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
@@ -445,8 +458,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
             cData = static_cast<ComponentData *>(evData);
 
             if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
-
-                Q_ASSERT(cData != nullptr);
+                tryInitModmanSessionComponent();
 
                 ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
                 if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
@@ -470,15 +482,6 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             emit sigAddComponent(cData->componentName());
                         if(transactionIds.length() != 0)
                             emit sigAddLoggedValue(m_dbSessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
-                    }
-                }
-                if(!m_modmanSessionComponent) {
-                    VeinEvent::StorageSystem *storage = m_dPtr->m_dataSource->getStorageSystem();
-                    m_modmanSessionComponent = storage->getComponent(0, "Session");
-                    if(m_modmanSessionComponent && m_modmanSessionComponent->getValue().isValid()) {
-                        onModmanSessionChange(m_modmanSessionComponent->getValue());
-                        connect(m_modmanSessionComponent.get(), &StorageComponentInterface::sigValueChange,
-                                this, &DatabaseLogger::onModmanSessionChange);
                     }
                 }
             }

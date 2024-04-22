@@ -61,6 +61,7 @@ private slots:
     void onModmanSessionChange(QVariant newSession);
 private:
     void initEntity();
+    void tryInitModmanSessionComponent();
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     QVariant handleVeinDbSessionNameSet(QString sessionName);
