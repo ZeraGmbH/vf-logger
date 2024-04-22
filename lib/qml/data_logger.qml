@@ -5,14 +5,6 @@ import VeinLogger 1.0
 VeinLogger {
     initializeValues: true;
 
-    readonly property QtObject systemEntity: VeinEntity.getEntity("_System");
-    readonly property QtObject loggerEntity: VeinEntity.getEntity("_LoggingSystem");
-    readonly property string sysSession: systemEntity.Session
-    onSysSessionChanged: {
-        session = systemEntity.Session;
-        loggerEntity.availableContentSets = getAvailableContentSets();
-    }
-
     readonly property bool scriptRunning: loggingEnabled
     onScriptRunningChanged: {
         if(scriptRunning === true) {

@@ -288,6 +288,22 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
     emit sigSendEvent(event);
 }
 
+void DatabaseLogger::onModmanSessionChange(QVariant newSession)
+{
+    for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
+        env.m_loggerContentHandler->setSession(newSession.toString());
+    const QStringList availContentSetStrings = LoggerContentSetConfig::getAvailableContentSets();
+
+    // Avoid QVariant type cast - is there a more simple way?
+    QVariantList availContentSets;
+    for(const QString &availContentSetString : availContentSetStrings)
+        availContentSets.append(availContentSetString);
+
+    QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_availableContentSetsComponentName,
+                                                           QVariant(), availContentSets);
+    emit sigSendEvent(event);
+}
+
 QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters)
 {
     QString session = p_parameters["p_session"].toString();
@@ -456,6 +472,15 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             emit sigAddLoggedValue(m_dbSessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
                     }
                 }
+                if(!m_modmanSessionComponent) {
+                    VeinEvent::StorageSystem *storage = m_dPtr->m_dataSource->getStorageSystem();
+                    m_modmanSessionComponent = storage->getComponent(0, "Session");
+                    if(m_modmanSessionComponent && m_modmanSessionComponent->getValue().isValid()) {
+                        onModmanSessionChange(m_modmanSessionComponent->getValue());
+                        connect(m_modmanSessionComponent.get(), &StorageComponentInterface::sigValueChange,
+                                this, &DatabaseLogger::onModmanSessionChange);
+                    }
+                }
             }
 
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
@@ -576,11 +601,6 @@ void DatabaseLogger::processEvent(QEvent *t_event)
 
                         event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
                                                                        cData->oldValue(), cData->newValue());
-                        emit sigSendEvent(event);
-                    }
-                    else if(cData->componentName() == DataLoggerPrivate::s_availableContentSetsComponentName) {
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_dPtr->m_entityId, DataLoggerPrivate::s_availableContentSetsComponentName,
-                                                                               cData->oldValue(), cData->newValue());
                         emit sigSendEvent(event);
                     }
 

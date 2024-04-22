@@ -15,11 +15,6 @@ QmlLogger::QmlLogger(QQuickItem *t_parent) : QQuickItem(t_parent)
     connect(s_dbLogger, &DatabaseLogger::sigLoggingEnabledChanged, this, &QmlLogger::loggingEnabledChanged);
 }
 
-QString QmlLogger::session() const
-{
-    return m_session;
-}
-
 bool QmlLogger::loggingEnabled() const
 {
     return s_dbLogger->loggingEnabled();
@@ -34,11 +29,6 @@ void QmlLogger::setStaticLogger(DatabaseLogger *t_dbLogger)
 {
     Q_ASSERT(t_dbLogger != nullptr);
     s_dbLogger = t_dbLogger;
-}
-
-QStringList QmlLogger::getAvailableContentSets()
-{
-    return LoggerContentSetConfig::getAvailableContentSets();
 }
 
 void QmlLogger::startLogging()
@@ -67,16 +57,6 @@ void QmlLogger::setInitializeValues(bool t_initializeValues)
         return;
     m_initializeValues = t_initializeValues;
     emit initializeValuesChanged(t_initializeValues);
-}
-
-void QmlLogger::setSession(const QString &t_session)
-{
-    if (m_session == t_session)
-        return;
-    m_session =  t_session;
-    for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
-        env.m_loggerContentHandler->setSession(m_session);
-    emit sessionChanged(t_session);
 }
 
 QDateTime QmlLogger::getStopTime() const
