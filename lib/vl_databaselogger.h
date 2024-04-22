@@ -57,6 +57,8 @@ public slots:
     QVariant RPC_deleteSession(QVariantMap p_parameters);
     void updateSessionList(QStringList sessionNames);
 
+private slots:
+    void onModmanSessionChange(QVariant newSession);
 private:
     void initEntity();
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
@@ -73,6 +75,7 @@ private:
     QString m_dbSessionName;
     int m_transactionId;
     QString m_guiContext;
+    VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
 
     DataLoggerPrivate *m_dPtr = nullptr;
 };
