@@ -237,7 +237,7 @@ void test_testdatabase::recordStartStop()
 
     setComponentValues(10);
 
-    QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
+    QFile file(":/recording-dumps/dumpRecordAllContentSetsStartStop.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();

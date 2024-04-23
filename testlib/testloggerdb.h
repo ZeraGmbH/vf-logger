@@ -69,6 +69,7 @@ private:
     QSet<QString> m_componentsAdded;
 
     QJsonArray m_sessionOnceComponentsAdded;
+    QJsonArray m_startStopEvents;
 
     bool m_valuesAreInitial = true;
     struct InitialValue
