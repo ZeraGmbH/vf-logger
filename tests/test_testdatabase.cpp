@@ -361,6 +361,7 @@ void test_testdatabase::openRunLogAndClose()
     recordOneContentSet();
 
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", "");
+
     QFile fileDbClose(":/vein-dumps/dumpOpenRunLogAndClose.json");
     QVERIFY(fileDbClose.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileDbClose.readAll();

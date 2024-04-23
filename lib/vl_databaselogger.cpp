@@ -80,61 +80,52 @@ DatabaseLogger::~DatabaseLogger()
     delete m_dPtr;
 }
 
-void DatabaseLogger::addScript(QmlLogger *script)
+void DatabaseLogger::prepareLogging()
 {
     const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates) && m_dPtr->m_loggerScripts.contains(script) == false) {
-        m_dPtr->m_loggerScripts.append(script);
-        //writes the values from the data source to the database, some values may never change so they need to be initialized
-        if(script->initializeValues() == true) {
-            const QString tmpsessionName = m_dbSessionName;
-            QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
-            //add a new transaction and store ids in script.
-            m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
-            const QVector<int> tmpTransactionIds = { m_transactionId };
-            // add starttime to transaction. stop time is set in batch execution.
-            m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
+    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates)) {
+        const QString tmpsessionName = m_dbSessionName;
+        QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
+        //add a new transaction and store ids in script.
+        m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
+        const QVector<int> tmpTransactionIds = { m_transactionId };
+        // add starttime to transaction. stop time is set in batch execution.
+        m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
 
-            QMultiHash<int, QString> tmpLoggedValues = m_loggedValues;
+        QMultiHash<int, QString> tmpLoggedValues = m_loggedValues;
 
-            for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
-                const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
-                for(const QString &tmpComponentName : tmpComponents) {
-                    if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity available?
-                        if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
-                            emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+        for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
+            const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
+            for(const QString &tmpComponentName : tmpComponents) {
+                if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity available?
+                    if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
+                        emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+                    }
+                    QStringList componentNamesToAdd;
+                    if(tmpComponentName == VLGlobalLabels::allComponentsName()) {
+                        componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
+                    }
+                    else {
+                        componentNamesToAdd.append(tmpComponentName);
+                    }
+                    for (auto componentToAdd : componentNamesToAdd) {
+                        // add component to db
+                        if(m_dPtr->m_database->hasComponentName(componentToAdd) == false) {
+                            emit sigAddComponent(componentToAdd);
                         }
-                        QStringList componentNamesToAdd;
-                        if(tmpComponentName == VLGlobalLabels::allComponentsName()) {
-                            componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
-                        }
-                        else {
-                            componentNamesToAdd.append(tmpComponentName);
-                        }
-                        for (auto componentToAdd : componentNamesToAdd) {
-                            // add component to db
-                            if(m_dPtr->m_database->hasComponentName(componentToAdd) == false) {
-                                emit sigAddComponent(componentToAdd);
-                            }
-                            // add initial values
-                            emit sigAddLoggedValue(
-                                        tmpsessionName,
-                                        tmpTransactionIds,
-                                        tmpEntityId,
-                                        componentToAdd,
-                                        m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd),
-                                        QDateTime::currentDateTime());
-                        }
+                        // add initial values
+                        emit sigAddLoggedValue(
+                                    tmpsessionName,
+                                    tmpTransactionIds,
+                                    tmpEntityId,
+                                    componentToAdd,
+                                    m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd),
+                                    QDateTime::currentDateTime());
                     }
                 }
             }
         }
     }
-}
-
-void DatabaseLogger::removeScript(QmlLogger *script)
-{
-    m_dPtr->m_loggerScripts.removeAll(script);
 }
 
 bool DatabaseLogger::loggingEnabled() const
@@ -462,26 +453,34 @@ void DatabaseLogger::processEvent(QEvent *t_event)
 
                 ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
                 if(cData->entityId() == entityId() && cData->componentName() == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                    setLoggingEnabled(cData->newValue().toBool());
+                    bool loggingEnabled = cData->newValue().toBool();
+                    if(loggingEnabled) {
+                        bool validConditions = true;
+                        if(getDbSessionName().isEmpty()) {
+                            validConditions = false;
+                            qWarning("Logging requires a valid sessionName!");
+                        }
+                        if(getTransactionName().isEmpty()) {
+                            validConditions = false;
+                            qWarning("Logging requires a valid transactionName!");
+                        }
+                        if(validConditions) {
+                            prepareLogging();
+                            setLoggingEnabled(loggingEnabled);
+                        }
+                    }
+                    else
+                        setLoggingEnabled(loggingEnabled);
                 }
 
                 if(activeStates.contains(requiredStates)) {
-                    QVector<int> transactionIds;
-                    const QVector<QmlLogger *> scripts = m_dPtr->m_loggerScripts;
-                    //check all scripts if they want to log the changed value
-                    for(const QmlLogger *entry : scripts) {
-                        if(isLoggedComponent(evData->entityId(), cData->componentName())) {
-                            transactionIds.append(m_transactionId);
-                        }
-                    }
-
                     if(!m_dbSessionName.isEmpty()) {
                         if(!m_dPtr->m_database->hasEntityId(evData->entityId()))
                             emit sigAddEntity(evData->entityId(), m_dPtr->m_dataSource->getEntityName(cData->entityId()));
                         if(!m_dPtr->m_database->hasComponentName(cData->componentName()))
                             emit sigAddComponent(cData->componentName());
-                        if(transactionIds.length() != 0)
-                            emit sigAddLoggedValue(m_dbSessionName, transactionIds, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
+                        if(isLoggedComponent(evData->entityId(), cData->componentName()))
+                            emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, cData->entityId(), cData->componentName(), cData->newValue(), QDateTime::currentDateTime());
                     }
                 }
             }
@@ -637,18 +636,6 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                 }
             }
         }
-    }
-}
-
-void DatabaseLogger::loadScripts(VeinScript::ScriptSystem *scriptSystem)
-{
-    const QDir virtualFiles(":/qml");
-    const QStringList scriptList = virtualFiles.entryList();
-    for(const QString &scriptFilePath : scriptList) {
-        const QString dataLocation = QString("%1/%2").arg(virtualFiles.path(), scriptFilePath);
-        qInfo() << "Loading script:" << dataLocation;
-        if(scriptSystem->loadScriptFromFile(dataLocation) == false)
-            qWarning() << "Error loading script file:" << scriptFilePath;
     }
 }
 

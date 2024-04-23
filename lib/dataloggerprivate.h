@@ -2,7 +2,6 @@
 #define DATALOGGERPRIVATE_H
 
 #include "vl_databaselogger.h"
-#include "vl_qmllogger.h"
 #include "vl_abstractloggerdb.h"
 #include <vf-cpp-rpc.h>
 #include <QVector>
@@ -23,7 +22,6 @@ public:
     bool checkDBFilePath(const QString &t_dbFilePath);
     void updateSchedulerCountdown();
 
-    QVector<VeinLogger::QmlLogger *> m_loggerScripts;
     VeinLogger::AbstractLoggerDB *m_database = nullptr;
     VeinLogger::DBFactory m_databaseFactory;
     QString m_databaseFilePath;

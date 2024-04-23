@@ -3,8 +3,6 @@
 
 #include "customerdatasystem.h"
 #include "vl_databaselogger.h"
-#include "vsc_scriptsystem.h"
-#include "veinqml.h"
 #include <testveinserver.h>
 #include <QObject>
 #include <memory>
@@ -31,8 +29,6 @@ public:
 private:
     std::unique_ptr<TestVeinServer> m_server;
     VeinEvent::StorageSystem* m_storage;
-    std::unique_ptr<VeinScript::ScriptSystem> m_scriptSystem;
-    std::unique_ptr<VeinApiQml::VeinQml> m_qmlSystem;
     std::unique_ptr<VeinLogger::DatabaseLogger> m_dataLoggerSystem;
     std::unique_ptr<CustomerDataSystem> m_customerDataSystem;
 };

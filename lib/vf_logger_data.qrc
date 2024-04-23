@@ -5,6 +5,5 @@
         <file>sqlite/query_session_static_components.sql</file>
         <file>sqlite/schema_sqlite.sql</file>
         <file>sqlite/testdata_sqlite.sql</file>
-        <file>qml/data_logger.qml</file>
     </qresource>
 </RCC>
