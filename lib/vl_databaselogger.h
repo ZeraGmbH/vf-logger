@@ -3,10 +3,8 @@
 
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
-#include "vl_qmllogger.h"
 #include "vl_datasource.h"
 #include <ve_commandevent.h>
-#include <vsc_scriptsystem.h>
 #include <vcmp_componentdata.h>
 #include <QDateTime>
 
@@ -21,11 +19,6 @@ public:
     explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     ~DatabaseLogger();
     virtual void processEvent(QEvent *t_event) override;
-
-    static void loadScripts(VeinScript::ScriptSystem *scriptSystem);
-    // This is start/stop logging!!!
-    void addScript(QmlLogger *script);
-    void removeScript(QmlLogger *script);
 
     bool loggingEnabled() const;
     int entityId() const;
@@ -69,6 +62,7 @@ private:
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
     void clearLoggerEntries();
     QVariantMap readContentSets();
+    void prepareLogging();
 
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;

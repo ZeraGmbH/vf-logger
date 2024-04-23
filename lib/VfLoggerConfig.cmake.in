@@ -1,7 +1,6 @@
 include(CMakeFindDependencyMacro)
 
-find_dependency(Qt5 REQUIRED COMPONENTS Core Sql Concurrent Qml Quick CONFIG)
+find_dependency(Qt5 REQUIRED COMPONENTS Core Sql Concurrent CONFIG)
 find_dependency(VeinFramework REQUIRED)
-find_dependency(VfScript REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/VfLoggerTargets.cmake")

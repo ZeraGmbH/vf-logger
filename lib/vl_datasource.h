@@ -5,11 +5,6 @@
 #include <ve_storagesystem.h>
 #include <QObject>
 
-namespace VeinApiQml
-{
-class VeinQml;
-}
-
 namespace VeinLogger
 {
 class DataSourcePrivate;

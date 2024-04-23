@@ -1,9 +1,6 @@
 #include "vl_datasource.h"
-
-#include <veinqml.h>
-#include <entitycomponentmap.h>
-#include <vs_veinhash.h>
 #include "vl_globallabels.h"
+#include <vs_veinhash.h>
 
 namespace VeinLogger
 {
