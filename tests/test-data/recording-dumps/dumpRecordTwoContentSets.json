@@ -1,6 +1,11 @@
 {
     "AddSessionValues": [
     ],
+    "AddedStartStop": [
+        {
+            "StartTime": 0
+        }
+    ],
     "OnLoggerStartValues": {
         "10": {
             "ComponentName1": {

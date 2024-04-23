@@ -8,6 +8,7 @@
         <file>recording-dumps/dumpCreateSession.json</file>
         <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
         <file>recording-dumps/dumpRecordAllContentSets.json</file>
+        <file>recording-dumps/dumpRecordAllContentSetsStartStop.json</file>
         <file>recording-dumps/dumpRecordNotStarted.json</file>
         <file>recording-dumps/dumpRecordOneContentSet.json</file>
         <file>recording-dumps/dumpRecordTwoContentSets.json</file>

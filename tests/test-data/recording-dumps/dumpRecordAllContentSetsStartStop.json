@@ -4,6 +4,9 @@
     "AddedStartStop": [
         {
             "StartTime": 0
+        },
+        {
+            "StopTime": 18
         }
     ],
     "OnLoggerStartValues": {

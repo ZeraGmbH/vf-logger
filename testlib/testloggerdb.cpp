@@ -72,6 +72,7 @@ QByteArray TestLoggerDB::getJsonDumpedComponentStored()
     }
 
     QJsonObject loggedValues;
+    loggedValues.insert("AddedStartStop", m_startStopEvents);
     loggedValues.insert("AddSessionValues", m_sessionOnceComponentsAdded);
     loggedValues.insert("OnLoggerStartValues", initialData);
     loggedValues.insert("ValuesRecordedChronological", recordedData);
@@ -151,6 +152,8 @@ bool TestLoggerDB::addStartTime(int transactionId, QDateTime time)
     Q_UNUSED(time);
     if(transactionId != testTransactionId)
         qFatal("Unexpected transaction id: %i!", transactionId);
+    QJsonObject entry {{"StartTime", QJsonValue(m_valueWriteCount)}};
+    m_startStopEvents.append(entry);
     return true;
 }
 
@@ -159,6 +162,8 @@ bool TestLoggerDB::addStopTime(int transactionId, QDateTime time)
     Q_UNUSED(time);
     if(transactionId != testTransactionId)
         qFatal("Unexpected transaction id: %i!", transactionId);
+    QJsonObject entry {{"StopTime", QJsonValue(m_valueWriteCount)}};
+    m_startStopEvents.append(entry);
     return true;
 }
 
@@ -244,5 +249,6 @@ bool TestLoggerDB::openDatabase(const QString &dbPath)
 
 void TestLoggerDB::runBatchedExecution()
 {
-
+    // Surprise: This is a poor mimic of what SQLite implementation does
+    addStopTime(testTransactionId, QDateTime());
 }
