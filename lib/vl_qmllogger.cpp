@@ -1,5 +1,4 @@
 #include "vl_qmllogger.h"
-#include "loggercontentsetconfig.h"
 #include <vl_databaselogger.h>
 #include <QCoreApplication>
 #include <QQmlEngine>
@@ -57,26 +56,6 @@ void QmlLogger::setInitializeValues(bool t_initializeValues)
         return;
     m_initializeValues = t_initializeValues;
     emit initializeValuesChanged(t_initializeValues);
-}
-
-QDateTime QmlLogger::getStopTime() const
-{
-    return m_stopTime;
-}
-
-void QmlLogger::setStopTime(const QDateTime &stopTime)
-{
-    m_stopTime = stopTime;
-}
-
-QDateTime QmlLogger::getStartTime() const
-{
-    return m_startTime;
-}
-
-void QmlLogger::setStartTime(const QDateTime &startTime)
-{
-    m_startTime = startTime;
 }
 
 } // namespace VeinLogger

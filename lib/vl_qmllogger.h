@@ -3,8 +3,6 @@
 
 #include "vflogger_export.h"
 #include <QtQuick/QQuickItem>
-#include <QMultiHash>
-#include <QDateTime>
 
 namespace VeinLogger
 {
@@ -22,12 +20,6 @@ public:
 
     static void setStaticLogger(DatabaseLogger *t_dbLogger);
 
-    QDateTime getStartTime() const;
-    void setStartTime(const QDateTime &startTime);
-
-    QDateTime getStopTime() const;
-    void setStopTime(const QDateTime &stopTime);
-
 public slots:
     void startLogging();
     void stopLogging();
@@ -40,8 +32,6 @@ signals:
 
 private:
     static DatabaseLogger *s_dbLogger;
-    QDateTime m_startTime;
-    QDateTime m_stopTime;
     bool m_initializeValues=false;
 };
 } // namespace VeinLogger
