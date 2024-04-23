@@ -28,6 +28,7 @@ private slots:
     // corner cases
     void noRecordTransactionMissing();
     void noRecordSessionMissing();
+    void noRecordDatbaseMissing();
     void removeDbFileForUsbStickGone();
     void openRunLogAndClose(); // TODO bugs
     void guiContextMakesItIntoDbAndVein();
