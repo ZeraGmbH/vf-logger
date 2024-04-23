@@ -186,10 +186,16 @@ void test_testdatabase::recordOneContentSet()
 
     setComponentValues(2);
 
+    QFile fileVein(":/vein-dumps/dumpDbRecordInitial.json");
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
     QFile file(":/recording-dumps/dumpRecordOneContentSet.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonExpected = file.readAll();
+    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -204,10 +210,16 @@ void test_testdatabase::recordTwoContentSets()
 
     setComponentValues(2);
 
+    QFile fileVein(":/vein-dumps/dumpRecordTwoContentSets.json");
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
     QFile file(":/recording-dumps/dumpRecordTwoContentSets.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonExpected = file.readAll();
+    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -222,10 +234,16 @@ void test_testdatabase::recordAllContentSets()
 
     setComponentValues(2);
 
+    QFile fileVein(":/vein-dumps/dumpRecordAllContentSets.json");
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
     QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonExpected = file.readAll();
+    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -237,10 +255,16 @@ void test_testdatabase::recordStartStop()
 
     setComponentValues(10);
 
+    QFile fileVein(":/vein-dumps/dumpRecordAllContentSetsStartStop.json");
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
     QFile file(":/recording-dumps/dumpRecordAllContentSetsStartStop.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonExpected = file.readAll();
+    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -255,10 +279,16 @@ void test_testdatabase::noRecordTransactionMissing()
 
     setComponentValues(2);
 
+    QFile fileVein(":/vein-dumps/dumpNoRecordTransactionMissing.json"); // bug on LoggingEnabled / Logging data
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
     QFile file(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonExpected = file.readAll();
+    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -273,10 +303,35 @@ void test_testdatabase::noRecordSessionMissing()
 
     setComponentValues(2);
 
+    QFile fileVein(":/vein-dumps/dumpNoRecordSessionMissing.json"); // bug on LoggingEnabled / Logging data
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
     QFile file(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonExpected = file.readAll();
+    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::noRecordDatbaseMissing()
+{
+    m_testSystem.setupServer(3, 3);
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1"); // LOL
+    setComponentValues(1);
+
+    startLogging();
+
+    setComponentValues(2);
+
+    // database is not created -> no dumps
+
+    QFile fileVein(":/vein-dumps/dumpNoRecordDatabaseMissing.json"); // bug on LoggingEnabled / Logging data
+    QVERIFY(fileVein.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileVein.readAll();
+    QByteArray jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -362,6 +417,7 @@ void test_testdatabase::startLogging(QString sessionName, QString transactionNam
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", sessionName);
     m_testSystem.setComponent(dataLoggerEntityId, "transactionName", transactionName);
     m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
-    TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+    if(TestLoggerDB::getInstance())
+        TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
 }
 

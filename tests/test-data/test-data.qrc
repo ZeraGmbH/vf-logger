@@ -23,7 +23,13 @@
         <file>vein-dumps/dumpDbSetSessionAvail.json</file>
         <file>vein-dumps/dumpDbSetSessionNew.json</file>
         <file>vein-dumps/dumpInitial.json</file>
+        <file>vein-dumps/dumpNoRecordDatabaseMissing.json</file>
+        <file>vein-dumps/dumpNoRecordSessionMissing.json</file>
+        <file>vein-dumps/dumpNoRecordTransactionMissing.json</file>
         <file>vein-dumps/dumpOpenRunLogAndClose.json</file>
+        <file>vein-dumps/dumpRecordAllContentSets.json</file>
+        <file>vein-dumps/dumpRecordAllContentSetsStartStop.json</file>
+        <file>vein-dumps/dumpRecordTwoContentSets.json</file>
         <file>vein-dumps/dumpSetContentAll.json</file>
         <file>vein-dumps/dumpSetContentSetInvalid.json</file>
         <file>vein-dumps/dumpSetContentSetValidByString.json</file>
