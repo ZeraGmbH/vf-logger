@@ -364,6 +364,24 @@ QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     return sessionCustomerDataName;
 }
 
+bool DatabaseLogger::checkConditionsForStartLog()
+{
+    bool validConditions = true;
+    if(!m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)) {
+        validConditions = false;
+        qWarning("Logging requires a database!");
+    }
+    if(m_dbSessionName.isEmpty()) {
+        validConditions = false;
+        qWarning("Logging requires a valid sessionName!");
+    }
+    if(m_transactionName.isEmpty()) {
+        validConditions = false;
+        qWarning("Logging requires a valid transactionName!");
+    }
+    return validConditions;
+}
+
 void DatabaseLogger::tryInitModmanSessionComponent()
 {
     if(!m_modmanSessionComponent) {
@@ -436,20 +454,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     else if(entityId == m_entityId && componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
                         bool loggingEnabled = newValue.toBool();
                         if(loggingEnabled) {
-                            bool validConditions = true;
-                            if(!m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)) {
-                                validConditions = false;
-                                qWarning("Logging requires a database!");
-                            }
-                            if(m_dbSessionName.isEmpty()) {
-                                validConditions = false;
-                                qWarning("Logging requires a valid sessionName!");
-                            }
-                            if(m_transactionName.isEmpty()) {
-                                validConditions = false;
-                                qWarning("Logging requires a valid transactionName!");
-                            }
-                            if(validConditions) {
+                            if(checkConditionsForStartLog()) {
                                 prepareLogging();
                                 setLoggingEnabled(loggingEnabled);
                             }
