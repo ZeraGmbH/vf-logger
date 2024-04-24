@@ -161,22 +161,13 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 {
     m_dPtr->m_databaseFilePath = t_filePath;
     m_dPtr->m_noUninitMessage = false;
-    // setup/init components
-    QHash <QString, QVariant> fileInfoData;
-    fileInfoData.insert(DataLoggerPrivate::s_databaseFileComponentName, t_filePath);
-    for(const QString &componentName : fileInfoData.keys())  {
-        VeinComponent::ComponentData *storageCData = new VeinComponent::ComponentData();
-        storageCData->setEntityId(m_entityId);
-        storageCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        storageCData->setComponentName(componentName);
-        storageCData->setNewValue(fileInfoData.value(componentName));
-        storageCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        storageCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, storageCData));
-    }
+
+    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
+                                                            QVariant(), t_filePath);
+    emit sigSendEvent(event);
 
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath); // throws sigDatabaseError on error
-    if(validStorage == true) {
+    if(validStorage) {
         if(m_dPtr->m_database != nullptr) {
             disconnect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
             m_dPtr->m_database->deleteLater();
