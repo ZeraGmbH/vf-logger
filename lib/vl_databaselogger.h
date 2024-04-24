@@ -42,7 +42,7 @@ signals:
     void sigLogSchedulerActivated();
     void sigLogSchedulerDeactivated();
 public slots:
-    void setLoggingEnabled(bool t_enabled);
+    void setLoggingEnabled(bool enabled);
     bool openDatabase(const QString &t_filePath);
     void closeDatabase();
     void checkDatabaseStillValid();
