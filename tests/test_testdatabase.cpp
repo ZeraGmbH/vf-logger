@@ -328,7 +328,7 @@ void test_testdatabase::noRecordDatbaseMissing()
 
     // database is not created -> no dumps
 
-    QFile fileVein(":/vein-dumps/dumpNoRecordDatabaseMissing.json"); // bug on LoggingEnabled / Logging data
+    QFile fileVein(":/vein-dumps/dumpNoRecordDatabaseMissing.json");
     QVERIFY(fileVein.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileVein.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
