@@ -72,14 +72,8 @@ DatabaseLogger::~DatabaseLogger()
     delete m_dPtr;
 }
 
-void DatabaseLogger::prepareLogging()
+void DatabaseLogger::writeCurrentStorareToDb()
 {
-    QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
-    m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
-
-    m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
-
-    // add stored values at start
     for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
         const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
         for(const QString &tmpComponentName : tmpComponents) {
@@ -97,6 +91,15 @@ void DatabaseLogger::prepareLogging()
             }
         }
     }
+}
+
+void DatabaseLogger::prepareLogging()
+{
+    QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
+    m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
+
+    m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
+    writeCurrentStorareToDb();
 }
 
 bool DatabaseLogger::loggingEnabled() const
