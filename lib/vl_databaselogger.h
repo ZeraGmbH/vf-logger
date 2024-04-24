@@ -4,9 +4,7 @@
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include "vl_datasource.h"
-#include <ve_commandevent.h>
 #include <vcmp_componentdata.h>
-#include <QDateTime>
 
 class DataLoggerPrivate;
 
