@@ -41,7 +41,7 @@ signals:
     void sigLogSchedulerDeactivated();
 public slots:
     void setLoggingEnabled(bool enabled);
-    bool openDatabase(const QString &t_filePath);
+    bool openDatabase(const QString &filePath);
     void closeDatabase();
     void checkDatabaseStillValid();
     QVariant RPC_deleteSession(QVariantMap p_parameters);
@@ -52,6 +52,7 @@ private slots:
 private:
     void initEntity();
     void tryInitModmanSessionComponent();
+    bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     QVariant handleVeinDbSessionNameSet(QString sessionName);
