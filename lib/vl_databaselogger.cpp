@@ -358,7 +358,6 @@ QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
             }
         }
 
-        // We are reading it like this because it is faster than writing it to the db and then reading it agian
         sessionCustomerDataName = m_dPtr->m_dataSource->getValue(200, "FileSelected");
         emit sigAddSession(sessionName, tmpStaticData);
     }
@@ -507,20 +506,15 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     }
                     else if(componentName == DataLoggerPrivate::s_sessionNameComponentName) {
                         m_dbSessionName = newValue.toString();
-
-                        QString sessionName = newValue.toString();
-                        // we have a working database?
-                        QVariant sessionCustomerDataName;
-                        if(!sessionName.isEmpty() &&
-                           m_dPtr->m_database &&
-                           m_dPtr->m_database->databaseIsOpen()) {
-                            sessionCustomerDataName = handleVeinDbSessionNameSet(sessionName);
-                        }
-
                         QEvent *event;
                         event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
                                                                        cData->oldValue(), newValue);
                         emit sigSendEvent(event);
+
+                        QVariant sessionCustomerDataName;
+                        if(!m_dbSessionName.isEmpty() && m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
+                            sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
+
                         event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
                                                                        QVariant(), sessionCustomerDataName);
                         emit sigSendEvent(event);
