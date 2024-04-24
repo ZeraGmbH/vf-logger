@@ -84,18 +84,15 @@ void DatabaseLogger::prepareLogging()
 {
     const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
     if(m_dPtr->m_stateMachine.configuration().contains(requiredStates)) {
-        const QString tmpsessionName = m_dbSessionName;
         QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
-        //add a new transaction and store ids in script.
         m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
+
         const QVector<int> tmpTransactionIds = { m_transactionId };
         // add starttime to transaction. stop time is set in batch execution.
         m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
 
-        QMultiHash<int, QString> tmpLoggedValues = m_loggedValues;
-
-        for(const int tmpEntityId : tmpLoggedValues.uniqueKeys()) { //only process once for every entity
-            const QList<QString> tmpComponents = tmpLoggedValues.values(tmpEntityId);
+        for(const int tmpEntityId : m_loggedValues.uniqueKeys()) { //only process once for every entity
+            const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
             for(const QString &tmpComponentName : tmpComponents) {
                 if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity available?
                     if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
@@ -115,7 +112,7 @@ void DatabaseLogger::prepareLogging()
                         }
                         // add initial values
                         emit sigAddLoggedValue(
-                                    tmpsessionName,
+                                    m_dbSessionName,
                                     tmpTransactionIds,
                                     tmpEntityId,
                                     componentToAdd,
