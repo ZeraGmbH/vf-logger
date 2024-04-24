@@ -98,16 +98,9 @@ void DataLoggerPrivate::setStatusText(const QString &t_status)
 {
     if(m_loggerStatusText != t_status) {
         m_loggerStatusText = t_status;
-
-        VeinComponent::ComponentData *schedulingEnabledData = new VeinComponent::ComponentData();
-        schedulingEnabledData->setEntityId(m_qPtr->entityId());
-        schedulingEnabledData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        schedulingEnabledData->setComponentName(DataLoggerPrivate::s_loggingStatusTextComponentName);
-        schedulingEnabledData->setNewValue(t_status);
-        schedulingEnabledData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        schedulingEnabledData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingEnabledData));
+        QEvent *event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), DataLoggerPrivate::s_loggingStatusTextComponentName,
+                                                       QVariant(), t_status);
+        emit m_qPtr->sigSendEvent(event);
     }
 }
 
