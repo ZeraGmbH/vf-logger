@@ -12,7 +12,7 @@
             "10": [
             ]
         },
-        "LoggingEnabled": true,
+        "LoggingEnabled": false,
         "LoggingStatus": "Database loaded",
         "ScheduledLoggingCountdown": 0,
         "ScheduledLoggingDuration": null,

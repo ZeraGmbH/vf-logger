@@ -70,8 +70,7 @@ DatabaseLogger::~DatabaseLogger()
 
 void DatabaseLogger::prepareLogging()
 {
-    const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
-    if(m_dPtr->m_stateMachine.configuration().contains(requiredStates)) {
+    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)) {
         QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
         m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
 
@@ -123,12 +122,12 @@ QString DatabaseLogger::getDbSessionName() const
     return m_dbSessionName;
 }
 
-void DatabaseLogger::setLoggingEnabled(bool t_enabled)
+void DatabaseLogger::setLoggingEnabled(bool enabled)
 {
     //do not accept values that are already set
     const QSet<QAbstractState *> activeStates = m_dPtr->m_stateMachine.configuration();
-    if(t_enabled != activeStates.contains(m_dPtr->m_loggingEnabledState) ) {
-        if(t_enabled) {
+    if(enabled != activeStates.contains(m_dPtr->m_loggingEnabledState) ) {
+        if(enabled) {
             m_dPtr->m_batchedExecutionTimer.start();
             if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState)) {
                 m_dPtr->m_schedulingTimer.start();
@@ -141,11 +140,10 @@ void DatabaseLogger::setLoggingEnabled(bool t_enabled)
             m_dPtr->m_countdownUpdateTimer.stop();
             emit sigLoggingStopped();
         }
-
-        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
-                                                               QVariant(), t_enabled);
-        emit sigSendEvent(event);
     }
+    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
+                                                           QVariant(), enabled);
+    emit sigSendEvent(event);
 }
 
 bool DatabaseLogger::openDatabase(const QString &t_filePath)
@@ -423,28 +421,6 @@ void DatabaseLogger::processEvent(QEvent *t_event)
             if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
                 tryInitModmanSessionComponent();
 
-                ///@todo check if the setLoggingEnabled() call can be moved to the transaction code block for s_loggingEnabledComponentName
-                if(entityId == m_entityId && componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                    bool loggingEnabled = newValue.toBool();
-                    if(loggingEnabled) {
-                        bool validConditions = true;
-                        if(getDbSessionName().isEmpty()) {
-                            validConditions = false;
-                            qWarning("Logging requires a valid sessionName!");
-                        }
-                        if(getTransactionName().isEmpty()) {
-                            validConditions = false;
-                            qWarning("Logging requires a valid transactionName!");
-                        }
-                        if(validConditions) {
-                            prepareLogging();
-                            setLoggingEnabled(loggingEnabled);
-                        }
-                    }
-                    else
-                        setLoggingEnabled(loggingEnabled);
-                }
-
                 if(activeStates.contains(requiredStates) && !m_dbSessionName.isEmpty())
                     addValueToDb(newValue, entityId, componentName);
             }
@@ -471,9 +447,26 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         m_dbSessionName = "";
                     }
                     else if(componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
-                                                                               cData->oldValue(), newValue);
-                        emit sigSendEvent(event);
+                        if(entityId == m_entityId && componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
+                            bool loggingEnabled = newValue.toBool();
+                            if(loggingEnabled) {
+                                bool validConditions = true;
+                                if(getDbSessionName().isEmpty()) {
+                                    validConditions = false;
+                                    qWarning("Logging requires a valid sessionName!");
+                                }
+                                if(getTransactionName().isEmpty()) {
+                                    validConditions = false;
+                                    qWarning("Logging requires a valid transactionName!");
+                                }
+                                if(validConditions) {
+                                    prepareLogging();
+                                    setLoggingEnabled(loggingEnabled);
+                                }
+                            }
+                            else
+                                setLoggingEnabled(loggingEnabled);
+                        }
                     }
                     else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
                         //do not accept values that are already set
