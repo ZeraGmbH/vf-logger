@@ -48,7 +48,7 @@ void DataLoggerPrivate::initOnce()
     if(m_initDone == false) {
         VeinComponent::EntityData *systemData = new VeinComponent::EntityData();
         systemData->setCommand(VeinComponent::EntityData::Command::ECMD_ADD);
-        systemData->setEntityId(m_entityId);
+        systemData->setEntityId(m_qPtr->entityId());
 
         VeinEvent::CommandEvent *systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, systemData);
 
@@ -79,7 +79,7 @@ void DataLoggerPrivate::initOnce()
 
         for(const QString &componentName : componentData.keys()) {
             initialData = new VeinComponent::ComponentData();
-            initialData->setEntityId(m_entityId);
+            initialData->setEntityId(m_qPtr->entityId());
             initialData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
             initialData->setComponentName(componentName);
             initialData->setNewValue(componentData.value(componentName));
@@ -91,7 +91,7 @@ void DataLoggerPrivate::initOnce()
         }
 
         VfCpp::cVeinModuleRpc::Ptr tmpval;
-        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_entityId,m_qPtr,m_qPtr,"RPC_deleteSession",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})), &QObject::deleteLater);
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_qPtr->entityId(),m_qPtr,m_qPtr,"RPC_deleteSession",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})), &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
         initStateMachine();
@@ -105,7 +105,7 @@ void DataLoggerPrivate::setStatusText(const QString &t_status)
         m_loggerStatusText = t_status;
 
         VeinComponent::ComponentData *schedulingEnabledData = new VeinComponent::ComponentData();
-        schedulingEnabledData->setEntityId(m_entityId);
+        schedulingEnabledData->setEntityId(m_qPtr->entityId());
         schedulingEnabledData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulingEnabledData->setComponentName(DataLoggerPrivate::s_loggingStatusTextComponentName);
         schedulingEnabledData->setNewValue(t_status);
@@ -141,7 +141,7 @@ void DataLoggerPrivate::initStateMachine()
     m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
 
     QObject::connect(m_databaseUninitializedState, &QState::entered, [&]() {
-        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
+        QEvent* event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
         emit m_qPtr->sigSendEvent(event);
         m_qPtr->setLoggingEnabled(false);
         if(!m_noUninitMessage)
@@ -154,7 +154,7 @@ void DataLoggerPrivate::initStateMachine()
         QFileInfo fileInfo(m_databaseFilePath);
         fileInfoData.insert(DataLoggerPrivate::s_databaseReadyComponentName, true);
         for(const QString &componentName : fileInfoData.keys())  {
-            QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, componentName, QVariant(), fileInfoData.value(componentName));
+            QEvent* event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), componentName, QVariant(), fileInfoData.value(componentName));
             emit m_qPtr->sigSendEvent(event);
         }
 
@@ -195,7 +195,7 @@ void DataLoggerPrivate::initStateMachine()
     });
     QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
-        schedulingEnabledCData->setEntityId(m_entityId);
+        schedulingEnabledCData->setEntityId(m_qPtr->entityId());
         schedulingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulingEnabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
         schedulingEnabledCData->setNewValue(true);
@@ -206,7 +206,7 @@ void DataLoggerPrivate::initStateMachine()
     });
     QObject::connect(m_logSchedulerDisabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingDisabledCData = new VeinComponent::ComponentData();
-        schedulingDisabledCData->setEntityId(m_entityId);
+        schedulingDisabledCData->setEntityId(m_qPtr->entityId());
         schedulingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulingDisabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
         schedulingDisabledCData->setNewValue(false);
@@ -254,7 +254,7 @@ void DataLoggerPrivate::updateSchedulerCountdown()
 {
     if(m_schedulingTimer.isActive()) {
         VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
-        schedulerCountdownCData->setEntityId(m_entityId);
+        schedulerCountdownCData->setEntityId(m_qPtr->entityId());
         schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
         schedulerCountdownCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingCountdownComponentName);
         schedulerCountdownCData->setNewValue(QVariant(m_schedulingTimer.remainingTime()));
