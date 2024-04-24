@@ -22,10 +22,7 @@ public:
     bool checkDBFilePath(const QString &t_dbFilePath);
     void updateSchedulerCountdown();
 
-    VeinLogger::AbstractLoggerDB *m_database = nullptr;
-    VeinLogger::DBFactory m_databaseFactory;
     QString m_databaseFilePath;
-    VeinLogger::DataSource *m_dataSource = nullptr;
 
     QThread m_asyncDatabaseThread;
     /**
@@ -85,8 +82,6 @@ public:
     QState *m_logSchedulerContainerState = new QState(m_parallelWrapperState);
     QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
     QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
-
-    VeinLogger::AbstractLoggerDB::STORAGE_MODE m_storageMode;
 
     VeinLogger::DatabaseLogger *m_qPtr = nullptr;
     friend class DatabaseLogger;

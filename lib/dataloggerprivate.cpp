@@ -33,11 +33,6 @@ DataLoggerPrivate::DataLoggerPrivate(DatabaseLogger *t_qPtr) : m_qPtr(t_qPtr)
 DataLoggerPrivate::~DataLoggerPrivate()
 {
     m_batchedExecutionTimer.stop();
-    if(m_database != nullptr)
-    {
-        m_database->deleteLater(); ///@todo: check if the delete works across threads
-        m_database = nullptr;
-    }
     m_asyncDatabaseThread.quit();
     m_asyncDatabaseThread.wait();
 }
