@@ -55,6 +55,7 @@ private:
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     QVariant handleVeinDbSessionNameSet(QString sessionName);
+    bool checkConditionsForStartLog();
     bool isLoggedComponent(int entityId, const QString &componentName) const;
     void addLoggerEntry(int t_entityId, const QString &t_componentName);
     void clearLoggerEntries();
