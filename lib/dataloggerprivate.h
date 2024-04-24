@@ -28,10 +28,7 @@ public:
      * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
      */
     QTimer m_batchedExecutionTimer;
-    /**
-     * @brief logging duration in ms
-     */
-    int m_scheduledLoggingDuration;
+    int m_scheduledLoggingDurationMs;
 
     QFileSystemWatcher m_deleteWatcher;
     bool m_noUninitMessage = false;

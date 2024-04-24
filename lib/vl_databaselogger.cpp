@@ -509,8 +509,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         const int logDurationMsecs = newValue.toInt(&conversionOk);
                         invalidTime = !conversionOk;
 
-                        if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDuration) {
-                            m_dPtr->m_scheduledLoggingDuration = logDurationMsecs;
+                        if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDurationMs) {
+                            m_dPtr->m_scheduledLoggingDurationMs = logDurationMsecs;
                             if(logDurationMsecs > 0) {
                                 m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
                                 if(activeStates.contains(requiredStates))
