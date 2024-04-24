@@ -24,7 +24,7 @@ const QLatin1String DataLoggerPrivate::loggedComponentsComponentName = QLatin1St
 
 using namespace VeinLogger;
 
-DataLoggerPrivate::DataLoggerPrivate(DatabaseLogger *t_qPtr) : m_qPtr(t_qPtr)
+DataLoggerPrivate::DataLoggerPrivate(DatabaseLogger *qPtr) : m_qPtr(qPtr)
 {
     m_batchedExecutionTimer.setInterval(5000);
     m_batchedExecutionTimer.setSingleShot(false);
@@ -94,12 +94,12 @@ void DataLoggerPrivate::initOnce()
     }
 }
 
-void DataLoggerPrivate::setStatusText(const QString &t_status)
+void DataLoggerPrivate::setStatusText(const QString &status)
 {
-    if(m_loggerStatusText != t_status) {
-        m_loggerStatusText = t_status;
+    if(m_loggerStatusText != status) {
+        m_loggerStatusText = status;
         QEvent *event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), DataLoggerPrivate::s_loggingStatusTextComponentName,
-                                                       QVariant(), t_status);
+                                                       QVariant(), status);
         emit m_qPtr->sigSendEvent(event);
     }
 }
@@ -205,37 +205,6 @@ void DataLoggerPrivate::initStateMachine()
     });
 
     m_stateMachine.start();
-}
-
-bool DataLoggerPrivate::checkDBFilePath(const QString &t_dbFilePath)
-{
-    bool retVal = false;
-    QFileInfo fInfo(t_dbFilePath);
-
-    if(!fInfo.isRelative()) {
-        // try to create path
-        if(!fInfo.absoluteDir().exists()) {
-            QDir dir;
-            dir.mkpath(fInfo.absoluteDir().path());
-        }
-
-        if(fInfo.absoluteDir().exists()) {
-            if(fInfo.isFile() || fInfo.exists() == false) {
-                retVal = true;
-            }
-            else {
-                emit m_qPtr->sigDatabaseError(QString("Path is not a valid file location: %1").arg(t_dbFilePath));
-            }
-        }
-        else {
-            emit m_qPtr->sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(t_dbFilePath));
-        }
-    }
-    else {
-        emit m_qPtr->sigDatabaseError(QString("Relative paths are not accepted: %1").arg(t_dbFilePath));
-    }
-
-    return retVal;
 }
 
 void DataLoggerPrivate::updateSchedulerCountdown()

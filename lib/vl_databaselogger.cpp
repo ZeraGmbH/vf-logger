@@ -141,16 +141,16 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
     emit sigSendEvent(event);
 }
 
-bool DatabaseLogger::openDatabase(const QString &t_filePath)
+bool DatabaseLogger::openDatabase(const QString &filePath)
 {
-    m_dPtr->m_databaseFilePath = t_filePath;
+    m_dPtr->m_databaseFilePath = filePath;
     m_dPtr->m_noUninitMessage = false;
 
     QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
-                                                            QVariant(), t_filePath);
+                                                            QVariant(), filePath);
     emit sigSendEvent(event);
 
-    const bool validStorage = m_dPtr->checkDBFilePath(t_filePath); // throws sigDatabaseError on error
+    const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
     if(validStorage) {
         if(m_database != nullptr) {
             disconnect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
@@ -181,7 +181,7 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         // run final batch instantly when logging is disabled
         connect(m_dPtr->m_loggingDisabledState, &QAbstractState::entered, m_database, &AbstractLoggerDB::runBatchedExecution);
 
-        emit sigOpenDatabase(t_filePath);
+        emit sigOpenDatabase(filePath);
     }
     return validStorage;
 }
@@ -400,6 +400,30 @@ void DatabaseLogger::tryInitModmanSessionComponent()
                     this, &DatabaseLogger::onModmanSessionChange);
         }
     }
+}
+
+bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
+{
+    bool retVal = false;
+    QFileInfo fInfo(dbFilePath);
+    if(!fInfo.isRelative()) {
+        // try to create path
+        if(!fInfo.absoluteDir().exists()) {
+            QDir dir;
+            dir.mkpath(fInfo.absoluteDir().path());
+        }
+        if(fInfo.absoluteDir().exists()) {
+            if(fInfo.isFile() || fInfo.exists() == false)
+                retVal = true;
+            else
+                emit sigDatabaseError(QString("Path is not a valid file location: %1").arg(dbFilePath));
+        }
+        else
+            emit sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(dbFilePath));
+    }
+    else
+        emit sigDatabaseError(QString("Relative paths are not accepted: %1").arg(dbFilePath));
+    return retVal;
 }
 
 void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)

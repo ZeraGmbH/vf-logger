@@ -2,7 +2,6 @@
 #define DATALOGGERPRIVATE_H
 
 #include "vl_databaselogger.h"
-#include "vl_abstractloggerdb.h"
 #include <vf-cpp-rpc.h>
 #include <QVector>
 #include <QTimer>
@@ -13,13 +12,12 @@
 class DataLoggerPrivate: public QObject
 {
 public:
-    explicit DataLoggerPrivate(VeinLogger::DatabaseLogger *t_qPtr);
+    explicit DataLoggerPrivate(VeinLogger::DatabaseLogger *qPtr);
     ~DataLoggerPrivate();
 
     void initOnce();
-    void setStatusText(const QString &t_status);
+    void setStatusText(const QString &status);
     void initStateMachine();
-    bool checkDBFilePath(const QString &t_dbFilePath);
     void updateSchedulerCountdown();
 
     QString m_databaseFilePath;
