@@ -23,8 +23,6 @@ public:
     bool loggingEnabled() const;
     int entityId() const;
     QString entityName() const;
-    QString getTransactionName() const;
-    QString getDbSessionName() const;
 
 signals:
     void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
