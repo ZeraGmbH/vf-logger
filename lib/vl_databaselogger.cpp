@@ -112,16 +112,6 @@ QString DatabaseLogger::entityName() const
     return m_dPtr->m_entityName;
 }
 
-QString DatabaseLogger::getTransactionName() const
-{
-    return m_transactionName;
-}
-
-QString DatabaseLogger::getDbSessionName() const
-{
-    return m_dbSessionName;
-}
-
 void DatabaseLogger::setLoggingEnabled(bool enabled)
 {
     //do not accept values that are already set
@@ -451,11 +441,11 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             bool loggingEnabled = newValue.toBool();
                             if(loggingEnabled) {
                                 bool validConditions = true;
-                                if(getDbSessionName().isEmpty()) {
+                                if(m_dbSessionName.isEmpty()) {
                                     validConditions = false;
                                     qWarning("Logging requires a valid sessionName!");
                                 }
-                                if(getTransactionName().isEmpty()) {
+                                if(m_transactionName.isEmpty()) {
                                     validConditions = false;
                                     qWarning("Logging requires a valid transactionName!");
                                 }
