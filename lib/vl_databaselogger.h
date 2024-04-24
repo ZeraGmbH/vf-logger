@@ -16,8 +16,8 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 {
     Q_OBJECT
 public:
-    explicit DatabaseLogger(DataSource *t_dataSource, VeinLogger::DBFactory t_factoryFunction, QObject *t_parent=nullptr, AbstractLoggerDB::STORAGE_MODE t_storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
-    ~DatabaseLogger();
+    explicit DatabaseLogger(DataSource *dataSource, VeinLogger::DBFactory factoryFunction, QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
+    virtual ~DatabaseLogger();
     virtual void processEvent(QEvent *t_event) override;
 
     bool loggingEnabled() const;
@@ -63,7 +63,13 @@ private:
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
 
+    DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
+    AbstractLoggerDB::STORAGE_MODE m_storageMode;
+    DataSource *m_dataSource;
+    AbstractLoggerDB *m_database = nullptr;
+    DBFactory m_databaseFactory;
+
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
     QString m_transactionName;
@@ -71,8 +77,6 @@ private:
     int m_transactionId;
     QString m_guiContext;
     VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
-
-    DataLoggerPrivate *m_dPtr = nullptr;
 };
 }
 

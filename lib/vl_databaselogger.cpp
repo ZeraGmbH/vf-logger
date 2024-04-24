@@ -14,17 +14,17 @@
 
 namespace VeinLogger
 {
-DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunction, QObject *t_parent, AbstractLoggerDB::STORAGE_MODE t_storageMode) :
-    VeinEvent::EventSystem(t_parent),
-    m_dPtr(new DataLoggerPrivate(this))
+DatabaseLogger::DatabaseLogger(DataSource *dataSource, DBFactory factoryFunction, QObject *parent, AbstractLoggerDB::STORAGE_MODE storageMode) :
+    VeinEvent::EventSystem(parent),
+    m_dPtr(new DataLoggerPrivate(this)),
+    m_storageMode(storageMode),
+    m_dataSource(dataSource)
 {
-    m_dPtr->m_dataSource=t_dataSource;
     m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
     m_dPtr->m_countdownUpdateTimer.setInterval(100);
-    m_dPtr->m_databaseFactory = t_factoryFunction;
-    m_dPtr->m_storageMode=t_storageMode;
-    switch(t_storageMode) {
+    m_databaseFactory = factoryFunction;
+    switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT: {
         m_entityId = 2;
         m_dPtr->m_entityName = QLatin1String("_LoggingSystem");
@@ -65,29 +65,33 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
 
 DatabaseLogger::~DatabaseLogger()
 {
+    if(m_database != nullptr) {
+        m_database->deleteLater(); ///@todo: check if the delete works across threads
+        m_database = nullptr;
+    }
     delete m_dPtr;
 }
 
 void DatabaseLogger::prepareLogging()
 {
     QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
-    m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
+    m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
 
-    m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
+    m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
 
     // add stored values at start
     for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
         const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
         for(const QString &tmpComponentName : tmpComponents) {
-            if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity in storage?
+            if(m_dataSource->hasEntity(tmpEntityId)) { // is entity in storage?
                 QStringList componentNamesToAdd;
                 if(tmpComponentName == VLGlobalLabels::allComponentsName())
-                    componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
+                    componentNamesToAdd = m_dataSource->getEntityComponentsForStore(tmpEntityId);
                 else
                     componentNamesToAdd.append(tmpComponentName);
 
                 for (auto componentToAdd : componentNamesToAdd) {
-                    const QVariant storedValue = m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd);
+                    const QVariant storedValue = m_dataSource->getValue(tmpEntityId, componentToAdd);
                     addValueToDb(storedValue, tmpEntityId, componentToAdd);
                 }
             }
@@ -145,34 +149,34 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
 
     const bool validStorage = m_dPtr->checkDBFilePath(t_filePath); // throws sigDatabaseError on error
     if(validStorage) {
-        if(m_dPtr->m_database != nullptr) {
-            disconnect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
-            m_dPtr->m_database->deleteLater();
-            m_dPtr->m_database = nullptr;
+        if(m_database != nullptr) {
+            disconnect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
+            m_database->deleteLater();
+            m_database = nullptr;
         }
         m_dPtr->m_asyncDatabaseThread.quit();
         m_dPtr->m_asyncDatabaseThread.wait();
-        m_dPtr->m_database = m_dPtr->m_databaseFactory();//new SQLiteDB(t_storageMode);
+        m_database = m_databaseFactory();//new SQLiteDB(t_storageMode);
         // forward database's error my handler
-        connect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
-        m_dPtr->m_database->setStorageMode(m_dPtr->m_storageMode);
-        if(m_dPtr->m_database->requiresOwnThread()) {
-            m_dPtr->m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
+        connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
+        m_database->setStorageMode(m_storageMode);
+        if(m_database->requiresOwnThread()) {
+            m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
             m_dPtr->m_asyncDatabaseThread.start();
         }
 
-        // connections to m_dPtr->m_database are queued for requiresOwnThread() == true
-        connect(this, &DatabaseLogger::sigAddLoggedValue, m_dPtr->m_database, &AbstractLoggerDB::addLoggedValue);
-        connect(this, &DatabaseLogger::sigAddEntity, m_dPtr->m_database, &AbstractLoggerDB::addEntity);
-        connect(this, &DatabaseLogger::sigAddComponent, m_dPtr->m_database, &AbstractLoggerDB::addComponent);
-        connect(this, &DatabaseLogger::sigAddSession, m_dPtr->m_database, &AbstractLoggerDB::addSession);
-        connect(this, &DatabaseLogger::sigOpenDatabase, m_dPtr->m_database, &AbstractLoggerDB::openDatabase);
-        connect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
-        connect(m_dPtr->m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
+        // connections to m_database are queued for requiresOwnThread() == true
+        connect(this, &DatabaseLogger::sigAddLoggedValue, m_database, &AbstractLoggerDB::addLoggedValue);
+        connect(this, &DatabaseLogger::sigAddEntity, m_database, &AbstractLoggerDB::addEntity);
+        connect(this, &DatabaseLogger::sigAddComponent, m_database, &AbstractLoggerDB::addComponent);
+        connect(this, &DatabaseLogger::sigAddSession, m_database, &AbstractLoggerDB::addSession);
+        connect(this, &DatabaseLogger::sigOpenDatabase, m_database, &AbstractLoggerDB::openDatabase);
+        connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
+        connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
 
-        connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_dPtr->m_database, &AbstractLoggerDB::runBatchedExecution);
+        connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
         // run final batch instantly when logging is disabled
-        connect(m_dPtr->m_loggingDisabledState, &QAbstractState::entered, m_dPtr->m_database, &AbstractLoggerDB::runBatchedExecution);
+        connect(m_dPtr->m_loggingDisabledState, &QAbstractState::entered, m_database, &AbstractLoggerDB::runBatchedExecution);
 
         emit sigOpenDatabase(t_filePath);
     }
@@ -183,10 +187,10 @@ void DatabaseLogger::closeDatabase()
 {
     m_dPtr->m_noUninitMessage = false;
     setLoggingEnabled(false);
-    if(m_dPtr->m_database != nullptr) {
-        disconnect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
-        m_dPtr->m_database->deleteLater();
-        m_dPtr->m_database = nullptr;
+    if(m_database != nullptr) {
+        disconnect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
+        m_database->deleteLater();
+        m_database = nullptr;
     }
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
@@ -248,7 +252,7 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters)
 {
     QString session = p_parameters["p_session"].toString();
-    QVariant retVal = m_dPtr->m_database->deleteSession(session);
+    QVariant retVal = m_database->deleteSession(session);
     // check if deleted session is current Session and if it is set sessionName empty
     // We will not check retVal here. If something goes wrong and the session is still available the
     // user can choose it again without risking undefined behavior.
@@ -328,39 +332,39 @@ void DatabaseLogger::clearLoggerEntries()
 QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
     QVariant sessionCustomerDataName;
-    if(!m_dPtr->m_database->hasSessionName(sessionName)) {
+    if(!m_database->hasSessionName(sessionName)) {
         QMultiHash<int, QString> tmpStaticComps;
         // Add customer data once per session
-        if(m_dPtr->m_dataSource->hasEntity(200))
-            for(const QString &comp : m_dPtr->m_dataSource->getEntityComponentsForStore(200))
+        if(m_dataSource->hasEntity(200))
+            for(const QString &comp : m_dataSource->getEntityComponentsForStore(200))
                 tmpStaticComps.insert(200, comp);
         // Add status module once per session
-        if(m_dPtr->m_dataSource->hasEntity(1150))
-            for(const QString &comp : m_dPtr->m_dataSource->getEntityComponentsForStore(1150))
+        if(m_dataSource->hasEntity(1150))
+            for(const QString &comp : m_dataSource->getEntityComponentsForStore(1150))
                 tmpStaticComps.insert(1150, comp);
 
         QList<QVariantMap> tmpStaticData;
         for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
-            if(!m_dPtr->m_database->hasEntityId(tmpEntityId))
-                emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
+            if(!m_database->hasEntityId(tmpEntityId))
+                emit sigAddEntity(tmpEntityId, m_dataSource->getEntityName(tmpEntityId));
             const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
             for(const QString &tmpComponentName : tmpComponents) {
-                if(!m_dPtr->m_database->hasComponentName(tmpComponentName))
+                if(!m_database->hasComponentName(tmpComponentName))
                     emit sigAddComponent(tmpComponentName);
                 QVariantMap tmpMap;
                 tmpMap["entityId"] = tmpEntityId;
                 tmpMap["compName"] = tmpComponentName;
-                tmpMap["value"] = m_dPtr->m_dataSource->getValue(tmpEntityId, tmpComponentName);
+                tmpMap["value"] = m_dataSource->getValue(tmpEntityId, tmpComponentName);
                 tmpMap["time"] = QDateTime::currentDateTime();
                 tmpStaticData.append(tmpMap);
             }
         }
 
-        sessionCustomerDataName = m_dPtr->m_dataSource->getValue(200, "FileSelected");
+        sessionCustomerDataName = m_dataSource->getValue(200, "FileSelected");
         emit sigAddSession(sessionName, tmpStaticData);
     }
     else
-        sessionCustomerDataName = m_dPtr->m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();
+        sessionCustomerDataName = m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();
     return sessionCustomerDataName;
 }
 
@@ -385,7 +389,7 @@ bool DatabaseLogger::checkConditionsForStartLog()
 void DatabaseLogger::tryInitModmanSessionComponent()
 {
     if(!m_modmanSessionComponent) {
-        VeinEvent::StorageSystem *storage = m_dPtr->m_dataSource->getStorageSystem();
+        VeinEvent::StorageSystem *storage = m_dataSource->getStorageSystem();
         m_modmanSessionComponent = storage->getComponent(0, "Session");
         if(m_modmanSessionComponent && m_modmanSessionComponent->getValue().isValid()) {
             onModmanSessionChange(m_modmanSessionComponent->getValue());
@@ -397,10 +401,10 @@ void DatabaseLogger::tryInitModmanSessionComponent()
 
 void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
 {
-    QString entityName = m_dPtr->m_dataSource->getEntityName(entityId);
-    if(!m_dPtr->m_database->hasEntityId(entityId))
+    QString entityName = m_dataSource->getEntityName(entityId);
+    if(!m_database->hasEntityId(entityId))
         emit sigAddEntity(entityId, entityName);
-    if(!m_dPtr->m_database->hasComponentName(componentName))
+    if(!m_database->hasComponentName(componentName))
         emit sigAddComponent(componentName);
     if(isLoggedComponent(entityId, componentName))
         emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, entityId, componentName, newValue, QDateTime::currentDateTime());
@@ -438,7 +442,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                     if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
                         handleLoggedComponentsTransaction(cData);
                     else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
-                        if(m_dPtr->m_database == nullptr || newValue != m_dPtr->m_databaseFilePath) {
+                        if(m_database == nullptr || newValue != m_dPtr->m_databaseFilePath) {
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
                                 closeDatabase();
                             else
