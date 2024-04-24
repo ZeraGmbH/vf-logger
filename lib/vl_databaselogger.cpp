@@ -197,10 +197,10 @@ bool DatabaseLogger::openDatabase(const QString &t_filePath)
         connect(this, &DatabaseLogger::sigAddLoggedValue, m_dPtr->m_database, &AbstractLoggerDB::addLoggedValue);
         connect(this, &DatabaseLogger::sigAddEntity, m_dPtr->m_database, &AbstractLoggerDB::addEntity);
         connect(this, &DatabaseLogger::sigAddComponent, m_dPtr->m_database, &AbstractLoggerDB::addComponent);
-        connect(this, &DatabaseLogger::sigAddSession, m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::addSession);
-        connect(this, &DatabaseLogger::sigOpenDatabase, m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::openDatabase);
-        connect(m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
-        connect(m_dPtr->m_database, &VeinLogger::AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
+        connect(this, &DatabaseLogger::sigAddSession, m_dPtr->m_database, &AbstractLoggerDB::addSession);
+        connect(this, &DatabaseLogger::sigOpenDatabase, m_dPtr->m_database, &AbstractLoggerDB::openDatabase);
+        connect(m_dPtr->m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
+        connect(m_dPtr->m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
 
         connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_dPtr->m_database, &AbstractLoggerDB::runBatchedExecution);
         // run final batch instantly when logging is disabled
@@ -397,7 +397,7 @@ QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     return sessionCustomerDataName;
 }
 
-void VeinLogger::DatabaseLogger::tryInitModmanSessionComponent()
+void DatabaseLogger::tryInitModmanSessionComponent()
 {
     if(!m_modmanSessionComponent) {
         VeinEvent::StorageSystem *storage = m_dPtr->m_dataSource->getStorageSystem();
@@ -410,7 +410,7 @@ void VeinLogger::DatabaseLogger::tryInitModmanSessionComponent()
     }
 }
 
-void VeinLogger::DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
+void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
 {
     QString entityName = m_dPtr->m_dataSource->getEntityName(entityId);
     if(!m_dPtr->m_database->hasEntityId(entityId))
