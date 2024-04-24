@@ -70,27 +70,25 @@ DatabaseLogger::~DatabaseLogger()
 
 void DatabaseLogger::prepareLogging()
 {
-    if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)) {
-        QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
-        m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
+    QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
+    m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
 
-        m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
+    m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
 
-        // add stored values at start
-        for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
-            const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
-            for(const QString &tmpComponentName : tmpComponents) {
-                if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity in storage?
-                    QStringList componentNamesToAdd;
-                    if(tmpComponentName == VLGlobalLabels::allComponentsName())
-                        componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
-                    else
-                        componentNamesToAdd.append(tmpComponentName);
+    // add stored values at start
+    for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
+        const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
+        for(const QString &tmpComponentName : tmpComponents) {
+            if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity in storage?
+                QStringList componentNamesToAdd;
+                if(tmpComponentName == VLGlobalLabels::allComponentsName())
+                    componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
+                else
+                    componentNamesToAdd.append(tmpComponentName);
 
-                    for (auto componentToAdd : componentNamesToAdd) {
-                        const QVariant storedValue = m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd);
-                        addValueToDb(storedValue, tmpEntityId, componentToAdd);
-                    }
+                for (auto componentToAdd : componentNamesToAdd) {
+                    const QVariant storedValue = m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd);
+                    addValueToDb(storedValue, tmpEntityId, componentToAdd);
                 }
             }
         }
@@ -435,27 +433,29 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(event);
                         m_dbSessionName = "";
                     }
-                    else if(componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                        if(entityId == m_entityId && componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                            bool loggingEnabled = newValue.toBool();
-                            if(loggingEnabled) {
-                                bool validConditions = true;
-                                if(m_dbSessionName.isEmpty()) {
-                                    validConditions = false;
-                                    qWarning("Logging requires a valid sessionName!");
-                                }
-                                if(m_transactionName.isEmpty()) {
-                                    validConditions = false;
-                                    qWarning("Logging requires a valid transactionName!");
-                                }
-                                if(validConditions) {
-                                    prepareLogging();
-                                    setLoggingEnabled(loggingEnabled);
-                                }
+                    else if(entityId == m_entityId && componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
+                        bool loggingEnabled = newValue.toBool();
+                        if(loggingEnabled) {
+                            bool validConditions = true;
+                            if(!m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)) {
+                                validConditions = false;
+                                qWarning("Logging requires a database!");
                             }
-                            else
+                            if(m_dbSessionName.isEmpty()) {
+                                validConditions = false;
+                                qWarning("Logging requires a valid sessionName!");
+                            }
+                            if(m_transactionName.isEmpty()) {
+                                validConditions = false;
+                                qWarning("Logging requires a valid transactionName!");
+                            }
+                            if(validConditions) {
+                                prepareLogging();
                                 setLoggingEnabled(loggingEnabled);
+                            }
                         }
+                        else
+                            setLoggingEnabled(loggingEnabled);
                     }
                     else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
                         //do not accept values that are already set
