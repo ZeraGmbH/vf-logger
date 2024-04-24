@@ -37,7 +37,6 @@ signals:
     void sigDatabaseError(const QString &t_errorString);
     void sigDatabaseReady();
     void sigDatabaseUnloaded();
-    void sigLoggingEnabledChanged(bool t_enabled);
     void sigLoggingStarted();
     void sigLoggingStopped();
     void sigLogSchedulerActivated();
