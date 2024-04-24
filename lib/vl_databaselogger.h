@@ -64,6 +64,7 @@ private:
     QVariantMap readContentSets();
     void prepareLogging();
 
+    int m_entityId;
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
     QString m_transactionName;

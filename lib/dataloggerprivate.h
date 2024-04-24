@@ -48,7 +48,6 @@ public:
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
-    int m_entityId;
     //entity name
     QLatin1String m_entityName;
     //component names
