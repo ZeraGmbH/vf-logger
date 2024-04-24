@@ -21,7 +21,6 @@ public:
     bool hasComponentName(const QString &componentName) const override;
     bool hasSessionName(const QString &sessionName) const override;
 
-    bool databaseIsOpen() const override;
     QString databasePath() const override;
     void setStorageMode(STORAGE_MODE storageMode) override;
     STORAGE_MODE getStorageMode() const override;

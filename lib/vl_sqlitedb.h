@@ -36,7 +36,6 @@ public:
     bool hasComponentName(const QString &t_componentName) const override;
     bool hasSessionName(const QString &t_sessionName) const override;
 
-    bool databaseIsOpen() const override;
     QString databasePath() const override;
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode) override;
     AbstractLoggerDB::STORAGE_MODE getStorageMode() const override;
