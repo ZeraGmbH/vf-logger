@@ -103,11 +103,6 @@ bool TestLoggerDB::hasSessionName(const QString &sessionName) const
     return m_dbSessionNames.contains(sessionName);
 }
 
-bool TestLoggerDB::databaseIsOpen() const
-{
-    return !m_openDbPath.isEmpty();
-}
-
 QString TestLoggerDB::databasePath() const
 {
     return m_openDbPath;

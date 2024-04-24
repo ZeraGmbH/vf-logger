@@ -245,11 +245,6 @@ bool SQLiteDB::hasSessionName(const QString &t_sessionName) const
     return m_dPtr->m_sessionIds.contains(t_sessionName);
 }
 
-bool SQLiteDB::databaseIsOpen() const
-{
-    return m_dPtr->m_logDB.isOpen();
-}
-
 QString SQLiteDB::databasePath() const
 {
     return m_dPtr->m_logDB.databaseName();
