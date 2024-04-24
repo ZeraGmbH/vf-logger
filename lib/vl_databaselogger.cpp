@@ -87,37 +87,22 @@ void DatabaseLogger::prepareLogging()
         QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
         m_transactionId = m_dPtr->m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
 
-        const QVector<int> tmpTransactionIds = { m_transactionId };
-        // add starttime to transaction. stop time is set in batch execution.
         m_dPtr->m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
 
-        for(const int tmpEntityId : m_loggedValues.uniqueKeys()) { //only process once for every entity
+        // add stored values at start
+        for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
             const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
             for(const QString &tmpComponentName : tmpComponents) {
-                if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity available?
-                    if(m_dPtr->m_database->hasEntityId(tmpEntityId) == false) { // already in db?
-                        emit sigAddEntity(tmpEntityId, m_dPtr->m_dataSource->getEntityName(tmpEntityId));
-                    }
+                if(m_dPtr->m_dataSource->hasEntity(tmpEntityId)) { // is entity in storage?
                     QStringList componentNamesToAdd;
-                    if(tmpComponentName == VLGlobalLabels::allComponentsName()) {
+                    if(tmpComponentName == VLGlobalLabels::allComponentsName())
                         componentNamesToAdd = m_dPtr->m_dataSource->getEntityComponentsForStore(tmpEntityId);
-                    }
-                    else {
+                    else
                         componentNamesToAdd.append(tmpComponentName);
-                    }
+
                     for (auto componentToAdd : componentNamesToAdd) {
-                        // add component to db
-                        if(m_dPtr->m_database->hasComponentName(componentToAdd) == false) {
-                            emit sigAddComponent(componentToAdd);
-                        }
-                        // add initial values
-                        emit sigAddLoggedValue(
-                                    m_dbSessionName,
-                                    tmpTransactionIds,
-                                    tmpEntityId,
-                                    componentToAdd,
-                                    m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd),
-                                    QDateTime::currentDateTime());
+                        const QVariant storedValue = m_dPtr->m_dataSource->getValue(tmpEntityId, componentToAdd);
+                        addValueToDb(storedValue, tmpEntityId, componentToAdd);
                     }
                 }
             }
@@ -425,6 +410,17 @@ void VeinLogger::DatabaseLogger::tryInitModmanSessionComponent()
     }
 }
 
+void VeinLogger::DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
+{
+    QString entityName = m_dPtr->m_dataSource->getEntityName(entityId);
+    if(!m_dPtr->m_database->hasEntityId(entityId))
+        emit sigAddEntity(entityId, entityName);
+    if(!m_dPtr->m_database->hasComponentName(componentName))
+        emit sigAddComponent(componentName);
+    if(isLoggedComponent(entityId, componentName))
+        emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, entityId, componentName, newValue, QDateTime::currentDateTime());
+}
+
 void DatabaseLogger::processEvent(QEvent *t_event)
 {
     using namespace VeinEvent;
@@ -467,18 +463,8 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         setLoggingEnabled(loggingEnabled);
                 }
 
-                if(activeStates.contains(requiredStates)) {
-                    if(!m_dbSessionName.isEmpty()) {
-
-                        QString entityName = m_dPtr->m_dataSource->getEntityName(entityId);
-                        if(!m_dPtr->m_database->hasEntityId(entityId))
-                            emit sigAddEntity(entityId, entityName);
-                        if(!m_dPtr->m_database->hasComponentName(componentName))
-                            emit sigAddComponent(componentName);
-                        if(isLoggedComponent(entityId, componentName))
-                            emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, entityId, componentName, newValue, QDateTime::currentDateTime());
-                    }
-                }
+                if(activeStates.contains(requiredStates) && !m_dbSessionName.isEmpty())
+                    addValueToDb(newValue, entityId, componentName);
             }
 
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
