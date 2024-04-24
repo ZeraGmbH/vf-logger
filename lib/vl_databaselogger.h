@@ -63,6 +63,7 @@ private:
     void clearLoggerEntries();
     QVariantMap readContentSets();
     void prepareLogging();
+    void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
 
     int m_entityId;
     QStringList m_contentSets;
