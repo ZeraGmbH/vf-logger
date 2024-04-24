@@ -54,18 +54,6 @@ DatabaseLogger::DatabaseLogger(DataSource *t_dataSource, DBFactory t_factoryFunc
         m_dPtr->updateSchedulerCountdown();
     });
 
-    connect(this, &DatabaseLogger::sigLoggingEnabledChanged, [this](bool t_enabled) {
-        VeinComponent::ComponentData *loggingEnabledCData = new VeinComponent::ComponentData();
-        loggingEnabledCData->setEntityId(m_entityId);
-        loggingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        loggingEnabledCData->setComponentName(DataLoggerPrivate::s_loggingEnabledComponentName);
-        loggingEnabledCData->setNewValue(t_enabled);
-        loggingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        loggingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, loggingEnabledCData));
-    });
-
     // db error handling
     connect(this, &DatabaseLogger::sigDatabaseError, [this](const QString &t_errorString) {
         qWarning() << t_errorString;
@@ -153,7 +141,10 @@ void DatabaseLogger::setLoggingEnabled(bool t_enabled)
             m_dPtr->m_countdownUpdateTimer.stop();
             emit sigLoggingStopped();
         }
-        emit sigLoggingEnabledChanged(t_enabled);
+
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
+                                                               QVariant(), t_enabled);
+        emit sigSendEvent(event);
     }
 }
 
