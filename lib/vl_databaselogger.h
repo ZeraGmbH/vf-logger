@@ -60,7 +60,7 @@ private:
     QVariantMap readContentSets();
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
-    void writeCurrentStorareToDb();
+    void writeCurrentStorageToDb();
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
