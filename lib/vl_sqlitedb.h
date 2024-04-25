@@ -26,7 +26,6 @@ class VFLOGGER_EXPORT SQLiteDB : public AbstractLoggerDB
 {
     Q_OBJECT
 public:
-
     explicit SQLiteDB(QObject *t_parent = nullptr);
     ~SQLiteDB();
 
@@ -36,7 +35,6 @@ public:
     bool hasComponentName(const QString &t_componentName) const override;
     bool hasSessionName(const QString &t_sessionName) const override;
 
-    QString databasePath() const override;
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode) override;
 
     static bool isValidDatabase(QString t_dbPath);
@@ -63,7 +61,7 @@ private:
     void writeStaticData(QVector<SQLBatchData> p_batchData);
 
 private:
-    DBPrivate *m_dPtr=nullptr;
+    DBPrivate *m_dPtr = nullptr;
 };
 
 } // namespace VeinLogger

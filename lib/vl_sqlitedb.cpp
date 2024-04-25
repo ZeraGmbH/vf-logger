@@ -239,11 +239,6 @@ bool SQLiteDB::hasSessionName(const QString &t_sessionName) const
     return m_dPtr->m_sessionIds.contains(t_sessionName);
 }
 
-QString SQLiteDB::databasePath() const
-{
-    return m_dPtr->m_logDB.databaseName();
-}
-
 void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode)
 {
     if(m_dPtr->m_storageMode != t_storageMode) {
