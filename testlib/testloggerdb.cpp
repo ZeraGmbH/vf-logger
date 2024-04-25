@@ -103,11 +103,6 @@ bool TestLoggerDB::hasSessionName(const QString &sessionName) const
     return m_dbSessionNames.contains(sessionName);
 }
 
-QString TestLoggerDB::databasePath() const
-{
-    return m_openDbPath;
-}
-
 void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
 {
     m_storageMode = storageMode;

@@ -28,7 +28,6 @@ public:
     virtual bool hasComponentName(const QString &t_componentName) const = 0;
     virtual bool hasSessionName(const QString &dbSessionName) const = 0;
 
-    virtual QString databasePath() const = 0;
     virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
 
 signals:
