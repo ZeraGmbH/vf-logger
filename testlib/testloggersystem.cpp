@@ -1,6 +1,5 @@
 #include "testloggersystem.h"
 #include "testloggerdb.h"
-#include "vl_datasource.h"
 #include "jsonloggercontentloader.h"
 #include "jsonloggercontentsessionloader.h"
 #include "loggercontentsetconfig.h"
@@ -29,7 +28,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     const VeinLogger::DBFactory sqliteFactory = [](){
         return new TestLoggerDB();
     };
-    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(new VeinLogger::DataSource(m_storage), sqliteFactory); //takes ownership of DataSource
+    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_storage, sqliteFactory);
     m_server->appendEventSystem(m_dataLoggerSystem.get());
     TimeMachineObject::feedEventLoop();
 

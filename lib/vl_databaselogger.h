@@ -3,7 +3,8 @@
 
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
-#include "vl_datasource.h"
+#include <ve_eventsystem.h>
+#include <ve_storagesystem.h>
 #include <vcmp_componentdata.h>
 
 class DataLoggerPrivate;
@@ -14,7 +15,8 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 {
     Q_OBJECT
 public:
-    explicit DatabaseLogger(DataSource *dataSource, VeinLogger::DBFactory factoryFunction, QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
+    explicit DatabaseLogger(VeinEvent::StorageSystem *veinStorage, VeinLogger::DBFactory factoryFunction,
+                            QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
     void processEvent(QEvent *event) override;
 
@@ -48,6 +50,7 @@ public slots:
 private slots:
     void onModmanSessionChange(QVariant newSession);
 private:
+    QString getEntityName(int entityId) const;
     void tryInitModmanSessionComponent();
     bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
@@ -61,11 +64,12 @@ private:
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
+    QStringList getComponentsFilteredForDb(int entityId);
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
-    DataSource *m_dataSource;
+    VeinEvent::StorageSystem *m_veinStorage;
     AbstractLoggerDB *m_database = nullptr;
     DBFactory m_databaseFactory;
 
