@@ -52,7 +52,7 @@ private:
     bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
-    QVariant handleVeinDbSessionNameSet(QString sessionName);
+    QString handleVeinDbSessionNameSet(QString sessionName);
     bool checkConditionsForStartLog();
     bool isLoggedComponent(int entityId, const QString &componentName) const;
     void addLoggerEntry(int t_entityId, const QString &t_componentName);

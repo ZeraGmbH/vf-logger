@@ -330,9 +330,9 @@ void DatabaseLogger::clearLoggerEntries()
     m_loggedValues.clear();
 }
 
-QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
+QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
-    QVariant sessionCustomerDataName;
+    QString sessionCustomerDataName;
     if(!m_database->hasSessionName(sessionName)) {
         QMultiHash<int, QString> tmpStaticComps;
         // Add customer data once per session
@@ -361,7 +361,7 @@ QVariant DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
             }
         }
 
-        sessionCustomerDataName = m_dataSource->getValue(200, "FileSelected");
+        sessionCustomerDataName = m_dataSource->getValue(200, "FileSelected").toString();
         emit sigAddSession(sessionName, tmpStaticData);
     }
     else
@@ -537,7 +537,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                                                                        cData->oldValue(), newValue);
                         emit sigSendEvent(event);
 
-                        QVariant sessionCustomerDataName;
+                        QVariant sessionCustomerDataName = "";
                         if(!m_dbSessionName.isEmpty() && m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
                             sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
 
