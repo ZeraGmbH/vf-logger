@@ -1,9 +1,11 @@
 file(GLOB SOURCES 
     *.cpp
+    content-sets/*.cpp
     )
 
 file(GLOB HEADERS
     *.h
+    content-sets/*.cpp
     )
 
 # Exclude psql files
@@ -48,6 +50,7 @@ target_include_directories(VfLogger
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/VfLogger>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/content-sets>
     )
 
 install(TARGETS VfLogger
