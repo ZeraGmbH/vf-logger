@@ -16,7 +16,7 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 public:
     explicit DatabaseLogger(DataSource *dataSource, VeinLogger::DBFactory factoryFunction, QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
-    virtual void processEvent(QEvent *t_event) override;
+    void processEvent(QEvent *t_event) override;
 
     bool loggingEnabled() const;
     int entityId() const;
@@ -48,7 +48,6 @@ public slots:
 private slots:
     void onModmanSessionChange(QVariant newSession);
 private:
-    void initEntity();
     void tryInitModmanSessionComponent();
     bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);

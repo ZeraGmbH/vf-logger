@@ -446,24 +446,19 @@ void DatabaseLogger::processEvent(QEvent *t_event)
         EventData *evData = cEvent->eventData();
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
-        const QSet<QAbstractState*> requiredStates = {m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState};
+        const QSet<QAbstractState*> requiredStates = { m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState };
         if(evData->type() == ComponentData::dataType()) {
-
             ComponentData *cData = static_cast<ComponentData *>(evData);
-            const int entityId = evData->entityId();
-            const QString componentName = cData->componentName();
-            const QVariant newValue = cData->newValue();
 
             if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
                 tryInitModmanSessionComponent();
-
-                if(activeStates.contains(requiredStates) && !m_dbSessionName.isEmpty())
-                    addValueToDb(newValue, entityId, componentName);
+                if(activeStates.contains(requiredStates))
+                    addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
             }
-
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
-                    entityId == m_entityId) {
-                Q_ASSERT(cData != nullptr);
+                    evData->entityId() == m_entityId) {
+                const QString componentName = cData->componentName();
+                const QVariant newValue = cData->newValue();
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
                     if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
@@ -482,7 +477,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(event);
                         m_dbSessionName = "";
                     }
-                    else if(entityId == m_entityId && componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
+                    else if(componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
                         bool loggingEnabled = newValue.toBool();
                         if(loggingEnabled) {
                             if(checkConditionsForStartLog()) {
@@ -494,7 +489,6 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                             setLoggingEnabled(loggingEnabled);
                     }
                     else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
-                        //do not accept values that are already set
                         if(newValue.toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
                             if(newValue.toBool() == true)
                                 emit sigLogSchedulerActivated();
@@ -504,11 +498,9 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         }
                     }
                     else if(componentName == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
-                        bool invalidTime = false;
                         bool conversionOk = false;
                         const int logDurationMsecs = newValue.toInt(&conversionOk);
-                        invalidTime = !conversionOk;
-
+                        bool invalidTime = !conversionOk;
                         if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDurationMs) {
                             m_dPtr->m_scheduledLoggingDurationMs = logDurationMsecs;
                             if(logDurationMsecs > 0) {
