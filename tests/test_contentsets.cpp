@@ -129,4 +129,3 @@ void test_contentsets::contentSetsSelectValidAllSessionChange()
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
-
