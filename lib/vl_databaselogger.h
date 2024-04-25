@@ -16,21 +16,21 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 public:
     explicit DatabaseLogger(DataSource *dataSource, VeinLogger::DBFactory factoryFunction, QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
-    void processEvent(QEvent *t_event) override;
+    void processEvent(QEvent *event) override;
 
     bool loggingEnabled() const;
     int entityId() const;
     QString entityName() const;
 
 signals:
-    void sigAddLoggedValue(QString t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
-    void sigAddEntity(int t_entityId, const QString &t_entityName);
-    void sigAddComponent(const QString &t_componentName);
-    void sigAddSession(const QString &t_sessionName,QList<QVariantMap> p_staticData);
+    void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp);
+    void sigAddEntity(int entityId, const QString &entityName);
+    void sigAddComponent(const QString &componentName);
+    void sigAddSession(const QString &sessionName,QList<QVariantMap> staticData);
 
-    void sigOpenDatabase(const QString &t_filePath);
+    void sigOpenDatabase(const QString &filePath);
 
-    void sigDatabaseError(const QString &t_errorString);
+    void sigDatabaseError(const QString &errorString);
     void sigDatabaseReady();
     void sigDatabaseUnloaded();
     void sigLoggingStarted();
@@ -42,7 +42,7 @@ public slots:
     bool openDatabase(const QString &filePath);
     void closeDatabase();
     void checkDatabaseStillValid();
-    QVariant RPC_deleteSession(QVariantMap p_parameters);
+    QVariant RPC_deleteSession(QVariantMap parameters);
     void updateSessionList(QStringList sessionNames);
 
 private slots:
@@ -55,7 +55,7 @@ private:
     QString handleVeinDbSessionNameSet(QString sessionName);
     bool checkConditionsForStartLog();
     bool isLoggedComponent(int entityId, const QString &componentName) const;
-    void addLoggerEntry(int t_entityId, const QString &t_componentName);
+    void addLoggerEntry(int entityId, const QString &componentName);
     void clearLoggerEntries();
     QVariantMap readContentSets();
     void prepareLogging();

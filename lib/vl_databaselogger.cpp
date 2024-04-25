@@ -250,9 +250,9 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
     emit sigSendEvent(event);
 }
 
-QVariant DatabaseLogger::RPC_deleteSession(QVariantMap p_parameters)
+QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
 {
-    QString session = p_parameters["p_session"].toString();
+    QString session = parameters["p_session"].toString();
     QVariant retVal = m_database->deleteSession(session);
     // check if deleted session is current Session and if it is set sessionName empty
     // We will not check retVal here. If something goes wrong and the session is still available the
@@ -319,10 +319,10 @@ bool DatabaseLogger::isLoggedComponent(int entityId, const QString &componentNam
 
 }
 
-void DatabaseLogger::addLoggerEntry(int t_entityId, const QString &t_componentName)
+void DatabaseLogger::addLoggerEntry(int entityId, const QString &componentName)
 {
-    if(m_loggedValues.contains(t_entityId, t_componentName) == false)
-        m_loggedValues.insert(t_entityId, t_componentName);
+    if(m_loggedValues.contains(entityId, componentName) == false)
+        m_loggedValues.insert(entityId, componentName);
 }
 
 void DatabaseLogger::clearLoggerEntries()
@@ -435,12 +435,12 @@ void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, c
         emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, entityId, componentName, newValue, QDateTime::currentDateTime());
 }
 
-void DatabaseLogger::processEvent(QEvent *t_event)
+void DatabaseLogger::processEvent(QEvent *event)
 {
     using namespace VeinEvent;
     using namespace VeinComponent;
-    if(t_event->type()==CommandEvent::getQEventType()) {
-        CommandEvent *cEvent = static_cast<CommandEvent *>(t_event);
+    if(event->type()==CommandEvent::getQEventType()) {
+        CommandEvent *cEvent = static_cast<CommandEvent *>(event);
         EventData *evData = cEvent->eventData();
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
@@ -573,7 +573,7 @@ void DatabaseLogger::processEvent(QEvent *t_event)
                         emit sigSendEvent(event);
                     }
 
-                    t_event->accept();
+                    event->accept();
                 }
             }
         }
