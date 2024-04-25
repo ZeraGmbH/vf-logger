@@ -428,39 +428,30 @@ bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
     }
     return false;
 }
-// @TODO: remove transaction rpc?
+
 bool SQLiteDB::deleteSession(const QString &t_session)
 {
-    bool retVal=true;
-    // retrun false if any error occurs
-    try{
-        // Database has to be open!
-        if(m_dPtr->m_logDB.isOpen() != true){
-            throw false;
-        }
+    if(!m_dPtr->m_logDB.isOpen())
+        return false;
 
-        if(m_dPtr->m_sessionIds.contains(t_session)){
-            /* Deleting session takes ages for a simple db:
-             * On a fresh db with fresh session recording 10s ZeraAll causes delete
-             * session take 70s!!!
-             * So just rename session and maybe once we have nothing to do we can offer a undo RPC :)
-             */
-            QSqlQuery updateSessionQuery(m_dPtr->m_logDB);
-            updateSessionQuery.prepare("Update sessions set session_name=:sessionNameNew WHERE session_name=:sessionNameOld");
-            QString strNewName = QString(QStringLiteral("_DELETED_") + t_session).left(254);
-            updateSessionQuery.bindValue(":sessionNameNew", strNewName);
-            updateSessionQuery.bindValue(":sessionNameOld", t_session);
-            updateSessionQuery.exec();
-            updateSessionQuery.finish();
+    if(m_dPtr->m_sessionIds.contains(t_session)){
+        /* Deleting session takes ages for a simple db:
+         * On a fresh db with fresh session recording 10s ZeraAll causes delete
+         * session take 70s!!!
+         * So just rename session and maybe once we have nothing to do we can offer a undo RPC :)
+         */
+        QSqlQuery updateSessionQuery(m_dPtr->m_logDB);
+        updateSessionQuery.prepare("Update sessions set session_name=:sessionNameNew WHERE session_name=:sessionNameOld");
+        QString strNewName = QString(QStringLiteral("_DELETED_") + t_session).left(254);
+        updateSessionQuery.bindValue(":sessionNameNew", strNewName);
+        updateSessionQuery.bindValue(":sessionNameOld", t_session);
+        updateSessionQuery.exec();
+        updateSessionQuery.finish();
 
-            m_dPtr->m_sessionIds.remove(t_session);
-            emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
-        }
+        m_dPtr->m_sessionIds.remove(t_session);
+        emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
     }
-    catch(...){
-        retVal=false;
-    }
-    return retVal;
+    return true;
 }
 
 int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_staticData)
