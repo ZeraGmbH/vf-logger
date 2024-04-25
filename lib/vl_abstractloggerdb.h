@@ -41,7 +41,7 @@ public slots:
     virtual void initLocalData() = 0;
     virtual void addComponent(const QString &t_componentName) = 0;
     virtual void addEntity(int t_entityId, QString t_entityName) = 0;
-    virtual int addTransaction(const QString &t_transactionName, const QString &dbSessionName, const QString &t_contentSets, const QString &t_guiContextName) = 0;
+    virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;

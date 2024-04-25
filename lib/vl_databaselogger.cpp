@@ -95,9 +95,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
 
 void DatabaseLogger::prepareLogging()
 {
-    QString tmpContentSets = m_contentSets.join(QLatin1Char(','));
-    m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, tmpContentSets, m_guiContext);
-
+    m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, m_contentSets, m_guiContext);
     m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
     writeCurrentStorageToDb();
 }
