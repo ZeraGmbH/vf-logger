@@ -28,7 +28,7 @@ public:
     void initLocalData() override;
     void addComponent(const QString &componentName) override;
     void addEntity(int entityId, QString entityName) override;
-    int addTransaction(const QString &transactionName, const QString &sessionName, const QString &contentSets, const QString &guiContextName) override;
+    int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
 
@@ -54,7 +54,7 @@ public:
 signals:
     void sigEntityAdded(int entityId, QString entityName);
     void sigComponentAdded(QString componentName);
-    void sigAddTransaction(const QString &transactionName, const QString &sessionName, const QString &contentSets, const QString &guiContextName);
+    void sigAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName);
 
 private:
     bool m_customerDataAlreadyInDbSession = false;

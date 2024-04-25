@@ -379,17 +379,17 @@ void SQLiteDB::addEntity(int t_entityId, QString t_entityName)
     }
 }
 
-int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_sessionName, const QString &t_contentSets, const QString &t_guiContextName)
+int SQLiteDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
     int retVal = -1;
     int sessionId = 0;
 
     //check if session exists. If session does not exist add to list.
-    if(m_dPtr->m_sessionIds.contains(t_sessionName)) {
-        sessionId=m_dPtr->m_sessionIds.value(t_sessionName);
+    if(m_dPtr->m_sessionIds.contains(sessionName)) {
+        sessionId=m_dPtr->m_sessionIds.value(sessionName);
     }
     else {
-        int newSession = addSession(t_sessionName,QList<QVariantMap>());
+        int newSession = addSession(sessionName,QList<QVariantMap>());
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }
@@ -406,9 +406,9 @@ int SQLiteDB::addTransaction(const QString &t_transactionName, const QString &t_
 
     m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
     m_dPtr->m_transactionInsertQuery.bindValue(":sessionid", sessionId);
-    m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", t_transactionName);
-    m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", t_contentSets);
-    m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", t_guiContextName);
+    m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", transactionName);
+    m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", contentSets.join(QLatin1Char(',')));
+    m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", guiContextName);
 
     if(m_dPtr->m_transactionInsertQuery.exec() == false) {
         emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
