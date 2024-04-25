@@ -5,7 +5,7 @@ file(GLOB SOURCES
 
 file(GLOB HEADERS
     *.h
-    content-sets/*.cpp
+    content-sets/*.h
     )
 
 # Exclude psql files
