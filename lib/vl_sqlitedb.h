@@ -38,7 +38,6 @@ public:
 
     QString databasePath() const override;
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode) override;
-    AbstractLoggerDB::STORAGE_MODE getStorageMode() const override;
 
     static bool isValidDatabase(QString t_dbPath);
 

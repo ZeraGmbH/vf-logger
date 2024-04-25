@@ -201,13 +201,7 @@ class DBPrivate
      */
     QSqlQuery m_sessionCustomerQuery;
 
-
-
-    int m_valueMapQueryCounter=0;
-    /**
-     * @brief m_logDB
-     * manages the actual database access
-     */
+    int m_valueMapQueryCounter = 0;
     QSqlDatabase m_logDB;
 
     SQLiteDB::STORAGE_MODE m_storageMode=SQLiteDB::STORAGE_MODE::TEXT;
@@ -255,11 +249,6 @@ void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode)
     if(m_dPtr->m_storageMode != t_storageMode) {
         m_dPtr->m_storageMode = t_storageMode;
     }
-}
-
-AbstractLoggerDB::STORAGE_MODE SQLiteDB::getStorageMode() const
-{
-    return m_dPtr->m_storageMode;
 }
 
 bool SQLiteDB::isValidDatabase(QString t_dbPath)
