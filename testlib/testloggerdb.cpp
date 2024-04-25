@@ -113,11 +113,6 @@ void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
     m_storageMode = storageMode;
 }
 
-VeinLogger::AbstractLoggerDB::STORAGE_MODE TestLoggerDB::getStorageMode() const
-{
-    return m_storageMode;
-}
-
 void TestLoggerDB::initLocalData()
 {
 }
