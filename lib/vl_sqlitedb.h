@@ -26,38 +26,38 @@ class VFLOGGER_EXPORT SQLiteDB : public AbstractLoggerDB
 {
     Q_OBJECT
 public:
-    explicit SQLiteDB(QObject *t_parent = nullptr);
+    explicit SQLiteDB(QObject *parent = nullptr);
     ~SQLiteDB();
 
     bool requiresOwnThread() override { return true; }
 
-    bool hasEntityId(int t_entityId) const override;
-    bool hasComponentName(const QString &t_componentName) const override;
-    bool hasSessionName(const QString &t_sessionName) const override;
+    bool hasEntityId(int entityId) const override;
+    bool hasComponentName(const QString &componentName) const override;
+    bool hasSessionName(const QString &sessionName) const override;
 
-    void setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode) override;
+    void setStorageMode(AbstractLoggerDB::STORAGE_MODE storageMode) override;
 
-    static bool isValidDatabase(QString t_dbPath);
+    static bool isValidDatabase(QString dbPath);
 
 public slots:
     void initLocalData() override;
-    void addComponent(const QString &t_componentName) override;
-    void addEntity(int t_entityId, QString t_entityName) override;
+    void addComponent(const QString &componentName) override;
+    void addEntity(int entityId, QString entityName) override;
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
-    bool addStartTime(int t_transactionId, QDateTime t_time) override;
-    bool addStopTime(int t_transactionId,  QDateTime t_time) override;
-    bool deleteSession(const QString &t_session) override;
-    int addSession(const QString &t_sessionName,QList<QVariantMap> p_staticData) override;
-    void addLoggedValue(const  QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) override;
-    QVariant readSessionComponent(const QString &p_session, const QString &p_enity, const QString &p_component) override;
+    bool addStartTime(int transactionId, QDateTime time) override;
+    bool addStopTime(int transactionId,  QDateTime time) override;
+    bool deleteSession(const QString &session) override;
+    int addSession(const QString &sessionName, QList<QVariantMap> staticData) override;
+    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp) override;
+    QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
 
-    bool openDatabase(const QString &t_dbPath) override;
-    bool isDbStillWitable(const QString &t_dbPath);
+    bool openDatabase(const QString &dbPath) override;
+    bool isDbStillWitable(const QString &dbPath);
 
     void runBatchedExecution() override;
 
 private:
-    void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp);
+    void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
 
 private:

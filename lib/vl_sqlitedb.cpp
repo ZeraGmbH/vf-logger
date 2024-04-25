@@ -211,7 +211,7 @@ class DBPrivate
     friend class SQLiteDB;
 };
 
-SQLiteDB::SQLiteDB(QObject *t_parent) : AbstractLoggerDB(t_parent), m_dPtr(new DBPrivate(this))
+SQLiteDB::SQLiteDB(QObject *parent) : AbstractLoggerDB(parent), m_dPtr(new DBPrivate(this))
 {
     m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE", "VFLogDB"); //default database
 }
@@ -224,38 +224,38 @@ SQLiteDB::~SQLiteDB()
     QSqlDatabase::removeDatabase("VFLogDB");
 }
 
-bool SQLiteDB::hasEntityId(int t_entityId) const
+bool SQLiteDB::hasEntityId(int entityId) const
 {
-    return m_dPtr->m_entityIds.contains(t_entityId);
+    return m_dPtr->m_entityIds.contains(entityId);
 }
 
-bool SQLiteDB::hasComponentName(const QString &t_componentName) const
+bool SQLiteDB::hasComponentName(const QString &componentName) const
 {
-    return m_dPtr->m_componentIds.contains(t_componentName);
+    return m_dPtr->m_componentIds.contains(componentName);
 }
 
-bool SQLiteDB::hasSessionName(const QString &t_sessionName) const
+bool SQLiteDB::hasSessionName(const QString &sessionName) const
 {
-    return m_dPtr->m_sessionIds.contains(t_sessionName);
+    return m_dPtr->m_sessionIds.contains(sessionName);
 }
 
-void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE t_storageMode)
+void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE storageMode)
 {
-    if(m_dPtr->m_storageMode != t_storageMode) {
-        m_dPtr->m_storageMode = t_storageMode;
+    if(m_dPtr->m_storageMode != storageMode) {
+        m_dPtr->m_storageMode = storageMode;
     }
 }
 
-bool SQLiteDB::isValidDatabase(QString t_dbPath)
+bool SQLiteDB::isValidDatabase(QString dbPath)
 {
     bool retVal = false;
-    QFile dbFile(t_dbPath);
+    QFile dbFile(dbPath);
 
     if(dbFile.exists()) {
         QSqlDatabase tmpDB = QSqlDatabase::addDatabase("QSQLITE", "TempDB");
         tmpDB.setConnectOptions(QLatin1String("QSQLITE_OPEN_READONLY"));
 
-        tmpDB.setDatabaseName(t_dbPath);
+        tmpDB.setDatabaseName(dbPath);
         if(tmpDB.open()) {
             QSqlQuery schemaValidationQuery(tmpDB);
             if(schemaValidationQuery.exec("SELECT name FROM sqlite_master WHERE type = 'table';"))
@@ -315,9 +315,9 @@ void SQLiteDB::initLocalData()
     transactionQuery.finish();
 }
 
-void SQLiteDB::addComponent(const QString &t_componentName)
+void SQLiteDB::addComponent(const QString &componentName)
 {
-    if(m_dPtr->m_componentIds.contains(t_componentName) == false) {
+    if(m_dPtr->m_componentIds.contains(componentName) == false) {
         int nextComponentId=0;
 
         if(m_dPtr->m_componentSequenceQuery.exec() == true) {
@@ -330,7 +330,7 @@ void SQLiteDB::addComponent(const QString &t_componentName)
         }
 
         m_dPtr->m_componentInsertQuery.bindValue(":id", nextComponentId);
-        m_dPtr->m_componentInsertQuery.bindValue(":component_name", t_componentName);
+        m_dPtr->m_componentInsertQuery.bindValue(":component_name", componentName);
         if(m_dPtr->m_componentInsertQuery.exec() == false) {
             emit sigDatabaseError(QString("SQLiteDB::addComponent m_componentQuery failed: %1").arg(m_dPtr->m_componentInsertQuery.lastError().text()));
             return;
@@ -338,7 +338,7 @@ void SQLiteDB::addComponent(const QString &t_componentName)
         m_dPtr->m_componentSequenceQuery.finish();
 
         if(nextComponentId > 0) {
-            m_dPtr->m_componentIds.insert(t_componentName, nextComponentId);
+            m_dPtr->m_componentIds.insert(componentName, nextComponentId);
         }
         else {
             emit sigDatabaseError(QString("Error in SQLiteDB::addComponent transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
@@ -347,14 +347,14 @@ void SQLiteDB::addComponent(const QString &t_componentName)
     }
 }
 
-void SQLiteDB::addEntity(int t_entityId, QString t_entityName)
+void SQLiteDB::addEntity(int entityId, QString entityName)
 {
-    if(m_dPtr->m_entityIds.contains(t_entityId) == false) {
-        m_dPtr->m_entityInsertQuery.bindValue(":id", t_entityId);
-        m_dPtr->m_entityInsertQuery.bindValue(":entity_name", t_entityName);
+    if(m_dPtr->m_entityIds.contains(entityId) == false) {
+        m_dPtr->m_entityInsertQuery.bindValue(":id", entityId);
+        m_dPtr->m_entityInsertQuery.bindValue(":entity_name", entityName);
 
         if(m_dPtr->m_entityInsertQuery.exec() == true) {
-            m_dPtr->m_entityIds.append(t_entityId);
+            m_dPtr->m_entityIds.append(entityId);
         }
         else {
             emit sigDatabaseError(QString("SQLiteDB::addEntity m_entityInsertQuery failed: %1").arg(m_dPtr->m_entityInsertQuery.lastError().text()));
@@ -409,9 +409,9 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
     return retVal;
 }
 
-bool SQLiteDB::addStartTime(int t_transactionId, QDateTime t_time)
+bool SQLiteDB::addStartTime(int transactionId, QDateTime time)
 {
-    QSqlQuery logtimeQuery(QString("UPDATE transactions SET (start_time) = ('\%0\') WHERE id = \'%1\';").arg(t_time.toString()).arg(t_transactionId),m_dPtr->m_logDB);
+    QSqlQuery logtimeQuery(QString("UPDATE transactions SET (start_time) = ('\%0\') WHERE id = \'%1\';").arg(time.toString()).arg(transactionId),m_dPtr->m_logDB);
     if(logtimeQuery.exec()){
         logtimeQuery.finish();
         return true;
@@ -419,9 +419,9 @@ bool SQLiteDB::addStartTime(int t_transactionId, QDateTime t_time)
     return false;
 }
 
-bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
+bool SQLiteDB::addStopTime(int transactionId, QDateTime time)
 {
-    QSqlQuery logtimeQuery(QString("UPDATE transactions SET (stop_time) = ('\%0\') WHERE id = \'%1\';").arg(t_time.toString()).arg(t_transactionId),m_dPtr->m_logDB);
+    QSqlQuery logtimeQuery(QString("UPDATE transactions SET (stop_time) = ('\%0\') WHERE id = \'%1\';").arg(time.toString()).arg(transactionId),m_dPtr->m_logDB);
     if(logtimeQuery.exec()){
         logtimeQuery.finish();
         return true;
@@ -429,12 +429,12 @@ bool SQLiteDB::addStopTime(int t_transactionId, QDateTime t_time)
     return false;
 }
 
-bool SQLiteDB::deleteSession(const QString &t_session)
+bool SQLiteDB::deleteSession(const QString &session)
 {
     if(!m_dPtr->m_logDB.isOpen())
         return false;
 
-    if(m_dPtr->m_sessionIds.contains(t_session)){
+    if(m_dPtr->m_sessionIds.contains(session)){
         /* Deleting session takes ages for a simple db:
          * On a fresh db with fresh session recording 10s ZeraAll causes delete
          * session take 70s!!!
@@ -442,22 +442,22 @@ bool SQLiteDB::deleteSession(const QString &t_session)
          */
         QSqlQuery updateSessionQuery(m_dPtr->m_logDB);
         updateSessionQuery.prepare("Update sessions set session_name=:sessionNameNew WHERE session_name=:sessionNameOld");
-        QString strNewName = QString(QStringLiteral("_DELETED_") + t_session).left(254);
+        QString strNewName = QString(QStringLiteral("_DELETED_") + session).left(254);
         updateSessionQuery.bindValue(":sessionNameNew", strNewName);
-        updateSessionQuery.bindValue(":sessionNameOld", t_session);
+        updateSessionQuery.bindValue(":sessionNameOld", session);
         updateSessionQuery.exec();
         updateSessionQuery.finish();
 
-        m_dPtr->m_sessionIds.remove(t_session);
+        m_dPtr->m_sessionIds.remove(session);
         emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
     }
     return true;
 }
 
-int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_staticData)
+int SQLiteDB::addSession(const QString &sessionName, QList<QVariantMap> staticData)
 {
     int retVal = -1;
-    if(m_dPtr->m_sessionIds.contains(t_sessionName) == false) {
+    if(m_dPtr->m_sessionIds.contains(sessionName) == false) {
         int nextsessionId = 0;
         if(m_dPtr->m_sessionSequenceQuery.exec() == true) {
             m_dPtr->m_sessionSequenceQuery.next();
@@ -469,7 +469,7 @@ int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_stat
         }
 
         m_dPtr->m_sessionInsertQuery.bindValue(":id", nextsessionId);
-        m_dPtr->m_sessionInsertQuery.bindValue(":session_name", t_sessionName);
+        m_dPtr->m_sessionInsertQuery.bindValue(":session_name", sessionName);
         if(m_dPtr->m_sessionInsertQuery.exec() == false) {
             emit sigDatabaseError(QString("SQLiteDB::addSession m_sessionInsertQuery failed: %1").arg(m_dPtr->m_sessionInsertQuery.lastError().text()));
             return retVal;
@@ -479,7 +479,7 @@ int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_stat
         QVector<SQLBatchData> batchDataVector;
 
 
-        for(QVariantMap comp: p_staticData){
+        for(QVariantMap comp: staticData){
             SQLBatchData batchData;
             batchData.sessionId=nextsessionId;
             batchData.entityId=comp["entityId"].toInt();
@@ -493,7 +493,7 @@ int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_stat
 
 
         if(nextsessionId > 0) {
-            m_dPtr->m_sessionIds.insert(t_sessionName, nextsessionId);
+            m_dPtr->m_sessionIds.insert(sessionName, nextsessionId);
             retVal = nextsessionId;
             emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
         }
@@ -505,49 +505,49 @@ int SQLiteDB::addSession(const QString &t_sessionName, QList<QVariantMap> p_stat
     return retVal;
 }
 
-void SQLiteDB::addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
+void SQLiteDB::addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp)
 {
-    const int componentId = m_dPtr->m_componentIds.value(t_componentName, 0);
+    const int componentId = m_dPtr->m_componentIds.value(componentName, 0);
 
     VF_ASSERT(m_dPtr->m_logDB.isOpen() == true, "Database is not open");
     //make sure the ids exist
-    VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(t_componentName)));
+    VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(componentName)));
     VF_ASSERT(m_dPtr->m_sessionIds.key(t_sessionId).isEmpty() == false , QStringC(QString("(VeinLogger) Unknown sessionId: %1").arg(t_sessionId)));
-    VF_ASSERT(m_dPtr->m_entityIds.contains(t_entityId) == true, QStringC(QString("(VeinLogger) Unknown entityId: %1").arg(t_entityId)));
+    VF_ASSERT(m_dPtr->m_entityIds.contains(entityId) == true, QStringC(QString("(VeinLogger) Unknown entityId: %1").arg(entityId)));
 
     SQLBatchData batchData;
     batchData.sessionId=t_sessionId;
     batchData.transactionIds=t_transactionIds;
-    batchData.entityId=t_entityId;
-    batchData.componentId=m_dPtr->m_componentIds.value(t_componentName);
-    batchData.value=t_value;
-    batchData.timestamp=t_timestamp;
+    batchData.entityId=entityId;
+    batchData.componentId=m_dPtr->m_componentIds.value(componentName);
+    batchData.value=value;
+    batchData.timestamp=timestamp;
 
     m_dPtr->m_batchVector.append(batchData);
 }
 
-void SQLiteDB::addLoggedValue(const QString &t_sessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp)
+void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp)
 {
     int sessionId = 0;
-    if(m_dPtr->m_sessionIds.contains(t_sessionName)) {
-        sessionId=m_dPtr->m_sessionIds.value(t_sessionName);
+    if(m_dPtr->m_sessionIds.contains(sessionName)) {
+        sessionId=m_dPtr->m_sessionIds.value(sessionName);
     }
     else {
-        int newSession = addSession(t_sessionName,QList<QVariantMap>());
+        int newSession = addSession(sessionName,QList<QVariantMap>());
         Q_ASSERT(newSession >= 0);
         sessionId=newSession;
     }
-    addLoggedValue(sessionId, t_transactionIds, t_entityId, t_componentName, t_value, t_timestamp);
+    addLoggedValue(sessionId, transactionIds, entityId, componentName, value, timestamp);
 }
 
-QVariant SQLiteDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
+QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &enity, const QString &component)
 {
-    return m_dPtr->readSessionComponent(p_session,p_entity,p_component);
+    return m_dPtr->readSessionComponent(session, enity, component);
 }
 
-bool SQLiteDB::openDatabase(const QString &t_dbPath)
+bool SQLiteDB::openDatabase(const QString &dbPath)
 {
-    QFileInfo fInfo(t_dbPath);
+    QFileInfo fInfo(dbPath);
     bool retVal = false;
     if(fInfo.absoluteDir().exists()) {
         // if file exists check if writable. If file
@@ -562,7 +562,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
             m_dPtr->m_logDB.close();
         }
 
-        m_dPtr->m_logDB.setDatabaseName(t_dbPath);
+        m_dPtr->m_logDB.setDatabaseName(dbPath);
         if (!m_dPtr->m_logDB.open()) {
             dbError = m_dPtr->m_logDB.lastError();
             m_dPtr->m_logDB = QSqlDatabase();
@@ -594,7 +594,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 schemaVersionQuery.first();
                 if(schemaVersionQuery.value(0) == 0) { //if there is no database schema or if the file does not exist, then this will create the database and initialize the schema
                     m_dPtr->m_queryReader.setFileName("://sqlite/schema_sqlite.sql");
-                    qInfo() << "No schema found in db:"<< t_dbPath << "creating schema from:" << m_dPtr->m_queryReader.fileName();
+                    qInfo() << "No schema found in db:"<< dbPath << "creating schema from:" << m_dPtr->m_queryReader.fileName();
                     m_dPtr->m_queryReader.open(QFile::ReadOnly | QFile::Text);
                     QTextStream queryStreamIn(&m_dPtr->m_queryReader);
                     QStringList commandQueue = queryStreamIn.readAll().split(";");
@@ -682,7 +682,7 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
                 emit sigDatabaseReady();
             }
             else { //file is not a database so we don't want to touch it
-                emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(t_dbPath).arg(schemaVersionQuery.lastError().text()));
+                emit sigDatabaseError(QString("Unable to open database: %1\nError: %2").arg(dbPath).arg(schemaVersionQuery.lastError().text()));
             }
         }
     }
@@ -692,13 +692,13 @@ bool SQLiteDB::openDatabase(const QString &t_dbPath)
     return retVal;
 }
 
-bool SQLiteDB::isDbStillWitable(const QString &t_dbPath)
+bool SQLiteDB::isDbStillWitable(const QString &dbPath)
 {
-    QFileInfo fileInfo(t_dbPath);
+    QFileInfo fileInfo(dbPath);
     bool storageOK = true;
     if(!fileInfo.exists()) {
         storageOK = false;
-        emit sigDatabaseError(QString("SQLite database file %1 is gone!").arg(t_dbPath));
+        emit sigDatabaseError(QString("SQLite database file %1 is gone!").arg(dbPath));
     }
     else {
         QStorageInfo storageInfo(fileInfo.absoluteDir());

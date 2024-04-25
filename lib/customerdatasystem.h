@@ -43,8 +43,8 @@ public slots:
     void writeCustomerdata();
 
 signals:
-    void sigCustomerDataError(QString t_message);
-    void sigDataValueChanged(QString t_componentName, QString t_newValue);
+    void sigCustomerDataError(QString message);
+    void sigDataValueChanged(QString componentName, QString newValue);
 
 private:
     /**
