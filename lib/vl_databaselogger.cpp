@@ -20,6 +20,8 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     m_storageMode(storageMode),
     m_veinStorage(veinStorage)
 {
+    initModmanSessionComponent();
+
     m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
     m_dPtr->m_countdownUpdateTimer.setInterval(100);
@@ -285,7 +287,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
     return retVal;
 }
 
-void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData)
+void DatabaseLogger::handleLoggedComponentsSet(VeinComponent::ComponentData *cData)
 {
     QVariant oldValue = cData->oldValue();
     QVariant newValue = cData->newValue();
@@ -401,16 +403,14 @@ bool DatabaseLogger::checkConditionsForStartLog()
     return validConditions;
 }
 
-void DatabaseLogger::tryInitModmanSessionComponent()
+void DatabaseLogger::initModmanSessionComponent()
 {
-    if(!m_modmanSessionComponent) {
-        m_modmanSessionComponent = m_veinStorage->getComponent(0, "Session");
-        if(m_modmanSessionComponent && m_modmanSessionComponent->getValue().isValid()) {
-            onModmanSessionChange(m_modmanSessionComponent->getValue());
-            connect(m_modmanSessionComponent.get(), &VeinEvent::StorageComponentInterface::sigValueChange,
-                    this, &DatabaseLogger::onModmanSessionChange);
-        }
-    }
+    m_modmanSessionComponent = m_veinStorage->getFutureComponent(0, "Session");
+    connect(m_modmanSessionComponent.get(), &VeinEvent::StorageComponentInterface::sigValueChange,
+            this, &DatabaseLogger::onModmanSessionChange);
+
+    if(m_modmanSessionComponent->getValue().isValid())
+        onModmanSessionChange(m_modmanSessionComponent->getValue());
 }
 
 bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
@@ -457,15 +457,14 @@ void DatabaseLogger::processEvent(QEvent *event)
         EventData *evData = cEvent->eventData();
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
-        const QSet<QAbstractState*> requiredStates = { m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState };
+        const QSet<QAbstractState*> dbLoggingStates = { m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState };
+        const bool isLogRunning = activeStates.contains(dbLoggingStates);
         if(evData->type() == ComponentData::dataType()) {
             ComponentData *cData = static_cast<ComponentData *>(evData);
 
-            if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
-                tryInitModmanSessionComponent();
-                if(activeStates.contains(requiredStates))
-                    addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
-            }
+            if(isLogRunning && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
+                addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
+
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
                     evData->entityId() == m_entityId) {
                 const QString componentName = cData->componentName();
@@ -473,7 +472,7 @@ void DatabaseLogger::processEvent(QEvent *event)
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
                     if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
-                        handleLoggedComponentsTransaction(cData);
+                        handleLoggedComponentsSet(cData);
                     else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
                         if(m_database == nullptr || newValue != m_dPtr->m_databaseFilePath) {
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
@@ -516,7 +515,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                             m_dPtr->m_scheduledLoggingDurationMs = logDurationMsecs;
                             if(logDurationMsecs > 0) {
                                 m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
-                                if(activeStates.contains(requiredStates))
+                                if(isLogRunning)
                                     m_dPtr->m_schedulingTimer.start();
 
                                 VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
