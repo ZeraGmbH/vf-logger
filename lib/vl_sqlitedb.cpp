@@ -211,7 +211,8 @@ class DBPrivate
     friend class SQLiteDB;
 };
 
-SQLiteDB::SQLiteDB(QObject *parent) : AbstractLoggerDB(parent), m_dPtr(new DBPrivate(this))
+SQLiteDB::SQLiteDB() :
+    m_dPtr(new DBPrivate(this))
 {
     m_dPtr->m_logDB = QSqlDatabase::addDatabase("QSQLITE", "VFLogDB"); //default database
 }
