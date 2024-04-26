@@ -26,7 +26,7 @@ class VFLOGGER_EXPORT SQLiteDB : public AbstractLoggerDB
 {
     Q_OBJECT
 public:
-    explicit SQLiteDB(QObject *parent = nullptr);
+    explicit SQLiteDB();
     ~SQLiteDB();
 
     bool requiresOwnThread() override { return true; }

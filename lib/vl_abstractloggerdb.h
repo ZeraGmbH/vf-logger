@@ -14,9 +14,6 @@ class AbstractLoggerDB : public QObject
 {
     Q_OBJECT
 public:
-    AbstractLoggerDB(QObject *t_parent=nullptr);
-    virtual ~AbstractLoggerDB() = default;
-
     enum class STORAGE_MODE : int {
         TEXT = 0,
         BINARY = 1,
