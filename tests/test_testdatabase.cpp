@@ -110,8 +110,8 @@ void test_testdatabase::createSession()
     loadDatabase();
 
     // DatabaseLogger::handleVeinDbSessionNameSet takes care on inserting entities/components in db
-    QSignalSpy spyDbEntitiesAdded(TestLoggerDB::getInstance(), &TestLoggerDB::sigEntityAdded);
-    QSignalSpy spyDbComponentsAdded(TestLoggerDB::getInstance(), &TestLoggerDB::sigComponentAdded);
+    QSignalSpy spyDbEntitiesAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigEntityAdded);
+    QSignalSpy spyDbComponentsAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigComponentAdded);
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
@@ -139,8 +139,8 @@ void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
     loadDatabase();
     TestLoggerDB::getInstance()->setCustomerDataAlreadyInDbSession(true);
 
-    QSignalSpy spyDbEntitiesAdded(TestLoggerDB::getInstance(), &TestLoggerDB::sigEntityAdded);
-    QSignalSpy spyDbComponentsAdded(TestLoggerDB::getInstance(), &TestLoggerDB::sigComponentAdded);
+    QSignalSpy spyDbEntitiesAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigEntityAdded);
+    QSignalSpy spyDbComponentsAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigComponentAdded);
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
@@ -373,7 +373,7 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
 {
     m_testSystem.setupServer();
     loadDatabase();
-    QSignalSpy spy(TestLoggerDB::getInstance(), &TestLoggerDB::sigAddTransaction);
+    QSignalSpy spy(m_testSystem.getSignaller(), &TestDbAddSignaller::sigAddTransaction);
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "TestGuiContext");
 

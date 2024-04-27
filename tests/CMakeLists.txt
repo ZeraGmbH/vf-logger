@@ -29,6 +29,7 @@ SETUP_TESTS(
     test_loggercontentsessionloader
     test_testdatabase
     test_testlib_testloggersystem
+    test_sqlite_db
     )
 
 target_sources(test_contentsets

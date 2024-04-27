@@ -2,6 +2,7 @@
 #define TESTLOGGERDB_H
 
 #include "vl_abstractloggerdb.h"
+#include "testdbaddsignaller.h"
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QSet>
@@ -12,7 +13,7 @@ class TestLoggerDB : public VeinLogger::AbstractLoggerDB
 {
     Q_OBJECT
 public:
-    TestLoggerDB();
+    TestLoggerDB(TestDbAddSignaller* testSignaller);
     virtual ~TestLoggerDB();
 
     bool requiresOwnThread() override { return false; }
@@ -49,12 +50,9 @@ public:
     void setCustomerDataAlreadyInDbSession(bool inSession);
     void deleteDbFile();
     void valuesFromNowOnAreRecorded();
-signals:
-    void sigEntityAdded(int entityId, QString entityName);
-    void sigComponentAdded(QString componentName);
-    void sigAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName);
 
 private:
+    TestDbAddSignaller* m_testSignaller;
     bool m_customerDataAlreadyInDbSession = false;
     int m_valueWriteCount = 0;
 

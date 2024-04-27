@@ -19,7 +19,8 @@ void TestLoggerDB::setCustomerDataAlreadyInDbSession(bool inSession)
     m_customerDataAlreadyInDbSession = inSession;
 }
 
-TestLoggerDB::TestLoggerDB()
+TestLoggerDB::TestLoggerDB(TestDbAddSignaller *testSignaller) :
+    m_testSignaller(testSignaller)
 {
     if(m_instance)
         qFatal("m_instance is set!");
@@ -115,20 +116,20 @@ void TestLoggerDB::initLocalData()
 void TestLoggerDB::addComponent(const QString &componentName)
 {
     m_componentsAdded.insert(componentName);
-    emit sigComponentAdded(componentName);
+    emit m_testSignaller->sigComponentAdded(componentName);
 }
 
 void TestLoggerDB::addEntity(int entityId, QString entityName)
 {
     m_entitiesAdded.insert(entityId, entityName);
-    emit sigEntityAdded(entityId, entityName);
+    emit m_testSignaller->sigEntityAdded(entityId, entityName);
 }
 
 static const int testTransactionId = 42;
 
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
-    emit sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
+    emit m_testSignaller->sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
     return testTransactionId;
 }
 

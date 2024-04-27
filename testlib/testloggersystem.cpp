@@ -1,5 +1,6 @@
 #include "testloggersystem.h"
 #include "testloggerdb.h"
+#include "testsqlitedb.h"
 #include "jsonloggercontentloader.h"
 #include "jsonloggercontentsessionloader.h"
 #include "loggercontentsetconfig.h"
@@ -9,7 +10,8 @@
 #include <QThread>
 #include <QDir>
 
-TestLoggerSystem::TestLoggerSystem()
+TestLoggerSystem::TestLoggerSystem(DbType dbType) :
+    m_dbType(dbType)
 {
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<JsonLoggerContentLoader>());
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
@@ -25,8 +27,17 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
 
     m_server->addTestEntities(entityCount, componentCount);
 
-    const VeinLogger::DBFactory sqliteFactory = [](){
-        return new TestLoggerDB();
+    const VeinLogger::DBFactory sqliteFactory = [&]() {
+        m_testSignaller = std::make_unique<TestDbAddSignaller>();
+        switch(m_dbType) {
+        case MOCK:
+            m_db = new TestLoggerDB(m_testSignaller.get());
+            break;
+        case SQLITE:
+            m_db = new TestSQLiteDB(m_testSignaller.get());
+            break;
+        }
+        return m_db;
     };
     m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_storage, sqliteFactory);
     m_server->appendEventSystem(m_dataLoggerSystem.get());
@@ -60,8 +71,14 @@ void TestLoggerSystem::cleanup()
     TimeMachineObject::feedEventLoop();
     m_customerDataSystem = nullptr;
     TimeMachineObject::feedEventLoop();
-    QDir dir(getCustomerDataPath());
-    dir.removeRecursively();
+    QDir dirCustomer(getCustomerDataPath());
+    dirCustomer.removeRecursively();
+    QFile::remove(TestLoggerDB::DBNameOpenOk);
+}
+
+TestDbAddSignaller *TestLoggerSystem::getSignaller()
+{
+    return m_testSignaller.get();
 }
 
 void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)
