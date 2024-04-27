@@ -17,7 +17,6 @@ private slots:
     void setupCustomerData();
     void selectExistingSession();
     void createSession();
-    void createSessionWithCustomerDataAlreadyCreated();
 
     void recordVeinDump();
     void recordOneContentSet();
