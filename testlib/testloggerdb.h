@@ -47,7 +47,7 @@ public:
     static TestLoggerDB* getInstance();
     QByteArray getJsonDumpedComponentStored();
 
-    void setCustomerDataAlreadyInDbSession(bool inSession);
+    void setCustomerDataAlreadyInDbSession(bool inSession); // remove with m_customerDataAlreadyInDbSession ??
     void deleteDbFile();
     void valuesFromNowOnAreRecorded();
 

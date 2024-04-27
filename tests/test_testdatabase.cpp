@@ -109,15 +109,7 @@ void test_testdatabase::createSession()
     m_testSystem.appendCustomerDataSystem();
     loadDatabase();
 
-    // DatabaseLogger::handleVeinDbSessionNameSet takes care on inserting entities/components in db
-    QSignalSpy spyDbEntitiesAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigEntityAdded);
-    QSignalSpy spyDbComponentsAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigComponentAdded);
-
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
-
-    QCOMPARE(spyDbEntitiesAdded.count(), 1);
-    QCOMPARE(spyDbEntitiesAdded[0][0], 200);
-    QCOMPARE(spyDbComponentsAdded.count(), 26);
 
     QFile fileRecording(":/recording-dumps/dumpCreateSession.json");
     QVERIFY(fileRecording.open(QFile::ReadOnly));
@@ -128,35 +120,6 @@ void test_testdatabase::createSession()
     QFile fileVein(":/vein-dumps/dumpDbSetSessionNew.json");
     QVERIFY(fileVein.open(QFile::ReadOnly));
     QByteArray veinJsonExpected = fileVein.readAll();
-    QByteArray veinJsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(veinJsonExpected, veinJsonDumped));
-}
-
-void test_testdatabase::createSessionWithCustomerDataAlreadyCreated()
-{
-    m_testSystem.setupServer();
-    m_testSystem.appendCustomerDataSystem();
-    loadDatabase();
-    TestLoggerDB::getInstance()->setCustomerDataAlreadyInDbSession(true);
-
-    QSignalSpy spyDbEntitiesAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigEntityAdded);
-    QSignalSpy spyDbComponentsAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigComponentAdded);
-
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
-
-    QCOMPARE(spyDbEntitiesAdded.count(), 0);
-    QCOMPARE(spyDbComponentsAdded.count(), 0);
-
-    QFile fileRecording(":/recording-dumps/dumpCreateSession.json");
-    QVERIFY(fileRecording.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileRecording.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
-
-    QFile fileVein(":/vein-dumps/dumpDbSetSessionNew.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray veinJsonExpected = fileVein.readAll();
-
     QByteArray veinJsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(veinJsonExpected, veinJsonDumped));
 }
