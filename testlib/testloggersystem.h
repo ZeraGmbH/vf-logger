@@ -17,16 +17,22 @@ class TestLoggerSystem
 public:
     enum DbType { MOCK, SQLITE };
     TestLoggerSystem(DbType dbType = MOCK);
+
     void setupServer(int entityCount=2, int componentCount=2);
-    void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
-    void cleanup();
-    TestDbAddSignaller* getSignaller();
-
-    void appendCustomerDataSystem();
-    static QString getCustomerDataPath();
-    void setComponent(int entityId, QString componentName, QVariant newValue);
-
     QMap<int, QList<QString>> getComponentsCreated();
+    void appendCustomerDataSystem();
+    void cleanup();
+
+    void setComponent(int entityId, QString componentName, QVariant newValue);
+    void setComponentValues(int valuesEmittedPerComponent);
+
+    void loadDatabase();
+    void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
+
+    void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
+    static QString getCustomerDataPath();
+
+    TestDbAddSignaller* getSignaller();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
 
 private:

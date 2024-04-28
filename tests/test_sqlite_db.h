@@ -12,9 +12,8 @@ private slots:
     void cleanup();
     void createSessionInsertsEntityComponents();
     void createSessionWithCustomerDataAlreadyCreated();
+    void logInsertsEntityComponents();
 private:
-    void loadDatabase();
-
     TestLoggerSystem m_testSystem;
 };
 

@@ -1,0 +1,88 @@
+{
+    "ComponentsInserted": [
+        {
+            "ComponentName": "FileSelected"
+        },
+        {
+            "ComponentName": "PAR_CustomerCity"
+        },
+        {
+            "ComponentName": "PAR_CustomerComment"
+        },
+        {
+            "ComponentName": "PAR_CustomerCountry"
+        },
+        {
+            "ComponentName": "PAR_CustomerFirstName"
+        },
+        {
+            "ComponentName": "PAR_CustomerLastName"
+        },
+        {
+            "ComponentName": "PAR_CustomerNumber"
+        },
+        {
+            "ComponentName": "PAR_CustomerPostalCode"
+        },
+        {
+            "ComponentName": "PAR_CustomerStreet"
+        },
+        {
+            "ComponentName": "PAR_DatasetComment"
+        },
+        {
+            "ComponentName": "PAR_DatasetIdentifier"
+        },
+        {
+            "ComponentName": "PAR_LocationCity"
+        },
+        {
+            "ComponentName": "PAR_LocationComment"
+        },
+        {
+            "ComponentName": "PAR_LocationCountry"
+        },
+        {
+            "ComponentName": "PAR_LocationFirstName"
+        },
+        {
+            "ComponentName": "PAR_LocationLastName"
+        },
+        {
+            "ComponentName": "PAR_LocationNumber"
+        },
+        {
+            "ComponentName": "PAR_LocationPostalCode"
+        },
+        {
+            "ComponentName": "PAR_LocationStreet"
+        },
+        {
+            "ComponentName": "PAR_MeterComment"
+        },
+        {
+            "ComponentName": "PAR_MeterFactoryNumber"
+        },
+        {
+            "ComponentName": "PAR_MeterManufacturer"
+        },
+        {
+            "ComponentName": "PAR_MeterOwner"
+        },
+        {
+            "ComponentName": "PAR_PowerGridComment"
+        },
+        {
+            "ComponentName": "PAR_PowerGridOperator"
+        },
+        {
+            "ComponentName": "PAR_PowerGridSupplier"
+        }
+    ],
+    "EntititiesInserted": [
+        {
+            "EntityId": 200,
+            "EntityName": "CustomerData"
+        }
+    ]
+}

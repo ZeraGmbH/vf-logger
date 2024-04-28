@@ -34,8 +34,6 @@ private slots:
     // TODO: Stop recording on session change
 
 private:
-    void loadDatabase();
-    void setComponentValues(int valuesEmittedPerComponent);
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
 
     TestLoggerSystem m_testSystem;

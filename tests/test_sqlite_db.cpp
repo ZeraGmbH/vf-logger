@@ -1,6 +1,8 @@
 #include "test_sqlite_db.h"
-#include "testloggerdb.h"
+#include "testdumpreporter.h"
+#include "testinsertspiestojson.h"
 #include <timemachineobject.h>
+#include <QFile>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -21,23 +23,25 @@ void test_sqlite_db::createSessionInsertsEntityComponents()
 {
     m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
-    loadDatabase();
+    m_testSystem.loadDatabase();
 
     QSignalSpy spyDbEntitiesAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigEntityAdded);
     QSignalSpy spyDbComponentsAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigComponentAdded);
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
-    QCOMPARE(spyDbEntitiesAdded.count(), 1);
-    QCOMPARE(spyDbEntitiesAdded[0][0], 200);
-    QCOMPARE(spyDbComponentsAdded.count(), 26);
+    QFile file(":/sqlite-inserts/dumpSessionCreated.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_sqlite_db::createSessionWithCustomerDataAlreadyCreated()
 {
     m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
-    loadDatabase();
+    m_testSystem.loadDatabase();
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession1");
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession2");
@@ -49,7 +53,27 @@ void test_sqlite_db::createSessionWithCustomerDataAlreadyCreated()
     QCOMPARE(spyDbComponentsAdded.count(), 0);
 }
 
-void test_sqlite_db::loadDatabase()
+void test_sqlite_db::logInsertsEntityComponents()
 {
-    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    m_testSystem.setupServer();
+    m_testSystem.loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    QSignalSpy spyDbEntitiesAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigEntityAdded);
+    QSignalSpy spyDbComponentsAdded(m_testSystem.getSignaller(), &TestDbAddSignaller::sigComponentAdded);
+
+    m_testSystem.setComponentValues(1);
+    QCOMPARE(spyDbEntitiesAdded.count(), 0);
+    QCOMPARE(spyDbComponentsAdded.count(), 0);
+
+    m_testSystem.startLogging();
+    QFile file(":/sqlite-inserts/dumpRecordTwoEntityComponents.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
+    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+
+    m_testSystem.setComponentValues(2);
+
+    QCOMPARE(spyDbEntitiesAdded.count(), 0);
+    QCOMPARE(spyDbComponentsAdded.count(), 0);
 }
