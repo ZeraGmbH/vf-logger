@@ -53,18 +53,16 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     m_storage = m_server->getStorage();
 
     m_server->addTestEntities(entityCount, componentCount);
+    m_testSignaller = std::make_unique<TestDbAddSignaller>();
 
-    const VeinLogger::DBFactory sqliteFactory = [&]() {
-        m_testSignaller = std::make_unique<TestDbAddSignaller>();
+    const VeinLogger::DBFactory sqliteFactory = [=]() -> VeinLogger::AbstractLoggerDB* {
         switch(m_dbType) {
         case MOCK:
-            m_db = new TestLoggerDB(m_testSignaller.get());
-            break;
+            return new TestLoggerDB(m_testSignaller.get());
         case SQLITE:
-            m_db = new TestSQLiteDB(m_testSignaller.get());
-            break;
+            return new TestSQLiteDB(m_testSignaller.get());
         }
-        return m_db;
+        return nullptr;
     };
     m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_storage, sqliteFactory);
     m_server->appendEventSystem(m_dataLoggerSystem.get());

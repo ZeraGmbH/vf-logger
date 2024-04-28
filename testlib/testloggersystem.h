@@ -37,7 +37,6 @@ public:
 
 private:
     DbType m_dbType;
-    VeinLogger::AbstractLoggerDB *m_db = nullptr;
     std::unique_ptr<TestDbAddSignaller> m_testSignaller;
     std::unique_ptr<TestVeinServer> m_server;
     VeinEvent::StorageSystem* m_storage;
