@@ -50,7 +50,6 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     dir.mkpath(getCustomerDataPath());
 
     m_server = std::make_unique<TestVeinServer>();
-    m_storage = m_server->getStorage();
 
     m_server->addTestEntities(entityCount, componentCount);
     m_testSignaller = std::make_unique<TestDbAddSignaller>();
@@ -64,7 +63,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
         }
         return nullptr;
     };
-    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_storage, sqliteFactory);
+    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_server->getStorage(), sqliteFactory);
     m_server->appendEventSystem(m_dataLoggerSystem.get());
     TimeMachineObject::feedEventLoop();
 
@@ -127,6 +126,6 @@ QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)
 {
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_storage->dumpToFile(&buff, entities);
+    m_server->getStorage()->dumpToFile(&buff, entities);
     return jsonDumped;
 }

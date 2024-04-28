@@ -39,7 +39,6 @@ private:
     DbType m_dbType;
     std::unique_ptr<TestDbAddSignaller> m_testSignaller;
     std::unique_ptr<TestVeinServer> m_server;
-    VeinEvent::StorageSystem* m_storage;
     std::unique_ptr<VeinLogger::DatabaseLogger> m_dataLoggerSystem;
     std::unique_ptr<CustomerDataSystem> m_customerDataSystem;
 };
