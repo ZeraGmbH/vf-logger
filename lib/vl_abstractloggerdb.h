@@ -18,7 +18,7 @@ public:
         TEXT = 0,
         BINARY = 1,
     };
-
+    virtual ~AbstractLoggerDB() = default;
     virtual bool requiresOwnThread() = 0;
 
     virtual bool hasEntityId(int t_entityId) const = 0;
