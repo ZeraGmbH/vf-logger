@@ -296,7 +296,6 @@ void SQLiteDB::initLocalData()
 
     while (entityQuery.next()) {
         int entityId = entityQuery.value(0).toInt();
-        QString entityName = entityQuery.value(1).toString();
         m_dPtr->m_entityIds.append(entityId);
     }
     entityQuery.finish();
