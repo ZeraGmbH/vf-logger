@@ -17,33 +17,6 @@ TestLoggerSystem::TestLoggerSystem(DbType dbType) :
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
 }
 
-void TestLoggerSystem::loadDatabase()
-{
-    setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-}
-
-void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
-{
-    QMap<int, QList<QString>> componentsCreated = getComponentsCreated();
-    QList<int> entityIds = componentsCreated.keys();
-    for(int i=1; i<=valuesEmittedPerComponent; i++) {
-        for(int entityId : qAsConst(entityIds)) {
-            QList<QString> components = componentsCreated[entityId];
-            for(const QString &componentName : components) {
-                QString value = QString("Entity: %1 / Component: %2 / Value: %3").arg(entityId).arg(componentName).arg(i);
-                setComponent(entityId, componentName, value);
-            }
-        }
-    }
-}
-
-void TestLoggerSystem::startLogging(QString sessionName, QString transactionName)
-{
-    setComponent(dataLoggerEntityId, "sessionName", sessionName);
-    setComponent(dataLoggerEntityId, "transactionName", transactionName);
-    setComponent(dataLoggerEntityId, "LoggingEnabled", true);
-}
-
 void TestLoggerSystem::setupServer(int entityCount, int componentCount)
 {
     QDir dir;
@@ -70,9 +43,9 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     m_server->simulAllModulesLoaded("test-session1.json", QStringList() << "test-session1.json" << "test-session2.json");
 }
 
-void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityId)
+QMap<int, QList<QString> > TestLoggerSystem::getComponentsCreated()
 {
-    m_server->changeSession(sessionPath, baseEntityId);
+    return m_server->getTestEntityComponentInfo();
 }
 
 void TestLoggerSystem::appendCustomerDataSystem()
@@ -81,11 +54,6 @@ void TestLoggerSystem::appendCustomerDataSystem()
     m_server->appendEventSystem(m_customerDataSystem.get());
     m_customerDataSystem->initializeEntity();
     TimeMachineObject::feedEventLoop();
-}
-
-QString TestLoggerSystem::getCustomerDataPath()
-{
-    return "/tmp/test-vf-logger-customerdata/";
 }
 
 void TestLoggerSystem::cleanup()
@@ -109,19 +77,51 @@ void TestLoggerSystem::cleanup()
     QFile::remove(TestLoggerDB::DBNameOpenOk);
 }
 
-TestDbAddSignaller *TestLoggerSystem::getSignaller()
-{
-    return m_testSignaller.get();
-}
-
 void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)
 {
     m_server->setComponent(entityId, componentName, newValue);
 }
 
-QMap<int, QList<QString> > TestLoggerSystem::getComponentsCreated()
+void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
 {
-    return m_server->getTestEntityComponentInfo();
+    QMap<int, QList<QString>> componentsCreated = getComponentsCreated();
+    QList<int> entityIds = componentsCreated.keys();
+    for(int i=1; i<=valuesEmittedPerComponent; i++) {
+        for(int entityId : qAsConst(entityIds)) {
+            QList<QString> components = componentsCreated[entityId];
+            for(const QString &componentName : components) {
+                QString value = QString("Entity: %1 / Component: %2 / Value: %3").arg(entityId).arg(componentName).arg(i);
+                setComponent(entityId, componentName, value);
+            }
+        }
+    }
+}
+
+void TestLoggerSystem::loadDatabase()
+{
+    setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+}
+
+void TestLoggerSystem::startLogging(QString sessionName, QString transactionName)
+{
+    setComponent(dataLoggerEntityId, "sessionName", sessionName);
+    setComponent(dataLoggerEntityId, "transactionName", transactionName);
+    setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+}
+
+void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityId)
+{
+    m_server->changeSession(sessionPath, baseEntityId);
+}
+
+QString TestLoggerSystem::getCustomerDataPath()
+{
+    return "/tmp/test-vf-logger-customerdata/";
+}
+
+TestDbAddSignaller *TestLoggerSystem::getSignaller()
+{
+    return m_testSignaller.get();
 }
 
 QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)
