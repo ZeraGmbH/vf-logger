@@ -46,3 +46,8 @@ target_sources(test_testlib_testloggersystem
     PRIVATE
     test-data/test-data.qrc
 )
+
+target_sources(test_sqlite_db
+    PRIVATE
+    test-data/test-data.qrc
+)

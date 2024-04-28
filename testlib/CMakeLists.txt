@@ -18,6 +18,7 @@ target_include_directories(vf-logger-testlib
 
 target_link_libraries(vf-logger-testlib
     PUBLIC
+    Qt5::Test
     VfLogger
     Zera::zera-timers-testlib
     Zera::VfFrameworkTest

@@ -13,6 +13,9 @@
         <file>recording-dumps/dumpRecordOneContentSet.json</file>
         <file>recording-dumps/dumpRecordTwoContentSets.json</file>
 
+        <file>sqlite-inserts/dumpRecordTwoEntityComponents.json</file>
+        <file>sqlite-inserts/dumpSessionCreated.json</file>
+
         <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
         <file>vein-dumps/dumpDbFileRemoved.json</file>
         <file>vein-dumps/dumpDbGuiContext.json</file>

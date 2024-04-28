@@ -39,7 +39,7 @@ void test_testdatabase::openDatabaseErrorLate()
 void test_testdatabase::openDatabaseOk()
 {
     m_testSystem.setupServer();
-    loadDatabase();
+    m_testSystem.loadDatabase();
 
     QFile file(":/vein-dumps/dumpDbOpenOk.json");
     QVERIFY(file.open(QFile::ReadOnly));
@@ -51,7 +51,7 @@ void test_testdatabase::openDatabaseOk()
 void test_testdatabase::createSessionNoCustomerDataSystem()
 {
     m_testSystem.setupServer();
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
     QFile fileRecording(":/recording-dumps/dumpCreateSessionNoCustomerDataSystem.json");
@@ -85,7 +85,7 @@ void test_testdatabase::selectExistingSession()
 {
     m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
 
     // see DatabaseLogger::handleVeinDbSessionNameSet: If a session is already existent
@@ -107,7 +107,7 @@ void test_testdatabase::createSession()
 {
     m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
-    loadDatabase();
+    m_testSystem.loadDatabase();
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
@@ -127,7 +127,7 @@ void test_testdatabase::createSession()
 void test_testdatabase::recordVeinDump()
 {
     m_testSystem.setupServer();
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     startLogging();
 
@@ -141,13 +141,13 @@ void test_testdatabase::recordVeinDump()
 void test_testdatabase::recordOneContentSet()
 {
     m_testSystem.setupServer(3, 3);
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
-    setComponentValues(1);
+    m_testSystem.setComponentValues(1);
 
     startLogging();
 
-    setComponentValues(2);
+    m_testSystem.setComponentValues(2);
 
     QFile fileVein(":/vein-dumps/dumpDbRecordInitial.json");
     QVERIFY(fileVein.open(QFile::ReadOnly));
@@ -165,13 +165,13 @@ void test_testdatabase::recordOneContentSet()
 void test_testdatabase::recordTwoContentSets()
 {
     m_testSystem.setupServer(3, 3);
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet2");
-    setComponentValues(1);
+    m_testSystem.setComponentValues(1);
 
     startLogging();
 
-    setComponentValues(2);
+    m_testSystem.setComponentValues(2);
 
     QFile fileVein(":/vein-dumps/dumpRecordTwoContentSets.json");
     QVERIFY(fileVein.open(QFile::ReadOnly));
@@ -189,13 +189,13 @@ void test_testdatabase::recordTwoContentSets()
 void test_testdatabase::recordAllContentSets()
 {
     m_testSystem.setupServer(3, 3);
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
-    setComponentValues(1);
+    m_testSystem.setComponentValues(1);
 
     startLogging();
 
-    setComponentValues(2);
+    m_testSystem.setComponentValues(2);
 
     QFile fileVein(":/vein-dumps/dumpRecordAllContentSets.json");
     QVERIFY(fileVein.open(QFile::ReadOnly));
@@ -216,7 +216,7 @@ void test_testdatabase::recordStartStop()
 
     m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", false);
 
-    setComponentValues(10);
+    m_testSystem.setComponentValues(10);
 
     QFile fileVein(":/vein-dumps/dumpRecordAllContentSetsStartStop.json");
     QVERIFY(fileVein.open(QFile::ReadOnly));
@@ -234,13 +234,13 @@ void test_testdatabase::recordStartStop()
 void test_testdatabase::noRecordTransactionMissing()
 {
     m_testSystem.setupServer(3, 3);
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
-    setComponentValues(1);
+    m_testSystem.setComponentValues(1);
 
     startLogging("DbTestSession1", "");
 
-    setComponentValues(2);
+    m_testSystem.setComponentValues(2);
 
     QFile fileVein(":/vein-dumps/dumpNoRecordTransactionMissing.json"); // bug on LoggingEnabled / Logging data
     QVERIFY(fileVein.open(QFile::ReadOnly));
@@ -258,13 +258,13 @@ void test_testdatabase::noRecordTransactionMissing()
 void test_testdatabase::noRecordSessionMissing()
 {
     m_testSystem.setupServer(3, 3);
-    loadDatabase();
+    m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
-    setComponentValues(1);
+    m_testSystem.setComponentValues(1);
 
     startLogging("", "TestTransaction");
 
-    setComponentValues(2);
+    m_testSystem.setComponentValues(2);
 
     QFile fileVein(":/vein-dumps/dumpNoRecordSessionMissing.json"); // bug on LoggingEnabled / Logging data
     QVERIFY(fileVein.open(QFile::ReadOnly));
@@ -283,11 +283,11 @@ void test_testdatabase::noRecordDatbaseMissing()
 {
     m_testSystem.setupServer(3, 3);
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1"); // LOL
-    setComponentValues(1);
+    m_testSystem.setComponentValues(1);
 
     startLogging();
 
-    setComponentValues(2);
+    m_testSystem.setComponentValues(2);
 
     // database is not created -> no dumps
 
@@ -301,7 +301,7 @@ void test_testdatabase::noRecordDatbaseMissing()
 void test_testdatabase::removeDbFileForUsbStickGone()
 {
     m_testSystem.setupServer();
-    loadDatabase();
+    m_testSystem.loadDatabase();
 
     QFile fileOpenOk(":/vein-dumps/dumpDbOpenOk.json");
     QVERIFY(fileOpenOk.open(QFile::ReadOnly));
@@ -335,7 +335,7 @@ void test_testdatabase::openRunLogAndClose()
 void test_testdatabase::guiContextMakesItIntoDbAndVein()
 {
     m_testSystem.setupServer();
-    loadDatabase();
+    m_testSystem.loadDatabase();
     QSignalSpy spy(m_testSystem.getSignaller(), &TestDbAddSignaller::sigAddTransaction);
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "TestGuiContext");
@@ -355,32 +355,9 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-
-void test_testdatabase::loadDatabase()
-{
-    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
-}
-
-void test_testdatabase::setComponentValues(int valuesEmittedPerComponent)
-{
-    QMap<int, QList<QString>> componentsCreated = m_testSystem.getComponentsCreated();
-    QList<int> entityIds = componentsCreated.keys();
-    for(int i=1; i<=valuesEmittedPerComponent; i++) {
-        for(int entityId : qAsConst(entityIds)) {
-            QList<QString> components = componentsCreated[entityId];
-            for(const QString &componentName : components) {
-                QString value = QString("Entity: %1 / Component: %2 / Value: %3").arg(entityId).arg(componentName).arg(i);
-                m_testSystem.setComponent(entityId, componentName, value);
-            }
-        }
-    }
-}
-
 void test_testdatabase::startLogging(QString sessionName, QString transactionName)
 {
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", sessionName);
-    m_testSystem.setComponent(dataLoggerEntityId, "transactionName", transactionName);
-    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+    m_testSystem.startLogging(sessionName, transactionName);
     if(TestLoggerDB::getInstance())
         TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
 }

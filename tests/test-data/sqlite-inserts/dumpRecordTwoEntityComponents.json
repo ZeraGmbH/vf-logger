@@ -1,0 +1,30 @@
+{
+    "ComponentsInserted": [
+        {
+            "ComponentName": "ComponentName1"
+        },
+        {
+            "ComponentName": "ComponentName2"
+        },
+        {
+            "ComponentName": "LoggingEnabled"
+        },
+        {
+            "ComponentName": "LoggingStatus"
+        }
+    ],
+    "EntititiesInserted": [
+        {
+            "EntityId": 2,
+            "EntityName": "_LoggingSystem"
+        },
+        {
+            "EntityId": 10,
+            "EntityName": "EntityName10"
+        },
+        {
+            "EntityId": 11,
+            "EntityName": "EntityName11"
+        }
+    ]
+}

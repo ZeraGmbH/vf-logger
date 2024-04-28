@@ -17,6 +17,33 @@ TestLoggerSystem::TestLoggerSystem(DbType dbType) :
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
 }
 
+void TestLoggerSystem::loadDatabase()
+{
+    setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+}
+
+void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
+{
+    QMap<int, QList<QString>> componentsCreated = getComponentsCreated();
+    QList<int> entityIds = componentsCreated.keys();
+    for(int i=1; i<=valuesEmittedPerComponent; i++) {
+        for(int entityId : qAsConst(entityIds)) {
+            QList<QString> components = componentsCreated[entityId];
+            for(const QString &componentName : components) {
+                QString value = QString("Entity: %1 / Component: %2 / Value: %3").arg(entityId).arg(componentName).arg(i);
+                setComponent(entityId, componentName, value);
+            }
+        }
+    }
+}
+
+void TestLoggerSystem::startLogging(QString sessionName, QString transactionName)
+{
+    setComponent(dataLoggerEntityId, "sessionName", sessionName);
+    setComponent(dataLoggerEntityId, "transactionName", transactionName);
+    setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+}
+
 void TestLoggerSystem::setupServer(int entityCount, int componentCount)
 {
     QDir dir;
@@ -71,6 +98,7 @@ void TestLoggerSystem::cleanup()
     TimeMachineObject::feedEventLoop();
     m_customerDataSystem = nullptr;
     TimeMachineObject::feedEventLoop();
+    m_testSignaller = nullptr;
     QDir dirCustomer(getCustomerDataPath());
     dirCustomer.removeRecursively();
     QFile::remove(TestLoggerDB::DBNameOpenOk);
