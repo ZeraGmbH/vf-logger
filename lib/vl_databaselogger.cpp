@@ -43,16 +43,16 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     }
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
-    connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, [this]() {
+    connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
         if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState)) {
             m_dPtr->m_batchedExecutionTimer.stop();
         }
     });
-    connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, [this]() {
+    connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
     });
 
-    connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, [this]() {
+    connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, this, [this]() {
         m_dPtr->updateSchedulerCountdown();
     });
 
