@@ -94,6 +94,7 @@ void TestLoggerSystem::cleanup()
     if(m_dataLoggerSystem) {
         m_server->getEventHandler()->removeSubsystem(m_dataLoggerSystem.get());
         m_dataLoggerSystem = nullptr;
+        TimeMachineObject::feedEventLoop(); // has deleteLater for DB
     }
     if(m_customerDataSystem) {
         m_server->getEventHandler()->removeSubsystem(m_customerDataSystem.get());
