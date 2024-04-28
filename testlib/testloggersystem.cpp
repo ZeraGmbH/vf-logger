@@ -93,12 +93,18 @@ QString TestLoggerSystem::getCustomerDataPath()
 
 void TestLoggerSystem::cleanup()
 {
+    TimeMachineObject::feedEventLoop();
+    if(m_dataLoggerSystem) {
+        m_server->getEventHandler()->removeSubsystem(m_dataLoggerSystem.get());
+        m_dataLoggerSystem = nullptr;
+    }
+    if(m_customerDataSystem) {
+        m_server->getEventHandler()->removeSubsystem(m_customerDataSystem.get());
+        m_customerDataSystem = nullptr;
+    }
     m_server = nullptr;
-    m_dataLoggerSystem = nullptr;
-    TimeMachineObject::feedEventLoop();
-    m_customerDataSystem = nullptr;
-    TimeMachineObject::feedEventLoop();
     m_testSignaller = nullptr;
+
     QDir dirCustomer(getCustomerDataPath());
     dirCustomer.removeRecursively();
     QFile::remove(TestLoggerDB::DBNameOpenOk);
