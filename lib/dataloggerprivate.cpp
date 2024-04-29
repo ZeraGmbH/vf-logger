@@ -128,14 +128,14 @@ void DataLoggerPrivate::initStateMachine()
     //disabled -> enabled
     m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
 
-    QObject::connect(m_databaseUninitializedState, &QState::entered, [&]() {
+    QObject::connect(m_databaseUninitializedState, &QState::entered, this, [&]() {
         QEvent* event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
         emit m_qPtr->sigSendEvent(event);
         m_qPtr->setLoggingEnabled(false);
         if(!m_noUninitMessage)
             setStatusText("No database selected");
     });
-    QObject::connect(m_databaseReadyState, &QState::entered, [&](){
+    QObject::connect(m_databaseReadyState, &QState::entered, this, [&](){
         // Now we have an open and valid database: Notify ready and some
         // bits we were not sure to have at openDatabase
         QHash <QString, QVariant> fileInfoData;
@@ -169,10 +169,10 @@ void DataLoggerPrivate::initStateMachine()
             qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
         }
     });
-    QObject::connect(m_loggingEnabledState, &QState::entered, [&](){
+    QObject::connect(m_loggingEnabledState, &QState::entered, this, [&](){
         setStatusText("Logging data");
     });
-    QObject::connect(m_loggingDisabledState, &QState::entered, [&](){
+    QObject::connect(m_loggingDisabledState, &QState::entered, this, [&](){
         if(!m_noUninitMessage) {
             // yes we are in logging disabled state - but the message 'Logging disabled' is a
             // bit misleading: sounds as something is wrong and blocking further logging
