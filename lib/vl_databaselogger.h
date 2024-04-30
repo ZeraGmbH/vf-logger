@@ -51,9 +51,9 @@ private slots:
     void onModmanSessionChange(QVariant newSession);
 private:
     QString getEntityName(int entityId) const;
-    void initModmanSessionComponent();
+    void tryInitModmanSessionComponent();
     bool checkDBFilePath(const QString &dbFilePath);
-    void handleLoggedComponentsSet(VeinComponent::ComponentData *cData);
+    void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     QString handleVeinDbSessionNameSet(QString sessionName);
     bool checkConditionsForStartLog();
