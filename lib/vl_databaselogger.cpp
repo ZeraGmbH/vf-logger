@@ -286,7 +286,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
     return retVal;
 }
 
-void DatabaseLogger::handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData)
+void DatabaseLogger::handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData)
 {
     QVariant oldValue = cData->oldValue();
     QVariant newValue = cData->newValue();
@@ -471,7 +471,7 @@ void DatabaseLogger::processEvent(QEvent *event)
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
                     if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
-                        handleLoggedComponentsTransaction(cData);
+                        handleLoggedComponentsSetNotification(cData);
                     else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
                         if(m_database == nullptr || newValue != m_dPtr->m_databaseFilePath) {
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
