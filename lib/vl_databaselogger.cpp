@@ -20,25 +20,26 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     m_storageMode(storageMode),
     m_veinStorage(veinStorage)
 {
-    m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
-    m_dPtr->m_schedulingTimer.setSingleShot(true);
-    m_dPtr->m_countdownUpdateTimer.setInterval(100);
-    m_databaseFactory = factoryFunction;
     switch(storageMode) {
-    case AbstractLoggerDB::STORAGE_MODE::TEXT: {
+    case AbstractLoggerDB::STORAGE_MODE::TEXT:
         m_entityId = 2;
         m_dPtr->m_entityName = QLatin1String("_LoggingSystem");
         qInfo() << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_entityId;
         break;
-    }
-    case AbstractLoggerDB::STORAGE_MODE::BINARY: {
+    case AbstractLoggerDB::STORAGE_MODE::BINARY:
         //use different id and entity name
         m_entityId = 200000;
         m_dPtr->m_entityName = QLatin1String("_BinaryLoggingSystem");
         qInfo() <<  "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_entityId;
         break;
     }
-    }
+
+    initModmanSessionComponent();
+
+    m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
+    m_dPtr->m_schedulingTimer.setSingleShot(true);
+    m_dPtr->m_countdownUpdateTimer.setInterval(100);
+    m_databaseFactory = factoryFunction;
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
@@ -401,16 +402,14 @@ bool DatabaseLogger::checkConditionsForStartLog()
     return validConditions;
 }
 
-void DatabaseLogger::tryInitModmanSessionComponent()
+void DatabaseLogger::initModmanSessionComponent()
 {
-    if(!m_modmanSessionComponent) {
-        m_modmanSessionComponent = m_veinStorage->getComponent(0, "Session");
-        if(m_modmanSessionComponent && m_modmanSessionComponent->getValue().isValid()) {
-            onModmanSessionChange(m_modmanSessionComponent->getValue());
-            connect(m_modmanSessionComponent.get(), &VeinEvent::StorageComponentInterface::sigValueChange,
-                    this, &DatabaseLogger::onModmanSessionChange);
-        }
-    }
+    m_modmanSessionComponent = m_veinStorage->getFutureComponent(0, "Session");
+    connect(m_modmanSessionComponent.get(), &VeinEvent::StorageComponentInterface::sigValueChange,
+            this, &DatabaseLogger::onModmanSessionChange);
+
+    if(m_modmanSessionComponent->getValue().isValid())
+        onModmanSessionChange(m_modmanSessionComponent->getValue());
 }
 
 bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
@@ -462,7 +461,6 @@ void DatabaseLogger::processEvent(QEvent *event)
             ComponentData *cData = static_cast<ComponentData *>(evData);
 
             if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
-                tryInitModmanSessionComponent();
                 if(activeStates.contains(requiredStates))
                     addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
             }
