@@ -456,14 +456,14 @@ void DatabaseLogger::processEvent(QEvent *event)
         EventData *evData = cEvent->eventData();
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
-        const QSet<QAbstractState*> requiredStates = { m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState };
+        const QSet<QAbstractState*> dbLoggingStates = { m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState };
+        const bool isLogRunning = activeStates.contains(dbLoggingStates);
         if(evData->type() == ComponentData::dataType()) {
             ComponentData *cData = static_cast<ComponentData *>(evData);
 
-            if(cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION) {
-                if(activeStates.contains(requiredStates))
-                    addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
-            }
+            if(isLogRunning && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
+                addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
+
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
                     evData->entityId() == m_entityId) {
                 const QString componentName = cData->componentName();
@@ -514,7 +514,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                             m_dPtr->m_scheduledLoggingDurationMs = logDurationMsecs;
                             if(logDurationMsecs > 0) {
                                 m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
-                                if(activeStates.contains(requiredStates))
+                                if(isLogRunning)
                                     m_dPtr->m_schedulingTimer.start();
 
                                 VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
