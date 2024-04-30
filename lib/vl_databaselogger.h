@@ -53,7 +53,7 @@ private:
     QString getEntityName(int entityId) const;
     void initModmanSessionComponent();
     bool checkDBFilePath(const QString &dbFilePath);
-    void handleLoggedComponentsTransaction(VeinComponent::ComponentData *cData);
+    void handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     QString handleVeinDbSessionNameSet(QString sessionName);
     bool checkConditionsForStartLog();
