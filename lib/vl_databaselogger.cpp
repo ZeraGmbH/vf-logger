@@ -355,7 +355,7 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
             for(const QString &comp : getComponentsFilteredForDb(1150))
                 tmpStaticComps.insert(1150, comp);
 
-        QList<QVariantMap> tmpStaticData;
+        QList<DatabaseCommandInterface::ComponentInfo> componentsAddedOncePerSession;
         for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
             if(!m_database->hasEntityId(tmpEntityId))
                 emit m_dbCmdInterface.sigAddEntity(tmpEntityId, getEntityName(tmpEntityId));
@@ -363,17 +363,19 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
             for(const QString &tmpComponentName : tmpComponents) {
                 if(!m_database->hasComponentName(tmpComponentName))
                     emit m_dbCmdInterface.sigAddComponent(tmpComponentName);
-                QVariantMap tmpMap;
-                tmpMap["entityId"] = tmpEntityId;
-                tmpMap["compName"] = tmpComponentName;
-                tmpMap["value"] = m_veinStorage->getStoredValue(tmpEntityId, tmpComponentName);
-                tmpMap["time"] = QDateTime::currentDateTime();
-                tmpStaticData.append(tmpMap);
+                DatabaseCommandInterface::ComponentInfo component = {
+                    tmpEntityId,
+                    getEntityName(tmpEntityId),
+                    tmpComponentName,
+                    m_veinStorage->getStoredValue(tmpEntityId, tmpComponentName),
+                    QDateTime::currentDateTime()
+                };
+                componentsAddedOncePerSession.append(component);
             }
         }
 
         sessionCustomerDataName = m_veinStorage->getStoredValue(200, "FileSelected").toString();
-        emit m_dbCmdInterface.sigAddSession(sessionName, tmpStaticData);
+        emit m_dbCmdInterface.sigAddSession(sessionName, componentsAddedOncePerSession);
     }
     else
         sessionCustomerDataName = m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();

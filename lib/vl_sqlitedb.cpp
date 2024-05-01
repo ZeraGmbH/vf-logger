@@ -373,7 +373,7 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
         sessionId=m_dPtr->m_sessionIds.value(sessionName);
     }
     else {
-        int newSession = addSession(sessionName,QList<QVariantMap>());
+        int newSession = addSession(sessionName, QList<DatabaseCommandInterface::ComponentInfo>());
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }
@@ -454,7 +454,7 @@ bool SQLiteDB::deleteSession(const QString &session)
     return true;
 }
 
-int SQLiteDB::addSession(const QString &sessionName, QList<QVariantMap> staticData)
+int SQLiteDB::addSession(const QString &sessionName, QList<DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
 {
     int retVal = -1;
     if(m_dPtr->m_sessionIds.contains(sessionName) == false) {
@@ -477,20 +477,16 @@ int SQLiteDB::addSession(const QString &sessionName, QList<QVariantMap> staticDa
         m_dPtr->m_sessionSequenceQuery.finish();
 
         QVector<SQLBatchData> batchDataVector;
-
-
-        for(QVariantMap comp: staticData){
+        for(const auto &comp: componentsStoredOncePerSession) {
             SQLBatchData batchData;
-            batchData.sessionId=nextsessionId;
-            batchData.entityId=comp["entityId"].toInt();
-            batchData.componentId=m_dPtr->m_componentIds.value(comp["compName"].toString());
-            batchData.value=comp["value"];
-            batchData.timestamp=comp["time"].value<QDateTime>();
+            batchData.sessionId = nextsessionId;
+            batchData.entityId = comp.entityId;
+            batchData.componentId = m_dPtr->m_componentIds.value(comp.componentName);
+            batchData.value = comp.value;
+            batchData.timestamp = comp.timestamp;
             batchDataVector.append(batchData);
         }
-
         writeStaticData(batchDataVector);
-
 
         if(nextsessionId > 0) {
             m_dPtr->m_sessionIds.insert(sessionName, nextsessionId);
@@ -533,7 +529,7 @@ void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transacti
         sessionId=m_dPtr->m_sessionIds.value(sessionName);
     }
     else {
-        int newSession = addSession(sessionName,QList<QVariantMap>());
+        int newSession = addSession(sessionName,QList<DatabaseCommandInterface::ComponentInfo>());
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }

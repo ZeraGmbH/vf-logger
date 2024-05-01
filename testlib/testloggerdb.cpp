@@ -159,7 +159,7 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
         return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
 }
 
-int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> componentValuesStoredOncePerSession)
+int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
 {
     // for vf-logger
     m_dbSessionNames.append(sessionName);
@@ -168,19 +168,25 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<QVariantMap> comp
     // for test
     m_valueWriteCount++;
 
-    QMap<QString, QVariantMap> componentValuesSorted;
-    for(int i=0; i<componentValuesStoredOncePerSession.count(); i++) {
-        QVariantMap variantEntry = componentValuesStoredOncePerSession[i];
-        Q_ASSERT(variantEntry.contains("time"));
+    QMap<QString, VeinLogger::DatabaseCommandInterface::ComponentInfo> componentValuesSorted;
+    for(int i=0; i<componentsStoredOncePerSession.count(); i++) {
+        VeinLogger::DatabaseCommandInterface::ComponentInfo variantEntry = componentsStoredOncePerSession[i];
+        Q_ASSERT(variantEntry.timestamp.isValid());
         // timestamps must be there but are not suited for textfile dumps
-        variantEntry["time"] = QDateTime::fromSecsSinceEpoch(m_valueWriteCount, Qt::UTC);
+        variantEntry.timestamp = QDateTime::fromSecsSinceEpoch(m_valueWriteCount, Qt::UTC);
 
-        Q_ASSERT(variantEntry.contains("compName"));
-        componentValuesSorted.insert(variantEntry["compName"].toString(), variantEntry);
+        Q_ASSERT(!variantEntry.componentName.isEmpty());
+        componentValuesSorted.insert(variantEntry.componentName, variantEntry);
     }
     QJsonArray jsonArray;
-    for(const QVariantMap &variantEntry : componentValuesSorted) {
-        jsonArray.append(QJsonObject::fromVariantMap(variantEntry));
+    for(const auto &component : componentValuesSorted) {
+        QJsonObject entry;
+        entry["entityId"] = component.entityId;
+        entry["entityName"] = component.entityName;
+        entry["componentName"] = component.componentName;
+        entry["value"] = component.value.toJsonValue();
+        entry["testtime"] = component.timestamp.toSecsSinceEpoch();
+        jsonArray.append(entry);
     }
     QJsonObject staticJson;
     staticJson.insert(sessionName, jsonArray);
