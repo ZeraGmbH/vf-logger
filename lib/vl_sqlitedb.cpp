@@ -526,7 +526,7 @@ void SQLiteDB::addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, in
     m_dPtr->m_batchVector.append(batchData);
 }
 
-void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp)
+void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, DatabaseCommandInterface::ComponentInfo component)
 {
     int sessionId = 0;
     if(m_dPtr->m_sessionIds.contains(sessionName)) {
@@ -535,9 +535,9 @@ void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transacti
     else {
         int newSession = addSession(sessionName,QList<QVariantMap>());
         Q_ASSERT(newSession >= 0);
-        sessionId=newSession;
+        sessionId = newSession;
     }
-    addLoggedValue(sessionId, transactionIds, entityId, componentName, value, timestamp);
+    addLoggedValue(sessionId, transactionIds, component.entityId, component.componentName, component.value, component.timestamp);
 }
 
 QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &enity, const QString &component)

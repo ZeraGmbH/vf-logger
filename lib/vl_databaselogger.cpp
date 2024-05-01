@@ -439,8 +439,10 @@ void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, c
         emit m_dbCmdInterface.sigAddEntity(entityId, entityName);
     if(!m_database->hasComponentName(componentName))
         emit m_dbCmdInterface.sigAddComponent(componentName);
-    if(isLoggedComponent(entityId, componentName))
-        emit m_dbCmdInterface.sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, entityId, componentName, newValue, QDateTime::currentDateTime());
+    if(isLoggedComponent(entityId, componentName)) {
+        DatabaseCommandInterface::ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
+        emit m_dbCmdInterface.sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
+    }
 }
 
 void DatabaseLogger::processEvent(QEvent *event)

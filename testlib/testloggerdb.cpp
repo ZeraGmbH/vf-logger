@@ -194,20 +194,19 @@ bool TestLoggerDB::deleteSession(const QString &session)
 
 }
 
-void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp)
+void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component)
 {
-    Q_UNUSED(timestamp)
     if(!transactionIds.contains(testTransactionId))
         qFatal("Unexpected transaction ids!");
 
     m_valueWriteCount++;
 
     if(m_valuesAreInitial) {
-        InitialValue initVal = { sessionName, value };
-        m_initialValues[entityId][componentName] = initVal;
+        InitialValue initVal = { sessionName, component.value };
+        m_initialValues[component.entityId][component.componentName] = initVal;
     }
     else {
-        LoggedValue logVal = { sessionName, entityId, componentName, value, m_valueWriteCount};
+        LoggedValue logVal = { sessionName, component.entityId, component.componentName, component.value, m_valueWriteCount};
         m_loggedValues.append(logVal);
     }
 }

@@ -1,6 +1,7 @@
 #ifndef VEINLOGGER_ABSTRACTLOGGERDB_H
 #define VEINLOGGER_ABSTRACTLOGGERDB_H
 
+#include "databasecommandinterface.h"
 #include <QObject>
 #include <QVector>
 #include <QDateTime>
@@ -27,6 +28,8 @@ public:
 
     virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
 
+
+
 signals:
     void sigDatabaseError(const QString &t_errorString);
     void sigDatabaseReady();
@@ -44,7 +47,7 @@ public slots:
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
     virtual int addSession(const QString &dbSessionName,QList<QVariantMap> componentValuesStoredOncePerSession) =0;
     virtual bool deleteSession(const QString &sessionName) = 0;
-    virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, int t_entityId, const QString &t_componentName, QVariant t_value, QDateTime t_timestamp) = 0;
+    virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) = 0;
 
     virtual bool openDatabase(const QString &t_dbPath) = 0;
     virtual void runBatchedExecution() = 0;
