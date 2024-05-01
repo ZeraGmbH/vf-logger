@@ -48,7 +48,7 @@ public slots:
     bool addStopTime(int transactionId,  QDateTime time) override;
     bool deleteSession(const QString &session) override;
     int addSession(const QString &sessionName, QList<QVariantMap> staticData) override;
-    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp) override;
+    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
 
     bool openDatabase(const QString &dbPath) override;

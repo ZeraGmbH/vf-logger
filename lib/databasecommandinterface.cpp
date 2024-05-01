@@ -1,5 +1,5 @@
 #include "databasecommandinterface.h"
-
+#include "vl_abstractloggerdb.h"
 
 void VeinLogger::DatabaseCommandInterface::connectDb(AbstractLoggerDB *db)
 {
