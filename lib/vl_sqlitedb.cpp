@@ -505,23 +505,23 @@ int SQLiteDB::addSession(const QString &sessionName, QList<QVariantMap> staticDa
     return retVal;
 }
 
-void SQLiteDB::addLoggedValue(int t_sessionId, QVector<int> t_transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp)
+void SQLiteDB::addLoggedValue(int sessionId, const QVector<int> &t_transactionIds, const DatabaseCommandInterface::ComponentInfo &component)
 {
-    const int componentId = m_dPtr->m_componentIds.value(componentName, 0);
+    const int componentId = m_dPtr->m_componentIds.value(component.componentName, 0);
 
     VF_ASSERT(m_dPtr->m_logDB.isOpen() == true, "Database is not open");
     //make sure the ids exist
-    VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(componentName)));
-    VF_ASSERT(m_dPtr->m_sessionIds.key(t_sessionId).isEmpty() == false , QStringC(QString("(VeinLogger) Unknown sessionId: %1").arg(t_sessionId)));
-    VF_ASSERT(m_dPtr->m_entityIds.contains(entityId) == true, QStringC(QString("(VeinLogger) Unknown entityId: %1").arg(entityId)));
+    VF_ASSERT(componentId > 0, QStringC(QString("(VeinLogger) Unknown componentName: %1").arg(component.componentName)));
+    VF_ASSERT(m_dPtr->m_sessionIds.key(sessionId).isEmpty() == false , QStringC(QString("(VeinLogger) Unknown sessionId: %1").arg(sessionId)));
+    VF_ASSERT(m_dPtr->m_entityIds.contains(component.entityId) == true, QStringC(QString("(VeinLogger) Unknown entityId: %1").arg(component.entityId)));
 
     SQLBatchData batchData;
-    batchData.sessionId=t_sessionId;
-    batchData.transactionIds=t_transactionIds;
-    batchData.entityId=entityId;
-    batchData.componentId=m_dPtr->m_componentIds.value(componentName);
-    batchData.value=value;
-    batchData.timestamp=timestamp;
+    batchData.sessionId = sessionId;
+    batchData.transactionIds = t_transactionIds;
+    batchData.entityId = component.entityId;
+    batchData.componentId = m_dPtr->m_componentIds.value(component.componentName);
+    batchData.value = component.value;
+    batchData.timestamp = component.timestamp;
 
     m_dPtr->m_batchVector.append(batchData);
 }
@@ -537,7 +537,7 @@ void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transacti
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }
-    addLoggedValue(sessionId, transactionIds, component.entityId, component.componentName, component.value, component.timestamp);
+    addLoggedValue(sessionId, transactionIds, component);
 }
 
 QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &enity, const QString &component)
