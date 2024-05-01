@@ -3,159 +3,185 @@
         {
             "NotExistingDbSession": [
                 {
-                    "compName": "FileSelected",
+                    "componentName": "FileSelected",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerCity",
+                    "componentName": "PAR_CustomerCity",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerComment",
+                    "componentName": "PAR_CustomerComment",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerCountry",
+                    "componentName": "PAR_CustomerCountry",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerFirstName",
+                    "componentName": "PAR_CustomerFirstName",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerLastName",
+                    "componentName": "PAR_CustomerLastName",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerNumber",
+                    "componentName": "PAR_CustomerNumber",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerPostalCode",
+                    "componentName": "PAR_CustomerPostalCode",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_CustomerStreet",
+                    "componentName": "PAR_CustomerStreet",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_DatasetComment",
+                    "componentName": "PAR_DatasetComment",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_DatasetIdentifier",
+                    "componentName": "PAR_DatasetIdentifier",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationCity",
+                    "componentName": "PAR_LocationCity",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationComment",
+                    "componentName": "PAR_LocationComment",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationCountry",
+                    "componentName": "PAR_LocationCountry",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationFirstName",
+                    "componentName": "PAR_LocationFirstName",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationLastName",
+                    "componentName": "PAR_LocationLastName",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationNumber",
+                    "componentName": "PAR_LocationNumber",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationPostalCode",
+                    "componentName": "PAR_LocationPostalCode",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_LocationStreet",
+                    "componentName": "PAR_LocationStreet",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_MeterComment",
+                    "componentName": "PAR_MeterComment",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_MeterFactoryNumber",
+                    "componentName": "PAR_MeterFactoryNumber",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_MeterManufacturer",
+                    "componentName": "PAR_MeterManufacturer",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_MeterOwner",
+                    "componentName": "PAR_MeterOwner",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_PowerGridComment",
+                    "componentName": "PAR_PowerGridComment",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_PowerGridOperator",
+                    "componentName": "PAR_PowerGridOperator",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 },
                 {
-                    "compName": "PAR_PowerGridSupplier",
+                    "componentName": "PAR_PowerGridSupplier",
                     "entityId": 200,
-                    "time": "1970-01-01T00:00:01.000Z",
+                    "entityName": "CustomerData",
+                    "testtime": 1,
                     "value": ""
                 }
             ]
