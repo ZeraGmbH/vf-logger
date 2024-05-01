@@ -45,7 +45,7 @@ public slots:
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
-    virtual int addSession(const QString &dbSessionName,QList<QVariantMap> componentValuesStoredOncePerSession) =0;
+    virtual int addSession(const QString &dbSessionName, QList<QVariantMap> componentValuesStoredOncePerSession) =0 ;
     virtual bool deleteSession(const QString &sessionName) = 0;
     virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) = 0;
 

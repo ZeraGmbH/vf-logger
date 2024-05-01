@@ -57,7 +57,7 @@ public slots:
     void runBatchedExecution() override;
 
 private:
-    void addLoggedValue(int t_sessionId, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp);
+    void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const DatabaseCommandInterface::ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
 
 private:
