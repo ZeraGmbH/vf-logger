@@ -1,6 +1,7 @@
 #ifndef VL_DATALOGGER_H
 #define VL_DATALOGGER_H
 
+#include "databasecommandinterface.h"
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include <ve_eventsystem.h>
@@ -25,13 +26,6 @@ public:
     QString entityName() const;
 
 signals:
-    void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, int entityId, const QString &componentName, QVariant value, QDateTime timestamp);
-    void sigAddEntity(int entityId, const QString &entityName);
-    void sigAddComponent(const QString &componentName);
-    void sigAddSession(const QString &sessionName,QList<QVariantMap> staticData);
-
-    void sigOpenDatabase(const QString &filePath);
-
     void sigDatabaseError(const QString &errorString);
     void sigDatabaseReady();
     void sigDatabaseUnloaded();
@@ -66,6 +60,7 @@ private:
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
 
+    DatabaseCommandInterface m_dbCmdInterface;
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
