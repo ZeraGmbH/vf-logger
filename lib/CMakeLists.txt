@@ -20,7 +20,7 @@ add_library(VfLogger SHARED
     ${SOURCES}
     ${HEADERS}
     ${RESOURCES}
-    )
+)
 
 target_link_libraries(VfLogger
     PUBLIC
