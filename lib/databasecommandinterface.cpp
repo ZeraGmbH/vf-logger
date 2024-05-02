@@ -6,13 +6,15 @@ Q_DECLARE_METATYPE(VeinLogger::DatabaseCommandInterface::ComponentInfo)
 namespace VeinLogger
 {
 
-bool DatabaseCommandInterface::m_componentInfoWasRegistered = false;
+bool DatabaseCommandInterface::m_componentInfoMetaWasRegistered = false;
 
 DatabaseCommandInterface::DatabaseCommandInterface()
 {
-    if(!m_componentInfoWasRegistered) {
+    if(!m_componentInfoMetaWasRegistered) {
+        qRegisterMetaType<QVector<int>>();
         qRegisterMetaType<ComponentInfo>();
-        m_componentInfoWasRegistered = true;
+        qRegisterMetaType<QList<VeinLogger::DatabaseCommandInterface::ComponentInfo>>();
+        m_componentInfoMetaWasRegistered = true;
     }
 }
 
