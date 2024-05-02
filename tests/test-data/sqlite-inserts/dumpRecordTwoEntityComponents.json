@@ -5,19 +5,9 @@
         },
         {
             "ComponentName": "ComponentName2"
-        },
-        {
-            "ComponentName": "LoggingEnabled"
-        },
-        {
-            "ComponentName": "LoggingStatus"
         }
     ],
     "EntititiesInserted": [
-        {
-            "EntityId": 2,
-            "EntityName": "_LoggingSystem"
-        },
         {
             "EntityId": 10,
             "EntityName": "EntityName10"
