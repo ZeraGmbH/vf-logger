@@ -13,6 +13,7 @@ class DatabaseCommandInterface : public QObject
 {
     Q_OBJECT
 public:
+    DatabaseCommandInterface();
     void connectDb(AbstractLoggerDB *db);
     struct ComponentInfo
     {
@@ -26,7 +27,10 @@ signals: // commands are send by signals for databases running in other thread
     void sigOpenDatabase(const QString &filePath);
     void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component);
     void sigAddSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> staticData);
+private:
+    static bool m_componentInfoWasRegistered;
 };
+
 }
 
 #endif // DATABASECOMMANDINTERFACE_H
