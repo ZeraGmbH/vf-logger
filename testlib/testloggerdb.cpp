@@ -14,11 +14,6 @@ TestLoggerDB *TestLoggerDB::getInstance()
     return m_instance;
 }
 
-void TestLoggerDB::setCustomerDataAlreadyInDbSession(bool inSession)
-{
-    m_customerDataAlreadyInDbSession = inSession;
-}
-
 TestLoggerDB::TestLoggerDB(TestDbAddSignaller *testSignaller) :
     m_testSignaller(testSignaller)
 {
@@ -85,20 +80,6 @@ void TestLoggerDB::valuesFromNowOnAreRecorded()
     m_valuesAreInitial = false;
 }
 
-bool TestLoggerDB::hasEntityId(int entityId) const
-{
-    if(entityId == customerDataEntityId)
-        return m_customerDataAlreadyInDbSession;
-    return m_entitiesAdded.contains(entityId);
-}
-
-bool TestLoggerDB::hasComponentName(const QString &componentName) const
-{
-    if(CustomerDataSystem::getComponentNames().contains(componentName))
-        return m_customerDataAlreadyInDbSession;
-    return m_componentsAdded.contains(componentName);
-}
-
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
 {
     return m_dbSessionNames.contains(sessionName);
@@ -111,18 +92,6 @@ void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
 
 void TestLoggerDB::initLocalData()
 {
-}
-
-void TestLoggerDB::addComponent(const QString &componentName)
-{
-    m_componentsAdded.insert(componentName);
-    emit m_testSignaller->sigComponentAdded(componentName);
-}
-
-void TestLoggerDB::addEntity(int entityId, QString entityName)
-{
-    m_entitiesAdded.insert(entityId, entityName);
-    emit m_testSignaller->sigEntityAdded(entityId, entityName);
 }
 
 static const int testTransactionId = 42;

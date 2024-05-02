@@ -477,13 +477,15 @@ int SQLiteDB::addSession(const QString &sessionName, QList<DatabaseCommandInterf
         m_dPtr->m_sessionSequenceQuery.finish();
 
         QVector<SQLBatchData> batchDataVector;
-        for(const auto &comp: componentsStoredOncePerSession) {
+        for(const auto &component: componentsStoredOncePerSession) {
+            addEntityComponent(component);
+
             SQLBatchData batchData;
             batchData.sessionId = nextsessionId;
-            batchData.entityId = comp.entityId;
-            batchData.componentId = m_dPtr->m_componentIds.value(comp.componentName);
-            batchData.value = comp.value;
-            batchData.timestamp = comp.timestamp;
+            batchData.entityId = component.entityId;
+            batchData.componentId = m_dPtr->m_componentIds.value(component.componentName);
+            batchData.value = component.value;
+            batchData.timestamp = component.timestamp;
             batchDataVector.append(batchData);
         }
         writeStaticData(batchDataVector);
@@ -501,8 +503,18 @@ int SQLiteDB::addSession(const QString &sessionName, QList<DatabaseCommandInterf
     return retVal;
 }
 
+void VeinLogger::SQLiteDB::addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component)
+{
+    if(!hasEntityId(component.entityId))
+        addEntity(component.entityId, component.entityName);
+    if(!hasComponentName(component.componentName))
+        addComponent(component.componentName);
+}
+
 void SQLiteDB::addLoggedValue(int sessionId, const QVector<int> &t_transactionIds, const DatabaseCommandInterface::ComponentInfo &component)
 {
+    addEntityComponent(component);
+
     const int componentId = m_dPtr->m_componentIds.value(component.componentName, 0);
 
     VF_ASSERT(m_dPtr->m_logDB.isOpen() == true, "Database is not open");

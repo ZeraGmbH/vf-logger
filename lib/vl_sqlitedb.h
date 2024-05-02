@@ -31,8 +31,6 @@ public:
 
     bool requiresOwnThread() override { return true; }
 
-    bool hasEntityId(int entityId) const override;
-    bool hasComponentName(const QString &componentName) const override;
     bool hasSessionName(const QString &sessionName) const override;
 
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE storageMode) override;
@@ -41,8 +39,6 @@ public:
 
 public slots:
     void initLocalData() override;
-    void addComponent(const QString &componentName) override;
-    void addEntity(int entityId, QString entityName) override;
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
@@ -56,11 +52,17 @@ public slots:
 
     void runBatchedExecution() override;
 
+protected:
+    virtual void addComponent(const QString &componentName);
+    virtual void addEntity(int entityId, QString entityName);
+
 private:
+    bool hasEntityId(int entityId) const;
+    bool hasComponentName(const QString &componentName) const;
+    void addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component);
     void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const DatabaseCommandInterface::ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
 
-private:
     DBPrivate *m_dPtr = nullptr;
 };
 

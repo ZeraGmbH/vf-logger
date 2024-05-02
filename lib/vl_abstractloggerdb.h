@@ -22,13 +22,9 @@ public:
     virtual ~AbstractLoggerDB() = default;
     virtual bool requiresOwnThread() = 0;
 
-    virtual bool hasEntityId(int t_entityId) const = 0;
-    virtual bool hasComponentName(const QString &t_componentName) const = 0;
     virtual bool hasSessionName(const QString &dbSessionName) const = 0;
 
     virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
-
-
 
 signals:
     void sigDatabaseError(const QString &t_errorString);
@@ -37,8 +33,6 @@ signals:
 
 public slots:
     virtual void initLocalData() = 0;
-    virtual void addComponent(const QString &t_componentName) = 0;
-    virtual void addEntity(int t_entityId, QString t_entityName) = 0;
     virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
