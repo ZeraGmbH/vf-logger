@@ -78,7 +78,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
                 else
                     componentNamesToAdd.append(tmpComponentName);
 
-                for (auto componentToAdd : componentNamesToAdd) {
+                for(const auto &componentToAdd : qAsConst(componentNamesToAdd)) {
                     const QVariant storedValue = m_veinStorage->getStoredValue(tmpEntityId, componentToAdd);
                     addValueToDb(storedValue, tmpEntityId, componentToAdd);
                 }
@@ -90,8 +90,8 @@ void DatabaseLogger::writeCurrentStorageToDb()
 QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 {
     QStringList retList = m_veinStorage->getEntityComponents(entityId);
-    QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
-    for(auto noStoreLabel : componentsNoStore)
+    const QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
+    for(const auto &noStoreLabel : componentsNoStore)
         retList.removeAll(noStoreLabel);
     return retList;
 }
