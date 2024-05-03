@@ -32,8 +32,6 @@ DataLoggerPrivate::DataLoggerPrivate(DatabaseLogger *qPtr) : m_qPtr(qPtr)
 DataLoggerPrivate::~DataLoggerPrivate()
 {
     m_batchedExecutionTimer.stop();
-    m_asyncDatabaseThread.quit();
-    m_asyncDatabaseThread.wait();
 }
 
 void DataLoggerPrivate::initOnce()

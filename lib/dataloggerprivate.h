@@ -5,7 +5,6 @@
 #include <vf-cpp-rpc.h>
 #include <QVector>
 #include <QTimer>
-#include <QThread>
 #include <QStateMachine>
 
 class DataLoggerPrivate: public QObject
@@ -18,9 +17,6 @@ public:
     void initStateMachine();
     void updateSchedulerCountdown();
 
-    QString m_databaseFilePath;
-
-    QThread m_asyncDatabaseThread;
     /**
      * @b Logging in batches is much more efficient for SQLITE (and for spinning disk storages in general)
      * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
