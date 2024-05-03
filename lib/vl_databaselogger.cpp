@@ -39,7 +39,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
     m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
-    m_dPtr->m_countdownUpdateTimer.setInterval(100);
+    m_countdownUpdateTimer.setInterval(100);
     m_databaseFactory = factoryFunction;
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
@@ -51,7 +51,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
         setLoggingEnabled(false);
     });
 
-    connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, this, [this]() {
+    connect(&m_countdownUpdateTimer, &QTimer::timeout, this, [this]() {
         m_dPtr->updateSchedulerCountdown();
     });
 }
@@ -132,14 +132,14 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
             m_dPtr->m_batchedExecutionTimer.start();
             if(m_scheduledLogging) {
                 m_dPtr->m_schedulingTimer.start();
-                m_dPtr->m_countdownUpdateTimer.start();
+                m_countdownUpdateTimer.start();
             }
             statusTextToVein("Logging data");
         }
         else {
             m_dPtr->m_batchedExecutionTimer.stop();
             m_dPtr->m_schedulingTimer.stop();
-            m_dPtr->m_countdownUpdateTimer.stop();
+            m_countdownUpdateTimer.stop();
             emit m_dbCmdInterface.sigFlushToDb();
             statusTextToVein("Database loaded");
         }

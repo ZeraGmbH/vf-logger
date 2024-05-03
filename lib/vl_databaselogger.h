@@ -7,6 +7,7 @@
 #include <ve_eventsystem.h>
 #include <ve_storagesystem.h>
 #include <vcmp_componentdata.h>
+#include <QTimer>
 #include <QFileSystemWatcher>
 #include <QThread>
 
@@ -73,6 +74,7 @@ private:
     bool m_dbReady = false;
     bool m_loggingActive = false;
     bool m_scheduledLogging = false;
+    QTimer m_countdownUpdateTimer;
 
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
