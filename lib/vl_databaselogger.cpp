@@ -37,7 +37,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
     initModmanSessionComponent();
 
-    m_dPtr->m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
+    m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
     m_dPtr->m_schedulingTimer.setSingleShot(true);
     m_dPtr->m_countdownUpdateTimer.setInterval(100);
     m_databaseFactory = factoryFunction;
@@ -59,6 +59,8 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
 DatabaseLogger::~DatabaseLogger()
 {
+    m_asyncDatabaseThread.quit();
+    m_asyncDatabaseThread.wait();
     if(m_database != nullptr) {
         m_database->deleteLater(); ///@todo: check if the delete works across threads
         m_database = nullptr;
@@ -96,7 +98,7 @@ QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
     return retList;
 }
 
-void DatabaseLogger::setStatusText(const QString &status)
+void DatabaseLogger::statusTextToVein(const QString &status)
 {
     if(m_loggerStatusText != status) {
         m_loggerStatusText = status;
@@ -136,13 +138,13 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
                 m_dPtr->m_countdownUpdateTimer.start();
             }
             emit sigLoggingStarted();
-            setStatusText("Logging data");
+            statusTextToVein("Logging data");
         }
         else {
             m_dPtr->m_schedulingTimer.stop();
             m_dPtr->m_countdownUpdateTimer.stop();
             emit sigLoggingStopped();
-            setStatusText("Database loaded");
+            statusTextToVein("Database loaded");
         }
     }
     QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
@@ -159,7 +161,7 @@ void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
 
 bool DatabaseLogger::openDatabase(const QString &filePath)
 {
-    m_dPtr->m_databaseFilePath = filePath;
+    m_databaseFilePath = filePath;
 
     const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
     if(validStorage) {
@@ -167,14 +169,14 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
             m_database->deleteLater();
             m_database = nullptr;
         }
-        m_dPtr->m_asyncDatabaseThread.quit();
-        m_dPtr->m_asyncDatabaseThread.wait();
+        m_asyncDatabaseThread.quit();
+        m_asyncDatabaseThread.wait();
         m_database = m_databaseFactory();//new SQLiteDB(t_storageMode);
 
         m_database->setStorageMode(m_storageMode);
         if(m_database->requiresOwnThread()) {
-            m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
-            m_dPtr->m_asyncDatabaseThread.start();
+            m_database->moveToThread(&m_asyncDatabaseThread);
+            m_asyncDatabaseThread.start();
         }
 
         m_dbCmdInterface.connectDb(m_database);
@@ -200,8 +202,8 @@ void DatabaseLogger::closeDatabase()
         m_database->deleteLater();
         m_database = nullptr;
     }
-    m_dPtr->m_asyncDatabaseThread.quit();
-    m_dPtr->m_asyncDatabaseThread.wait();
+    m_asyncDatabaseThread.quit();
+    m_asyncDatabaseThread.wait();
     if(m_deleteWatcher.directories().count()) {
         const QStringList watchedDirs = m_deleteWatcher.directories();
         for(const QString &watchDir : watchedDirs)
@@ -211,11 +213,11 @@ void DatabaseLogger::closeDatabase()
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
     emit sigSendEvent(event);
     setLoggingEnabled(false);
-    setStatusText("No database selected");
+    statusTextToVein("No database selected");
 
-    QString closedDb = m_dPtr->m_databaseFilePath;
-    m_dPtr->m_databaseFilePath.clear();
-    dbNameToVein(m_dPtr->m_databaseFilePath);
+    QString closedDb = m_databaseFilePath;
+    m_databaseFilePath.clear();
+    dbNameToVein(m_databaseFilePath);
 
     // set CustomerData component empty
     event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
@@ -229,9 +231,9 @@ void DatabaseLogger::closeDatabase()
 
 void DatabaseLogger::checkDatabaseStillValid()
 {
-    QFile dbFile(m_dPtr->m_databaseFilePath);
+    QFile dbFile(m_databaseFilePath);
     if(!dbFile.exists())
-        onDbError(QString("Watcher detected database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
+        onDbError(QString("Watcher detected database file %1 is gone!").arg(m_databaseFilePath));
 }
 
 void DatabaseLogger::updateSessionList(QStringList sessionNames)
@@ -266,7 +268,7 @@ void DatabaseLogger::onDbReady()
 
     // * To avoid fire storm on logging we watch file's dir
     // * For removable devices: mount-point's parent dir
-    QFileInfo fileInfo(m_dPtr->m_databaseFilePath);
+    QFileInfo fileInfo(m_databaseFilePath);
     QStorageInfo storageInfo(fileInfo.absolutePath());
     QStringList watchedPaths;
     watchedPaths.append(fileInfo.absolutePath());
@@ -284,15 +286,15 @@ void DatabaseLogger::onDbReady()
         qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
 
     m_dbReady = true;
-    setStatusText("Database loaded");
-    dbNameToVein(m_dPtr->m_databaseFilePath);
+    statusTextToVein("Database loaded");
+    dbNameToVein(m_databaseFilePath);
 }
 
 void DatabaseLogger::onDbError(QString errorMsg)
 {
     qWarning() << errorMsg;
     closeDatabase();
-    setStatusText("Database error");
+    statusTextToVein("Database error");
     emit sigDatabaseError(errorMsg);
 }
 
@@ -504,7 +506,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                     if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
                         handleLoggedComponentsSetNotification(cData);
                     else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
-                        if(m_database == nullptr || newValue != m_dPtr->m_databaseFilePath) {
+                        if(m_database == nullptr || newValue != m_databaseFilePath) {
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
                                 closeDatabase();
                             else

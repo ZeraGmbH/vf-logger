@@ -8,6 +8,7 @@
 #include <ve_storagesystem.h>
 #include <vcmp_componentdata.h>
 #include <QFileSystemWatcher>
+#include <QThread>
 
 class DataLoggerPrivate;
 
@@ -24,8 +25,6 @@ public:
 
     int entityId() const;
     QString entityName() const;
-
-    void dbNameToVein(const QString &filePath);
 
 signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
@@ -48,6 +47,8 @@ private slots:
     void checkDatabaseStillValid();
 private:
     QString getEntityName(int entityId) const;
+    void dbNameToVein(const QString &filePath);
+    void statusTextToVein(const QString &status);
     void initModmanSessionComponent();
     bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData);
@@ -62,7 +63,6 @@ private:
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
-    void setStatusText(const QString &status);
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
@@ -73,6 +73,8 @@ private:
     DatabaseCommandInterface m_dbCmdInterface;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
     AbstractLoggerDB *m_database = nullptr;
+    QThread m_asyncDatabaseThread;
+    QString m_databaseFilePath;
     bool m_dbReady = false;
 
     QStringList m_contentSets;
