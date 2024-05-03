@@ -157,7 +157,7 @@ void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
     emit sigSendEvent(event);
 }
 
-bool DatabaseLogger::openDatabase(const QString &filePath)
+bool DatabaseLogger::onOpenDatabase(const QString &filePath)
 {
     m_databaseFilePath = filePath;
 
@@ -505,7 +505,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
                                 closeDatabase();
                             else
-                                openDatabase(newValue.toString());
+                                onOpenDatabase(newValue.toString());
                         }
 
                         // a good place to reset selected sessionName - however db-open ends up with

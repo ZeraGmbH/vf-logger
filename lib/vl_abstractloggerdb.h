@@ -28,7 +28,7 @@ signals:
     void sigDatabaseReady();
     void sigNewSessionList(QStringList p_sessions);
 public slots:
-    virtual bool openDatabase(const QString &t_dbPath) = 0;
+    virtual bool onOpenDatabase(const QString &t_dbPath) = 0;
     virtual void initLocalData() = 0;
 
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) = 0 ;

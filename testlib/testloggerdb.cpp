@@ -186,7 +186,7 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
     }
 }
 
-bool TestLoggerDB::openDatabase(const QString &dbPath)
+bool TestLoggerDB::onOpenDatabase(const QString &dbPath)
 {
     // This one seems to run in another thread so we can use emit
     if(dbPath == DBNameOpenOk) {
