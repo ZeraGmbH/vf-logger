@@ -168,6 +168,7 @@ void DataLoggerPrivate::initStateMachine()
         if(unWatchedPaths.count()) {
             qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
         }
+        m_qPtr->dbNameToVein(m_databaseFilePath);
     });
     QObject::connect(m_loggingEnabledState, &QState::entered, this, [&](){
         setStatusText("Logging data");
