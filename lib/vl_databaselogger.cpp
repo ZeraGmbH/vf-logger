@@ -547,22 +547,14 @@ void DatabaseLogger::processEvent(QEvent *event)
                         bool conversionOk = false;
                         const int logDurationMsecs = newValue.toInt(&conversionOk);
                         bool invalidTime = !conversionOk;
-                        if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDurationMs) {
-                            m_dPtr->m_scheduledLoggingDurationMs = logDurationMsecs;
+                        if(conversionOk) {
                             if(logDurationMsecs > 0) {
                                 m_schedulingTimer.setInterval(logDurationMsecs);
                                 if(isLogRunning)
                                     m_schedulingTimer.start();
-
-                                VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
-                                schedulingDurationData->setEntityId(m_entityId);
-                                schedulingDurationData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-                                schedulingDurationData->setComponentName(DataLoggerPrivate::s_scheduledLoggingDurationComponentName);
-                                schedulingDurationData->setNewValue(newValue);
-                                schedulingDurationData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                                schedulingDurationData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-                                emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDurationData));
+                                QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingDurationComponentName,
+                                                                                       cData->oldValue(), newValue);
+                                emit sigSendEvent(event);
                             }
                             else
                                 invalidTime = true;

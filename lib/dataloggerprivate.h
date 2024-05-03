@@ -17,7 +17,6 @@ public:
      * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
      */
     QTimer m_batchedExecutionTimer;
-    int m_scheduledLoggingDurationMs;
 
     bool m_initDone=false;
 
