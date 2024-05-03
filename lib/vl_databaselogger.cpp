@@ -99,15 +99,9 @@ QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 void DatabaseLogger::onSchedulerCountdownToVein()
 {
     if(m_schedulingTimer.isActive()) {
-        VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
-        schedulerCountdownCData->setEntityId(m_entityId);
-        schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        schedulerCountdownCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingCountdownComponentName);
-        schedulerCountdownCData->setNewValue(QVariant(m_schedulingTimer.remainingTime()));
-        schedulerCountdownCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        schedulerCountdownCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulerCountdownCData));
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingCountdownComponentName,
+                                                               QVariant(), m_schedulingTimer.remainingTime());
+        emit sigSendEvent(event);
     }
 }
 
