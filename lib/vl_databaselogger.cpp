@@ -541,8 +541,12 @@ void DatabaseLogger::processEvent(QEvent *event)
                         emit sigSendEvent(event);
 
                         QVariant sessionCustomerDataName = "";
-                        if(!m_dbSessionName.isEmpty() && m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
-                            sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
+                        if(!m_dbSessionName.isEmpty()) {
+                            if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
+                                sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
+                            else
+                                qWarning("Cannot set session '%s' - database is not ready yet!", qPrintable(m_dbSessionName));
+                        }
 
                         event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
                                                                        QVariant(), sessionCustomerDataName);
