@@ -154,7 +154,6 @@ void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
 bool DatabaseLogger::openDatabase(const QString &filePath)
 {
     m_dPtr->m_databaseFilePath = filePath;
-    m_noUninitMessage = false;
 
     const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
     if(validStorage) {
@@ -190,7 +189,6 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
 void DatabaseLogger::closeDatabase()
 {
     m_dbReady = false;
-    m_noUninitMessage = false;
     setLoggingEnabled(false);
     if(m_database != nullptr) {
         m_database->deleteLater();
@@ -207,8 +205,7 @@ void DatabaseLogger::closeDatabase()
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
     emit sigSendEvent(event);
     setLoggingEnabled(false);
-    if(!m_noUninitMessage)
-        m_dPtr->setStatusText("No database selected");
+    m_dPtr->setStatusText("No database selected");
 
     QString closedDb = m_dPtr->m_databaseFilePath;
     m_dPtr->m_databaseFilePath.clear();
@@ -289,7 +286,6 @@ void DatabaseLogger::onDbError(QString errorMsg)
 {
     qWarning() << errorMsg;
     closeDatabase();
-    m_noUninitMessage = true;
     m_dPtr->setStatusText("Database error");
     emit sigDatabaseError(errorMsg);
 }

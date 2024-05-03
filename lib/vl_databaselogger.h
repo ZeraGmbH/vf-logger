@@ -83,8 +83,6 @@ private:
     QString m_guiContext;
 
     QFileSystemWatcher m_deleteWatcher;
-    bool m_noUninitMessage = false;
-
 };
 }
 
