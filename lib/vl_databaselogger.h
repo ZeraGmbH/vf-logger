@@ -22,25 +22,23 @@ public:
                             QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
     void processEvent(QEvent *event) override;
-
     int entityId() const;
     QString entityName() const;
 
 signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
-
 public slots:
     void setLoggingEnabled(bool enabled);
     bool openDatabase(const QString &filePath);
     void closeDatabase();
     QVariant RPC_deleteSession(QVariantMap parameters);
-    void updateSessionList(QStringList sessionNames);
 
 private slots:
     void onModmanSessionChange(QVariant newSession);
     void onDbReady();
     void onDbError(QString errorMsg);
     void checkDatabaseStillValid();
+    void updateSessionList(QStringList sessionNames);
 private:
     QString getEntityName(int entityId) const;
     void dbNameToVein(const QString &filePath);
