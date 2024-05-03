@@ -95,35 +95,7 @@ void DataLoggerPrivate::initStateMachine()
 {
     m_parallelWrapperState->setChildMode(QStateMachine::ParallelStates);
     m_stateMachine.setInitialState(m_parallelWrapperState);
-    m_logSchedulerContainerState->setInitialState(m_logSchedulerDisabledState);
 
-    //enabled -> disbled
-    m_logSchedulerEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerDeactivated, m_logSchedulerDisabledState);
-    //disabled -> enabled
-    m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
-
-    QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
-        VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
-        schedulingEnabledCData->setEntityId(m_qPtr->entityId());
-        schedulingEnabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        schedulingEnabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
-        schedulingEnabledCData->setNewValue(true);
-        schedulingEnabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        schedulingEnabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingEnabledCData));
-    });
-    QObject::connect(m_logSchedulerDisabledState, &QState::entered, [&](){
-        VeinComponent::ComponentData *schedulingDisabledCData = new VeinComponent::ComponentData();
-        schedulingDisabledCData->setEntityId(m_qPtr->entityId());
-        schedulingDisabledCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        schedulingDisabledCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingEnabledComponentName);
-        schedulingDisabledCData->setNewValue(false);
-        schedulingDisabledCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        schedulingDisabledCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulingDisabledCData));
-    });
 
     m_stateMachine.start();
 }

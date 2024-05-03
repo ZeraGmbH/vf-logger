@@ -29,8 +29,6 @@ public:
 signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
 
-    void sigLogSchedulerActivated();
-    void sigLogSchedulerDeactivated();
 public slots:
     void setLoggingEnabled(bool enabled);
     bool openDatabase(const QString &filePath);
@@ -75,6 +73,7 @@ private:
     QString m_databaseFilePath;
     bool m_dbReady = false;
     bool m_loggingActive = false;
+    bool m_scheduledLogging = false;
 
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;

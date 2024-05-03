@@ -130,8 +130,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
     if(enabled != m_loggingActive) {
         if(enabled) {
             m_dPtr->m_batchedExecutionTimer.start();
-            const QSet<QAbstractState *> activeStates = m_dPtr->m_stateMachine.configuration();
-            if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState)) {
+            if(m_scheduledLogging) {
                 m_dPtr->m_schedulingTimer.start();
                 m_dPtr->m_countdownUpdateTimer.start();
             }
@@ -528,12 +527,13 @@ void DatabaseLogger::processEvent(QEvent *event)
                             setLoggingEnabled(loggingEnabled);
                     }
                     else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
-                        if(newValue.toBool() != m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_logSchedulerEnabledState)) {
-                            if(newValue.toBool() == true)
-                                emit sigLogSchedulerActivated();
-                            else
-                                emit sigLogSchedulerDeactivated();
+                        bool scheduledLogging = newValue.toBool();
+                        if(scheduledLogging != m_scheduledLogging) {
+                            m_scheduledLogging = scheduledLogging;
                             setLoggingEnabled(false);
+                            QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingEnabledComponentName,
+                                                                                   cData->oldValue(), scheduledLogging);
+                            emit sigSendEvent(event);
                         }
                     }
                     else if(componentName == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
