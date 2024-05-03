@@ -86,18 +86,8 @@ void DataLoggerPrivate::initOnce()
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(m_qPtr->entityId(),m_qPtr,m_qPtr,"RPC_deleteSession",VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})), &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
-        initStateMachine();
         m_initDone = true;
     }
-}
-
-void DataLoggerPrivate::initStateMachine()
-{
-    m_parallelWrapperState->setChildMode(QStateMachine::ParallelStates);
-    m_stateMachine.setInitialState(m_parallelWrapperState);
-
-
-    m_stateMachine.start();
 }
 
 void DataLoggerPrivate::updateSchedulerCountdown()

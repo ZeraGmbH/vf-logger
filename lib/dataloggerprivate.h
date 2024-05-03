@@ -5,7 +5,6 @@
 #include <vf-cpp-rpc.h>
 #include <QVector>
 #include <QTimer>
-#include <QStateMachine>
 
 class DataLoggerPrivate: public QObject
 {
@@ -14,7 +13,6 @@ public:
     ~DataLoggerPrivate();
 
     void initOnce();
-    void initStateMachine();
     void updateSchedulerCountdown();
 
     /**
@@ -48,11 +46,6 @@ public:
     static const QLatin1String s_currentContentSetsComponentName;
     static const QLatin1String s_availableContentSetsComponentName;
     static const QLatin1String loggedComponentsComponentName;
-
-    QStateMachine m_stateMachine;
-    //QStatemachine does not support ParallelState
-    //Therefore we add one state where the actual statemachine starts
-    QState *m_parallelWrapperState = new QState(&m_stateMachine);
 
     VeinLogger::DatabaseLogger *m_qPtr = nullptr;
     friend class DatabaseLogger;
