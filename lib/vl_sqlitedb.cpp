@@ -553,7 +553,7 @@ QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &e
     return m_dPtr->readSessionComponent(session, enity, component);
 }
 
-bool SQLiteDB::openDatabase(const QString &dbPath)
+bool SQLiteDB::onOpenDatabase(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);
     bool retVal = false;

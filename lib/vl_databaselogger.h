@@ -29,11 +29,11 @@ signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
 public slots:
     void setLoggingEnabled(bool enabled);
-    bool openDatabase(const QString &filePath);
     void closeDatabase();
     QVariant RPC_deleteSession(QVariantMap parameters);
 
 private slots:
+    bool onOpenDatabase(const QString &filePath);
     void onModmanSessionChange(QVariant newSession);
     void onDbReady();
     void onDbError(QString errorMsg);
