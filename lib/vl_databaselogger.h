@@ -38,6 +38,7 @@ private slots:
     void onModmanSessionChange(QVariant newSession);
     void onDbReady();
     void onDbError(QString errorMsg);
+    void onSchedulerCountdownToVein();
     void checkDatabaseStillValid();
     void updateSessionList(QStringList sessionNames);
 private:
@@ -58,7 +59,6 @@ private:
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
-    void updateSchedulerCountdown();
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
