@@ -62,6 +62,7 @@ private:
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
+    QLatin1String m_entityName;
     VeinEvent::StorageSystem *m_veinStorage;
     VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
 

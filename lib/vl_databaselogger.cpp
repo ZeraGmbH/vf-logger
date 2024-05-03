@@ -24,14 +24,14 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT:
         m_entityId = 2;
-        m_dPtr->m_entityName = QLatin1String("_LoggingSystem");
-        qInfo() << "Created plaintext logger:" << m_dPtr->m_entityName << "with id:" << m_entityId;
+        m_entityName = QLatin1String("_LoggingSystem");
+        qInfo() << "Created plaintext logger:" << m_entityName << "with id:" << m_entityId;
         break;
     case AbstractLoggerDB::STORAGE_MODE::BINARY:
         //use different id and entity name
         m_entityId = 200000;
-        m_dPtr->m_entityName = QLatin1String("_BinaryLoggingSystem");
-        qInfo() <<  "Created binary logger:" << m_dPtr->m_entityName << "with id:" << m_entityId;
+        m_entityName = QLatin1String("_BinaryLoggingSystem");
+        qInfo() <<  "Created binary logger:" << m_entityName << "with id:" << m_entityId;
         break;
     }
 
@@ -122,7 +122,7 @@ int DatabaseLogger::entityId() const
 
 QString DatabaseLogger::entityName() const
 {
-    return m_dPtr->m_entityName;
+    return m_entityName;
 }
 
 void DatabaseLogger::setLoggingEnabled(bool enabled)
