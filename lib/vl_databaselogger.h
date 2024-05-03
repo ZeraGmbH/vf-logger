@@ -58,6 +58,7 @@ private:
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
+    void updateSchedulerCountdown();
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
@@ -74,6 +75,7 @@ private:
     bool m_dbReady = false;
     bool m_loggingActive = false;
     bool m_scheduledLogging = false;
+    QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
 
     QStringList m_contentSets;

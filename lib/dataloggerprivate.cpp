@@ -89,18 +89,3 @@ void DataLoggerPrivate::initOnce()
         m_initDone = true;
     }
 }
-
-void DataLoggerPrivate::updateSchedulerCountdown()
-{
-    if(m_schedulingTimer.isActive()) {
-        VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
-        schedulerCountdownCData->setEntityId(m_qPtr->entityId());
-        schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        schedulerCountdownCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingCountdownComponentName);
-        schedulerCountdownCData->setNewValue(QVariant(m_schedulingTimer.remainingTime()));
-        schedulerCountdownCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        schedulerCountdownCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-        emit m_qPtr->sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulerCountdownCData));
-    }
-}

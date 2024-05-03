@@ -19,6 +19,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     VeinEvent::EventSystem(parent),
     m_dPtr(new DataLoggerPrivate(this)),
     m_veinStorage(veinStorage),
+    m_databaseFactory(factoryFunction),
     m_storageMode(storageMode)
 {
     switch(storageMode) {
@@ -38,21 +39,20 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     initModmanSessionComponent();
 
     m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
-    m_dPtr->m_schedulingTimer.setSingleShot(true);
+    m_schedulingTimer.setSingleShot(true);
     m_countdownUpdateTimer.setInterval(100);
-    m_databaseFactory = factoryFunction;
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
         if(!m_loggingActive)
             m_dPtr->m_batchedExecutionTimer.stop();
     });
-    connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, this, [this]() {
+    connect(&m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
     });
 
     connect(&m_countdownUpdateTimer, &QTimer::timeout, this, [this]() {
-        m_dPtr->updateSchedulerCountdown();
+        updateSchedulerCountdown();
     });
 }
 
@@ -97,6 +97,21 @@ QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
     return retList;
 }
 
+void DatabaseLogger::updateSchedulerCountdown()
+{
+    if(m_schedulingTimer.isActive()) {
+        VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
+        schedulerCountdownCData->setEntityId(m_entityId);
+        schedulerCountdownCData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        schedulerCountdownCData->setComponentName(DataLoggerPrivate::s_scheduledLoggingCountdownComponentName);
+        schedulerCountdownCData->setNewValue(QVariant(m_schedulingTimer.remainingTime()));
+        schedulerCountdownCData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        schedulerCountdownCData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, schedulerCountdownCData));
+    }
+}
+
 void DatabaseLogger::statusTextToVein(const QString &status)
 {
     if(m_loggerStatusText != status) {
@@ -131,14 +146,14 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
         if(enabled) {
             m_dPtr->m_batchedExecutionTimer.start();
             if(m_scheduledLogging) {
-                m_dPtr->m_schedulingTimer.start();
+                m_schedulingTimer.start();
                 m_countdownUpdateTimer.start();
             }
             statusTextToVein("Logging data");
         }
         else {
             m_dPtr->m_batchedExecutionTimer.stop();
-            m_dPtr->m_schedulingTimer.stop();
+            m_schedulingTimer.stop();
             m_countdownUpdateTimer.stop();
             emit m_dbCmdInterface.sigFlushToDb();
             statusTextToVein("Database loaded");
@@ -542,9 +557,9 @@ void DatabaseLogger::processEvent(QEvent *event)
                         if(conversionOk == true && logDurationMsecs != m_dPtr->m_scheduledLoggingDurationMs) {
                             m_dPtr->m_scheduledLoggingDurationMs = logDurationMsecs;
                             if(logDurationMsecs > 0) {
-                                m_dPtr->m_schedulingTimer.setInterval(logDurationMsecs);
+                                m_schedulingTimer.setInterval(logDurationMsecs);
                                 if(isLogRunning)
-                                    m_dPtr->m_schedulingTimer.start();
+                                    m_schedulingTimer.start();
 
                                 VeinComponent::ComponentData *schedulingDurationData = new VeinComponent::ComponentData();
                                 schedulingDurationData->setEntityId(m_entityId);
