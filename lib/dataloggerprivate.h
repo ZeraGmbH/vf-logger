@@ -3,8 +3,6 @@
 
 #include "vl_databaselogger.h"
 #include <vf-cpp-rpc.h>
-#include <QVector>
-#include <QTimer>
 
 class DataLoggerPrivate: public QObject
 {
@@ -13,7 +11,6 @@ public:
     ~DataLoggerPrivate();
 
     void initOnce();
-    void updateSchedulerCountdown();
 
     /**
      * @b Logging in batches is much more efficient for SQLITE (and for spinning disk storages in general)
@@ -22,7 +19,6 @@ public:
     QTimer m_batchedExecutionTimer;
     int m_scheduledLoggingDurationMs;
 
-    QTimer m_schedulingTimer;
     bool m_initDone=false;
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
