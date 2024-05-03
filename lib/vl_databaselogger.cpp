@@ -39,10 +39,12 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     initModmanSessionComponent();
 
     m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
+
     m_schedulingTimer.setSingleShot(true);
     m_countdownUpdateTimer.setInterval(100);
+    connect(&m_countdownUpdateTimer, &QTimer::timeout, this, &DatabaseLogger::onSchedulerCountdownToVein);
 
-    connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
+    connect(this, &DatabaseLogger::sigAttached, m_dPtr, &DataLoggerPrivate::initOnce);
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
         if(!m_loggingActive)
             m_dPtr->m_batchedExecutionTimer.stop();
@@ -51,9 +53,6 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
         setLoggingEnabled(false);
     });
 
-    connect(&m_countdownUpdateTimer, &QTimer::timeout, this, [this]() {
-        updateSchedulerCountdown();
-    });
 }
 
 DatabaseLogger::~DatabaseLogger()
@@ -97,7 +96,7 @@ QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
     return retList;
 }
 
-void DatabaseLogger::updateSchedulerCountdown()
+void DatabaseLogger::onSchedulerCountdownToVein()
 {
     if(m_schedulingTimer.isActive()) {
         VeinComponent::ComponentData *schedulerCountdownCData = new VeinComponent::ComponentData();
