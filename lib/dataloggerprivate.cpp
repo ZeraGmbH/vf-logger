@@ -93,17 +93,6 @@ void DataLoggerPrivate::initOnce()
     }
 }
 
-void DataLoggerPrivate::setStatusText(const QString &status)
-{
-    if(m_loggerStatusText != status) {
-        m_loggerStatusText = status;
-        QEvent *event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), DataLoggerPrivate::s_loggingStatusTextComponentName,
-                                                       QVariant(), status);
-        emit m_qPtr->sigSendEvent(event);
-    }
-}
-
-
 void DataLoggerPrivate::initStateMachine()
 {
     m_parallelWrapperState->setChildMode(QStateMachine::ParallelStates);

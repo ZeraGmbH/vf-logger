@@ -15,7 +15,6 @@ public:
     ~DataLoggerPrivate();
 
     void initOnce();
-    void setStatusText(const QString &status);
     void initStateMachine();
     void updateSchedulerCountdown();
 
@@ -32,7 +31,6 @@ public:
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
     bool m_initDone=false;
-    QString m_loggerStatusText="Logging inactive";
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
