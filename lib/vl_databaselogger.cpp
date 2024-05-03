@@ -161,7 +161,7 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
 {
     m_databaseFilePath = filePath;
 
-    const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
+    const bool validStorage = checkDBFilePath(filePath);
     if(validStorage) {
         if(m_database != nullptr) {
             m_database->deleteLater();
