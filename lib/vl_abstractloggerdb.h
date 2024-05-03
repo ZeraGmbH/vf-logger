@@ -24,7 +24,7 @@ public:
 
     virtual bool hasSessionName(const QString &dbSessionName) const = 0;
 signals:
-    void sigDatabaseError(const QString &t_errorString);
+    void sigDatabaseError(QString errorString);
     void sigDatabaseReady();
     void sigNewSessionList(QStringList p_sessions);
 public slots:

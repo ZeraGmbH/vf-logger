@@ -10,6 +10,7 @@
 #include <vf_server_component_setter.h>
 #include <QHash>
 #include <QDir>
+#include <QStorageInfo>
 #include <QJsonDocument>
 
 namespace VeinLogger
@@ -17,8 +18,8 @@ namespace VeinLogger
 DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory factoryFunction, QObject *parent, AbstractLoggerDB::STORAGE_MODE storageMode) :
     VeinEvent::EventSystem(parent),
     m_dPtr(new DataLoggerPrivate(this)),
-    m_storageMode(storageMode),
-    m_veinStorage(veinStorage)
+    m_veinStorage(veinStorage),
+    m_storageMode(storageMode)
 {
     switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT:
@@ -53,14 +54,6 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
     connect(&m_dPtr->m_countdownUpdateTimer, &QTimer::timeout, this, [this]() {
         m_dPtr->updateSchedulerCountdown();
-    });
-
-    // db error handling
-    connect(this, &DatabaseLogger::sigDatabaseError, [this](const QString &t_errorString) {
-        qWarning() << t_errorString;
-        closeDatabase();
-        m_dPtr->m_noUninitMessage = true;
-        m_dPtr->setStatusText("Database error");
     });
 }
 
@@ -137,11 +130,13 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
                 m_dPtr->m_countdownUpdateTimer.start();
             }
             emit sigLoggingStarted();
+            m_dPtr->setStatusText("Logging data");
         }
         else {
             m_dPtr->m_schedulingTimer.stop();
             m_dPtr->m_countdownUpdateTimer.stop();
             emit sigLoggingStopped();
+            m_dPtr->setStatusText("Database loaded");
         }
     }
     QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
@@ -159,20 +154,18 @@ void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
 bool DatabaseLogger::openDatabase(const QString &filePath)
 {
     m_dPtr->m_databaseFilePath = filePath;
-    m_dPtr->m_noUninitMessage = false;
+    m_noUninitMessage = false;
 
     const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
     if(validStorage) {
         if(m_database != nullptr) {
-            disconnect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
             m_database->deleteLater();
             m_database = nullptr;
         }
         m_dPtr->m_asyncDatabaseThread.quit();
         m_dPtr->m_asyncDatabaseThread.wait();
         m_database = m_databaseFactory();//new SQLiteDB(t_storageMode);
-        // forward database's error my handler
-        connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
+
         m_database->setStorageMode(m_storageMode);
         if(m_database->requiresOwnThread()) {
             m_database->moveToThread(&m_dPtr->m_asyncDatabaseThread);
@@ -181,7 +174,8 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
 
         m_dbCmdInterface.connectDb(m_database);
 
-        connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::sigDatabaseReady);
+        connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady);
+        connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
 
         connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
@@ -195,29 +189,33 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
 
 void DatabaseLogger::closeDatabase()
 {
-    m_dPtr->m_noUninitMessage = false;
+    m_dbReady = false;
+    m_noUninitMessage = false;
     setLoggingEnabled(false);
     if(m_database != nullptr) {
-        disconnect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::sigDatabaseError);
         m_database->deleteLater();
         m_database = nullptr;
     }
     m_dPtr->m_asyncDatabaseThread.quit();
     m_dPtr->m_asyncDatabaseThread.wait();
-    if(m_dPtr->m_deleteWatcher.directories().count()) {
-        const QStringList watchedDirs = m_dPtr->m_deleteWatcher.directories();
+    if(m_deleteWatcher.directories().count()) {
+        const QStringList watchedDirs = m_deleteWatcher.directories();
         for(const QString &watchDir : watchedDirs)
-            m_dPtr->m_deleteWatcher.removePath(watchDir);
-        QObject::disconnect(&m_dPtr->m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
+            m_deleteWatcher.removePath(watchDir);
+        QObject::disconnect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
     }
-    emit sigDatabaseUnloaded();
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
+    emit sigSendEvent(event);
+    setLoggingEnabled(false);
+    if(!m_noUninitMessage)
+        m_dPtr->setStatusText("No database selected");
 
     QString closedDb = m_dPtr->m_databaseFilePath;
     m_dPtr->m_databaseFilePath.clear();
     dbNameToVein(m_dPtr->m_databaseFilePath);
 
     // set CustomerData component empty
-    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+    event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
                                                            QVariant(), QString());
     emit sigSendEvent(event);
 
@@ -230,7 +228,7 @@ void DatabaseLogger::checkDatabaseStillValid()
 {
     QFile dbFile(m_dPtr->m_databaseFilePath);
     if(!dbFile.exists())
-        emit sigDatabaseError(QString("Watcher detected database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
+        onDbError(QString("Watcher detected database file %1 is gone!").arg(m_dPtr->m_databaseFilePath));
 }
 
 void DatabaseLogger::updateSessionList(QStringList sessionNames)
@@ -254,6 +252,46 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_availableContentSetsComponentName,
                                                            QVariant(), availContentSets);
     emit sigSendEvent(event);
+}
+
+void DatabaseLogger::onDbReady()
+{
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), true);
+    emit sigSendEvent(event);
+
+    setLoggingEnabled(false);
+
+    // * To avoid fire storm on logging we watch file's dir
+    // * For removable devices: mount-point's parent dir
+    QFileInfo fileInfo(m_dPtr->m_databaseFilePath);
+    QStorageInfo storageInfo(fileInfo.absolutePath());
+    QStringList watchedPaths;
+    watchedPaths.append(fileInfo.absolutePath());
+    if(!storageInfo.isRoot()) {
+        QDir tmpDir(storageInfo.rootPath());
+        tmpDir.cdUp();
+        if(!tmpDir.isRoot())
+            watchedPaths.append(tmpDir.path());
+    }
+    qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" + "))));
+    QStringList unWatchedPaths = m_deleteWatcher.addPaths(watchedPaths);
+    if(m_deleteWatcher.directories().count())
+        QObject::connect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
+    if(unWatchedPaths.count())
+        qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
+
+    m_dbReady = true;
+    m_dPtr->setStatusText("Database loaded");
+    dbNameToVein(m_dPtr->m_databaseFilePath);
+}
+
+void DatabaseLogger::onDbError(QString errorMsg)
+{
+    qWarning() << errorMsg;
+    closeDatabase();
+    m_noUninitMessage = true;
+    m_dPtr->setStatusText("Database error");
+    emit sigDatabaseError(errorMsg);
 }
 
 QString DatabaseLogger::getEntityName(int entityId) const
@@ -381,7 +419,7 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 bool DatabaseLogger::checkConditionsForStartLog()
 {
     bool validConditions = true;
-    if(!m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState)) {
+    if(!m_dbReady) {
         validConditions = false;
         qWarning("Logging requires a database!");
     }
@@ -420,13 +458,13 @@ bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
             if(fInfo.isFile() || fInfo.exists() == false)
                 retVal = true;
             else
-                emit sigDatabaseError(QString("Path is not a valid file location: %1").arg(dbFilePath));
+                onDbError(QString("Path is not a valid file location: %1").arg(dbFilePath));
         }
         else
-            emit sigDatabaseError(QString("Parent directory for path does not exist: %1").arg(dbFilePath));
+            onDbError(QString("Parent directory for path does not exist: %1").arg(dbFilePath));
     }
     else
-        emit sigDatabaseError(QString("Relative paths are not accepted: %1").arg(dbFilePath));
+        onDbError(QString("Relative paths are not accepted: %1").arg(dbFilePath));
     return retVal;
 }
 
@@ -448,8 +486,7 @@ void DatabaseLogger::processEvent(QEvent *event)
         EventData *evData = cEvent->eventData();
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
-        const QSet<QAbstractState*> dbLoggingStates = { m_dPtr->m_loggingEnabledState, m_dPtr->m_databaseReadyState };
-        const bool isLogRunning = activeStates.contains(dbLoggingStates);
+        const bool isLogRunning = m_dbReady && activeStates.contains(m_dPtr->m_loggingEnabledState);
         if(evData->type() == ComponentData::dataType()) {
             ComponentData *cData = static_cast<ComponentData *>(evData);
 
@@ -542,7 +579,7 @@ void DatabaseLogger::processEvent(QEvent *event)
 
                         QVariant sessionCustomerDataName = "";
                         if(!m_dbSessionName.isEmpty()) {
-                            if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_databaseReadyState))
+                            if(m_dbReady)
                                 sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
                             else
                                 qWarning("Cannot set session '%s' - database is not ready yet!", qPrintable(m_dbSessionName));

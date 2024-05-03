@@ -7,6 +7,7 @@
 #include <ve_eventsystem.h>
 #include <ve_storagesystem.h>
 #include <vcmp_componentdata.h>
+#include <QFileSystemWatcher>
 
 class DataLoggerPrivate;
 
@@ -28,9 +29,8 @@ public:
     void dbNameToVein(const QString &filePath);
 
 signals:
-    void sigDatabaseError(const QString &errorString);
-    void sigDatabaseReady();
-    void sigDatabaseUnloaded();
+    void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
+
     void sigLoggingStarted();
     void sigLoggingStopped();
     void sigLogSchedulerActivated();
@@ -39,12 +39,14 @@ public slots:
     void setLoggingEnabled(bool enabled);
     bool openDatabase(const QString &filePath);
     void closeDatabase();
-    void checkDatabaseStillValid();
     QVariant RPC_deleteSession(QVariantMap parameters);
     void updateSessionList(QStringList sessionNames);
 
 private slots:
     void onModmanSessionChange(QVariant newSession);
+    void onDbReady();
+    void onDbError(QString errorMsg);
+    void checkDatabaseStillValid();
 private:
     QString getEntityName(int entityId) const;
     void initModmanSessionComponent();
@@ -62,13 +64,16 @@ private:
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
 
-    DatabaseCommandInterface m_dbCmdInterface;
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
-    AbstractLoggerDB::STORAGE_MODE m_storageMode;
     VeinEvent::StorageSystem *m_veinStorage;
-    AbstractLoggerDB *m_database = nullptr;
+    VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
+
     DBFactory m_databaseFactory;
+    DatabaseCommandInterface m_dbCmdInterface;
+    AbstractLoggerDB::STORAGE_MODE m_storageMode;
+    AbstractLoggerDB *m_database = nullptr;
+    bool m_dbReady = false;
 
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;
@@ -76,7 +81,10 @@ private:
     QString m_dbSessionName;
     int m_transactionId;
     QString m_guiContext;
-    VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
+
+    QFileSystemWatcher m_deleteWatcher;
+    bool m_noUninitMessage = false;
+
 };
 }
 
