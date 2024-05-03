@@ -161,8 +161,6 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
     m_dPtr->m_databaseFilePath = filePath;
     m_dPtr->m_noUninitMessage = false;
 
-    dbNameToVein(filePath);
-
     const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
     if(validStorage) {
         if(m_database != nullptr) {
