@@ -30,8 +30,6 @@ public:
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
-    //entity name
-    QLatin1String m_entityName;
     //component names
     static const QLatin1String s_entityNameComponentName;
     static const QLatin1String s_loggingStatusTextComponentName;

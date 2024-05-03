@@ -49,7 +49,7 @@ void DataLoggerPrivate::initOnce()
         VeinComponent::ComponentData *initialData = nullptr;
 
         QHash<QString, QVariant> componentData;
-        componentData.insert(s_entityNameComponentName, m_entityName);
+        componentData.insert(s_entityNameComponentName, m_qPtr->entityName());
         componentData.insert(s_loggingEnabledComponentName, QVariant(false));
         componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("No database selected")));
         ///@todo load from persistent settings file?
