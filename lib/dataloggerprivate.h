@@ -56,10 +56,6 @@ public:
     //Therefore we add one state where the actual statemachine starts
     QState *m_parallelWrapperState = new QState(&m_stateMachine);
 
-    QState *m_loggingContainerState = new QState(m_parallelWrapperState);
-    QState *m_loggingEnabledState = new QState(m_loggingContainerState);
-    QState *m_loggingDisabledState = new QState(m_loggingContainerState);
-
     QState *m_logSchedulerContainerState = new QState(m_parallelWrapperState);
     QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
     QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
