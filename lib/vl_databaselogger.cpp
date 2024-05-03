@@ -44,9 +44,8 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
     connect(this, &DatabaseLogger::sigAttached, [this](){ m_dPtr->initOnce(); });
     connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
-        if(m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingDisabledState)) {
+        if(!m_loggingActive)
             m_dPtr->m_batchedExecutionTimer.stop();
-        }
     });
     connect(&m_dPtr->m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
@@ -128,28 +127,28 @@ QString DatabaseLogger::entityName() const
 
 void DatabaseLogger::setLoggingEnabled(bool enabled)
 {
-    //do not accept values that are already set
-    const QSet<QAbstractState *> activeStates = m_dPtr->m_stateMachine.configuration();
-    if(enabled != activeStates.contains(m_dPtr->m_loggingEnabledState) ) {
+    if(enabled != m_loggingActive) {
         if(enabled) {
             m_dPtr->m_batchedExecutionTimer.start();
+            const QSet<QAbstractState *> activeStates = m_dPtr->m_stateMachine.configuration();
             if(activeStates.contains(m_dPtr->m_logSchedulerEnabledState)) {
                 m_dPtr->m_schedulingTimer.start();
                 m_dPtr->m_countdownUpdateTimer.start();
             }
-            emit sigLoggingStarted();
             statusTextToVein("Logging data");
         }
         else {
+            m_dPtr->m_batchedExecutionTimer.stop();
             m_dPtr->m_schedulingTimer.stop();
             m_dPtr->m_countdownUpdateTimer.stop();
-            emit sigLoggingStopped();
+            emit m_dbCmdInterface.sigFlushToDb();
             statusTextToVein("Database loaded");
         }
+        m_loggingActive = enabled;
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
+                                                               QVariant(), enabled);
+        emit sigSendEvent(event);
     }
-    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
-                                                           QVariant(), enabled);
-    emit sigSendEvent(event);
 }
 
 void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
@@ -186,8 +185,6 @@ bool DatabaseLogger::openDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
 
         connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
-        // run final batch instantly when logging is disabled
-        connect(m_dPtr->m_loggingDisabledState, &QAbstractState::entered, m_database, &AbstractLoggerDB::runBatchedExecution);
 
         emit m_dbCmdInterface.sigOpenDatabase(filePath);
     }
@@ -490,7 +487,7 @@ void DatabaseLogger::processEvent(QEvent *event)
         EventData *evData = cEvent->eventData();
 
         const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
-        const bool isLogRunning = m_dbReady && activeStates.contains(m_dPtr->m_loggingEnabledState);
+        const bool isLogRunning = m_dbReady && m_loggingActive;
         if(evData->type() == ComponentData::dataType()) {
             ComponentData *cData = static_cast<ComponentData *>(evData);
 

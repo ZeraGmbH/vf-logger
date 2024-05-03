@@ -29,8 +29,6 @@ public:
 signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
 
-    void sigLoggingStarted();
-    void sigLoggingStopped();
     void sigLogSchedulerActivated();
     void sigLogSchedulerDeactivated();
 public slots:
@@ -76,6 +74,7 @@ private:
     QThread m_asyncDatabaseThread;
     QString m_databaseFilePath;
     bool m_dbReady = false;
+    bool m_loggingActive = false;
 
     QStringList m_contentSets;
     QMultiHash<int, QString> m_loggedValues;

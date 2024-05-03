@@ -95,22 +95,13 @@ void DataLoggerPrivate::initStateMachine()
 {
     m_parallelWrapperState->setChildMode(QStateMachine::ParallelStates);
     m_stateMachine.setInitialState(m_parallelWrapperState);
-    m_loggingContainerState->setInitialState(m_loggingDisabledState);
     m_logSchedulerContainerState->setInitialState(m_logSchedulerDisabledState);
-
-    //enabled -> disabled
-    m_loggingEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLoggingStopped, m_loggingDisabledState);
-    //disabled -> enabled
-    m_loggingDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLoggingStarted, m_loggingEnabledState);
 
     //enabled -> disbled
     m_logSchedulerEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerDeactivated, m_logSchedulerDisabledState);
     //disabled -> enabled
     m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
 
-    QObject::connect(m_loggingDisabledState, &QState::entered, this, [&](){
-        m_batchedExecutionTimer.stop();
-    });
     QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){
         VeinComponent::ComponentData *schedulingEnabledCData = new VeinComponent::ComponentData();
         schedulingEnabledCData->setEntityId(m_qPtr->entityId());
