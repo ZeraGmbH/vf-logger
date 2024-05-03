@@ -56,10 +56,6 @@ public:
     //Therefore we add one state where the actual statemachine starts
     QState *m_parallelWrapperState = new QState(&m_stateMachine);
 
-    QState *m_logSchedulerContainerState = new QState(m_parallelWrapperState);
-    QState *m_logSchedulerEnabledState = new QState(m_logSchedulerContainerState);
-    QState *m_logSchedulerDisabledState = new QState(m_logSchedulerContainerState);
-
     VeinLogger::DatabaseLogger *m_qPtr = nullptr;
     friend class DatabaseLogger;
 };
