@@ -9,7 +9,7 @@
         "LoggedComponents": {
         },
         "LoggingEnabled": false,
-        "LoggingStatus": "Database loaded",
+        "LoggingStatus": "No database selected",
         "ScheduledLoggingCountdown": 0,
         "ScheduledLoggingDuration": null,
         "ScheduledLoggingEnabled": false,

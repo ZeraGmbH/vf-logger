@@ -2,7 +2,6 @@
 #include <vcmp_entitydata.h>
 #include <vf_server_component_setter.h>
 #include <QFileInfo>
-#include <QStorageInfo>
 
 const QLatin1String DataLoggerPrivate::s_entityNameComponentName = QLatin1String("EntityName");
 const QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName  = QLatin1String("LoggingStatus");
@@ -54,7 +53,7 @@ void DataLoggerPrivate::initOnce()
         QHash<QString, QVariant> componentData;
         componentData.insert(s_entityNameComponentName, m_entityName);
         componentData.insert(s_loggingEnabledComponentName, QVariant(false));
-        componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("Logging inactive")));
+        componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("No database selected")));
         ///@todo load from persistent settings file?
         componentData.insert(s_databaseReadyComponentName, QVariant(false));
         componentData.insert(s_databaseFileComponentName, QVariant(QString()));
@@ -109,14 +108,8 @@ void DataLoggerPrivate::initStateMachine()
 {
     m_parallelWrapperState->setChildMode(QStateMachine::ParallelStates);
     m_stateMachine.setInitialState(m_parallelWrapperState);
-    m_databaseContainerState->setInitialState(m_databaseUninitializedState);
     m_loggingContainerState->setInitialState(m_loggingDisabledState);
     m_logSchedulerContainerState->setInitialState(m_logSchedulerDisabledState);
-
-    //uninitialized -> ready
-    m_databaseUninitializedState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseReady, m_databaseReadyState);
-    //ready -> uninitialized
-    m_databaseReadyState->addTransition(m_qPtr, &DatabaseLogger::sigDatabaseUnloaded, m_databaseUninitializedState);
 
     //enabled -> disabled
     m_loggingEnabledState->addTransition(m_qPtr, &DatabaseLogger::sigLoggingStopped, m_loggingDisabledState);
@@ -128,58 +121,7 @@ void DataLoggerPrivate::initStateMachine()
     //disabled -> enabled
     m_logSchedulerDisabledState->addTransition(m_qPtr, &DatabaseLogger::sigLogSchedulerActivated, m_logSchedulerEnabledState);
 
-    QObject::connect(m_databaseUninitializedState, &QState::entered, this, [&]() {
-        QEvent* event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
-        emit m_qPtr->sigSendEvent(event);
-        m_qPtr->setLoggingEnabled(false);
-        if(!m_noUninitMessage)
-            setStatusText("No database selected");
-    });
-    QObject::connect(m_databaseReadyState, &QState::entered, this, [&](){
-        // Now we have an open and valid database: Notify ready and some
-        // bits we were not sure to have at openDatabase
-        QHash <QString, QVariant> fileInfoData;
-        QFileInfo fileInfo(m_databaseFilePath);
-        fileInfoData.insert(DataLoggerPrivate::s_databaseReadyComponentName, true);
-        for(const QString &componentName : fileInfoData.keys())  {
-            QEvent* event = VfServerComponentSetter::generateEvent(m_qPtr->entityId(), componentName, QVariant(), fileInfoData.value(componentName));
-            emit m_qPtr->sigSendEvent(event);
-        }
-
-        m_qPtr->setLoggingEnabled(false);
-        setStatusText("Database loaded");
-
-        QStorageInfo storageInfo(fileInfo.absolutePath());
-        // * To avoid fire storm on logging we watch file's dir
-        // * For removable devices: mount-point's parent dir
-        QStringList watchedPaths;
-        watchedPaths.append(fileInfo.absolutePath());
-        if(!storageInfo.isRoot()) {
-            QDir tmpDir(storageInfo.rootPath());
-            tmpDir.cdUp();
-            if(!tmpDir.isRoot())
-                watchedPaths.append(tmpDir.path());
-        }
-        qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" + "))));
-        QStringList unWatchedPaths = m_deleteWatcher.addPaths(watchedPaths);
-        if(m_deleteWatcher.directories().count()) {
-            QObject::connect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, m_qPtr, &DatabaseLogger::checkDatabaseStillValid);
-        }
-        if(unWatchedPaths.count()) {
-            qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
-        }
-        m_qPtr->dbNameToVein(m_databaseFilePath);
-    });
-    QObject::connect(m_loggingEnabledState, &QState::entered, this, [&](){
-        setStatusText("Logging data");
-    });
     QObject::connect(m_loggingDisabledState, &QState::entered, this, [&](){
-        if(!m_noUninitMessage) {
-            // yes we are in logging disabled state - but the message 'Logging disabled' is a
-            // bit misleading: sounds as something is wrong and blocking further logging
-            //setStatusText("Logging disabled");
-            setStatusText("Database loaded");
-        }
         m_batchedExecutionTimer.stop();
     });
     QObject::connect(m_logSchedulerEnabledState, &QState::entered, [&](){

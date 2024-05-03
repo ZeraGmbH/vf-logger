@@ -5,7 +5,6 @@
 #include <vf-cpp-rpc.h>
 #include <QVector>
 #include <QTimer>
-#include <QFileSystemWatcher>
 #include <QThread>
 #include <QStateMachine>
 
@@ -29,9 +28,6 @@ public:
      */
     QTimer m_batchedExecutionTimer;
     int m_scheduledLoggingDurationMs;
-
-    QFileSystemWatcher m_deleteWatcher;
-    bool m_noUninitMessage = false;
 
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
@@ -65,10 +61,6 @@ public:
     //QStatemachine does not support ParallelState
     //Therefore we add one state where the actual statemachine starts
     QState *m_parallelWrapperState = new QState(&m_stateMachine);
-
-    QState *m_databaseContainerState = new QState(m_parallelWrapperState);
-    QState *m_databaseUninitializedState = new QState(m_databaseContainerState);
-    QState *m_databaseReadyState = new QState(m_databaseContainerState);
 
     QState *m_loggingContainerState = new QState(m_parallelWrapperState);
     QState *m_loggingEnabledState = new QState(m_loggingContainerState);
