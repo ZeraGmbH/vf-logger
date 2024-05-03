@@ -23,7 +23,6 @@ public:
     int m_scheduledLoggingDurationMs;
 
     QTimer m_schedulingTimer;
-    QTimer m_countdownUpdateTimer;
     bool m_initDone=false;
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
