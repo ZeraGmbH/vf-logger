@@ -114,11 +114,6 @@ void DatabaseLogger::prepareLogging()
     writeCurrentStorageToDb();
 }
 
-bool DatabaseLogger::loggingEnabled() const
-{
-    return m_dPtr->m_stateMachine.configuration().contains(m_dPtr->m_loggingEnabledState);
-}
-
 int DatabaseLogger::entityId() const
 {
     return m_entityId;

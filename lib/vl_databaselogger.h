@@ -22,7 +22,6 @@ public:
     virtual ~DatabaseLogger();
     void processEvent(QEvent *event) override;
 
-    bool loggingEnabled() const;
     int entityId() const;
     QString entityName() const;
 
