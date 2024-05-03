@@ -25,6 +25,8 @@ public:
     int entityId() const;
     QString entityName() const;
 
+    void dbNameToVein(const QString &filePath);
+
 signals:
     void sigDatabaseError(const QString &errorString);
     void sigDatabaseReady();

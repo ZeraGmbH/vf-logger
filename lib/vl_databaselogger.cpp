@@ -149,14 +149,19 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
     emit sigSendEvent(event);
 }
 
+void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
+{
+    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
+                                                           QVariant(), filePath);
+    emit sigSendEvent(event);
+}
+
 bool DatabaseLogger::openDatabase(const QString &filePath)
 {
     m_dPtr->m_databaseFilePath = filePath;
     m_dPtr->m_noUninitMessage = false;
 
-    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
-                                                            QVariant(), filePath);
-    emit sigSendEvent(event);
+    dbNameToVein(filePath);
 
     const bool validStorage = checkDBFilePath(filePath); // emits sigDatabaseError on error
     if(validStorage) {
@@ -211,14 +216,11 @@ void DatabaseLogger::closeDatabase()
 
     QString closedDb = m_dPtr->m_databaseFilePath;
     m_dPtr->m_databaseFilePath.clear();
+    dbNameToVein(m_dPtr->m_databaseFilePath);
 
-    // set vein database file name empty
-    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
-                                                           QVariant(), QString());
-    emit sigSendEvent(event);
     // set CustomerData component empty
-    event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
-                                                   QVariant(), QString());
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+                                                           QVariant(), QString());
     emit sigSendEvent(event);
 
     updateSessionList(QStringList());
