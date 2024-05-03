@@ -485,7 +485,6 @@ void DatabaseLogger::processEvent(QEvent *event)
         CommandEvent *cEvent = static_cast<CommandEvent *>(event);
         EventData *evData = cEvent->eventData();
 
-        const QSet<QAbstractState*> activeStates = m_dPtr->m_stateMachine.configuration();
         const bool isLogRunning = m_dbReady && m_loggingActive;
         if(evData->type() == ComponentData::dataType()) {
             ComponentData *cData = static_cast<ComponentData *>(evData);
