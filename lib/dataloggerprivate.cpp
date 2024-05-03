@@ -25,13 +25,10 @@ using namespace VeinLogger;
 
 DataLoggerPrivate::DataLoggerPrivate(DatabaseLogger *qPtr) : m_qPtr(qPtr)
 {
-    m_batchedExecutionTimer.setInterval(5000);
-    m_batchedExecutionTimer.setSingleShot(false);
 }
 
 DataLoggerPrivate::~DataLoggerPrivate()
 {
-    m_batchedExecutionTimer.stop();
 }
 
 void DataLoggerPrivate::initOnce()

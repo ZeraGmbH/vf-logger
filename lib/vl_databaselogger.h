@@ -75,6 +75,7 @@ private:
     bool m_dbReady = false;
     bool m_loggingActive = false;
     bool m_scheduledLogging = false;
+    QTimer m_batchedExecutionTimer;
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
 
