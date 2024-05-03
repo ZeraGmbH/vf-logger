@@ -45,9 +45,12 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     connect(&m_countdownUpdateTimer, &QTimer::timeout, this, &DatabaseLogger::onSchedulerCountdownToVein);
 
     connect(this, &DatabaseLogger::sigAttached, m_dPtr, &DataLoggerPrivate::initOnce);
-    connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
+
+    m_batchedExecutionTimer.setSingleShot(false);
+    m_batchedExecutionTimer.setInterval(5000);
+    connect(&m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
         if(!m_loggingActive)
-            m_dPtr->m_batchedExecutionTimer.stop();
+            m_batchedExecutionTimer.stop();
     });
     connect(&m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
@@ -137,7 +140,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
 {
     if(enabled != m_loggingActive) {
         if(enabled) {
-            m_dPtr->m_batchedExecutionTimer.start();
+            m_batchedExecutionTimer.start();
             if(m_scheduledLogging) {
                 m_schedulingTimer.start();
                 m_countdownUpdateTimer.start();
@@ -145,7 +148,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
             statusTextToVein("Logging data");
         }
         else {
-            m_dPtr->m_batchedExecutionTimer.stop();
+            m_batchedExecutionTimer.stop();
             m_schedulingTimer.stop();
             m_countdownUpdateTimer.stop();
             emit m_dbCmdInterface.sigFlushToDb();
@@ -191,7 +194,7 @@ bool DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
 
-        connect(&m_dPtr->m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
+        connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
 
         emit m_dbCmdInterface.sigOpenDatabase(filePath);
     }

@@ -12,12 +12,6 @@ public:
 
     void initOnce();
 
-    /**
-     * @b Logging in batches is much more efficient for SQLITE (and for spinning disk storages in general)
-     * @note The batch timer is independent from the recording timeframe as it only pushes already logged values to the database
-     */
-    QTimer m_batchedExecutionTimer;
-
     bool m_initDone=false;
 
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
