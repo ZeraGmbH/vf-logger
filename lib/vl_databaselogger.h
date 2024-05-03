@@ -63,6 +63,7 @@ private:
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
+    void setStatusText(const QString &status);
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
@@ -81,6 +82,7 @@ private:
     QString m_dbSessionName;
     int m_transactionId;
     QString m_guiContext;
+    QString m_loggerStatusText;
 
     QFileSystemWatcher m_deleteWatcher;
 };

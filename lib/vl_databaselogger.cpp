@@ -96,6 +96,17 @@ QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
     return retList;
 }
 
+void DatabaseLogger::setStatusText(const QString &status)
+{
+    if(m_loggerStatusText != status) {
+        m_loggerStatusText = status;
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingStatusTextComponentName,
+                                                               QVariant(), status);
+        emit sigSendEvent(event);
+    }
+
+}
+
 void DatabaseLogger::prepareLogging()
 {
     m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, m_contentSets, m_guiContext);
@@ -130,13 +141,13 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
                 m_dPtr->m_countdownUpdateTimer.start();
             }
             emit sigLoggingStarted();
-            m_dPtr->setStatusText("Logging data");
+            setStatusText("Logging data");
         }
         else {
             m_dPtr->m_schedulingTimer.stop();
             m_dPtr->m_countdownUpdateTimer.stop();
             emit sigLoggingStopped();
-            m_dPtr->setStatusText("Database loaded");
+            setStatusText("Database loaded");
         }
     }
     QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
@@ -205,7 +216,7 @@ void DatabaseLogger::closeDatabase()
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
     emit sigSendEvent(event);
     setLoggingEnabled(false);
-    m_dPtr->setStatusText("No database selected");
+    setStatusText("No database selected");
 
     QString closedDb = m_dPtr->m_databaseFilePath;
     m_dPtr->m_databaseFilePath.clear();
@@ -278,7 +289,7 @@ void DatabaseLogger::onDbReady()
         qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
 
     m_dbReady = true;
-    m_dPtr->setStatusText("Database loaded");
+    setStatusText("Database loaded");
     dbNameToVein(m_dPtr->m_databaseFilePath);
 }
 
@@ -286,7 +297,7 @@ void DatabaseLogger::onDbError(QString errorMsg)
 {
     qWarning() << errorMsg;
     closeDatabase();
-    m_dPtr->setStatusText("Database error");
+    setStatusText("Database error");
     emit sigDatabaseError(errorMsg);
 }
 
