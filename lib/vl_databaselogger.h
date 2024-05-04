@@ -59,7 +59,7 @@ private:
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
-    void terminateDbThread();
+    void terminateCurrentDb();
 
     DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
