@@ -553,17 +553,16 @@ QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &e
     return m_dPtr->readSessionComponent(session, enity, component);
 }
 
-bool SQLiteDB::onOpenDatabase(const QString &dbPath)
+void SQLiteDB::onOpen(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);
-    bool retVal = false;
     if(fInfo.absoluteDir().exists()) {
         // if file exists check if writable. If file
         // does not exist it can not be writable.
         // In this case go on and create file.
         if(fInfo.exists() && !fInfo.isWritable()){
             emit sigDatabaseError(QString("Database is read only"));
-            return retVal;
+            return;
         }
         QSqlError dbError;
         if(m_dPtr->m_logDB.isOpen()) {
@@ -576,10 +575,8 @@ bool SQLiteDB::onOpenDatabase(const QString &dbPath)
             m_dPtr->m_logDB = QSqlDatabase();
         }
 
-        if(dbError.type() != QSqlError::NoError) {
+        if(dbError.type() != QSqlError::NoError)
             emit sigDatabaseError(QString("Database connection failed error: %1").arg(dbError.text()));
-            return retVal;
-        }
         else {
             //the database was not open when these queries were initialized
             m_dPtr->m_valueMapInsertQuery = QSqlQuery(m_dPtr->m_logDB);
@@ -673,9 +670,8 @@ bool SQLiteDB::onOpenDatabase(const QString &dbPath)
                 //get next valuemap_id
                 if(m_dPtr->m_valueMapSequenceQuery.exec() == false) {
                     emit sigDatabaseError(QString("Error executing m_valueMappingSequenceQuery: %1").arg(m_dPtr->m_valueMapSequenceQuery.lastError().text()));
-                    return retVal;
+                    return;
                 }
-                retVal = true;
                 m_dPtr->m_valueMapSequenceQuery.next();
                 m_dPtr->m_valueMapQueryCounter = m_dPtr->m_valueMapSequenceQuery.value(0).toInt()+1;
                 //close the query as we read all data from it and it has to be closed to commit the transaction
@@ -694,10 +690,8 @@ bool SQLiteDB::onOpenDatabase(const QString &dbPath)
             }
         }
     }
-    else {
+    else
         emit sigDatabaseError(QString("Error accessing database in directory: %1\nError: directory does not exist").arg(fInfo.absoluteDir().absolutePath()));
-    }
-    return retVal;
 }
 
 bool SQLiteDB::isDbStillWitable(const QString &dbPath)

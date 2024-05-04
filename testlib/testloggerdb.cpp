@@ -186,7 +186,7 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
     }
 }
 
-bool TestLoggerDB::onOpenDatabase(const QString &dbPath)
+void TestLoggerDB::onOpen(const QString &dbPath)
 {
     // This one seems to run in another thread so we can use emit
     if(dbPath == DBNameOpenOk) {
@@ -204,7 +204,6 @@ bool TestLoggerDB::onOpenDatabase(const QString &dbPath)
         m_openDbPath.clear();
         emit sigDatabaseError("Could not open test database");
     }
-    return !m_openDbPath.isEmpty();
 }
 
 void TestLoggerDB::runBatchedExecution()

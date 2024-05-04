@@ -47,7 +47,7 @@ public slots:
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
 
-    bool onOpenDatabase(const QString &dbPath) override;
+    void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);
 
     void runBatchedExecution() override;
