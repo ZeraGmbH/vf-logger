@@ -35,7 +35,7 @@ public:
     static const QLatin1String DBNameOpenOk;
     static const QLatin1String DBNameOpenErrorEarly;
     static const QLatin1String DBNameOpenErrorLate;
-    bool onOpenDatabase(const QString &dbPath) override;
+    void onOpen(const QString &dbPath) override;
 
     void runBatchedExecution() override;
 
