@@ -34,7 +34,7 @@ public slots:
     QVariant RPC_deleteSession(QVariantMap parameters);
 
 private slots:
-    bool onOpenDatabase(const QString &filePath);
+    void onOpenDatabase(const QString &filePath);
     void onModmanSessionChange(QVariant newSession);
     void onDbReady();
     void onDbError(QString errorMsg);

@@ -323,12 +323,11 @@ void DatabaseLogger::dbNameToVein(const QString &filePath)
     emit sigSendEvent(event);
 }
 
-bool DatabaseLogger::onOpenDatabase(const QString &filePath)
+void DatabaseLogger::onOpenDatabase(const QString &filePath)
 {
     m_databaseFilePath = filePath;
     qInfo("Open database %s", qPrintable(filePath));
-    const bool validStorage = checkDBFilePath(filePath);
-    if(validStorage) {
+    if(checkDBFilePath(filePath)) {
         terminateCurrentDb();
         m_database = m_databaseFactory();
         m_database->setStorageMode(m_storageMode);
@@ -345,7 +344,6 @@ bool DatabaseLogger::onOpenDatabase(const QString &filePath)
 
         emit m_dbCmdInterface.sigOpenDatabase(filePath);
     }
-    return validStorage;
 }
 
 void DatabaseLogger::terminateCurrentDb()
