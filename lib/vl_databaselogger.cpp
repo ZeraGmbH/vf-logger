@@ -36,6 +36,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
         break;
     }
 
+    connect(this, &DatabaseLogger::sigAttached, m_dPtr, &DataLoggerPrivate::initOnce);
     initModmanSessionComponent();
 
     m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
@@ -43,8 +44,6 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
     m_schedulingTimer.setSingleShot(true);
     m_countdownUpdateTimer.setInterval(100);
     connect(&m_countdownUpdateTimer, &QTimer::timeout, this, &DatabaseLogger::onSchedulerCountdownToVein);
-
-    connect(this, &DatabaseLogger::sigAttached, m_dPtr, &DataLoggerPrivate::initOnce);
 
     m_batchedExecutionTimer.setSingleShot(false);
     m_batchedExecutionTimer.setInterval(5000);
@@ -67,6 +66,171 @@ DatabaseLogger::~DatabaseLogger()
         m_database = nullptr;
     }
     delete m_dPtr;
+}
+
+void DatabaseLogger::processEvent(QEvent *event)
+{
+    using namespace VeinEvent;
+    using namespace VeinComponent;
+    if(event->type()==CommandEvent::getQEventType()) {
+        CommandEvent *cEvent = static_cast<CommandEvent *>(event);
+        EventData *evData = cEvent->eventData();
+
+        const bool isLogRunning = m_dbReady && m_loggingActive;
+        if(evData->type() == ComponentData::dataType()) {
+            ComponentData *cData = static_cast<ComponentData *>(evData);
+
+            if(isLogRunning && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
+                addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
+
+            else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
+                     evData->entityId() == m_entityId) {
+                const QString componentName = cData->componentName();
+                const QVariant newValue = cData->newValue();
+
+                if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
+                    if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
+                        handleLoggedComponentsSetNotification(cData);
+                    else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
+                        if(m_database == nullptr || newValue != m_databaseFilePath) {
+                            if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
+                                closeDatabase();
+                            else
+                                onOpenDatabase(newValue.toString());
+                        }
+
+                        // a good place to reset selected sessionName - however db-open ends up with
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
+                                                                               cData->oldValue(), QString());
+                        emit sigSendEvent(event);
+                        m_dbSessionName = "";
+                    }
+                    else if(componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
+                        bool loggingEnabled = newValue.toBool();
+                        if(loggingEnabled) {
+                            if(checkConditionsForStartLog()) {
+                                prepareLogging();
+                                setLoggingEnabled(loggingEnabled);
+                            }
+                        }
+                        else
+                            setLoggingEnabled(loggingEnabled);
+                    }
+                    else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
+                        bool scheduledLogging = newValue.toBool();
+                        if(scheduledLogging != m_scheduledLogging) {
+                            m_scheduledLogging = scheduledLogging;
+                            setLoggingEnabled(false);
+                            QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingEnabledComponentName,
+                                                                                   cData->oldValue(), scheduledLogging);
+                            emit sigSendEvent(event);
+                        }
+                    }
+                    else if(componentName == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
+                        bool conversionOk = false;
+                        const int logDurationMsecs = newValue.toInt(&conversionOk);
+                        bool invalidTime = !conversionOk;
+                        if(conversionOk) {
+                            if(logDurationMsecs > 0) {
+                                m_schedulingTimer.setInterval(logDurationMsecs);
+                                if(isLogRunning)
+                                    m_schedulingTimer.start();
+                                QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingDurationComponentName,
+                                                                                       cData->oldValue(), newValue);
+                                emit sigSendEvent(event);
+                            }
+                            else
+                                invalidTime = true;
+                        }
+                        if(invalidTime) {
+                            VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
+                            errData->setEntityId(m_entityId);
+                            errData->setOriginalData(cData);
+                            errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
+                            errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
+                            errData->setErrorDescription(QString("Invalid logging duration: %1").arg(newValue.toString()));
+
+                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
+                        }
+                    }
+                    else if(componentName == DataLoggerPrivate::s_sessionNameComponentName) {
+                        m_dbSessionName = newValue.toString();
+                        QEvent *event;
+                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
+                                                                       cData->oldValue(), newValue);
+                        emit sigSendEvent(event);
+
+                        QVariant sessionCustomerDataName = "";
+                        if(!m_dbSessionName.isEmpty()) {
+                            if(m_dbReady)
+                                sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
+                            else
+                                qWarning("Cannot set session '%s' - database is not ready yet!", qPrintable(m_dbSessionName));
+                        }
+
+                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+                                                                       QVariant(), sessionCustomerDataName);
+                        emit sigSendEvent(event);
+                    }
+                    else if(componentName == DataLoggerPrivate::s_guiContextComponentName) {
+                        m_guiContext = newValue.toString();
+                        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_guiContextComponentName,
+                                                                               cData->oldValue(), newValue);
+                        emit sigSendEvent(event);
+                    }
+                    else if(componentName == DataLoggerPrivate::s_transactionNameComponentName) {
+                        m_transactionName = newValue.toString();
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_transactionNameComponentName,
+                                                                               cData->oldValue(), newValue);
+                        emit sigSendEvent(event);
+                    }
+                    else if(componentName == DataLoggerPrivate::s_currentContentSetsComponentName) {
+                        m_contentSets = newValue.toStringList();
+                        QVariantMap loggedComponents = readContentSets();
+                        clearLoggerEntries();
+
+                        QEvent* event;
+                        // Client: we choose same as a client would - it can still access availableContentSets
+                        event = VfClientComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::loggedComponentsComponentName,
+                                                                       QVariant(), loggedComponents);
+                        emit sigSendEvent(event);
+
+                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
+                                                                       cData->oldValue(), newValue);
+                        emit sigSendEvent(event);
+                    }
+
+                    event->accept();
+                }
+            }
+        }
+        else if(evData->type()==VeinComponent::RemoteProcedureData::dataType() &&
+                 evData->entityId() == m_entityId) {
+            VeinComponent::RemoteProcedureData *rpcData=nullptr;
+            rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
+            if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
+                if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
+                    const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
+                    m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
+                    cEvent->accept();
+                }
+                else if(!cEvent->isAccepted()) {
+                    qWarning() << "No remote procedure with entityId:" << m_entityId << "name:" << rpcData->procedureName();
+                    VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_entityId).arg(rpcData->procedureName())));
+                    VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
+                    eData->setEntityId(m_entityId);
+                    eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
+                    eData->setOriginalData(rpcData);
+                    eData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+                    eData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+                    VeinEvent::CommandEvent *errorEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, eData);
+                    errorEvent->setPeerId(cEvent->peerId());
+                    cEvent->accept();
+                    emit sigSendEvent(errorEvent);
+                }
+            }
+        }
+    }
 }
 
 void DatabaseLogger::writeCurrentStorageToDb()
@@ -485,171 +649,6 @@ void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, c
         QString entityName = getEntityName(entityId);
         DatabaseCommandInterface::ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
         emit m_dbCmdInterface.sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
-    }
-}
-
-void DatabaseLogger::processEvent(QEvent *event)
-{
-    using namespace VeinEvent;
-    using namespace VeinComponent;
-    if(event->type()==CommandEvent::getQEventType()) {
-        CommandEvent *cEvent = static_cast<CommandEvent *>(event);
-        EventData *evData = cEvent->eventData();
-
-        const bool isLogRunning = m_dbReady && m_loggingActive;
-        if(evData->type() == ComponentData::dataType()) {
-            ComponentData *cData = static_cast<ComponentData *>(evData);
-
-            if(isLogRunning && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
-                addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
-
-            else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
-                    evData->entityId() == m_entityId) {
-                const QString componentName = cData->componentName();
-                const QVariant newValue = cData->newValue();
-
-                if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
-                    if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
-                        handleLoggedComponentsSetNotification(cData);
-                    else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
-                        if(m_database == nullptr || newValue != m_databaseFilePath) {
-                            if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
-                                closeDatabase();
-                            else
-                                onOpenDatabase(newValue.toString());
-                        }
-
-                        // a good place to reset selected sessionName - however db-open ends up with
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
-                                                                               cData->oldValue(), QString());
-                        emit sigSendEvent(event);
-                        m_dbSessionName = "";
-                    }
-                    else if(componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
-                        bool loggingEnabled = newValue.toBool();
-                        if(loggingEnabled) {
-                            if(checkConditionsForStartLog()) {
-                                prepareLogging();
-                                setLoggingEnabled(loggingEnabled);
-                            }
-                        }
-                        else
-                            setLoggingEnabled(loggingEnabled);
-                    }
-                    else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
-                        bool scheduledLogging = newValue.toBool();
-                        if(scheduledLogging != m_scheduledLogging) {
-                            m_scheduledLogging = scheduledLogging;
-                            setLoggingEnabled(false);
-                            QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingEnabledComponentName,
-                                                                                   cData->oldValue(), scheduledLogging);
-                            emit sigSendEvent(event);
-                        }
-                    }
-                    else if(componentName == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
-                        bool conversionOk = false;
-                        const int logDurationMsecs = newValue.toInt(&conversionOk);
-                        bool invalidTime = !conversionOk;
-                        if(conversionOk) {
-                            if(logDurationMsecs > 0) {
-                                m_schedulingTimer.setInterval(logDurationMsecs);
-                                if(isLogRunning)
-                                    m_schedulingTimer.start();
-                                QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingDurationComponentName,
-                                                                                       cData->oldValue(), newValue);
-                                emit sigSendEvent(event);
-                            }
-                            else
-                                invalidTime = true;
-                        }
-                        if(invalidTime) {
-                            VeinComponent::ErrorData *errData = new VeinComponent::ErrorData();
-                            errData->setEntityId(m_entityId);
-                            errData->setOriginalData(cData);
-                            errData->setEventOrigin(VeinComponent::ErrorData::EventOrigin::EO_LOCAL);
-                            errData->setEventTarget(VeinComponent::ErrorData::EventTarget::ET_ALL);
-                            errData->setErrorDescription(QString("Invalid logging duration: %1").arg(newValue.toString()));
-
-                            emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
-                        }
-                    }
-                    else if(componentName == DataLoggerPrivate::s_sessionNameComponentName) {
-                        m_dbSessionName = newValue.toString();
-                        QEvent *event;
-                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
-                                                                       cData->oldValue(), newValue);
-                        emit sigSendEvent(event);
-
-                        QVariant sessionCustomerDataName = "";
-                        if(!m_dbSessionName.isEmpty()) {
-                            if(m_dbReady)
-                                sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
-                            else
-                                qWarning("Cannot set session '%s' - database is not ready yet!", qPrintable(m_dbSessionName));
-                        }
-
-                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
-                                                                       QVariant(), sessionCustomerDataName);
-                        emit sigSendEvent(event);
-                    }
-                    else if(componentName == DataLoggerPrivate::s_guiContextComponentName) {
-                        m_guiContext = newValue.toString();
-                        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_guiContextComponentName,
-                                                                       cData->oldValue(), newValue);
-                        emit sigSendEvent(event);
-                    }
-                    else if(componentName == DataLoggerPrivate::s_transactionNameComponentName) {
-                        m_transactionName = newValue.toString();
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_transactionNameComponentName,
-                                                                               cData->oldValue(), newValue);
-                        emit sigSendEvent(event);
-                    }
-                    else if(componentName == DataLoggerPrivate::s_currentContentSetsComponentName) {
-                        m_contentSets = newValue.toStringList();
-                        QVariantMap loggedComponents = readContentSets();
-                        clearLoggerEntries();
-
-                        QEvent* event;
-                        // Client: we choose same as a client would - it can still access availableContentSets
-                        event = VfClientComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::loggedComponentsComponentName,
-                                                                       QVariant(), loggedComponents);
-                        emit sigSendEvent(event);
-
-                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
-                                                                       cData->oldValue(), newValue);
-                        emit sigSendEvent(event);
-                    }
-
-                    event->accept();
-                }
-            }
-        }
-        else if(evData->type()==VeinComponent::RemoteProcedureData::dataType() &&
-                evData->entityId() == m_entityId) {
-            VeinComponent::RemoteProcedureData *rpcData=nullptr;
-            rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
-            if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
-                if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
-                    const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
-                    m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
-                    cEvent->accept();
-                }
-                else if(!cEvent->isAccepted()) {
-                    qWarning() << "No remote procedure with entityId:" << m_entityId << "name:" << rpcData->procedureName();
-                    VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_entityId).arg(rpcData->procedureName())));
-                    VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
-                    eData->setEntityId(m_entityId);
-                    eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
-                    eData->setOriginalData(rpcData);
-                    eData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-                    eData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-                    VeinEvent::CommandEvent *errorEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, eData);
-                    errorEvent->setPeerId(cEvent->peerId());
-                    cEvent->accept();
-                    emit sigSendEvent(errorEvent);
-                }
-            }
-        }
     }
 }
 
