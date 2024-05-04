@@ -321,7 +321,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
     }
 }
 
-void VeinLogger::DatabaseLogger::dbNameToVein(const QString &filePath)
+void DatabaseLogger::dbNameToVein(const QString &filePath)
 {
     QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
                                                            QVariant(), filePath);
