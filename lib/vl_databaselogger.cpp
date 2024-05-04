@@ -330,7 +330,6 @@ bool DatabaseLogger::onOpenDatabase(const QString &filePath)
     const bool validStorage = checkDBFilePath(filePath);
     if(validStorage) {
         terminateCurrentDb();
-
         m_database = m_databaseFactory();
         m_database->setStorageMode(m_storageMode);
         if(m_database->requiresOwnThread()) {
@@ -339,11 +338,9 @@ bool DatabaseLogger::onOpenDatabase(const QString &filePath)
         }
 
         m_dbCmdInterface.connectDb(m_database);
-
         connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady);
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
-
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
 
         emit m_dbCmdInterface.sigOpenDatabase(filePath);
