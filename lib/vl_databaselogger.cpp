@@ -47,10 +47,6 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
     m_batchedExecutionTimer.setSingleShot(false);
     m_batchedExecutionTimer.setInterval(5000);
-    connect(&m_batchedExecutionTimer, &QTimer::timeout, this, [this]() {
-        if(!m_loggingActive)
-            m_batchedExecutionTimer.stop();
-    });
     connect(&m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
     });
