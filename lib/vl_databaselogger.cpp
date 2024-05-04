@@ -55,11 +55,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 
 DatabaseLogger::~DatabaseLogger()
 {
-    terminateDbThread();
-    if(m_database != nullptr) {
-        m_database->deleteLater(); ///@todo: check if the delete works across threads
-        m_database = nullptr;
-    }
+    terminateCurrentDb();
     delete m_dPtr;
 }
 
@@ -330,16 +326,12 @@ void DatabaseLogger::dbNameToVein(const QString &filePath)
 bool DatabaseLogger::onOpenDatabase(const QString &filePath)
 {
     m_databaseFilePath = filePath;
-
+    qInfo("Open database %s", qPrintable(filePath));
     const bool validStorage = checkDBFilePath(filePath);
     if(validStorage) {
-        if(m_database != nullptr) {
-            m_database->deleteLater();
-            m_database = nullptr;
-        }
-        terminateDbThread();
-        m_database = m_databaseFactory();//new SQLiteDB(t_storageMode);
+        terminateCurrentDb();
 
+        m_database = m_databaseFactory();
         m_database->setStorageMode(m_storageMode);
         if(m_database->requiresOwnThread()) {
             m_database->moveToThread(&m_asyncDatabaseThread);
@@ -359,21 +351,20 @@ bool DatabaseLogger::onOpenDatabase(const QString &filePath)
     return validStorage;
 }
 
-void DatabaseLogger::terminateDbThread()
+void DatabaseLogger::terminateCurrentDb()
 {
     m_asyncDatabaseThread.quit();
     m_asyncDatabaseThread.wait();
+    delete m_database;
+    m_database = nullptr;
 }
 
 void DatabaseLogger::closeDatabase()
 {
     m_dbReady = false;
     setLoggingEnabled(false);
-    if(m_database != nullptr) {
-        m_database->deleteLater();
-        m_database = nullptr;
-    }
-    terminateDbThread();
+
+    terminateCurrentDb();
     if(m_deleteWatcher.directories().count()) {
         const QStringList watchedDirs = m_deleteWatcher.directories();
         for(const QString &watchDir : watchedDirs)
