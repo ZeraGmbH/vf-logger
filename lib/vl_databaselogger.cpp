@@ -1,6 +1,7 @@
 #include "vl_databaselogger.h"
 #include "vl_globallabels.h"
 #include "dataloggerprivate.h"
+#include "loggerstatictexts.h"
 #include "loggercontentsetconfig.h"
 #include <vl_componentunion.h>
 #include <vcmp_entitydata.h>
@@ -80,9 +81,9 @@ void DatabaseLogger::processEvent(QEvent *event)
                 const QVariant newValue = cData->newValue();
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
-                    if(componentName == DataLoggerPrivate::loggedComponentsComponentName)
+                    if(componentName == LoggerStaticTexts::loggedComponentsComponentName)
                         handleLoggedComponentsSetNotification(cData);
-                    else if(componentName == DataLoggerPrivate::s_databaseFileComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_databaseFileComponentName) {
                         if(m_database == nullptr || newValue != m_databaseFilePath) {
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
                                 closeDatabase();
@@ -91,12 +92,12 @@ void DatabaseLogger::processEvent(QEvent *event)
                         }
 
                         // a good place to reset selected sessionName - however db-open ends up with
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_sessionNameComponentName,
                                                                                cData->oldValue(), QString());
                         emit sigSendEvent(event);
                         m_dbSessionName = "";
                     }
-                    else if(componentName == DataLoggerPrivate::s_loggingEnabledComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_loggingEnabledComponentName) {
                         bool loggingEnabled = newValue.toBool();
                         if(loggingEnabled) {
                             if(checkConditionsForStartLog()) {
@@ -107,17 +108,17 @@ void DatabaseLogger::processEvent(QEvent *event)
                         else
                             setLoggingEnabled(loggingEnabled);
                     }
-                    else if(componentName == DataLoggerPrivate::s_scheduledLoggingEnabledComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_scheduledLoggingEnabledComponentName) {
                         bool scheduledLogging = newValue.toBool();
                         if(scheduledLogging != m_scheduledLogging) {
                             m_scheduledLogging = scheduledLogging;
                             setLoggingEnabled(false);
-                            QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingEnabledComponentName,
+                            QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_scheduledLoggingEnabledComponentName,
                                                                                    cData->oldValue(), scheduledLogging);
                             emit sigSendEvent(event);
                         }
                     }
-                    else if(componentName == DataLoggerPrivate::s_scheduledLoggingDurationComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_scheduledLoggingDurationComponentName) {
                         bool conversionOk = false;
                         const int logDurationMsecs = newValue.toInt(&conversionOk);
                         bool invalidTime = !conversionOk;
@@ -126,7 +127,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                                 m_schedulingTimer.setInterval(logDurationMsecs);
                                 if(isLogRunning)
                                     m_schedulingTimer.start();
-                                QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingDurationComponentName,
+                                QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_scheduledLoggingDurationComponentName,
                                                                                        cData->oldValue(), newValue);
                                 emit sigSendEvent(event);
                             }
@@ -144,10 +145,10 @@ void DatabaseLogger::processEvent(QEvent *event)
                             emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, errData));
                         }
                     }
-                    else if(componentName == DataLoggerPrivate::s_sessionNameComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_sessionNameComponentName) {
                         m_dbSessionName = newValue.toString();
                         QEvent *event;
-                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_sessionNameComponentName,
+                        event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_sessionNameComponentName,
                                                                        cData->oldValue(), newValue);
                         emit sigSendEvent(event);
 
@@ -159,34 +160,34 @@ void DatabaseLogger::processEvent(QEvent *event)
                                 qWarning("Cannot set session '%s' - database is not ready yet!", qPrintable(m_dbSessionName));
                         }
 
-                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+                        event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_customerDataComponentName,
                                                                        QVariant(), sessionCustomerDataName);
                         emit sigSendEvent(event);
                     }
-                    else if(componentName == DataLoggerPrivate::s_guiContextComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_guiContextComponentName) {
                         m_guiContext = newValue.toString();
-                        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_guiContextComponentName,
+                        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_guiContextComponentName,
                                                                                cData->oldValue(), newValue);
                         emit sigSendEvent(event);
                     }
-                    else if(componentName == DataLoggerPrivate::s_transactionNameComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_transactionNameComponentName) {
                         m_transactionName = newValue.toString();
-                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_transactionNameComponentName,
+                        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_transactionNameComponentName,
                                                                                cData->oldValue(), newValue);
                         emit sigSendEvent(event);
                     }
-                    else if(componentName == DataLoggerPrivate::s_currentContentSetsComponentName) {
+                    else if(componentName == LoggerStaticTexts::s_currentContentSetsComponentName) {
                         m_contentSets = newValue.toStringList();
                         QVariantMap loggedComponents = readContentSets();
                         clearLoggerEntries();
 
                         QEvent* event;
                         // Client: we choose same as a client would - it can still access availableContentSets
-                        event = VfClientComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::loggedComponentsComponentName,
+                        event = VfClientComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::loggedComponentsComponentName,
                                                                        QVariant(), loggedComponents);
                         emit sigSendEvent(event);
 
-                        event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_currentContentSetsComponentName,
+                        event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName,
                                                                        cData->oldValue(), newValue);
                         emit sigSendEvent(event);
                     }
@@ -257,7 +258,7 @@ QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 void DatabaseLogger::onSchedulerCountdownToVein()
 {
     if(m_schedulingTimer.isActive()) {
-        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_scheduledLoggingCountdownComponentName,
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_scheduledLoggingCountdownComponentName,
                                                                QVariant(), m_schedulingTimer.remainingTime());
         emit sigSendEvent(event);
     }
@@ -267,7 +268,7 @@ void DatabaseLogger::statusTextToVein(const QString &status)
 {
     if(m_loggerStatusText != status) {
         m_loggerStatusText = status;
-        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingStatusTextComponentName,
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_loggingStatusTextComponentName,
                                                                QVariant(), status);
         emit sigSendEvent(event);
     }
@@ -310,7 +311,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
             statusTextToVein("Database loaded");
         }
         m_loggingActive = enabled;
-        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_loggingEnabledComponentName,
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_loggingEnabledComponentName,
                                                                QVariant(), enabled);
         emit sigSendEvent(event);
     }
@@ -318,7 +319,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
 
 void DatabaseLogger::dbNameToVein(const QString &filePath)
 {
-    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseFileComponentName,
+    QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_databaseFileComponentName,
                                                            QVariant(), filePath);
     emit sigSendEvent(event);
 }
@@ -366,7 +367,7 @@ void DatabaseLogger::closeDatabase()
             m_deleteWatcher.removePath(watchDir);
         QObject::disconnect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
     }
-    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), false);
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_databaseReadyComponentName, QVariant(), false);
     emit sigSendEvent(event);
     setLoggingEnabled(false);
     statusTextToVein("No database selected");
@@ -376,7 +377,7 @@ void DatabaseLogger::closeDatabase()
     dbNameToVein(m_databaseFilePath);
 
     // set CustomerData component empty
-    event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_customerDataComponentName,
+    event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_customerDataComponentName,
                                                            QVariant(), QString());
     emit sigSendEvent(event);
 
@@ -394,7 +395,7 @@ void DatabaseLogger::checkDatabaseStillValid()
 
 void DatabaseLogger::updateSessionList(QStringList sessionNames)
 {
-    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_existingSessionsComponentName,
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_existingSessionsComponentName,
                                                            QVariant(), sessionNames);
     emit sigSendEvent(event);
 }
@@ -410,14 +411,14 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
     for(const QString &availContentSetString : availContentSetStrings)
         availContentSets.append(availContentSetString);
 
-    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_availableContentSetsComponentName,
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_availableContentSetsComponentName,
                                                            QVariant(), availContentSets);
     emit sigSendEvent(event);
 }
 
 void DatabaseLogger::onDbReady()
 {
-    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, DataLoggerPrivate::s_databaseReadyComponentName, QVariant(), true);
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_databaseReadyComponentName, QVariant(), true);
     emit sigSendEvent(event);
 
     setLoggingEnabled(false);
@@ -470,7 +471,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
         VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
         sessionNameCData ->setEntityId(m_entityId);
         sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        sessionNameCData ->setComponentName(DataLoggerPrivate::s_sessionNameComponentName);
+        sessionNameCData ->setComponentName(LoggerStaticTexts::s_sessionNameComponentName);
         sessionNameCData ->setNewValue(QString());
         sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
         sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
