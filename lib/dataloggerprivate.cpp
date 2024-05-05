@@ -1,25 +1,8 @@
 #include "dataloggerprivate.h"
+#include "loggerstatictexts.h"
 #include <vcmp_entitydata.h>
 #include <vf_server_component_setter.h>
 #include <QFileInfo>
-
-const QLatin1String DataLoggerPrivate::s_entityNameComponentName = QLatin1String("EntityName");
-const QLatin1String DataLoggerPrivate::s_loggingStatusTextComponentName  = QLatin1String("LoggingStatus");
-const QLatin1String DataLoggerPrivate::s_loggingEnabledComponentName = QLatin1String("LoggingEnabled");
-const QLatin1String DataLoggerPrivate::s_databaseReadyComponentName = QLatin1String("DatabaseReady");
-const QLatin1String DataLoggerPrivate::s_databaseFileComponentName = QLatin1String("DatabaseFile");
-const QLatin1String DataLoggerPrivate::s_scheduledLoggingEnabledComponentName = QLatin1String("ScheduledLoggingEnabled");
-const QLatin1String DataLoggerPrivate::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
-const QLatin1String DataLoggerPrivate::s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
-const QLatin1String DataLoggerPrivate::s_existingSessionsComponentName = QLatin1String("ExistingSessions");
-// TODO: Add more from modulemanager
-const QLatin1String DataLoggerPrivate::s_customerDataComponentName = QLatin1String("CustomerData");
-const QLatin1String DataLoggerPrivate::s_sessionNameComponentName = QLatin1String("sessionName");
-const QLatin1String DataLoggerPrivate::s_guiContextComponentName = QLatin1String("guiContext");
-const QLatin1String DataLoggerPrivate::s_transactionNameComponentName = QLatin1String("transactionName");
-const QLatin1String DataLoggerPrivate::s_currentContentSetsComponentName = QLatin1String("currentContentSets");
-const QLatin1String DataLoggerPrivate::s_availableContentSetsComponentName = QLatin1String("availableContentSets");
-const QLatin1String DataLoggerPrivate::loggedComponentsComponentName = QLatin1String("LoggedComponents");
 
 using namespace VeinLogger;
 
@@ -46,25 +29,25 @@ void DataLoggerPrivate::initOnce()
         VeinComponent::ComponentData *initialData = nullptr;
 
         QHash<QString, QVariant> componentData;
-        componentData.insert(s_entityNameComponentName, m_qPtr->entityName());
-        componentData.insert(s_loggingEnabledComponentName, QVariant(false));
-        componentData.insert(s_loggingStatusTextComponentName, QVariant(QString("No database selected")));
+        componentData.insert(LoggerStaticTexts::s_entityNameComponentName, m_qPtr->entityName());
+        componentData.insert(LoggerStaticTexts::s_loggingEnabledComponentName, QVariant(false));
+        componentData.insert(LoggerStaticTexts::s_loggingStatusTextComponentName, QVariant(QString("No database selected")));
         ///@todo load from persistent settings file?
-        componentData.insert(s_databaseReadyComponentName, QVariant(false));
-        componentData.insert(s_databaseFileComponentName, QVariant(QString()));
-        componentData.insert(s_scheduledLoggingEnabledComponentName, QVariant(false));
-        componentData.insert(s_scheduledLoggingDurationComponentName, QVariant());
-        componentData.insert(s_scheduledLoggingCountdownComponentName, QVariant(0));
-        componentData.insert(s_existingSessionsComponentName, QStringList());
-        componentData.insert(s_customerDataComponentName, QString());
-        componentData.insert(loggedComponentsComponentName, QVariantMap());
+        componentData.insert(LoggerStaticTexts::s_databaseReadyComponentName, QVariant(false));
+        componentData.insert(LoggerStaticTexts::s_databaseFileComponentName, QVariant(QString()));
+        componentData.insert(LoggerStaticTexts::s_scheduledLoggingEnabledComponentName, QVariant(false));
+        componentData.insert(LoggerStaticTexts::s_scheduledLoggingDurationComponentName, QVariant());
+        componentData.insert(LoggerStaticTexts::s_scheduledLoggingCountdownComponentName, QVariant(0));
+        componentData.insert(LoggerStaticTexts::s_existingSessionsComponentName, QStringList());
+        componentData.insert(LoggerStaticTexts::s_customerDataComponentName, QString());
+        componentData.insert(LoggerStaticTexts::loggedComponentsComponentName, QVariantMap());
 
         // TODO: Add more from modulemanager
-        componentData.insert(s_sessionNameComponentName, QString());
-        componentData.insert(s_guiContextComponentName, QString());
-        componentData.insert(s_transactionNameComponentName, QString());
-        componentData.insert(s_currentContentSetsComponentName, QVariantList());
-        componentData.insert(s_availableContentSetsComponentName, QVariantList());
+        componentData.insert(LoggerStaticTexts::s_sessionNameComponentName, QString());
+        componentData.insert(LoggerStaticTexts::s_guiContextComponentName, QString());
+        componentData.insert(LoggerStaticTexts::s_transactionNameComponentName, QString());
+        componentData.insert(LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList());
+        componentData.insert(LoggerStaticTexts::s_availableContentSetsComponentName, QVariantList());
 
         for(const QString &componentName : componentData.keys()) {
             initialData = new VeinComponent::ComponentData();

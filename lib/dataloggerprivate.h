@@ -17,23 +17,6 @@ public:
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
     //component names
-    static const QLatin1String s_entityNameComponentName;
-    static const QLatin1String s_loggingStatusTextComponentName;
-    static const QLatin1String s_loggingEnabledComponentName;
-    static const QLatin1String s_databaseReadyComponentName;
-    static const QLatin1String s_databaseFileComponentName;
-    static const QLatin1String s_scheduledLoggingEnabledComponentName;
-    static const QLatin1String s_scheduledLoggingDurationComponentName;
-    static const QLatin1String s_scheduledLoggingCountdownComponentName;
-    static const QLatin1String s_existingSessionsComponentName;
-
-    static const QLatin1String s_customerDataComponentName;
-    static const QLatin1String s_sessionNameComponentName;
-    static const QLatin1String s_guiContextComponentName;
-    static const QLatin1String s_transactionNameComponentName;
-    static const QLatin1String s_currentContentSetsComponentName;
-    static const QLatin1String s_availableContentSetsComponentName;
-    static const QLatin1String loggedComponentsComponentName;
 
     VeinLogger::DatabaseLogger *m_qPtr = nullptr;
     friend class DatabaseLogger;
