@@ -7,6 +7,7 @@
 #include <ve_eventsystem.h>
 #include <ve_storagesystem.h>
 #include <vcmp_componentdata.h>
+#include <vf-cpp-rpc.h>
 #include <QTimer>
 #include <QFileSystemWatcher>
 #include <QThread>
@@ -34,6 +35,7 @@ public slots:
     QVariant RPC_deleteSession(QVariantMap parameters);
 
 private slots:
+    void initOnce();
     void onOpenDatabase(const QString &filePath);
     void onModmanSessionChange(QVariant newSession);
     void onDbReady();
@@ -66,6 +68,8 @@ private:
     QLatin1String m_entityName;
     VeinEvent::StorageSystem *m_veinStorage;
     VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
+    bool m_initDone = false;
+    QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 
     DBFactory m_databaseFactory;
     DatabaseCommandInterface m_dbCmdInterface;

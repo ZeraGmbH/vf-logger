@@ -37,7 +37,7 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
         break;
     }
 
-    connect(this, &DatabaseLogger::sigAttached, m_dPtr, &DataLoggerPrivate::initOnce);
+    connect(this, &DatabaseLogger::sigAttached, this, &DatabaseLogger::initOnce);
     initModmanSessionComponent();
 
     m_asyncDatabaseThread.setObjectName("VFLoggerDBThread");
@@ -201,9 +201,9 @@ void DatabaseLogger::processEvent(QEvent *event)
             VeinComponent::RemoteProcedureData *rpcData=nullptr;
             rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
             if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
-                if(m_dPtr->m_rpcList.contains(rpcData->procedureName())){
+                if(m_rpcList.contains(rpcData->procedureName())){
                     const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
-                    m_dPtr->m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
+                    m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
                     cEvent->accept();
                 }
                 else if(!cEvent->isAccepted()) {
@@ -479,6 +479,65 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
     }
     return retVal;
+}
+
+void DatabaseLogger::initOnce()
+{
+    Q_ASSERT(m_initDone == false);
+    if(m_initDone == false) {
+        VeinComponent::EntityData *systemData = new VeinComponent::EntityData();
+        systemData->setCommand(VeinComponent::EntityData::Command::ECMD_ADD);
+        systemData->setEntityId(m_entityId);
+        VeinEvent::CommandEvent *systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, systemData);
+        emit sigSendEvent(systemEvent);
+
+        VeinComponent::ComponentData *initialData = nullptr;
+        QHash<QString, QVariant> componentData;
+        componentData.insert(LoggerStaticTexts::s_entityNameComponentName, entityName());
+        componentData.insert(LoggerStaticTexts::s_loggingEnabledComponentName, QVariant(false));
+        componentData.insert(LoggerStaticTexts::s_loggingStatusTextComponentName, QVariant(QString("No database selected")));
+        ///@todo load from persistent settings file?
+        componentData.insert(LoggerStaticTexts::s_databaseReadyComponentName, QVariant(false));
+        componentData.insert(LoggerStaticTexts::s_databaseFileComponentName, QVariant(QString()));
+        componentData.insert(LoggerStaticTexts::s_scheduledLoggingEnabledComponentName, QVariant(false));
+        componentData.insert(LoggerStaticTexts::s_scheduledLoggingDurationComponentName, QVariant());
+        componentData.insert(LoggerStaticTexts::s_scheduledLoggingCountdownComponentName, QVariant(0));
+        componentData.insert(LoggerStaticTexts::s_existingSessionsComponentName, QStringList());
+        componentData.insert(LoggerStaticTexts::s_customerDataComponentName, QString());
+        componentData.insert(LoggerStaticTexts::loggedComponentsComponentName, QVariantMap());
+
+        // TODO: Add more from modulemanager
+        componentData.insert(LoggerStaticTexts::s_sessionNameComponentName, QString());
+        componentData.insert(LoggerStaticTexts::s_guiContextComponentName, QString());
+        componentData.insert(LoggerStaticTexts::s_transactionNameComponentName, QString());
+        componentData.insert(LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList());
+        componentData.insert(LoggerStaticTexts::s_availableContentSetsComponentName, QVariantList());
+
+        for(const QString &componentName : componentData.keys()) {
+            initialData = new VeinComponent::ComponentData();
+            initialData->setEntityId(m_entityId);
+            initialData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
+            initialData->setComponentName(componentName);
+            initialData->setNewValue(componentData.value(componentName));
+            initialData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+            initialData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+
+            systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, initialData);
+            emit sigSendEvent(systemEvent);
+        }
+
+        VfCpp::cVeinModuleRpc::Ptr tmpval;
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
+                                                m_entityId,
+                                                this,
+                                                this,
+                                                "RPC_deleteSession",
+                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})),
+                                            &QObject::deleteLater);
+        m_rpcList[tmpval->rpcName()]=tmpval;
+
+        m_initDone = true;
+    }
 }
 
 void DatabaseLogger::handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData)
