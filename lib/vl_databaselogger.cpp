@@ -1,6 +1,5 @@
 #include "vl_databaselogger.h"
 #include "vl_globallabels.h"
-#include "dataloggerprivate.h"
 #include "loggerstatictexts.h"
 #include "loggercontentsetconfig.h"
 #include <vl_componentunion.h>
@@ -18,7 +17,6 @@ namespace VeinLogger
 {
 DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory factoryFunction, QObject *parent, AbstractLoggerDB::STORAGE_MODE storageMode) :
     VeinEvent::EventSystem(parent),
-    m_dPtr(new DataLoggerPrivate(this)),
     m_veinStorage(veinStorage),
     m_databaseFactory(factoryFunction),
     m_storageMode(storageMode)
@@ -57,7 +55,6 @@ DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory 
 DatabaseLogger::~DatabaseLogger()
 {
     terminateCurrentDb();
-    delete m_dPtr;
 }
 
 void DatabaseLogger::processEvent(QEvent *event)
