@@ -12,8 +12,6 @@
 #include <QFileSystemWatcher>
 #include <QThread>
 
-class DataLoggerPrivate;
-
 namespace VeinLogger
 {
 class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
@@ -63,7 +61,6 @@ private:
     QStringList getComponentsFilteredForDb(int entityId);
     void terminateCurrentDb();
 
-    DataLoggerPrivate *m_dPtr = nullptr;
     int m_entityId;
     QLatin1String m_entityName;
     VeinEvent::StorageSystem *m_veinStorage;
