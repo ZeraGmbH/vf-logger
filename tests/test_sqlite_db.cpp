@@ -1,5 +1,5 @@
 #include "test_sqlite_db.h"
-#include "testdumpreporter.h"
+#include "testloghelpers.h"
 #include "testinsertspiestojson.h"
 #include <timemachineobject.h>
 #include <QFile>
@@ -34,7 +34,7 @@ void test_sqlite_db::createSessionInsertsEntityComponents()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_sqlite_db::createSessionWithCustomerDataAlreadyCreated()
@@ -70,7 +70,7 @@ void test_sqlite_db::logInsertsEntityComponents()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 
     m_testSystem.setComponentValues(2);
 

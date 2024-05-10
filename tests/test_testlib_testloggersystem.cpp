@@ -1,5 +1,5 @@
 #include "test_testlib_testloggersystem.h"
-#include "testdumpreporter.h"
+#include "testloghelpers.h"
 #include <QTest>
 
 QTEST_MAIN(test_testlib_testloggersystem)
@@ -22,5 +22,5 @@ void test_testlib_testloggersystem::systemSetupProperly()
 
     QByteArray jsonDumped = m_testSystem.dumpStorage(QList<int>() << systemEntityId << dataLoggerEntityId << m_testSystem.getComponentsCreated().keys());
 
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }

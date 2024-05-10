@@ -1,5 +1,5 @@
 #include "testinsertspiestojson.h"
-#include <testdumpreporter.h>
+#include <testloghelpers.h>
 #include <QJsonObject>
 #include <QJsonArray>
 
@@ -14,7 +14,7 @@ QByteArray TestInsertSpiesToJson::spiesToJsonAndClear(QSignalSpy &spyDbEntitiesI
     QJsonObject all;
     all.insert("EntititiesInserted", entitiesInserted);
     all.insert("ComponentsInserted", componentsInserted);
-    return TestDumpReporter::dump(all);
+    return TestLogHelpers::dump(all);
 }
 
 QJsonArray TestInsertSpiesToJson::spyEntitiesToJson(const QSignalSpy &spyDbEntitiesInserted)

@@ -1,5 +1,5 @@
 #include "test_contentsets.h"
-#include "testdumpreporter.h"
+#include "testloghelpers.h"
 #include <timemachineobject.h>
 #include <QTest>
 
@@ -23,7 +23,7 @@ void test_contentsets::contentSetsSelectValidStringToBeFixed()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectInvalid()
@@ -34,7 +34,7 @@ void test_contentsets::contentSetsSelectInvalid()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValid()
@@ -45,7 +45,7 @@ void test_contentsets::contentSetsSelectValid()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValidTwo()
@@ -56,7 +56,7 @@ void test_contentsets::contentSetsSelectValidTwo()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValidTwoSame()
@@ -67,7 +67,7 @@ void test_contentsets::contentSetsSelectValidTwoSame()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValidAll()
@@ -79,7 +79,7 @@ void test_contentsets::contentSetsSelectValidAll()
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     // Just to remember: All Entities stored are completely independent of context set configured
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValidSequence()
@@ -91,7 +91,7 @@ void test_contentsets::contentSetsSelectValidSequence()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValid3SessionChange()
@@ -103,7 +103,7 @@ void test_contentsets::contentSetsSelectValid3SessionChange()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValid4SessionChange()
@@ -115,7 +115,7 @@ void test_contentsets::contentSetsSelectValid4SessionChange()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
 void test_contentsets::contentSetsSelectValidAllSessionChange()
@@ -127,5 +127,5 @@ void test_contentsets::contentSetsSelectValidAllSessionChange()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestDumpReporter::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
