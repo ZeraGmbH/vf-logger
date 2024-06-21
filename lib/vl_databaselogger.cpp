@@ -335,10 +335,10 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         }
 
         m_dbCmdInterface.connectDb(m_database);
-        connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady);
-        connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError);
-        connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList);
-        connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution);
+        connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
+        connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
         emit m_dbCmdInterface.sigOpenDatabase(filePath);
     }
@@ -354,6 +354,8 @@ void DatabaseLogger::terminateCurrentDb()
 
 void DatabaseLogger::closeDatabase()
 {
+    if(m_databaseFilePath.isEmpty())
+        return;
     m_dbReady = false;
     setLoggingEnabled(false);
 
