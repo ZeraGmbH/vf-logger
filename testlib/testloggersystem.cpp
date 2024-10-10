@@ -79,7 +79,7 @@ void TestLoggerSystem::cleanup()
 
 void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)
 {
-    m_server->setComponent(entityId, componentName, newValue);
+    m_server->setComponentClientTransaction(entityId, componentName, newValue);
 }
 
 void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
