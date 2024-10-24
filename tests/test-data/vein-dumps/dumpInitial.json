@@ -40,6 +40,14 @@
                         "Session",
                         "0",
                         ""
+                    ],
+                    [
+                        "CONFIGURATION",
+                        "SESSION:CATALOG",
+                        "2",
+                        "Session",
+                        "1",
+                        ""
                     ]
                 ],
                 "Name": "SYST"
