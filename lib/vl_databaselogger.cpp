@@ -15,7 +15,7 @@
 
 namespace VeinLogger
 {
-DatabaseLogger::DatabaseLogger(VeinEvent::StorageSystem *veinStorage, DBFactory factoryFunction, QObject *parent, AbstractLoggerDB::STORAGE_MODE storageMode) :
+DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage, DBFactory factoryFunction, QObject *parent, AbstractLoggerDB::STORAGE_MODE storageMode) :
     VeinEvent::EventSystem(parent),
     m_veinStorage(veinStorage),
     m_databaseFactory(factoryFunction),
@@ -656,7 +656,7 @@ bool DatabaseLogger::checkConditionsForStartLog()
 void DatabaseLogger::initModmanSessionComponent()
 {
     m_modmanSessionComponent = m_veinStorage->getFutureComponent(0, "Session");
-    connect(m_modmanSessionComponent.get(), &VeinEvent::StorageComponentInterface::sigValueChange,
+    connect(m_modmanSessionComponent.get(), &VeinStorage::AbstractComponent::sigValueChange,
             this, &DatabaseLogger::onModmanSessionChange);
 
     if(m_modmanSessionComponent->getValue().isValid())

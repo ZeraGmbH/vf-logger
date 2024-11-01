@@ -4,8 +4,7 @@
 #include "databasecommandinterface.h"
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
-#include <ve_eventsystem.h>
-#include <ve_storagesystem.h>
+#include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vf-cpp-rpc.h>
 #include <QTimer>
@@ -18,7 +17,7 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 {
     Q_OBJECT
 public:
-    explicit DatabaseLogger(VeinEvent::StorageSystem *veinStorage, VeinLogger::DBFactory factoryFunction,
+    explicit DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage, VeinLogger::DBFactory factoryFunction,
                             QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
     void processEvent(QEvent *event) override;
@@ -63,8 +62,8 @@ private:
 
     int m_entityId;
     QLatin1String m_entityName;
-    VeinEvent::StorageSystem *m_veinStorage;
-    VeinEvent::StorageComponentInterfacePtr m_modmanSessionComponent;
+    VeinStorage::AbstractEventSystem *m_veinStorage;
+    VeinStorage::AbstractComponentPtr m_modmanSessionComponent;
     bool m_initDone = false;
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
 

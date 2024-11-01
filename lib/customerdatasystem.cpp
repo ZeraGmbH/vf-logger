@@ -2,7 +2,7 @@
 
 #include <ve_eventdata.h>
 #include <ve_commandevent.h>
-#include <ve_storagesystem.h>
+#include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
