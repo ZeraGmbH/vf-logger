@@ -4,6 +4,7 @@
 #include "jsonloggercontentloader.h"
 #include "jsonloggercontentsessionloader.h"
 #include "loggercontentsetconfig.h"
+#include <vs_dumpjson.h>
 #include <modulemanagersetupfacade.h>
 #include <timemachineobject.h>
 #include <QBuffer>
@@ -128,6 +129,6 @@ QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)
 {
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    m_server->getStorage()->dumpToFile(&buff, entities);
+    VeinStorage::DumpJson::dumpToFile(m_server->getStorage()->getDb(), &buff, entities);
     return jsonDumped;
 }
