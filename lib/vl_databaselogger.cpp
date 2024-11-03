@@ -235,7 +235,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
                     componentNamesToAdd.append(tmpComponentName);
 
                 for(const auto &componentToAdd : qAsConst(componentNamesToAdd)) {
-                    const QVariant storedValue = m_veinStorage->getStoredValue(tmpEntityId, componentToAdd);
+                    const QVariant storedValue = m_veinStorage->getDb()->getStoredValue(tmpEntityId, componentToAdd);
                     addValueToDb(storedValue, tmpEntityId, componentToAdd);
                 }
             }
@@ -456,7 +456,7 @@ void DatabaseLogger::onDbError(QString errorMsg)
 
 QString DatabaseLogger::getEntityName(int entityId) const
 {
-    return m_veinStorage->getStoredValue(entityId, "EntityName").toString();
+    return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
 }
 
 QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
@@ -620,14 +620,14 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
                     tmpEntityId,
                     getEntityName(tmpEntityId),
                     tmpComponentName,
-                    m_veinStorage->getStoredValue(tmpEntityId, tmpComponentName),
+                    m_veinStorage->getDb()->getStoredValue(tmpEntityId, tmpComponentName),
                     QDateTime::currentDateTime()
                 };
                 componentsAddedOncePerSession.append(component);
             }
         }
 
-        sessionCustomerDataName = m_veinStorage->getStoredValue(200, "FileSelected").toString();
+        sessionCustomerDataName = m_veinStorage->getDb()->getStoredValue(200, "FileSelected").toString();
         emit m_dbCmdInterface.sigAddSession(sessionName, componentsAddedOncePerSession);
     }
     else
