@@ -227,7 +227,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
     for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
         const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
         for(const QString &tmpComponentName : tmpComponents) {
-            if(m_veinStorage->hasEntity(tmpEntityId)) { // is entity in storage?
+            if(m_veinStorage->getDb()->hasEntity(tmpEntityId)) { // is entity in storage?
                 QStringList componentNamesToAdd;
                 if(tmpComponentName == VLGlobalLabels::allComponentsName())
                     componentNamesToAdd = getComponentsFilteredForDb(tmpEntityId);
@@ -604,11 +604,11 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     if(!m_database->hasSessionName(sessionName)) {
         QMultiHash<int, QString> tmpStaticComps;
         // Add customer data once per session
-        if(m_veinStorage->hasEntity(200))
+        if(m_veinStorage->getDb()->hasEntity(200))
             for(const QString &comp : getComponentsFilteredForDb(200))
                 tmpStaticComps.insert(200, comp);
         // Add status module once per session
-        if(m_veinStorage->hasEntity(1150))
+        if(m_veinStorage->getDb()->hasEntity(1150))
             for(const QString &comp : getComponentsFilteredForDb(1150))
                 tmpStaticComps.insert(1150, comp);
 
