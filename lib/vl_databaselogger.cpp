@@ -245,7 +245,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
 
 QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 {
-    QStringList retList = m_veinStorage->getEntityComponents(entityId);
+    QStringList retList = m_veinStorage->getDb()->getComponentList(entityId);
     const QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
     for(const auto &noStoreLabel : componentsNoStore)
         retList.removeAll(noStoreLabel);
