@@ -655,7 +655,7 @@ bool DatabaseLogger::checkConditionsForStartLog()
 
 void DatabaseLogger::initModmanSessionComponent()
 {
-    m_modmanSessionComponent = m_veinStorage->getFutureComponent(0, "Session");
+    m_modmanSessionComponent = m_veinStorage->getDb()->getFutureComponent(0, "Session");
     connect(m_modmanSessionComponent.get(), &VeinStorage::AbstractComponent::sigValueChange,
             this, &DatabaseLogger::onModmanSessionChange);
 
