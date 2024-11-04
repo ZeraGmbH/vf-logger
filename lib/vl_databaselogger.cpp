@@ -224,10 +224,11 @@ void DatabaseLogger::processEvent(QEvent *event)
 
 void DatabaseLogger::writeCurrentStorageToDb()
 {
+    const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
     for(const int tmpEntityId : m_loggedValues.uniqueKeys()) {
         const QList<QString> tmpComponents = m_loggedValues.values(tmpEntityId);
         for(const QString &tmpComponentName : tmpComponents) {
-            if(m_veinStorage->getDb()->hasEntity(tmpEntityId)) { // is entity in storage?
+            if(storageDb->hasEntity(tmpEntityId)) { // is entity in storage?
                 QStringList componentNamesToAdd;
                 if(tmpComponentName == VLGlobalLabels::allComponentsName())
                     componentNamesToAdd = getComponentsFilteredForDb(tmpEntityId);
@@ -235,7 +236,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
                     componentNamesToAdd.append(tmpComponentName);
 
                 for(const auto &componentToAdd : qAsConst(componentNamesToAdd)) {
-                    const QVariant storedValue = m_veinStorage->getDb()->getStoredValue(tmpEntityId, componentToAdd);
+                    const QVariant storedValue = storageDb->getStoredValue(tmpEntityId, componentToAdd);
                     addValueToDb(storedValue, tmpEntityId, componentToAdd);
                 }
             }
@@ -603,12 +604,13 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     QString sessionCustomerDataName;
     if(!m_database->hasSessionName(sessionName)) {
         QMultiHash<int, QString> tmpStaticComps;
+        const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
         // Add customer data once per session
-        if(m_veinStorage->getDb()->hasEntity(200))
+        if(storageDb->hasEntity(200))
             for(const QString &comp : getComponentsFilteredForDb(200))
                 tmpStaticComps.insert(200, comp);
         // Add status module once per session
-        if(m_veinStorage->getDb()->hasEntity(1150))
+        if(storageDb->hasEntity(1150))
             for(const QString &comp : getComponentsFilteredForDb(1150))
                 tmpStaticComps.insert(1150, comp);
 
@@ -620,14 +622,14 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
                     tmpEntityId,
                     getEntityName(tmpEntityId),
                     tmpComponentName,
-                    m_veinStorage->getDb()->getStoredValue(tmpEntityId, tmpComponentName),
+                    storageDb->getStoredValue(tmpEntityId, tmpComponentName),
                     QDateTime::currentDateTime()
                 };
                 componentsAddedOncePerSession.append(component);
             }
         }
 
-        sessionCustomerDataName = m_veinStorage->getDb()->getStoredValue(200, "FileSelected").toString();
+        sessionCustomerDataName = storageDb->getStoredValue(200, "FileSelected").toString();
         emit m_dbCmdInterface.sigAddSession(sessionName, componentsAddedOncePerSession);
     }
     else
