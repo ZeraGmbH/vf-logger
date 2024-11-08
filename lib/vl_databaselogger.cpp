@@ -68,13 +68,13 @@ void DatabaseLogger::processEvent(QEvent *event)
         const bool isLogRunning = m_dbReady && m_loggingActive;
         if(evData->type() == ComponentData::dataType()) {
             ComponentData *cData = static_cast<ComponentData *>(evData);
+            const QString componentName = cData->componentName();
 
             if(isLogRunning && cEvent->eventSubtype() == CommandEvent::EventSubtype::NOTIFICATION)
-                addValueToDb(cData->newValue(), evData->entityId(), cData->componentName());
+                addValueToDb(cData->newValue(), evData->entityId(), componentName);
 
             else if(cEvent->eventSubtype() == CommandEvent::EventSubtype::TRANSACTION &&
                      evData->entityId() == m_entityId) {
-                const QString componentName = cData->componentName();
                 const QVariant newValue = cData->newValue();
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
