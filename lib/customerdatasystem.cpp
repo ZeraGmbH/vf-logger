@@ -101,15 +101,12 @@ QStringList CustomerDataSystem::getComponentNames()
 void CustomerDataSystem::processEvent(QEvent *t_event)
 {
     if(t_event->type() == VeinEvent::CommandEvent::getQEventType()) {
-        VeinEvent::CommandEvent *cEvent = nullptr;
-        cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
-        Q_ASSERT(cEvent != nullptr);
-        if(cEvent->eventSubtype() != VeinEvent::CommandEvent::EventSubtype::NOTIFICATION //we do not need to process notifications
-                && cEvent->eventData()->entityId() == CustomerDataSystem::s_entityId) { //only our own entity is relevant
+        VeinEvent::CommandEvent *cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
+        if(cEvent->eventSubtype() != VeinEvent::CommandEvent::EventSubtype::NOTIFICATION && //we do not need to process notifications
+            cEvent->eventData()->entityId() == CustomerDataSystem::s_entityId) { //only our own entity is relevant
             switch(cEvent->eventData()->type()) {
             case VeinComponent::ComponentData::dataType(): {
                 VeinComponent::ComponentData *cData = static_cast<VeinComponent::ComponentData *>(cEvent->eventData());
-                Q_ASSERT(cData != nullptr);
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
                     bool validated = false;
                     if(cData->componentName() == CustomerDataSystem::s_fileSelectedComponentName) {
@@ -161,9 +158,7 @@ void CustomerDataSystem::processEvent(QEvent *t_event)
                 break;
             }
             case VeinComponent::RemoteProcedureData::dataType(): {
-                VeinComponent::RemoteProcedureData *rpcData=nullptr;
-                rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
-                Q_ASSERT(rpcData != nullptr);
+                VeinComponent::RemoteProcedureData *rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
                 if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL) {
                     if(m_remoteProcedures.contains(rpcData->procedureName())) {
                         const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
