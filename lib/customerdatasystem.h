@@ -31,6 +31,7 @@ public:
     };
 
     explicit CustomerDataSystem(QString cutomerDataPath, QObject *parent = nullptr);
+    static int getEntityId();
     static QStringList getComponentNames();
 
     VF_COMPONENT(entityName, "EntityName", "Entity name")

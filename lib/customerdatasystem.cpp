@@ -93,6 +93,11 @@ CustomerDataSystem::CustomerDataSystem(QString cutomerDataPath, QObject *parent)
     connect(this, &CustomerDataSystem::sigDataValueChanged, this, &CustomerDataSystem::updateDataFile);
 }
 
+int CustomerDataSystem::getEntityId()
+{
+    return s_entityId;
+}
+
 QStringList CustomerDataSystem::getComponentNames()
 {
     return s_componentIntrospection.keys();
