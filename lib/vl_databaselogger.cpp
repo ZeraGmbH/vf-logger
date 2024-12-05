@@ -1,5 +1,4 @@
 #include "vl_databaselogger.h"
-#include "vl_globallabels.h"
 #include "loggerstatictexts.h"
 #include "loggercontentsetconfig.h"
 #include <vcmp_entitydata.h>
@@ -229,16 +228,16 @@ void DatabaseLogger::writeCurrentStorageToDb()
 {
     const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
     const QList<int> entities = m_loggedComponents.getEntities();
-    for(const int tmpEntityId : entities) {
-        QStringList tmpComponents;
-        if(m_loggedComponents.areAllComponentsStored(tmpEntityId))
-            tmpComponents = getComponentsFilteredForDb(tmpEntityId);
+    for(const int entityId : entities) {
+        QStringList components;
+        if(m_loggedComponents.areAllComponentsStored(entityId))
+            components = getComponentsFilteredForDb(entityId);
         else
-            tmpComponents = m_loggedComponents.getComponents(tmpEntityId);
-        for(const QString &tmpComponentName : tmpComponents) {
-            if(storageDb->hasStoredValue(tmpEntityId, tmpComponentName)) {
-                const QVariant storedValue = storageDb->getStoredValue(tmpEntityId, tmpComponentName);
-                addValueToDb(storedValue, tmpEntityId, tmpComponentName);
+            components = m_loggedComponents.getComponents(entityId);
+        for(const QString &component : qAsConst(components)) {
+            if(storageDb->hasStoredValue(entityId, component)) {
+                const QVariant storedValue = storageDb->getStoredValue(entityId, component);
+                addValueToDb(storedValue, entityId, component);
             }
         }
     }
@@ -246,11 +245,8 @@ void DatabaseLogger::writeCurrentStorageToDb()
 
 QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 {
-    QStringList retList = m_veinStorage->getDb()->getComponentList(entityId);
-    const QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
-    for(const auto &noStoreLabel : componentsNoStore)
-        retList.removeAll(noStoreLabel);
-    return retList;
+    QStringList fullList = m_veinStorage->getDb()->getComponentList(entityId);
+    return LoggedComponents::removeNotStoredComponents(fullList);
 }
 
 void DatabaseLogger::onSchedulerCountdownToVein()

@@ -1,5 +1,4 @@
 #include "vl_loggedcomponents.h"
-#include "vl_globallabels.h"
 
 namespace VeinLogger
 {
@@ -12,7 +11,8 @@ void LoggedComponents::clear()
 
 void LoggedComponents::addComponent(int entityId, const QString &componentName)
 {
-    m_entitiesWithSpecificComponents[entityId].insert(componentName);
+    if(!m_entitiesWithAllComponents.contains(entityId)) // TODO: we have no tests for this
+        m_entitiesWithSpecificComponents[entityId].insert(componentName);
 }
 
 void LoggedComponents::addAllComponents(int entityId)
@@ -29,16 +29,18 @@ bool LoggedComponents::specificContains(int entityId, const QString &componentNa
     return false;
 }
 
+const QStringList LoggedComponents::getComponentsNotStoredOnAll()
+{
+    return QStringList()
+           << QStringLiteral("EntityName")
+           << QStringLiteral("INF_ModuleInterface");
+}
+
 bool LoggedComponents::isLoggedComponent(int entityId, const QString &componentName) const
 {
-    bool storeComponent = false;
-    if(m_entitiesWithAllComponents.contains(entityId)) {
-        QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
-        storeComponent = !componentsNoStore.contains(componentName);
-    }
-    else
-        storeComponent = specificContains(entityId, componentName);
-    return storeComponent;
+    if(m_entitiesWithAllComponents.contains(entityId))
+        return !getComponentsNotStoredOnAll().contains(componentName);
+    return specificContains(entityId, componentName);
 }
 
 bool LoggedComponents::areAllComponentsStored(int entityId)
@@ -60,6 +62,14 @@ QStringList LoggedComponents::getComponents(int entityId) const
     if(iter != m_entitiesWithSpecificComponents.constEnd())
         components = iter.value().values();
     return components;
+}
+
+QStringList LoggedComponents::removeNotStoredComponents(const QStringList &allComponents)
+{
+    QStringList ret = allComponents;
+    for(const auto &noStoreLabel : getComponentsNotStoredOnAll())
+        ret.removeAll(noStoreLabel);
+    return ret;
 }
 
 }
