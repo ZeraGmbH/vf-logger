@@ -6,18 +6,25 @@ namespace VeinLogger
 
 void LoggedComponents::clear()
 {
-    m_components.clear();
+    m_entitiesWithSpecificComponents.clear();
+    m_entitiesWithAllComponents.clear();
 }
 
 void LoggedComponents::addComponent(int entityId, const QString &componentName)
 {
-    m_components[entityId].insert(componentName);
+    m_entitiesWithSpecificComponents[entityId].insert(componentName);
 }
 
-bool LoggedComponents::contains(int entityId, const QString &componentName) const
+void LoggedComponents::addAllComponents(int entityId)
 {
-    auto entityIter = m_components.constFind(entityId);
-    if(entityIter != m_components.constEnd())
+    m_entitiesWithSpecificComponents.remove(entityId);
+    m_entitiesWithAllComponents.insert(entityId);
+}
+
+bool LoggedComponents::specificContains(int entityId, const QString &componentName) const
+{
+    auto entityIter = m_entitiesWithSpecificComponents.constFind(entityId);
+    if(entityIter != m_entitiesWithSpecificComponents.constEnd())
         return entityIter.value().contains(componentName);
     return false;
 }
@@ -25,25 +32,32 @@ bool LoggedComponents::contains(int entityId, const QString &componentName) cons
 bool LoggedComponents::isLoggedComponent(int entityId, const QString &componentName) const
 {
     bool storeComponent = false;
-    if(contains(entityId, VLGlobalLabels::allComponentsName())) {
+    if(m_entitiesWithAllComponents.contains(entityId)) {
         QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
         storeComponent = !componentsNoStore.contains(componentName);
     }
     else
-        storeComponent = contains(entityId, componentName);
+        storeComponent = specificContains(entityId, componentName);
     return storeComponent;
+}
+
+bool LoggedComponents::areAllComponentsStored(int entityId)
+{
+    return m_entitiesWithAllComponents.contains(entityId);
 }
 
 QList<int> LoggedComponents::getEntities() const
 {
-    return m_components.keys();
+    const QList<int> entitiesWithSpecificComponents = m_entitiesWithSpecificComponents.keys();
+    const QList<int> entitiesWithAllComponents = m_entitiesWithAllComponents.values();
+    return entitiesWithSpecificComponents + entitiesWithAllComponents;
 }
 
 QStringList LoggedComponents::getComponents(int entityId) const
 {
     QStringList components;
-    auto iter = m_components.constFind(entityId);
-    if(iter != m_components.constEnd())
+    auto iter = m_entitiesWithSpecificComponents.constFind(entityId);
+    if(iter != m_entitiesWithSpecificComponents.constEnd())
         components = iter.value().values();
     return components;
 }

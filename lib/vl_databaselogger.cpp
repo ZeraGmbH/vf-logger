@@ -230,19 +230,15 @@ void DatabaseLogger::writeCurrentStorageToDb()
     const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
     const QList<int> entities = m_loggedComponents.getEntities();
     for(const int tmpEntityId : entities) {
-        const QStringList tmpComponents = m_loggedComponents.getComponents(tmpEntityId);
+        QStringList tmpComponents;
+        if(m_loggedComponents.areAllComponentsStored(tmpEntityId))
+            tmpComponents = getComponentsFilteredForDb(tmpEntityId);
+        else
+            tmpComponents = m_loggedComponents.getComponents(tmpEntityId);
         for(const QString &tmpComponentName : tmpComponents) {
-            if(storageDb->hasEntity(tmpEntityId)) { // is entity in storage?
-                QStringList componentNamesToAdd;
-                if(tmpComponentName == VLGlobalLabels::allComponentsName())
-                    componentNamesToAdd = getComponentsFilteredForDb(tmpEntityId);
-                else
-                    componentNamesToAdd.append(tmpComponentName);
-
-                for(const auto &componentToAdd : qAsConst(componentNamesToAdd)) {
-                    const QVariant storedValue = storageDb->getStoredValue(tmpEntityId, componentToAdd);
-                    addValueToDb(storedValue, tmpEntityId, componentToAdd);
-                }
+            if(storageDb->hasStoredValue(tmpEntityId, tmpComponentName)) {
+                const QVariant storedValue = storageDb->getStoredValue(tmpEntityId, tmpComponentName);
+                addValueToDb(storedValue, tmpEntityId, tmpComponentName);
             }
         }
     }
@@ -571,11 +567,8 @@ void DatabaseLogger::handleLoggedComponentsChange(QVariant newValue)
             for(auto &component : qAsConst(componentList))
                 m_loggedComponents.addComponent(entityIdStr.toInt(), component.toString());
         }
-        else {
-            // We need to add a special component name to inform logger
-            // to store all components
-            m_loggedComponents.addComponent(entityIdStr.toInt(), VLGlobalLabels::allComponentsName());
-        }
+        else
+            m_loggedComponents.addAllComponents(entityIdStr.toInt());
     }
 }
 
