@@ -13,10 +13,12 @@ class LoggedComponents
 public:
     void clear();
     void addComponent(int entityId, const QString &componentName);
-    bool contains(int entityId, const QString &componentName) const;
+    bool isLoggedComponent(int entityId, const QString &componentName) const;
     QList<int> getEntities() const;
     QStringList getComponents(int entityId) const;
+
 private:
+    bool contains(int entityId, const QString &componentName) const;
     QHash<int, QSet<QString>> m_components;
 };
 
