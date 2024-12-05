@@ -4,6 +4,7 @@
 #include "databasecommandinterface.h"
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
+#include "vl_loggedcomponents.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vf-cpp-rpc.h>
@@ -48,12 +49,10 @@ private:
     bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
+    void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
     QString handleVeinDbSessionNameSet(QString sessionName);
     bool checkConditionsForStartLog();
     bool isLoggedComponent(int entityId, const QString &componentName) const;
-    void addLoggerEntry(int entityId, const QString &componentName);
-    void clearLoggerEntries();
-    QVariantMap readContentSets();
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
@@ -81,7 +80,7 @@ private:
     QTimer m_countdownUpdateTimer;
 
     QStringList m_contentSets;
-    QMultiHash<int, QString> m_loggedValues;
+    LoggedComponents m_loggedComponents;
     QString m_transactionName;
     QString m_dbSessionName;
     int m_transactionId;

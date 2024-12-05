@@ -2,6 +2,7 @@
 #define LOGGERCONTENTSETCONFIG_H
 
 #include <vf_loggercontenthandler.h>
+#include <QVariantMap>
 #include <memory>
 
 namespace VeinLogger
@@ -16,6 +17,8 @@ public:
     };
     static const QList<LoggerContentConfigEntry> &getConfigEnvironment();
     static QStringList getAvailableContentSets();
+    static QVariantMap componentFromContentSets(const QStringList &contentSets);
+
 private:
     static QList<LoggerContentConfigEntry> m_loggerConfigEnvironment;
 };
