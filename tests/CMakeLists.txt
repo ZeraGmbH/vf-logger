@@ -31,6 +31,7 @@ SETUP_TESTS(
     test_testlib_testloggersystem
     test_sqlite_db
     test_db_command_interface_meta_registered
+    test_loggedcomponents
     )
 
 target_sources(test_contentsets
