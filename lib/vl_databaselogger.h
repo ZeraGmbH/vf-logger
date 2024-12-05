@@ -52,7 +52,6 @@ private:
     void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
     QString handleVeinDbSessionNameSet(QString sessionName);
     bool checkConditionsForStartLog();
-    bool isLoggedComponent(int entityId, const QString &componentName) const;
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();

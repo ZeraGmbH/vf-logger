@@ -579,19 +579,6 @@ void DatabaseLogger::handleLoggedComponentsChange(QVariant newValue)
     }
 }
 
-bool DatabaseLogger::isLoggedComponent(int entityId, const QString &componentName) const
-{
-    bool storeComponent = false;
-    if(m_loggedComponents.contains(entityId, VLGlobalLabels::allComponentsName())) {
-        QStringList componentsNoStore = VLGlobalLabels::noStoreComponents();
-        storeComponent = !componentsNoStore.contains(componentName);
-    }
-    else
-        storeComponent = m_loggedComponents.contains(entityId, componentName);
-    return storeComponent;
-
-}
-
 QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
     QString sessionCustomerDataName;
@@ -684,7 +671,7 @@ bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
 
 void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
 {
-    if(isLoggedComponent(entityId, componentName)) {
+    if(m_loggedComponents.isLoggedComponent(entityId, componentName)) {
         QString entityName = getEntityName(entityId);
         DatabaseCommandInterface::ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
         emit m_dbCmdInterface.sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
