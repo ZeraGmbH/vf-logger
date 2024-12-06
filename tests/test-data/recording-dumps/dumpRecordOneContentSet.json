@@ -28,21 +28,21 @@
             "entityId": 10,
             "entity_component_value": "Entity: 10 / Component: ComponentName1 / Value: 2",
             "sessionName": "DbTestSession1",
-            "writeId": 4
+            "writeId": 3
         },
         {
             "componentName": "ComponentName2",
             "entityId": 10,
             "entity_component_value": "Entity: 10 / Component: ComponentName2 / Value: 2",
             "sessionName": "DbTestSession1",
-            "writeId": 5
+            "writeId": 4
         },
         {
             "componentName": "ComponentName3",
             "entityId": 10,
             "entity_component_value": "Entity: 10 / Component: ComponentName3 / Value: 2",
             "sessionName": "DbTestSession1",
-            "writeId": 6
+            "writeId": 5
         }
     ]
 }
