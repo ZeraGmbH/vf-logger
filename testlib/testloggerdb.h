@@ -45,6 +45,7 @@ public:
     QByteArray getJsonDumpedComponentStored();
 
     void deleteDbFile();
+    void valuesFromNowOnAreInitial();
     void valuesFromNowOnAreRecorded();
 
 private:
