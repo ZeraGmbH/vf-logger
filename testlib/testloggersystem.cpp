@@ -114,6 +114,11 @@ void TestLoggerSystem::startLogging(QString sessionName, QString transactionName
         TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreRecorded();
 }
 
+void TestLoggerSystem::stopLogging()
+{
+    setComponent(dataLoggerEntityId, "LoggingEnabled", false);
+}
+
 void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityId)
 {
     m_server->changeSession(sessionPath, baseEntityId);

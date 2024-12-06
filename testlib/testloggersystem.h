@@ -28,6 +28,7 @@ public:
 
     void loadDatabase();
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
+    void stopLogging();
 
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();

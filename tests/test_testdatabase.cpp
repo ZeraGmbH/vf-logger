@@ -214,7 +214,7 @@ void test_testdatabase::recordStartStop()
 {
     recordAllContentSets();
 
-    m_testSystem.setComponent(dataLoggerEntityId, "LoggingEnabled", false);
+    m_testSystem.stopLogging();
 
     m_testSystem.setComponentValues(10);
 
