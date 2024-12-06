@@ -11,7 +11,7 @@ LoggedComponents::LoggedComponents(QList<int> entitiesWithAllComponentsStoredAlw
 
 void LoggedComponents::addComponent(int entityId, const QString &componentName)
 {
-    if(!m_entitiesWithAllComponents.contains(entityId)) // TODO: we have no tests for this
+    if(!m_entitiesWithAllComponents.contains(entityId))
         m_entitiesWithSpecificComponents[entityId].insert(componentName);
 }
 
