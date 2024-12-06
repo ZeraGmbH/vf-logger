@@ -3,10 +3,10 @@
 namespace VeinLogger
 {
 
-void LoggedComponents::clear()
+LoggedComponents::LoggedComponents(QList<int> entitiesWithAllComponentsStoredAlways) :
+    m_entitiesWithAllComponentsStoredAlways(entitiesWithAllComponentsStoredAlways)
 {
-    m_entitiesWithSpecificComponents.clear();
-    m_entitiesWithAllComponents.clear();
+    initEntritiesStoredAlways();
 }
 
 void LoggedComponents::addComponent(int entityId, const QString &componentName)
@@ -21,12 +21,11 @@ void LoggedComponents::addAllComponents(int entityId)
     m_entitiesWithAllComponents.insert(entityId);
 }
 
-bool LoggedComponents::specificContains(int entityId, const QString &componentName) const
+void LoggedComponents::clear()
 {
-    auto entityIter = m_entitiesWithSpecificComponents.constFind(entityId);
-    if(entityIter != m_entitiesWithSpecificComponents.constEnd())
-        return entityIter.value().contains(componentName);
-    return false;
+    m_entitiesWithSpecificComponents.clear();
+    m_entitiesWithAllComponents.clear();
+    initEntritiesStoredAlways();
 }
 
 const QStringList LoggedComponents::getComponentsNotStoredOnAll()
@@ -64,12 +63,26 @@ QStringList LoggedComponents::getComponents(int entityId) const
     return components;
 }
 
-QStringList LoggedComponents::removeNotStoredComponents(const QStringList &allComponents)
+QStringList LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(const QStringList &allComponents)
 {
     QStringList ret = allComponents;
     for(const auto &noStoreLabel : getComponentsNotStoredOnAll())
         ret.removeAll(noStoreLabel);
     return ret;
+}
+
+bool LoggedComponents::specificContains(int entityId, const QString &componentName) const
+{
+    auto entityIter = m_entitiesWithSpecificComponents.constFind(entityId);
+    if(entityIter != m_entitiesWithSpecificComponents.constEnd())
+        return entityIter.value().contains(componentName);
+    return false;
+}
+
+void VeinLogger::LoggedComponents::initEntritiesStoredAlways()
+{
+    for(auto entityIdStoredAlways : m_entitiesWithAllComponentsStoredAlways)
+        m_entitiesWithAllComponents.insert(entityIdStoredAlways);
 }
 
 }

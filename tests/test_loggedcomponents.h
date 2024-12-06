@@ -16,6 +16,9 @@ private slots:
 
     void addWithComponentAndClear();
     void addAllAndClear();
+
+    void storeAlwaysNoAdditional();
+    void storeAlwaysAddClearAdd();
 };
 
 #endif // TEST_LOGGEDCOMPONENTS_H
