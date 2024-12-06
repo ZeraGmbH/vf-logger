@@ -44,6 +44,7 @@ private:
     std::unique_ptr<TestVeinServer> m_server;
     std::unique_ptr<VeinLogger::DatabaseLogger> m_dataLoggerSystem;
     std::unique_ptr<CustomerDataSystem> m_customerDataSystem;
+    int m_emitCountTotal = 0;
 };
 
 #endif // TESTLOGGERSYSTEM_H

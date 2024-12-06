@@ -59,6 +59,7 @@ void TestLoggerSystem::appendCustomerDataSystem()
 
 void TestLoggerSystem::cleanup()
 {
+    m_emitCountTotal = 0;
     TimeMachineObject::feedEventLoop();
     if(m_dataLoggerSystem) {
         m_dataLoggerSystem->closeDatabase();
@@ -91,11 +92,13 @@ void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
         for(int entityId : qAsConst(entityIds)) {
             QList<QString> components = componentsCreated[entityId];
             for(const QString &componentName : components) {
-                QString value = QString("Entity: %1 / Component: %2 / Value: %3").arg(entityId).arg(componentName).arg(i);
+                QString value = QString("Entity: %1 / Component: %2 / Value: %3").
+                                arg(entityId).arg(componentName).arg(m_emitCountTotal+i);
                 setComponent(entityId, componentName, value);
             }
         }
     }
+    m_emitCountTotal += valuesEmittedPerComponent;
 }
 
 void TestLoggerSystem::loadDatabase()
