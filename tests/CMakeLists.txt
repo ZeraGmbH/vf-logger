@@ -32,8 +32,8 @@ SETUP_TESTS(
     test_sqlite_db
     test_db_command_interface_meta_registered
     test_loggedcomponents
+    test_entities_stored_always
     )
-
 target_sources(test_contentsets
     PRIVATE
     test-data/test-data.qrc
@@ -50,6 +50,12 @@ target_sources(test_testlib_testloggersystem
 )
 
 target_sources(test_sqlite_db
+    PRIVATE
+    test-data/test-data.qrc
+)
+
+
+target_sources(test_entities_stored_always
     PRIVATE
     test-data/test-data.qrc
 )

@@ -189,8 +189,8 @@
     ],
     "AddedStartStop": [
     ],
-    "OnLoggerStartValues": {
-    },
+    "OnLoggerStartValues": [
+    ],
     "ValuesRecordedChronological": [
     ]
 }

@@ -2,7 +2,7 @@
 #define VL_LOGGEDCOMPONENTS_H
 
 #include <QString>
-#include <QHash>
+#include <QMap>
 #include <QSet>
 
 namespace VeinLogger

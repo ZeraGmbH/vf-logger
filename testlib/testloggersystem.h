@@ -18,16 +18,19 @@ public:
     enum DbType { MOCK, SQLITE };
     TestLoggerSystem(DbType dbType = MOCK);
 
-    void setupServer(int entityCount=2, int componentCount=2);
+    void setupServer(int entityCount=2, int componentCount=2, QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
     QMap<int, QList<QString>> getComponentsCreated();
     void appendCustomerDataSystem();
     void cleanup();
 
-    void setComponent(int entityId, QString componentName, QVariant newValue);
-    void setComponentValues(int valuesEmittedPerComponent);
+    void setDataComponent(int entityId, QString componentName, QVariant newValue);
+    void setControlComponent(int entityId, QString componentName, QVariant newValue);
+    void setComponentValuesSequenceEach(int valuesEmittedPerComponent);
 
     void loadDatabase();
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
+    void stopLogging();
+    void setNextValueWriteCount(int newValueWriteCount);
 
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();

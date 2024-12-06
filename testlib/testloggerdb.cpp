@@ -9,7 +9,7 @@ const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/veindb-test
 const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
 const QLatin1String TestLoggerDB::DBNameOpenErrorLate = QLatin1String("/tmp/DB_NAME_OPEN_ERR");
 
-TestLoggerDB *TestLoggerDB::getInstance()
+TestLoggerDB *TestLoggerDB::getCurrentInstance()
 {
     return m_instance;
 }
@@ -40,22 +40,16 @@ void TestLoggerDB::deleteDbFile()
 
 QByteArray TestLoggerDB::getJsonDumpedComponentStored()
 {
-    QJsonObject initialData;
-    for(auto entityIter=m_initialValues.cbegin(); entityIter!=m_initialValues.cend(); entityIter++) {
-        const int entityId = entityIter.key();
-        const QMap<QString, InitialValue> &component = entityIter.value();
-        QJsonObject entityValues;
-        for(auto componentIter=component.cbegin(); componentIter!=component.cend(); componentIter++) {
-            QString componentName = componentIter.key();
-            InitialValue value = componentIter.value();
-            QJsonObject componentValues;
-            componentValues.insert("sessionName", value.sessionName);
-            componentValues.insert("value", value.value.toString());
-            entityValues.insert(componentName, componentValues);
-        }
-        initialData.insert(QString::number(entityId), entityValues);
+    QJsonArray initialData;
+    for(const auto &loggedVal : qAsConst(m_initialValues)) {
+        QJsonObject entry;
+        entry.insert("sessionName", loggedVal.sessionName);
+        entry.insert("entityId", loggedVal.entityId);
+        entry.insert("componentName", loggedVal.componentName);
+        entry.insert("entity_component_value", loggedVal.value.toJsonValue());
+        entry.insert("writeId", loggedVal.dataWriteIdCount);
+        initialData.append(entry);
     }
-
     QJsonArray recordedData;
     for(const auto &loggedVal : qAsConst(m_loggedValues)) {
         QJsonObject entry;
@@ -78,6 +72,11 @@ QByteArray TestLoggerDB::getJsonDumpedComponentStored()
 void TestLoggerDB::valuesFromNowOnAreRecorded()
 {
     m_valuesAreInitial = false;
+}
+
+void TestLoggerDB::valuesFromNowOnAreInitial()
+{
+    m_valuesAreInitial = true;
 }
 
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
@@ -174,16 +173,17 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
     if(!transactionIds.contains(testTransactionId))
         qFatal("Unexpected transaction ids!");
 
-    m_valueWriteCount++;
-
-    if(m_valuesAreInitial) {
-        InitialValue initVal = { sessionName, component.value };
-        m_initialValues[component.entityId][component.componentName] = initVal;
-    }
-    else {
-        LoggedValue logVal = { sessionName, component.entityId, component.componentName, component.value, m_valueWriteCount};
+    LoggedValue logVal = { sessionName, component.entityId, component.componentName, component.value, m_valueWriteCount};
+    if(m_valuesAreInitial)
+        m_initialValues.append(logVal);
+    else
         m_loggedValues.append(logVal);
-    }
+    m_valueWriteCount++;
+}
+
+void TestLoggerDB::setNextValueWriteCount(int newValueWriteCount)
+{
+    m_valueWriteCount = newValueWriteCount;
 }
 
 void TestLoggerDB::onOpen(const QString &dbPath)

@@ -13,11 +13,15 @@
 
 namespace VeinLogger
 {
-DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage, DBFactory factoryFunction, QObject *parent, AbstractLoggerDB::STORAGE_MODE storageMode) :
+DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
+                               DBFactory factoryFunction,
+                               QObject *parent, QList<int> entitiesWithAllComponentsStoredAlways,
+                               AbstractLoggerDB::STORAGE_MODE storageMode) :
     VeinEvent::EventSystem(parent),
     m_veinStorage(veinStorage),
     m_databaseFactory(factoryFunction),
-    m_storageMode(storageMode)
+    m_storageMode(storageMode),
+    m_loggedComponents(entitiesWithAllComponentsStoredAlways)
 {
     switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT:
@@ -47,7 +51,6 @@ DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage, DB
     connect(&m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
     });
-
 }
 
 DatabaseLogger::~DatabaseLogger()
@@ -246,6 +249,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
 QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 {
     QStringList fullList = m_veinStorage->getDb()->getComponentList(entityId);
+    fullList.sort();
     return LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(fullList);
 }
 

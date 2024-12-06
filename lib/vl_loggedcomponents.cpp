@@ -1,4 +1,5 @@
 #include "vl_loggedcomponents.h"
+#include <QMap>
 
 namespace VeinLogger
 {
@@ -49,18 +50,27 @@ bool LoggedComponents::areAllComponentsStored(int entityId)
 
 QList<int> LoggedComponents::getEntities() const
 {
-    const QList<int> entitiesWithSpecificComponents = m_entitiesWithSpecificComponents.keys();
+    QMap<int, void*> sorted;
     const QList<int> entitiesWithAllComponents = m_entitiesWithAllComponents.values();
-    return entitiesWithSpecificComponents + entitiesWithAllComponents;
+    for(auto entttyId : entitiesWithAllComponents)
+        sorted.insert(entttyId, nullptr);
+
+    const QList<int> entitiesWithSpecificComponents = m_entitiesWithSpecificComponents.keys();
+    for(auto entttyId : entitiesWithSpecificComponents)
+        sorted.insert(entttyId, nullptr);
+
+    return sorted.keys();
 }
 
 QStringList LoggedComponents::getComponents(int entityId) const
 {
-    QStringList components;
     auto iter = m_entitiesWithSpecificComponents.constFind(entityId);
-    if(iter != m_entitiesWithSpecificComponents.constEnd())
-        components = iter.value().values();
-    return components;
+    if(iter != m_entitiesWithSpecificComponents.constEnd()) {
+        QStringList components = iter.value().values();
+        components.sort();
+        return components;
+    }
+    return QStringList();
 }
 
 QStringList LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(const QStringList &allComponents)

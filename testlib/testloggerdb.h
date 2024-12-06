@@ -31,6 +31,7 @@ public:
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
+    void setNextValueWriteCount(int newValueWriteCount);
 
     static const QLatin1String DBNameOpenOk;
     static const QLatin1String DBNameOpenErrorEarly;
@@ -40,11 +41,12 @@ public:
     void runBatchedExecution() override;
 
 // Test specific additions
-    static TestLoggerDB* getInstance();
+    static TestLoggerDB* getCurrentInstance(); // no singleton!!!
     QByteArray getJsonDumpedComponentStored();
 
     void deleteDbFile();
     void valuesFromNowOnAreRecorded();
+    void valuesFromNowOnAreInitial();
 
 private:
     TestDbAddSignaller* m_testSignaller;
@@ -60,14 +62,6 @@ private:
     QJsonArray m_sessionOnceComponentsAdded;
     QJsonArray m_startStopEvents;
 
-    bool m_valuesAreInitial = true;
-    struct InitialValue
-    {
-        QString sessionName;
-        QVariant value;
-    };
-    QMap<int, QMap<QString, InitialValue>> m_initialValues;
-
     struct LoggedValue
     {
         QString sessionName;
@@ -77,6 +71,8 @@ private:
         int dataWriteIdCount;
     };
     QList<LoggedValue> m_loggedValues;
+    bool m_valuesAreInitial = true;
+    QList<LoggedValue> m_initialValues;
 
     static TestLoggerDB* m_instance;
 };

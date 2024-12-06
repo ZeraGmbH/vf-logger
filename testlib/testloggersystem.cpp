@@ -18,7 +18,7 @@ TestLoggerSystem::TestLoggerSystem(DbType dbType) :
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
 }
 
-void TestLoggerSystem::setupServer(int entityCount, int componentCount)
+void TestLoggerSystem::setupServer(int entityCount, int componentCount, QList<int> entitiesWithAllComponentsStoredAlways)
 {
     QDir dir;
     dir.mkpath(getCustomerDataPath());
@@ -28,7 +28,7 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
     m_server->addTestEntities(entityCount, componentCount);
     m_testSignaller = std::make_unique<TestDbAddSignaller>();
 
-    const VeinLogger::DBFactory sqliteFactory = [=]() -> VeinLogger::AbstractLoggerDB* {
+    const VeinLogger::DBFactory sqliteFactory = [&]() -> VeinLogger::AbstractLoggerDB* {
         switch(m_dbType) {
         case MOCK:
             return new TestLoggerDB(m_testSignaller.get());
@@ -37,7 +37,11 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
         }
         return nullptr;
     };
-    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_server->getStorage(), sqliteFactory);
+    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(
+        m_server->getStorage(),
+        sqliteFactory,
+        nullptr,
+        entitiesWithAllComponentsStoredAlways);
     m_server->appendEventSystem(m_dataLoggerSystem.get());
     TimeMachineObject::feedEventLoop();
 
@@ -78,12 +82,19 @@ void TestLoggerSystem::cleanup()
     QFile::remove(TestLoggerDB::DBNameOpenOk);
 }
 
-void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)
+void TestLoggerSystem::setDataComponent(int entityId, QString componentName, QVariant newValue)
 {
+    // Server: We are not interested in changes only!!!
+    m_server->setComponentServerNotification(entityId, componentName, newValue);
+}
+
+void TestLoggerSystem::setControlComponent(int entityId, QString componentName, QVariant newValue)
+{
+    // Client: Changes from server seem to be ignored - omg...
     m_server->setComponentClientTransaction(entityId, componentName, newValue);
 }
 
-void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
+void TestLoggerSystem::setComponentValuesSequenceEach(int valuesEmittedPerComponent)
 {
     QMap<int, QList<QString>> componentsCreated = getComponentsCreated();
     QList<int> entityIds = componentsCreated.keys();
@@ -92,7 +103,7 @@ void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
             QList<QString> components = componentsCreated[entityId];
             for(const QString &componentName : components) {
                 QString value = QString("Entity: %1 / Component: %2 / Value: %3").arg(entityId).arg(componentName).arg(i);
-                setComponent(entityId, componentName, value);
+                setDataComponent(entityId, componentName, value);
             }
         }
     }
@@ -100,14 +111,28 @@ void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
 
 void TestLoggerSystem::loadDatabase()
 {
-    setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    setControlComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
 }
 
 void TestLoggerSystem::startLogging(QString sessionName, QString transactionName)
 {
-    setComponent(dataLoggerEntityId, "sessionName", sessionName);
-    setComponent(dataLoggerEntityId, "transactionName", transactionName);
-    setComponent(dataLoggerEntityId, "LoggingEnabled", true);
+    if(TestLoggerDB::getCurrentInstance())
+        TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreInitial();
+    setControlComponent(dataLoggerEntityId, "sessionName", sessionName);
+    setControlComponent(dataLoggerEntityId, "transactionName", transactionName);
+    setControlComponent(dataLoggerEntityId, "LoggingEnabled", true);
+    if(TestLoggerDB::getCurrentInstance())
+        TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreRecorded();
+}
+
+void TestLoggerSystem::stopLogging()
+{
+    setControlComponent(dataLoggerEntityId, "LoggingEnabled", false);
+}
+
+void TestLoggerSystem::setNextValueWriteCount(int newValueWriteCount)
+{
+    TestLoggerDB::getCurrentInstance()->setNextValueWriteCount(newValueWriteCount);
 }
 
 void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityId)
