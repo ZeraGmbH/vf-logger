@@ -57,7 +57,7 @@ void test_testdatabase::createSessionNoCustomerDataSystem()
     QFile fileRecording(":/recording-dumps/dumpCreateSessionNoCustomerDataSystem.json");
     QVERIFY(fileRecording.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileRecording.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 
     QFile fileVein(":/vein-dumps/dumpDbSetSessionNew.json");
@@ -93,7 +93,7 @@ void test_testdatabase::selectExistingSession()
     QFile fileRecording(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(fileRecording.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileRecording.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 
     QFile file(":/vein-dumps/dumpDbSetSessionAvail.json");
@@ -114,7 +114,7 @@ void test_testdatabase::createSession()
     QFile fileRecording(":/recording-dumps/dumpCreateSession.json");
     QVERIFY(fileRecording.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileRecording.readAll();
-    QByteArray jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 
     QFile fileVein(":/vein-dumps/dumpDbSetSessionNew.json");
@@ -158,7 +158,7 @@ void test_testdatabase::recordOneContentSet()
     QFile file(":/recording-dumps/dumpRecordOneContentSet.json");
     QVERIFY(file.open(QFile::ReadOnly));
     jsonExpected = file.readAll();
-    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -182,7 +182,7 @@ void test_testdatabase::recordTwoContentSets()
     QFile file(":/recording-dumps/dumpRecordTwoContentSets.json");
     QVERIFY(file.open(QFile::ReadOnly));
     jsonExpected = file.readAll();
-    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -206,7 +206,7 @@ void test_testdatabase::recordAllContentSets()
     QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
     QVERIFY(file.open(QFile::ReadOnly));
     jsonExpected = file.readAll();
-    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -227,7 +227,7 @@ void test_testdatabase::recordStartStop()
     QFile file(":/recording-dumps/dumpRecordAllContentSetsStartStop.json");
     QVERIFY(file.open(QFile::ReadOnly));
     jsonExpected = file.readAll();
-    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -251,7 +251,7 @@ void test_testdatabase::noRecordTransactionMissing()
     QFile file(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(file.open(QFile::ReadOnly));
     jsonExpected = file.readAll();
-    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -275,7 +275,7 @@ void test_testdatabase::noRecordSessionMissing()
     QFile file(":/recording-dumps/dumpRecordNotStarted.json");
     QVERIFY(file.open(QFile::ReadOnly));
     jsonExpected = file.readAll();
-    jsonDumped = TestLoggerDB::getInstance()->getJsonDumpedComponentStored();
+    jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -309,7 +309,7 @@ void test_testdatabase::removeDbFileForUsbStickGone()
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 
-    TestLoggerDB::getInstance()->deleteDbFile();
+    TestLoggerDB::getCurrentInstance()->deleteDbFile();
     TimeMachineObject::feedEventLoop();;
 
     QFile fileRemoved(":/vein-dumps/dumpDbFileRemoved.json");
@@ -358,7 +358,7 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
 void test_testdatabase::startLogging(QString sessionName, QString transactionName)
 {
     m_testSystem.startLogging(sessionName, transactionName);
-    if(TestLoggerDB::getInstance())
-        TestLoggerDB::getInstance()->valuesFromNowOnAreRecorded();
+    if(TestLoggerDB::getCurrentInstance())
+        TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreRecorded();
 }
 
