@@ -18,7 +18,9 @@ TestLoggerSystem::TestLoggerSystem(DbType dbType) :
     VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
 }
 
-void TestLoggerSystem::setupServer(int entityCount, int componentCount)
+void TestLoggerSystem::setupServer(int entityCount,
+                                   int componentCount,
+                                   QList<int> entitiesWithAllComponentsStoredAlways)
 {
     QDir dir;
     dir.mkpath(getCustomerDataPath());
@@ -37,7 +39,10 @@ void TestLoggerSystem::setupServer(int entityCount, int componentCount)
         }
         return nullptr;
     };
-    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_server->getStorage(), sqliteFactory);
+    m_dataLoggerSystem = std::make_unique<VeinLogger::DatabaseLogger>(m_server->getStorage(),
+                                                                      sqliteFactory,
+                                                                      nullptr,
+                                                                      entitiesWithAllComponentsStoredAlways);
     m_server->appendEventSystem(m_dataLoggerSystem.get());
     TimeMachineObject::feedEventLoop();
 
