@@ -246,7 +246,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
 QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
 {
     QStringList fullList = m_veinStorage->getDb()->getComponentList(entityId);
-    return LoggedComponents::removeNotStoredComponents(fullList);
+    return LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(fullList);
 }
 
 void DatabaseLogger::onSchedulerCountdownToVein()
@@ -266,7 +266,6 @@ void DatabaseLogger::statusTextToVein(const QString &status)
                                                                QVariant(), status);
         emit sigSendEvent(event);
     }
-
 }
 
 void DatabaseLogger::prepareLogging()
