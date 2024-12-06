@@ -67,6 +67,41 @@
             "entity_component_value": "Entity: 11 / Component: ComponentName2 / Value: 2",
             "sessionName": "DbTestSession1",
             "writeId": 9
+        },
+        {
+            "componentName": "ComponentName1",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName1 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 10
+        },
+        {
+            "componentName": "ComponentName2",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName2 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 11
+        },
+        {
+            "componentName": "ComponentName3",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName3 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 12
+        },
+        {
+            "componentName": "ComponentName1",
+            "entityId": 11,
+            "entity_component_value": "Entity: 11 / Component: ComponentName1 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 13
+        },
+        {
+            "componentName": "ComponentName2",
+            "entityId": 11,
+            "entity_component_value": "Entity: 11 / Component: ComponentName2 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 14
         }
     ]
 }
