@@ -18,8 +18,11 @@ class VFLOGGER_EXPORT DatabaseLogger : public VeinEvent::EventSystem
 {
     Q_OBJECT
 public:
-    explicit DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage, VeinLogger::DBFactory factoryFunction,
-                            QObject *parent=nullptr, AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
+    explicit DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
+                            VeinLogger::DBFactory factoryFunction,
+                            QObject *parent = nullptr,
+                            QList<int> entitiesWithAllComponentsStoredAlways = QList<int>(),
+                            AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
     void processEvent(QEvent *event) override;
     int entityId() const;

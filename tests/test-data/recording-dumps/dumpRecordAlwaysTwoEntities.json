@@ -1,0 +1,89 @@
+{
+    "AddSessionValues": [
+    ],
+    "AddedStartStop": [
+        {
+            "StartTime": 0
+        }
+    ],
+    "OnLoggerStartValues": {
+        "10": {
+            "ComponentName1": {
+                "sessionName": "DbTestSession1",
+                "value": "Entity: 10 / Component: ComponentName1 / Value: 1"
+            },
+            "ComponentName2": {
+                "sessionName": "DbTestSession1",
+                "value": "Entity: 10 / Component: ComponentName2 / Value: 1"
+            }
+        },
+        "11": {
+            "ComponentName1": {
+                "sessionName": "DbTestSession1",
+                "value": "Entity: 11 / Component: ComponentName1 / Value: 1"
+            },
+            "ComponentName2": {
+                "sessionName": "DbTestSession1",
+                "value": "Entity: 11 / Component: ComponentName2 / Value: 1"
+            }
+        }
+    },
+    "ValuesRecordedChronological": [
+        {
+            "componentName": "ComponentName1",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName1 / Value: 2",
+            "sessionName": "DbTestSession1",
+            "writeId": 4
+        },
+        {
+            "componentName": "ComponentName2",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName2 / Value: 2",
+            "sessionName": "DbTestSession1",
+            "writeId": 5
+        },
+        {
+            "componentName": "ComponentName1",
+            "entityId": 11,
+            "entity_component_value": "Entity: 11 / Component: ComponentName1 / Value: 2",
+            "sessionName": "DbTestSession1",
+            "writeId": 6
+        },
+        {
+            "componentName": "ComponentName2",
+            "entityId": 11,
+            "entity_component_value": "Entity: 11 / Component: ComponentName2 / Value: 2",
+            "sessionName": "DbTestSession1",
+            "writeId": 7
+        },
+        {
+            "componentName": "ComponentName1",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName1 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 8
+        },
+        {
+            "componentName": "ComponentName2",
+            "entityId": 10,
+            "entity_component_value": "Entity: 10 / Component: ComponentName2 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 9
+        },
+        {
+            "componentName": "ComponentName1",
+            "entityId": 11,
+            "entity_component_value": "Entity: 11 / Component: ComponentName1 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 10
+        },
+        {
+            "componentName": "ComponentName2",
+            "entityId": 11,
+            "entity_component_value": "Entity: 11 / Component: ComponentName2 / Value: 3",
+            "sessionName": "DbTestSession1",
+            "writeId": 11
+        }
+    ]
+}

@@ -9,6 +9,9 @@
         <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
         <file>recording-dumps/dumpRecordAllContentSets.json</file>
         <file>recording-dumps/dumpRecordAllContentSetsStartStop.json</file>
+        <file>recording-dumps/dumpRecordAlwaysStartStopStart.json</file>
+        <file>recording-dumps/dumpRecordAlwaysTwoEntities.json</file>
+        <file>recording-dumps/dumpRecordAlwaysTwoSetOneEntities.json</file>
         <file>recording-dumps/dumpRecordNotStarted.json</file>
         <file>recording-dumps/dumpRecordOneContentSet.json</file>
         <file>recording-dumps/dumpRecordTwoContentSets.json</file>

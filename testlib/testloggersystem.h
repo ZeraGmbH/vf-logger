@@ -18,7 +18,9 @@ public:
     enum DbType { MOCK, SQLITE };
     TestLoggerSystem(DbType dbType = MOCK);
 
-    void setupServer(int entityCount=2, int componentCount=2);
+    void setupServer(int entityCount = 2,
+                     int componentCount = 2,
+                     QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
     QMap<int, QList<QString>> getComponentsCreated();
     void appendCustomerDataSystem();
     void cleanup();
