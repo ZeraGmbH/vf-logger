@@ -129,7 +129,7 @@ void test_testdatabase::recordVeinDump()
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
-    startLogging();
+    m_testSystem.startLogging();
 
     QFile file(":/vein-dumps/dumpDbRecordInitial.json");
     QVERIFY(file.open(QFile::ReadOnly));
@@ -145,7 +145,7 @@ void test_testdatabase::recordOneContentSet()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     m_testSystem.setComponentValues(1);
 
-    startLogging();
+    m_testSystem.startLogging();
 
     m_testSystem.setComponentValues(2);
 
@@ -169,7 +169,7 @@ void test_testdatabase::recordTwoContentSets()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet2");
     m_testSystem.setComponentValues(1);
 
-    startLogging();
+    m_testSystem.startLogging();
 
     m_testSystem.setComponentValues(2);
 
@@ -193,7 +193,7 @@ void test_testdatabase::recordAllContentSets()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
     m_testSystem.setComponentValues(1);
 
-    startLogging();
+    m_testSystem.startLogging();
 
     m_testSystem.setComponentValues(2);
 
@@ -238,7 +238,7 @@ void test_testdatabase::noRecordTransactionMissing()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     m_testSystem.setComponentValues(1);
 
-    startLogging("DbTestSession1", "");
+    m_testSystem.startLogging("DbTestSession1", "");
 
     m_testSystem.setComponentValues(2);
 
@@ -262,7 +262,7 @@ void test_testdatabase::noRecordSessionMissing()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     m_testSystem.setComponentValues(1);
 
-    startLogging("", "TestTransaction");
+    m_testSystem.startLogging("", "TestTransaction");
 
     m_testSystem.setComponentValues(2);
 
@@ -285,7 +285,7 @@ void test_testdatabase::noRecordDatbaseMissing()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1"); // LOL
     m_testSystem.setComponentValues(1);
 
-    startLogging();
+    m_testSystem.startLogging();
 
     m_testSystem.setComponentValues(2);
 
@@ -340,7 +340,7 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "TestGuiContext");
 
-    startLogging();
+    m_testSystem.startLogging();
 
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy[0][0], "TestTransaction");
@@ -354,11 +354,3 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
-
-void test_testdatabase::startLogging(QString sessionName, QString transactionName)
-{
-    m_testSystem.startLogging(sessionName, transactionName);
-    if(TestLoggerDB::getCurrentInstance())
-        TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreRecorded();
-}
-

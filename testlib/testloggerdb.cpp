@@ -75,6 +75,11 @@ QByteArray TestLoggerDB::getJsonDumpedComponentStored()
     return QJsonDocument(loggedValues).toJson();
 }
 
+void TestLoggerDB::valuesFromNowOnAreInitial()
+{
+    m_valuesAreInitial = true;
+}
+
 void TestLoggerDB::valuesFromNowOnAreRecorded()
 {
     m_valuesAreInitial = false;
