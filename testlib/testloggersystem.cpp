@@ -119,6 +119,11 @@ void TestLoggerSystem::stopLogging()
     setComponent(dataLoggerEntityId, "LoggingEnabled", false);
 }
 
+void TestLoggerSystem::setNextValueWriteCount(int newValueWriteCount)
+{
+    TestLoggerDB::getCurrentInstance()->setNextValueWriteCount(newValueWriteCount);
+}
+
 void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityId)
 {
     m_server->changeSession(sessionPath, baseEntityId);
