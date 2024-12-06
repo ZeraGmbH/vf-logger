@@ -30,6 +30,8 @@ public:
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
     void stopLogging();
 
+    void setNextValueWriteCount(int newValueWriteCount);
+
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();
 
