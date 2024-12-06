@@ -9,7 +9,7 @@ const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/veindb-test
 const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
 const QLatin1String TestLoggerDB::DBNameOpenErrorLate = QLatin1String("/tmp/DB_NAME_OPEN_ERR");
 
-TestLoggerDB *TestLoggerDB::getInstance()
+TestLoggerDB *TestLoggerDB::getCurrentInstance()
 {
     return m_instance;
 }

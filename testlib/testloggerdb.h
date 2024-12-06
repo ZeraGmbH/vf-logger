@@ -40,7 +40,7 @@ public:
     void runBatchedExecution() override;
 
 // Test specific additions
-    static TestLoggerDB* getInstance();
+    static TestLoggerDB* getCurrentInstance(); // no singleton!!!
     QByteArray getJsonDumpedComponentStored();
 
     void deleteDbFile();
