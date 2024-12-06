@@ -134,9 +134,6 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::Datab
     m_dbSessionNames.append(sessionName);
     emit sigNewSessionList(m_dbSessionNames);
 
-    // for test
-    m_valueWriteCount++;
-
     QMap<QString, VeinLogger::DatabaseCommandInterface::ComponentInfo> componentValuesSorted;
     for(int i=0; i<componentsStoredOncePerSession.count(); i++) {
         VeinLogger::DatabaseCommandInterface::ComponentInfo variantEntry = componentsStoredOncePerSession[i];
@@ -174,8 +171,6 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
     if(!transactionIds.contains(testTransactionId))
         qFatal("Unexpected transaction ids!");
 
-    m_valueWriteCount++;
-
     if(m_valuesAreInitial) {
         InitialValue initVal = { sessionName, component.value };
         m_initialValues[component.entityId][component.componentName] = initVal;
@@ -184,6 +179,12 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
         LoggedValue logVal = { sessionName, component.entityId, component.componentName, component.value, m_valueWriteCount};
         m_loggedValues.append(logVal);
     }
+    m_valueWriteCount++;
+}
+
+void TestLoggerDB::setNextValueWriteCount(int newValueWriteCount)
+{
+    m_valueWriteCount = newValueWriteCount;
 }
 
 void TestLoggerDB::onOpen(const QString &dbPath)

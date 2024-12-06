@@ -31,6 +31,7 @@ public:
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
+    void setNextValueWriteCount(int newValueWriteCount);
 
     static const QLatin1String DBNameOpenOk;
     static const QLatin1String DBNameOpenErrorEarly;
