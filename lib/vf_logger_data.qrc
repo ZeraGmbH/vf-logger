@@ -4,7 +4,6 @@
         <file>sqlite/query_data_sqlite.sql</file>
         <file>sqlite/query_session_static_components.sql</file>
         <file>sqlite/schema_sqlite.sql</file>
-        <file>sqlite/sqlite-db.svg</file>
         <file>sqlite/testdata_sqlite.sql</file>
     </qresource>
 </RCC>
