@@ -553,6 +553,10 @@ QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &e
     return m_dPtr->readSessionComponent(session, enity, component);
 }
 
+QVariant SQLiteDB::displaySessionsInfos(const QString &sessionName)
+{
+}
+
 void SQLiteDB::onOpen(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);
