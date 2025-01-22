@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QDateTime>
 #include <QVariant>
+#include <QJsonObject>
 #include <functional>
 
 namespace VeinLogger
@@ -34,7 +35,7 @@ public slots:
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) = 0 ;
     virtual bool deleteSession(const QString &sessionName) = 0;
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
-    virtual QVariant displaySessionsInfos(const QString &sessionName) = 0;
+    virtual QJsonObject displaySessionsInfos(const QString &sessionName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;

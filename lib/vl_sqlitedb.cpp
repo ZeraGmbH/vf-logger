@@ -200,6 +200,7 @@ class DBPrivate
      * Read session customer data file name
      */
     QSqlQuery m_sessionCustomerQuery;
+    QSqlQuery m_displayInfosQuery;
 
     int m_valueMapQueryCounter = 0;
     QSqlDatabase m_logDB;
@@ -553,8 +554,29 @@ QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &e
     return m_dPtr->readSessionComponent(session, enity, component);
 }
 
-QVariant SQLiteDB::displaySessionsInfos(const QString &sessionName)
+QJsonObject SQLiteDB::displaySessionsInfos(const QString &sessionName)
 {
+    m_dPtr->m_displayInfosQuery.bindValue(":sessionname",sessionName);
+    m_dPtr->m_displayInfosQuery.exec();
+
+    QJsonObject sessionObject;
+    while(m_dPtr->m_displayInfosQuery.next()){
+        QString transactionName = m_dPtr->m_displayInfosQuery.value("transaction_name").toString();
+        QString startingTime = m_dPtr->m_displayInfosQuery.value("start_time").toString();
+        QString contentset = m_dPtr->m_displayInfosQuery.value("contentset_names").toString();
+        QString guicontext = m_dPtr->m_displayInfosQuery.value("guicontext_name").toString();
+
+        QJsonObject transactionObject;
+        transactionObject.insert("Time", startingTime);
+        transactionObject.insert("contentset", contentset);
+        transactionObject.insert("guicontext", guicontext);
+
+        sessionObject.insert(transactionName, transactionObject);
+    }
+
+    QJsonObject completeJson;
+    completeJson.insert(sessionName, sessionObject);
+    return completeJson;
 }
 
 void SQLiteDB::onOpen(const QString &dbPath)
@@ -596,6 +618,7 @@ void SQLiteDB::onOpen(const QString &dbPath)
             m_dPtr->m_readTransactionQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionMappingInsertQuery = QSqlQuery(m_dPtr->m_logDB);
             m_dPtr->m_sessionCustomerQuery = QSqlQuery(m_dPtr->m_logDB);
+            m_dPtr->m_displayInfosQuery = QSqlQuery(m_dPtr->m_logDB);
             //setup database if necessary
             QSqlQuery schemaVersionQuery(m_dPtr->m_logDB);
 
@@ -669,6 +692,12 @@ void SQLiteDB::onOpen(const QString &dbPath)
                                                        " valuemap ON sessions_valuemap.valueid = valuemap.id INNER JOIN entities ON valuemap.entityiesid = entities.id INNER JOIN"
                                                        " components ON valuemap.componentid = components.id"
                                                        " WHERE session_name= :sessionname AND entity_name= :entity AND component_name= :component;");
+
+                m_dPtr->m_displayInfosQuery.prepare("SELECT sessions.session_name,"
+                                                    " transactions.transaction_name, transactions.contentset_names, transactions.guicontext_name, transactions.start_time"
+                                                    " FROM sessions INNER JOIN"
+                                                    " transactions ON sessions.id = transactions.sessionid"
+                                                    " WHERE session_name= :sessionname;");
 
 
                 //get next valuemap_id

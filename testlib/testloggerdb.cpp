@@ -133,7 +133,7 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
         return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
 }
 
-QVariant TestLoggerDB::displaySessionsInfos(const QString &sessionName)
+QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
 {
 
 }
