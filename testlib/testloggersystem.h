@@ -28,6 +28,8 @@ public:
     void setComponent(int entityId, QString componentName, QVariant newValue);
     void setComponentValues(int valuesEmittedPerComponent);
 
+    QVariant getValueOfComponent(int entityId, QString componentName);
+
     void loadDatabase();
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
     void stopLogging();
@@ -36,6 +38,8 @@ public:
 
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();
+
+    QJsonObject displaySessionsInfos(QString session, QString transactionName, QString guiContext, QString contentset);
 
     TestDbAddSignaller* getSignaller();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
