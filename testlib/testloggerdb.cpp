@@ -85,6 +85,13 @@ void TestLoggerDB::valuesFromNowOnAreRecorded()
     m_valuesAreInitial = false;
 }
 
+void TestLoggerDB::setSessionsInfos(QString transactionName, QString guiContext, QString contentset)
+{
+    m_transactionName = transactionName;
+    m_guiContext = guiContext;
+    m_contentset = contentset;
+}
+
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
 {
     return m_dbSessionNames.contains(sessionName);
@@ -135,7 +142,16 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
 
 QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
 {
+    QJsonObject transactionObject;
+    transactionObject.insert("contentset", m_contentset);
+    transactionObject.insert("guicontext", m_guiContext);
 
+    QJsonObject sessionObject;
+    sessionObject.insert(m_transactionName, transactionObject);
+
+    QJsonObject completeJson;
+    completeJson.insert(sessionName, sessionObject);
+    return completeJson;
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
