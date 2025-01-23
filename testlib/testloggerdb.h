@@ -49,6 +49,8 @@ public:
     void valuesFromNowOnAreInitial();
     void valuesFromNowOnAreRecorded();
 
+    void setSessionsInfos(QString transactionName, QString guiContext, QString contentset);
+
 private:
     TestDbAddSignaller* m_testSignaller;
     int m_valueWriteCount = 0;
@@ -80,6 +82,9 @@ private:
         int dataWriteIdCount;
     };
     QList<LoggedValue> m_loggedValues;
+    QString m_transactionName;
+    QString m_guiContext;
+    QString m_contentset;
 
     static TestLoggerDB* m_instance;
 };
