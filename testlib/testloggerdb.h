@@ -28,6 +28,7 @@ public:
     bool addStopTime(int transactionId,  QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
+    QJsonObject displaySessionsInfos(const QString &sessionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
@@ -47,6 +48,8 @@ public:
     void deleteDbFile();
     void valuesFromNowOnAreInitial();
     void valuesFromNowOnAreRecorded();
+
+    void setSessionsInfos(QString transactionName, QString guiContext, QString contentset);
 
 private:
     TestDbAddSignaller* m_testSignaller;
@@ -79,6 +82,9 @@ private:
         int dataWriteIdCount;
     };
     QList<LoggedValue> m_loggedValues;
+    QString m_transactionName;
+    QString m_guiContext;
+    QString m_contentset;
 
     static TestLoggerDB* m_instance;
 };

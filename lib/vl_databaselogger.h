@@ -34,6 +34,7 @@ public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
     QVariant RPC_deleteSession(QVariantMap parameters);
+    QVariant RPC_displaySessionsInfos(QVariantMap parameters);
 
 private slots:
     void initOnce();

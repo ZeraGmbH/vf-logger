@@ -481,6 +481,13 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
     return retVal;
 }
 
+QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
+{
+    QString session = parameters["p_session"].toString();
+    QVariant retVal = m_database->displaySessionsInfos(session);
+    return retVal;
+}
+
 void DatabaseLogger::initOnce()
 {
     Q_ASSERT(m_initDone == false);
@@ -532,6 +539,15 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_deleteSession",
+                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})),
+                                            &QObject::deleteLater);
+        m_rpcList[tmpval->rpcName()]=tmpval;
+
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
+                                                m_entityId,
+                                                this,
+                                                this,
+                                                "RPC_displaySessionsInfos",
                                                 VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;

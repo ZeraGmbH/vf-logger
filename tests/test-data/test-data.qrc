@@ -18,6 +18,7 @@
 
         <file>sqlite-inserts/dumpRecordTwoEntityComponents.json</file>
         <file>sqlite-inserts/dumpSessionCreated.json</file>
+        <file>sqlite-inserts/dumpSessionInfos.json</file>
 
         <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
         <file>vein-dumps/dumpDbFileRemoved.json</file>

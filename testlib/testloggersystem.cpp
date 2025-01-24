@@ -106,6 +106,11 @@ void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
     m_emitCountTotal += valuesEmittedPerComponent;
 }
 
+QVariant TestLoggerSystem::getValueOfComponent(int entityId, QString componentName)
+{
+    return m_server->getValue(entityId, componentName);
+}
+
 void TestLoggerSystem::loadDatabase()
 {
     setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
@@ -140,6 +145,14 @@ void TestLoggerSystem::changeSession(const QString &sessionPath, int baseEntityI
 QString TestLoggerSystem::getCustomerDataPath()
 {
     return "/tmp/test-vf-logger-customerdata/";
+}
+
+QJsonObject TestLoggerSystem::displaySessionsInfos(QString session, QString transactionName, QString guiContext, QString contentset)
+{
+    TestDbAddSignaller *signal = new TestDbAddSignaller();
+    TestLoggerDB loggerDb(signal);
+    loggerDb.setSessionsInfos(transactionName, guiContext, contentset);
+    return loggerDb.displaySessionsInfos(session);
 }
 
 TestDbAddSignaller *TestLoggerSystem::getSignaller()
