@@ -35,6 +35,7 @@ public slots:
     void closeDatabase();
     QVariant RPC_deleteSession(QVariantMap parameters);
     QVariant RPC_displaySessionsInfos(QVariantMap parameters);
+    QVariant RPC_deleteTransaction(QString transactionName);
 
 private slots:
     void initOnce();
