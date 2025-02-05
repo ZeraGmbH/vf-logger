@@ -286,7 +286,7 @@ void SQLiteDB::initLocalData()
     QSqlQuery componentQuery("SELECT * FROM components;", m_dPtr->m_logDB);
     QSqlQuery entityQuery("SELECT * FROM entities;", m_dPtr->m_logDB);
     QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
-    QSqlQuery transactionQuery("SELECT * FROM transactions;", m_dPtr->m_logDB);
+    QSqlQuery transactionQuery("SELECT * FROM transactions WHERE transaction_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
 
     while (componentQuery.next()) {
         int componentId = componentQuery.value(0).toInt();
