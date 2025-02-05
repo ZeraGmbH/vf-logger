@@ -309,8 +309,8 @@ void SQLiteDB::initLocalData()
     sessionQuery.finish();
 
     while (transactionQuery.next()) {
-        int transactionId = sessionQuery.value(0).toInt();
-        QString transactionName = sessionQuery.value(1).toString();
+        int transactionId = transactionQuery.value("id").toInt();
+        QString transactionName = transactionQuery.value("transaction_name").toString();
         m_dPtr->m_transactionIds.insert(transactionId, transactionName);
     }
     transactionQuery.finish();
