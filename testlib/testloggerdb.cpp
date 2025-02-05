@@ -154,6 +154,11 @@ QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
     return completeJson;
 }
 
+bool TestLoggerDB::deleteTransaction(const QString &transactionName)
+{
+
+}
+
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
 {
     // for vf-logger

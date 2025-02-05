@@ -489,9 +489,10 @@ QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
     return retVal;
 }
 
-QVariant DatabaseLogger::RPC_deleteTransaction(QString transactionName)
+QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
 {
-
+    QString transactionName = parameters["p_transaction"].toString();
+    return m_database->deleteTransaction(transactionName);
 }
 
 void DatabaseLogger::initOnce()

@@ -579,6 +579,24 @@ QJsonObject SQLiteDB::displaySessionsInfos(const QString &sessionName)
     return completeJson;
 }
 
+bool SQLiteDB::deleteTransaction(const QString &transactionName)
+{
+    for(const auto key : m_dPtr->m_transactionIds.keys()) {
+        if(m_dPtr->m_transactionIds.value(key) == transactionName){
+            QSqlQuery updateTransactionQuery(m_dPtr->m_logDB);
+            updateTransactionQuery.prepare("Update transactions set transaction_name=:transactionNameNew WHERE transaction_name=:transactionNameOld");
+            QString strNewName = QString(QStringLiteral("_DELETED_") + transactionName).left(254);
+            updateTransactionQuery.bindValue(":transactionNameNew", strNewName);
+            updateTransactionQuery.bindValue(":transactionNameOld", transactionName);
+            updateTransactionQuery.exec();
+            updateTransactionQuery.finish();
+
+            m_dPtr->m_transactionIds.remove(key);
+        }
+    }
+    return true;
+}
+
 void SQLiteDB::onOpen(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);
