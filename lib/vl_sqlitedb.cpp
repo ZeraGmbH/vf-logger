@@ -715,7 +715,7 @@ void SQLiteDB::onOpen(const QString &dbPath)
                                                     " transactions.transaction_name, transactions.contentset_names, transactions.guicontext_name, transactions.start_time"
                                                     " FROM sessions INNER JOIN"
                                                     " transactions ON sessions.id = transactions.sessionid"
-                                                    " WHERE session_name= :sessionname;");
+                                                    " WHERE session_name= :sessionname AND transactions.transaction_name NOT LIKE '_DELETED_%';");
 
 
                 //get next valuemap_id
