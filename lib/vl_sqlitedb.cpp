@@ -579,8 +579,22 @@ QJsonObject SQLiteDB::displaySessionsInfos(const QString &sessionName)
     return completeJson;
 }
 
+void SQLiteDB::setValidTransactions()
+{
+    m_dPtr->m_transactionIds.clear();
+    QSqlQuery validTransactionQuery("SELECT * FROM transactions WHERE transaction_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
+    while (validTransactionQuery.next()) {
+        int transactionId = validTransactionQuery.value("id").toInt();
+        QString transactionName = validTransactionQuery.value("transaction_name").toString();
+        m_dPtr->m_transactionIds.insert(transactionId, transactionName);
+    }
+    validTransactionQuery.finish();
+}
+
 bool SQLiteDB::deleteTransaction(const QString &transactionName)
 {
+    setValidTransactions();
+
     for(const auto key : m_dPtr->m_transactionIds.keys()) {
         if(m_dPtr->m_transactionIds.value(key) == transactionName){
             QSqlQuery updateTransactionQuery(m_dPtr->m_logDB);
@@ -592,9 +606,10 @@ bool SQLiteDB::deleteTransaction(const QString &transactionName)
             updateTransactionQuery.finish();
 
             m_dPtr->m_transactionIds.remove(key);
+            return true;
         }
     }
-    return true;
+    return false;
 }
 
 void SQLiteDB::onOpen(const QString &dbPath)

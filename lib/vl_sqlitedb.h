@@ -64,6 +64,8 @@ private:
     void addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component);
     void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const DatabaseCommandInterface::ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
+    void setValidTransactions();
+
 
     DBPrivate *m_dPtr = nullptr;
 };
