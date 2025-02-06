@@ -29,7 +29,7 @@ public:
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
-    bool deleteTransaction(const QString &transactionName);
+    bool deleteTransaction(const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
