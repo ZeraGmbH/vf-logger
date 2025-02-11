@@ -484,6 +484,8 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
 QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
 {
     QString session = parameters["p_session"].toString();
+    if(session == "")
+        return QVariant();
     QJsonObject json = m_database->displaySessionsInfos(session);
     QVariant retVal = json.value(session).toVariant();
     return retVal;
