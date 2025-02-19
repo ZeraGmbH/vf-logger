@@ -506,6 +506,23 @@ QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
     return m_database->deleteTransaction(transactionName);
 }
 
+QVariant DatabaseLogger::RPC_CreateAllSessionsJson(QVariantMap parameters)
+{
+    QVariant retval;
+    m_database->createAllSessionsJson(m_databaseFilePath);
+    return retval;
+}
+
+QVariant DatabaseLogger::RPC_CreateTransactionsJson(QVariantMap parameters)
+{
+    QVariant retval;
+    QString session = parameters["p_session"].toString();
+    if(session == "")
+        return retval;
+    m_database->createTransationsJson(session, m_databaseFilePath);
+    return retval;
+}
+
 void DatabaseLogger::initOnce()
 {
     Q_ASSERT(m_initDone == false);
@@ -576,6 +593,24 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 "RPC_deleteTransaction",
                                                 VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}})),
+                                            &QObject::deleteLater);
+        m_rpcList[tmpval->rpcName()]=tmpval;
+
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
+                                                m_entityId,
+                                                this,
+                                                this,
+                                                "RPC_CreateAllSessionsJson",
+                                                VfCpp::cVeinModuleRpc::Param({})),
+                                            &QObject::deleteLater);
+        m_rpcList[tmpval->rpcName()]=tmpval;
+
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
+                                                m_entityId,
+                                                this,
+                                                this,
+                                                "RPC_CreateTransactionsJson",
+                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
