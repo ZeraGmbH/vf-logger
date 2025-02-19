@@ -32,6 +32,8 @@ public:
     bool deleteTransaction(const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
+    QString createAllSessionsJson(QString loggerDb) override;
+    QString createTransationsJson(QString session, QString loggerDb) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     void setNextValueWriteCount(int newValueWriteCount);
 
@@ -41,6 +43,7 @@ public:
     void onOpen(const QString &dbPath) override;
 
     void runBatchedExecution() override;
+    QStringList getSessionsName() override;
 
 // Test specific additions
     static TestLoggerDB* getCurrentInstance(); // no singleton!!!
