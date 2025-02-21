@@ -353,6 +353,18 @@ void DatabaseLogger::terminateCurrentDb()
     m_database = nullptr;
 }
 
+bool DatabaseLogger::deleteSessionJsonFile(QString sessionName)
+{
+    bool removeOk = false;
+    QDir dir = QFileInfo(m_databaseFilePath ).dir();
+    QString filePath = dir.absolutePath() + "/" + sessionName + ".json";
+    if(QFile::exists(filePath)) {
+        if (QFile::remove(filePath))
+            removeOk = true;
+    }
+    return removeOk;
+}
+
 void DatabaseLogger::closeDatabase()
 {
     if(m_databaseFilePath.isEmpty())
@@ -483,6 +495,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
         m_dbSessionName = "";
         emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
     }
+    retVal = retVal.toBool() && deleteSessionJsonFile(session);
     return retVal;
 }
 
