@@ -64,6 +64,7 @@ private:
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
     void terminateCurrentDb();
+    bool deleteSessionJsonFile(QString sessionName);
 
     int m_entityId;
     QLatin1String m_entityName;
