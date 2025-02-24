@@ -197,6 +197,16 @@ bool TestLoggerDB::deleteSession(const QString &session)
 
 }
 
+QString TestLoggerDB::createAllSessionsJson(QString loggerDb)
+{
+
+}
+
+QString TestLoggerDB::createTransationsJson(QString session, QString loggerDb)
+{
+
+}
+
 void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component)
 {
     if(!transactionIds.contains(testTransactionId))
@@ -242,4 +252,9 @@ void TestLoggerDB::runBatchedExecution()
 {
     // Surprise: This is a poor mimic of what SQLite implementation does
     addStopTime(testTransactionId, QDateTime());
+}
+
+QStringList TestLoggerDB::getSessionsName()
+{
+
 }

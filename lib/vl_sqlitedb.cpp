@@ -612,6 +612,63 @@ bool SQLiteDB::deleteTransaction(const QString &transactionName)
     return false;
 }
 
+QString SQLiteDB::createAllSessionsJson(QString loggerDb)
+{
+    QJsonArray jsonArray;
+    QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
+    while (sessionQuery.next()) {
+        QJsonObject sessionsJson;
+        sessionsJson["id"] = sessionQuery.value(0).toString();
+        sessionsJson["sessionName"] = sessionQuery.value(1).toString();
+        jsonArray.append(sessionsJson);
+    }
+    sessionQuery.finish();
+
+    QJsonDocument jsonDoc(jsonArray);
+    QDir dir = QFileInfo(loggerDb).dir();
+    QString LoggerPath = dir.absolutePath() + "/AllSessions.json";
+    QFile file(LoggerPath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        //return error;
+    }
+    file.write(jsonDoc.toJson());
+    file.close();
+    return "";
+}
+
+QString SQLiteDB::createTransationsJson(QString session, QString loggerDb)
+{
+    QJsonArray jsonArr;
+    QSqlQuery transactionQuery(m_dPtr->m_logDB);
+    transactionQuery.prepare("SELECT transactions.transaction_name, transactions.contentset_names, transactions.start_time"
+                               " FROM sessions INNER JOIN"
+                               " transactions ON sessions.id = transactions.sessionid"
+                               " WHERE session_name= :sessionName AND transactions.transaction_name NOT LIKE '_DELETED_%';");
+    transactionQuery.bindValue(":sessionName", session);
+    transactionQuery.exec();
+    while(transactionQuery.next()){
+        QString transactionName = transactionQuery.value("transaction_name").toString();
+        QString contentset = transactionQuery.value("contentset_names").toString();
+        QString startTime = transactionQuery.value("start_time").toString();
+        QJsonObject dataJson;
+        dataJson["transactionName"] = transactionName;
+        dataJson["contentset"] = contentset;
+        dataJson["startTime"] = startTime;
+        jsonArr.append(dataJson);
+    }
+    QJsonDocument jsonDoc(jsonArr);
+
+    QDir dir = QFileInfo(loggerDb).dir();
+    QString LoggerPath = dir.absolutePath() + "/" + session + ".json";
+    QFile file(LoggerPath);
+    if (!file.open(QIODevice::WriteOnly)) {
+        //return error;
+    }
+    file.write(jsonDoc.toJson());
+    file.close();
+    return "";
+}
+
 void SQLiteDB::onOpen(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);
@@ -864,6 +921,11 @@ void SQLiteDB::runBatchedExecution()
         }
         m_dPtr->m_batchVector.clear();
     }
+}
+
+QStringList SQLiteDB::getSessionsName()
+{
+    return m_dPtr->m_sessionIds.keys();
 }
 
 void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
