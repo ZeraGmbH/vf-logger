@@ -365,6 +365,37 @@ bool DatabaseLogger::deleteSessionJsonFile(QString sessionName)
     return removeOk;
 }
 
+void DatabaseLogger::deleteTransactionFromJsonFile(QString sessionName, QString transactionName)
+{
+    QDir dir = QFileInfo(m_databaseFilePath ).dir();
+    QString filePath = dir.absolutePath() + "/" + sessionName + ".json";
+    QFile file(filePath);
+    if(!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open file for reading";
+        return;
+    }
+
+    QByteArray jsonData = file.readAll();
+    file.close();
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData);
+    QJsonArray jsonArray = jsonDoc.array();
+    QJsonArray newArray;
+    for (const QJsonValue &value : jsonArray) {
+        if(value.isObject()) {
+            QJsonObject obj = value.toObject();
+            if (obj.value("transactionName").toString() != transactionName)
+                newArray.append(obj);
+        }
+    }
+    jsonDoc.setArray(newArray);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qDebug() << "Failed to open file for writing";
+        return;
+    }
+    file.write(jsonDoc.toJson());
+    file.close();
+}
+
 void DatabaseLogger::closeDatabase()
 {
     if(m_databaseFilePath.isEmpty())
@@ -516,6 +547,8 @@ QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
 QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
 {
     QString transactionName = parameters["p_transaction"].toString();
+    QString selectedSession = parameters["p_selectedSession"].toString();
+    deleteTransactionFromJsonFile(selectedSession, transactionName);
     return m_database->deleteTransaction(transactionName);
 }
 
@@ -605,7 +638,7 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_deleteTransaction",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}})),
+                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}, {"p_selectedSession", "QString"}})),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
