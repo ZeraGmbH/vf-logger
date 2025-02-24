@@ -65,6 +65,7 @@ private:
     QStringList getComponentsFilteredForDb(int entityId);
     void terminateCurrentDb();
     bool deleteSessionJsonFile(QString sessionName);
+    void deleteTransactionFromJsonFile(QString sessionName, QString transactionName);
 
     int m_entityId;
     QLatin1String m_entityName;
