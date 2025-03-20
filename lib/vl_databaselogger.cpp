@@ -395,6 +395,7 @@ void DatabaseLogger::checkDatabaseStillValid()
 
 void DatabaseLogger::updateSessionList(QStringList sessionNames)
 {
+    m_existingSessions = sessionNames;
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_existingSessionsComponentName,
                                                            QVariant(), sessionNames);
     emit sigSendEvent(event);
@@ -486,6 +487,10 @@ QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
     QString session = parameters["p_session"].toString();
     if(session == "")
         return QVariant();
+    if(!m_existingSessions.contains(session)) {
+        qWarning("Select an existing session");
+        return QVariant();
+    }
     QJsonObject json = m_database->displaySessionsInfos(session);
     QVariant retVal = json.value(session).toVariant();
     return retVal;
