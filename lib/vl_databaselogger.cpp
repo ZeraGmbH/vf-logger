@@ -464,6 +464,10 @@ QString DatabaseLogger::getEntityName(int entityId) const
 QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
 {
     QString session = parameters["p_session"].toString();
+    if(!m_existingSessions.contains(session)) {
+        qWarning("Select an existing session");
+        return QVariant();
+    }
     QVariant retVal = m_database->deleteSession(session);
     // check if deleted session is current Session and if it is set sessionName empty
     // We will not check retVal here. If something goes wrong and the session is still available the
