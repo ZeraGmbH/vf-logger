@@ -76,6 +76,7 @@ private:
     AbstractLoggerDB *m_database = nullptr;
     QThread m_asyncDatabaseThread;
     QString m_databaseFilePath;
+    QStringList m_existingSessions;
     bool m_dbReady = false;
     bool m_loggingActive = false;
     bool m_scheduledLogging = false;
