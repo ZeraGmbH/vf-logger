@@ -36,6 +36,8 @@ public slots:
     QVariant RPC_deleteSession(QVariantMap parameters);
     QVariant RPC_displaySessionsInfos(QVariantMap parameters);
     QVariant RPC_deleteTransaction(QVariantMap parameters);
+    QVariant RPC_CreateAllSessionsJson(QVariantMap parameters);
+    QVariant RPC_CreateTransactionsJson(QVariantMap parameters);
 
 private slots:
     void initOnce();
@@ -62,6 +64,8 @@ private:
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
     void terminateCurrentDb();
+    bool deleteSessionJsonFile(QString sessionName);
+    void deleteTransactionFromJsonFile(QString sessionName, QString transactionName);
 
     int m_entityId;
     QLatin1String m_entityName;

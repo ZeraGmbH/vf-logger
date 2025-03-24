@@ -48,11 +48,14 @@ public slots:
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
     bool deleteTransaction(const QString &transactionName) override;
+    QString createAllSessionsJson(QString loggerDb) override;
+    QString createTransationsJson(QString session, QString loggerDb) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);
 
     void runBatchedExecution() override;
+    QStringList getSessionsName() override;
 
 protected:
     virtual void addComponent(const QString &componentName);
@@ -65,7 +68,6 @@ private:
     void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const DatabaseCommandInterface::ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
     void setValidTransactions();
-
 
     DBPrivate *m_dPtr = nullptr;
 };
