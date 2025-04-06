@@ -47,32 +47,28 @@
                         "NAMESESSION",
                         "10",
                         "Session",
-                        "0",
-                        ""
+                        "0"
                     ],
                     [
                         "CONFIGURATION",
                         "XSESSION",
                         "10",
                         "XSession",
-                        "0",
-                        ""
+                        "0"
                     ],
                     [
                         "CONFIGURATION",
                         "SESSION:CATALOG",
                         "2",
                         "Session",
-                        "1",
-                        ""
+                        "1"
                     ],
                     [
                         "CONFIGURATION",
                         "XSESSION:CATALOG",
                         "2",
                         "XSession",
-                        "1",
-                        ""
+                        "1"
                     ]
                 ],
                 "Name": "SYST"
