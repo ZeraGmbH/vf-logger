@@ -509,7 +509,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
     QString session = parameters["p_session"].toString();
     if(!m_existingSessions.contains(session)) {
         qWarning("Select an existing session");
-        return QVariant();
+        return false;
     }
     QVariant retVal = m_database->deleteSession(session);
     // check if deleted session is current Session and if it is set sessionName empty
@@ -534,10 +534,10 @@ QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
 {
     QString session = parameters["p_session"].toString();
     if(session == "")
-        return QVariant();
+        return false;
     if(!m_existingSessions.contains(session)) {
         qWarning("Select an existing session");
-        return QVariant();
+        return false;
     }
     QJsonObject json = m_database->displaySessionsInfos(session);
     QVariant retVal = json.value(session).toVariant();
@@ -554,19 +554,15 @@ QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
 
 QVariant DatabaseLogger::RPC_CreateAllSessionsJson(QVariantMap parameters)
 {
-    QVariant retval;
-    m_database->createAllSessionsJson(m_databaseFilePath);
-    return retval;
+    return m_database->createAllSessionsJson(m_databaseFilePath);
 }
 
 QVariant DatabaseLogger::RPC_CreateTransactionsJson(QVariantMap parameters)
 {
-    QVariant retval;
     QString session = parameters["p_session"].toString();
     if(session == "")
-        return retval;
-    m_database->createTransationsJson(session, m_databaseFilePath);
-    return retval;
+        return false;
+    return m_database->createTransationsJson(session, m_databaseFilePath);
 }
 
 void DatabaseLogger::initOnce()

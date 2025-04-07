@@ -612,7 +612,7 @@ bool SQLiteDB::deleteTransaction(const QString &transactionName)
     return false;
 }
 
-QString SQLiteDB::createAllSessionsJson(QString loggerDb)
+bool SQLiteDB::createAllSessionsJson(QString loggerDb)
 {
     QJsonArray jsonArray;
     QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
@@ -629,14 +629,14 @@ QString SQLiteDB::createAllSessionsJson(QString loggerDb)
     QString LoggerPath = dir.absolutePath() + "/AllSessions.json";
     QFile file(LoggerPath);
     if (!file.open(QIODevice::WriteOnly)) {
-        //return error;
+        return false;
     }
     file.write(jsonDoc.toJson());
     file.close();
-    return "";
+    return true;
 }
 
-QString SQLiteDB::createTransationsJson(QString session, QString loggerDb)
+bool SQLiteDB::createTransationsJson(QString session, QString loggerDb)
 {
     QJsonArray jsonArr;
     QSqlQuery transactionQuery(m_dPtr->m_logDB);
@@ -662,11 +662,11 @@ QString SQLiteDB::createTransationsJson(QString session, QString loggerDb)
     QString LoggerPath = dir.absolutePath() + "/" + session + ".json";
     QFile file(LoggerPath);
     if (!file.open(QIODevice::WriteOnly)) {
-        //return error;
+        return false;
     }
     file.write(jsonDoc.toJson());
     file.close();
-    return "";
+    return true;
 }
 
 void SQLiteDB::onOpen(const QString &dbPath)

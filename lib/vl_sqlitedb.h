@@ -48,8 +48,8 @@ public slots:
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
     bool deleteTransaction(const QString &transactionName) override;
-    QString createAllSessionsJson(QString loggerDb) override;
-    QString createTransationsJson(QString session, QString loggerDb) override;
+    bool createAllSessionsJson(QString loggerDb) override;
+    bool createTransationsJson(QString session, QString loggerDb) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);

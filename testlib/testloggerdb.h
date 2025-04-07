@@ -32,8 +32,8 @@ public:
     bool deleteTransaction(const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     bool deleteSession(const QString &session) override;
-    QString createAllSessionsJson(QString loggerDb) override;
-    QString createTransationsJson(QString session, QString loggerDb) override;
+    bool createAllSessionsJson(QString loggerDb) override;
+    bool createTransationsJson(QString session, QString loggerDb) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     void setNextValueWriteCount(int newValueWriteCount);
 

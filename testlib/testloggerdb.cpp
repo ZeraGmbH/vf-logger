@@ -197,12 +197,12 @@ bool TestLoggerDB::deleteSession(const QString &session)
 
 }
 
-QString TestLoggerDB::createAllSessionsJson(QString loggerDb)
+bool TestLoggerDB::createAllSessionsJson(QString loggerDb)
 {
 
 }
 
-QString TestLoggerDB::createTransationsJson(QString session, QString loggerDb)
+bool TestLoggerDB::createTransationsJson(QString session, QString loggerDb)
 {
 
 }

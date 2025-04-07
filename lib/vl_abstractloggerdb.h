@@ -37,8 +37,8 @@ public slots:
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
     virtual QJsonObject displaySessionsInfos(const QString &sessionName) = 0;
     virtual bool deleteTransaction(const QString &transactionName) = 0;
-    virtual QString createAllSessionsJson(QString loggerDbPath) = 0;
-    virtual QString createTransationsJson(QString session, QString loggerDbPath) = 0;
+    virtual bool createAllSessionsJson(QString loggerDbPath) = 0;
+    virtual bool createTransationsJson(QString session, QString loggerDbPath) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
