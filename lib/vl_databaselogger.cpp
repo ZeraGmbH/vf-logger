@@ -466,7 +466,7 @@ QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
     QString session = parameters["p_session"].toString();
     if(!m_existingSessions.contains(session)) {
         qWarning("Select an existing session");
-        return QVariant();
+        return false;
     }
     QVariant retVal = m_database->deleteSession(session);
     // check if deleted session is current Session and if it is set sessionName empty
@@ -490,10 +490,10 @@ QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
 {
     QString session = parameters["p_session"].toString();
     if(session == "")
-        return QVariant();
+        return false;
     if(!m_existingSessions.contains(session)) {
         qWarning("Select an existing session");
-        return QVariant();
+        return false;
     }
     QJsonObject json = m_database->displaySessionsInfos(session);
     QVariant retVal = json.value(session).toVariant();
