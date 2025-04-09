@@ -612,6 +612,20 @@ bool SQLiteDB::deleteTransaction(const QString &transactionName)
     return false;
 }
 
+QJsonArray SQLiteDB::displayAllSessions()
+{
+    QJsonArray allSessions;
+    QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
+    while (sessionQuery.next()) {
+        QJsonObject sessionJson;
+        sessionJson["id"] = sessionQuery.value(0).toString();
+        sessionJson["sessionName"] = sessionQuery.value(1).toString();
+        allSessions.append(sessionJson);
+    }
+    sessionQuery.finish();
+    return allSessions;
+}
+
 void SQLiteDB::onOpen(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);

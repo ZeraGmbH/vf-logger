@@ -505,6 +505,15 @@ QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
     return m_database->deleteTransaction(transactionName);
 }
 
+QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
+{
+    if(m_database == nullptr) {
+        qWarning("set the database");
+        return false;
+    }
+    return m_database->displayAllSessions();
+}
+
 void DatabaseLogger::initOnce()
 {
     Q_ASSERT(m_initDone == false);
@@ -575,6 +584,15 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 "RPC_deleteTransaction",
                                                 VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}})),
+                                            &QObject::deleteLater);
+        m_rpcList[tmpval->rpcName()]=tmpval;
+
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
+                                                m_entityId,
+                                                this,
+                                                this,
+                                                "RPC_getAllSessions",
+                                                VfCpp::cVeinModuleRpc::Param({})),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 

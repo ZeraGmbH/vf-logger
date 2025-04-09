@@ -36,6 +36,7 @@ public slots:
     QVariant RPC_deleteSession(QVariantMap parameters);
     QVariant RPC_displaySessionsInfos(QVariantMap parameters);
     QVariant RPC_deleteTransaction(QVariantMap parameters);
+    QVariant RPC_getAllSessions(QVariantMap parameters);
 
 private slots:
     void initOnce();
