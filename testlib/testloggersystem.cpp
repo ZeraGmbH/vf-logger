@@ -62,6 +62,11 @@ void TestLoggerSystem::appendCustomerDataSystem()
     TimeMachineObject::feedEventLoop();
 }
 
+void TestLoggerSystem::appendEventSystem(VeinEvent::EventSystem *system)
+{
+    m_server->appendEventSystem(system);
+}
+
 void TestLoggerSystem::cleanup()
 {
     m_emitCountTotal = 0;
