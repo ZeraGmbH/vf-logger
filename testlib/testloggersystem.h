@@ -23,6 +23,7 @@ public:
                      QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
     QMap<int, QList<QString>> getComponentsCreated();
     void appendCustomerDataSystem();
+    void appendEventSystem(VeinEvent::EventSystem *system);
     void cleanup();
 
     void setComponent(int entityId, QString componentName, QVariant newValue);
