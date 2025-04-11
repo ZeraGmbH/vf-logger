@@ -53,6 +53,7 @@ target_include_directories(VfLogger
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/content-sets>
     )
 
+export(TARGETS VfLogger NAMESPACE VeinMeta:: FILE VfLoggerTargets.cmake)
 install(TARGETS VfLogger
     EXPORT VfLoggerExport
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
