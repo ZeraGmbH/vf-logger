@@ -1,8 +1,7 @@
 {
-    "Session1": {
-        "TestTransaction": {
-            "contentset": "ZeraAll",
-            "guicontext": "ZeraGuiActualValues"
-        }
+    "Transaction1": {
+        "Time": "",
+        "contentset": "ZeraAll",
+        "guicontext": ""
     }
 }

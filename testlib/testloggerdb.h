@@ -50,8 +50,6 @@ public:
     void valuesFromNowOnAreInitial();
     void valuesFromNowOnAreRecorded();
 
-    void setSessionsInfos(QString transactionName, QString guiContext, QString contentset);
-
 private:
     TestDbAddSignaller* m_testSignaller;
     int m_valueWriteCount = 0;

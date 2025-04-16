@@ -85,13 +85,6 @@ void TestLoggerDB::valuesFromNowOnAreRecorded()
     m_valuesAreInitial = false;
 }
 
-void TestLoggerDB::setSessionsInfos(QString transactionName, QString guiContext, QString contentset)
-{
-    m_transactionName = transactionName;
-    m_guiContext = guiContext;
-    m_contentset = contentset;
-}
-
 bool TestLoggerDB::hasSessionName(const QString &sessionName) const
 {
     return m_dbSessionNames.contains(sessionName);

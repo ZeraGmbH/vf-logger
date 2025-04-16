@@ -152,12 +152,11 @@ QString TestLoggerSystem::getCustomerDataPath()
     return "/tmp/test-vf-logger-customerdata/";
 }
 
-QJsonObject TestLoggerSystem::displaySessionsInfos(QString session, QString transactionName, QString guiContext, QString contentset)
+QJsonObject TestLoggerSystem::displaySessionsInfos(QString session)
 {
-    TestDbAddSignaller *signal = new TestDbAddSignaller();
-    TestLoggerDB loggerDb(signal);
-    loggerDb.setSessionsInfos(transactionName, guiContext, contentset);
-    return loggerDb.displaySessionsInfos(session);
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", session);
+    return m_dataLoggerSystem->RPC_displaySessionsInfos(rpcParams).toJsonObject();
 }
 
 TestDbAddSignaller *TestLoggerSystem::getSignaller()
