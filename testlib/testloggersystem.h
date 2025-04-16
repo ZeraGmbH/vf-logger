@@ -34,6 +34,8 @@ public:
     void loadDatabase();
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
     void stopLogging();
+    bool deleteTransaction(QString transactionName);
+    bool deleteSession(QString session);
 
     void setNextValueWriteCount(int newValueWriteCount);
 

@@ -103,6 +103,9 @@ static const int testTransactionId = 42;
 
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
+    Transactions currentTransacions = m_sessions.value(sessionName);
+    currentTransacions.insert(transactionName, TransactionInfo{guiContextName, contentSets});
+    m_sessions[sessionName] = currentTransacions;
     emit m_testSignaller->sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
     return testTransactionId;
 }
@@ -135,13 +138,14 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
 
 QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
 {
-    QJsonObject transactionObject;
-    transactionObject.insert("contentset", m_contentset);
-    transactionObject.insert("guicontext", m_guiContext);
-
     QJsonObject sessionObject;
-    sessionObject.insert(m_transactionName, transactionObject);
-
+    Transactions allTransactions = m_sessions.value(sessionName);
+    for(auto transactionName: allTransactions.keys()) {
+        QJsonObject transactionObject;
+        transactionObject.insert("contentset", allTransactions.value(transactionName).contentSetList.join(","));
+        transactionObject.insert("guicontext", allTransactions.value(transactionName).guiContext);
+        sessionObject.insert(transactionName, transactionObject);
+    }
     QJsonObject completeJson;
     completeJson.insert(sessionName, sessionObject);
     return completeJson;
@@ -149,7 +153,14 @@ QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
 
 bool TestLoggerDB::deleteTransaction(const QString &transactionName)
 {
-
+    bool deleted = false;
+    for(QString sessionName: m_sessions.keys()) {
+        if(m_sessions[sessionName].contains(transactionName)) {
+            m_sessions[sessionName].remove(transactionName);
+            return true;
+        }
+    }
+    return false;
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
@@ -157,6 +168,7 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::Datab
     // for vf-logger
     m_dbSessionNames.append(sessionName);
     emit sigNewSessionList(m_dbSessionNames);
+    m_sessions.insert(sessionName, Transactions());
 
     QMap<QString, VeinLogger::DatabaseCommandInterface::ComponentInfo> componentValuesSorted;
     for(int i=0; i<componentsStoredOncePerSession.count(); i++) {
@@ -187,7 +199,13 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::Datab
 
 bool TestLoggerDB::deleteSession(const QString &session)
 {
-
+    if(m_sessions.contains(session)) {
+        m_sessions.remove(session);
+        m_dbSessionNames.removeOne(session);
+        emit sigNewSessionList(m_dbSessionNames);
+        return true;
+    }
+    return false;
 }
 
 void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component)
@@ -220,6 +238,8 @@ void TestLoggerDB::onOpen(const QString &dbPath)
         fileForWatcher.close();
         m_openDbPath = dbPath;
         emit sigNewSessionList(m_dbSessionNames);
+        for(auto session: m_dbSessionNames)
+            m_sessions.insert(session, Transactions());
         TimeMachineObject::feedEventLoop();
 
         emit sigDatabaseReady();

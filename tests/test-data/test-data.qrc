@@ -16,6 +16,9 @@
         <file>recording-dumps/dumpRecordOneContentSet.json</file>
         <file>recording-dumps/dumpRecordTwoContentSets.json</file>
 
+        <file>session-infos/DbTestSession1.json</file>
+        <file>session-infos/DbTestSession1MultipleTransactions.json</file>
+
         <file>sqlite-inserts/dumpRecordTwoEntityComponents.json</file>
         <file>sqlite-inserts/dumpSessionCreated.json</file>
         <file>sqlite-inserts/dumpSessionInfos.json</file>
