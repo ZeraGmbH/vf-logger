@@ -1,0 +1,17 @@
+{
+    "Transaction1": {
+        "Time": "",
+        "contentset": "ZeraAll",
+        "guicontext": "ZeraGuiActualValues"
+    },
+    "Transaction2": {
+        "Time": "",
+        "contentset": "ZeraAll",
+        "guicontext": "ZeraGuiActualValues"
+    },
+    "Transaction3": {
+        "Time": "",
+        "contentset": "ZeraAll",
+        "guicontext": "ZeraGuiActualValues"
+    }
+}

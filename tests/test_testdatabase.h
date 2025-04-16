@@ -24,6 +24,15 @@ private slots:
     void recordAllContentSets();
     void recordStartStop();
 
+    void displaySessionInfos();
+    void displaySessionInfosInvalidSession();
+    void displaySessionInfosMultipleTransactions();
+
+    void deleteTransaction();
+    void deleteNonexistingTransaction();
+    void deleteSession();
+    void deleteNonexistingSession();
+
     // corner cases
     void noRecordTransactionMissing();
     void noRecordSessionMissing();
@@ -34,6 +43,7 @@ private slots:
     // TODO: Stop recording on session change
 
 private:
+    void removeTimeInfo(QJsonObject &sessionInfo, QString transaction);
     TestLoggerSystem m_testSystem;
 };
 

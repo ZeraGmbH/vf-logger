@@ -81,9 +81,13 @@ private:
         int dataWriteIdCount;
     };
     QList<LoggedValue> m_loggedValues;
-    QString m_transactionName;
-    QString m_guiContext;
-    QString m_contentset;
+
+    struct TransactionInfo {
+        QString guiContext;
+        QStringList contentSetList;
+    };
+    typedef QMap<QString, TransactionInfo> Transactions;
+    QMap<QString, Transactions> m_sessions;
 
     static TestLoggerDB* m_instance;
 };
