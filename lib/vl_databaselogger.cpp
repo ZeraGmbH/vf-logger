@@ -212,7 +212,6 @@ void DatabaseLogger::processEvent(QEvent *event)
                 }
                 else if(!cEvent->isAccepted()) {
                     qWarning() << "No remote procedure with entityId:" << m_entityId << "name:" << rpcData->procedureName();
-                    VF_ASSERT(false, QStringC(QString("No remote procedure with entityId: %1 name: %2").arg(m_entityId).arg(rpcData->procedureName())));
                     VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
                     eData->setEntityId(m_entityId);
                     eData->setErrorDescription(QString("No remote procedure with name: %1").arg(rpcData->procedureName()));
