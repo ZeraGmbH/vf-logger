@@ -48,6 +48,7 @@ public slots:
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
     bool deleteTransaction(const QString &transactionName) override;
+    QJsonArray displayAllSessions() override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);

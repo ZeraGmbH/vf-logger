@@ -163,6 +163,11 @@ bool TestLoggerDB::deleteTransaction(const QString &transactionName)
     return false;
 }
 
+QJsonArray TestLoggerDB::displayAllSessions()
+{
+
+}
+
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
 {
     // for vf-logger
