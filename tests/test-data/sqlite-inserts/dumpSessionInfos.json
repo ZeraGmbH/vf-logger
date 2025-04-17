@@ -2,6 +2,6 @@
     "Transaction1": {
         "Time": "",
         "contentset": "ZeraAll",
-        "guicontext": ""
+        "guicontext": "ZeraGuiActualValues"
     }
 }
