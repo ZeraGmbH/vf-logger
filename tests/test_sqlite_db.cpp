@@ -86,7 +86,7 @@ void test_sqlite_db::displaySessionInfo()
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", sessionName);
-    m_testSystem.setComponent(dataLoggerEntityId, "guiContext", QVariantList() << "ZeraGuiActualValues");
+    m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
     m_testSystem.startLogging("Session1", transactionName);
     m_testSystem.stopLogging();
