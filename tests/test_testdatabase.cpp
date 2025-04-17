@@ -247,7 +247,7 @@ void test_testdatabase::displaySessionInfos()
 
     QJsonObject sessionInfo = m_testSystem.displaySessionsInfos("DbTestSession1");
     //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
-    removeTimeInfo(sessionInfo, "Transaction1");
+    removeTimeInfoInTransactions(sessionInfo);
 
     QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
@@ -288,9 +288,7 @@ void test_testdatabase::displaySessionInfosMultipleTransactions()
 
     QJsonObject sessionInfo = m_testSystem.displaySessionsInfos("DbTestSession1");
     //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
-    removeTimeInfo(sessionInfo, "Transaction1");
-    removeTimeInfo(sessionInfo, "Transaction2");
-    removeTimeInfo(sessionInfo, "Transaction3");
+    removeTimeInfoInTransactions(sessionInfo);
 
     QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
@@ -476,9 +474,11 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_testdatabase::removeTimeInfo(QJsonObject &sessionInfo, QString transaction)
+void test_testdatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
 {
-    QJsonObject temp = sessionInfo.value(transaction).toObject();
-    temp.insert("Time", QString());
-    sessionInfo.insert(transaction, temp);
+    for(QString transaction: sessionInfo.keys()) {
+        QJsonObject temp = sessionInfo.value(transaction).toObject();
+        temp.insert("Time", QString());
+        sessionInfo.insert(transaction, temp);
+    }
 }
