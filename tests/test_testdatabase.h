@@ -43,7 +43,7 @@ private slots:
     // TODO: Stop recording on session change
 
 private:
-    void removeTimeInfo(QJsonObject &sessionInfo, QString transaction);
+    void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     TestLoggerSystem m_testSystem;
 };
 
