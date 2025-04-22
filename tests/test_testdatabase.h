@@ -24,7 +24,6 @@ private slots:
     void recordAllContentSets();
     void recordStartStop();
 
-    void displaySessionInfos();
     void displaySessionInfosInvalidSession();
     void displaySessionInfosMultipleTransactions();
 

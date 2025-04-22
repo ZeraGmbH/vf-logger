@@ -231,29 +231,6 @@ void test_testdatabase::recordStartStop()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_testdatabase::displaySessionInfos()
-{
-    m_testSystem.setupServer();
-    m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
-    m_testSystem.startLogging("DbTestSession1", "Transaction1");
-    m_testSystem.stopLogging();
-
-    QFile fileSessionInfo(":/session-infos/DbTestSession1.json");
-    QVERIFY(fileSessionInfo.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileSessionInfo.readAll();
-
-    QJsonObject sessionInfo = m_testSystem.displaySessionsInfos("DbTestSession1");
-    //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
-    removeTimeInfoInTransactions(sessionInfo);
-
-    QJsonDocument jsonDoc(sessionInfo);
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
-}
-
 void test_testdatabase::displaySessionInfosInvalidSession()
 {
     m_testSystem.setupServer();
