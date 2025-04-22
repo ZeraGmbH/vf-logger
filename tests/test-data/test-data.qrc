@@ -18,6 +18,7 @@
 
         <file>session-infos/DbTestSession1.json</file>
         <file>session-infos/DbTestSession1MultipleTransactions.json</file>
+        <file>session-infos/AllSessions.json</file>
 
         <file>sqlite-inserts/dumpRecordTwoEntityComponents.json</file>
         <file>sqlite-inserts/dumpSessionCreated.json</file>

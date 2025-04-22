@@ -1,0 +1,10 @@
+[
+    {
+        "id": 0,
+        "sessionName": "DbTestSession1"
+    },
+    {
+        "id": 1,
+        "sessionName": "DbTestSession2"
+    }
+]

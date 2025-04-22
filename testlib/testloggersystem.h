@@ -43,6 +43,7 @@ public:
     static QString getCustomerDataPath();
 
     QJsonObject displaySessionsInfos(QString session);
+    QJsonArray getAllSessions();
 
     TestDbAddSignaller* getSignaller();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
