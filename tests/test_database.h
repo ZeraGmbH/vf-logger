@@ -11,8 +11,17 @@ private slots:
     void initTestCase_data();
     void init();
     void cleanup();
+
     void displaySessionInfo();
+    void displaySessionInfosInvalidSession();
+    void displaySessionInfosMultipleTransactions();
+
+    void deleteTransaction();
+    void deleteNonexistingTransaction();
+    void deleteSession();
+    void deleteNonexistingSession();
 private:
+    void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     std::unique_ptr<TestLoggerSystem> m_testSystem;
 };
 

@@ -51,3 +51,108 @@ void test_database::displaySessionInfo()
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
+
+void test_database::displaySessionInfosInvalidSession()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testSystem->startLogging("DbTestSession1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("NonExistingSession");
+    QVERIFY(sessionInfo.isEmpty());
+}
+
+void test_database::displaySessionInfosMultipleTransactions()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testSystem->startLogging("DbTestSession1", "Transaction1");
+    m_testSystem->stopLogging();
+    m_testSystem->startLogging("DbTestSession1", "Transaction2");
+    m_testSystem->stopLogging();
+    m_testSystem->startLogging("DbTestSession1", "Transaction3");
+    m_testSystem->stopLogging();
+
+    QFile fileSessionInfo(":/session-infos/DbTestSession1MultipleTransactions.json");
+    QVERIFY(fileSessionInfo.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileSessionInfo.readAll();
+
+    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
+    //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
+    removeTimeInfoInTransactions(sessionInfo);
+
+    QJsonDocument jsonDoc(sessionInfo);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_database::deleteTransaction()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testSystem->startLogging("DbTestSession1", "Transaction1");
+    m_testSystem->stopLogging();
+    m_testSystem->startLogging("DbTestSession1", "Transaction2");
+    m_testSystem->stopLogging();
+
+    QVERIFY(m_testSystem->deleteTransaction("Transaction1"));
+
+    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
+    QVERIFY(!sessionInfo.contains("Transaction1"));
+    QVERIFY(sessionInfo.contains("Transaction2"));
+}
+
+void test_database::deleteNonexistingTransaction()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testSystem->startLogging("DbTestSession1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QVERIFY(!m_testSystem->deleteTransaction("foo"));
+}
+
+void test_database::deleteSession()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->startLogging("DbTestSession1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
+    QVERIFY(!sessionInfo.isEmpty());
+    QVERIFY(m_testSystem->deleteSession("DbTestSession1"));
+    sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
+    QVERIFY(sessionInfo.isEmpty());
+}
+
+void test_database::deleteNonexistingSession()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+
+    QVERIFY(!m_testSystem->deleteSession("foo"));
+}
+
+void test_database::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
+{
+    for(QString transaction: sessionInfo.keys()) {
+        QJsonObject temp = sessionInfo.value(transaction).toObject();
+        temp.insert("Time", QString());
+        sessionInfo.insert(transaction, temp);
+    }
+}
