@@ -33,6 +33,9 @@ private slots:
     void deleteSession();
     void deleteNonexistingSession();
 
+    void getAllSessions();
+    void getNoSession();
+
     // corner cases
     void noRecordTransactionMissing();
     void noRecordSessionMissing();

@@ -173,6 +173,11 @@ QJsonObject TestLoggerSystem::displaySessionsInfos(QString session)
     return m_dataLoggerSystem->RPC_displaySessionsInfos(rpcParams).toJsonObject();
 }
 
+QJsonArray TestLoggerSystem::getAllSessions()
+{
+    return m_dataLoggerSystem->RPC_getAllSessions(QVariantMap{}).toJsonArray();
+}
+
 TestDbAddSignaller *TestLoggerSystem::getSignaller()
 {
     return m_testSignaller.get();

@@ -165,7 +165,14 @@ bool TestLoggerDB::deleteTransaction(const QString &transactionName)
 
 QJsonArray TestLoggerDB::displayAllSessions()
 {
-
+    QJsonArray allSessions;
+    for(int id = 0; id < m_sessions.count(); id++) {
+        QJsonObject sessionJson;
+        sessionJson["id"] = id;
+        sessionJson["sessionName"] = m_sessions.keys().at(id);
+        allSessions.append(sessionJson);
+    }
+    return allSessions;
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)

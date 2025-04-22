@@ -350,6 +350,33 @@ void test_testdatabase::deleteNonexistingSession()
     QVERIFY(!m_testSystem.deleteSession("foo"));
 }
 
+void test_testdatabase::getAllSessions()
+{
+    m_testSystem.setupServer();
+    m_testSystem.loadDatabase();
+
+    QFile fileSession(":/session-infos/AllSessions.json");
+    QVERIFY(fileSession.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileSession.readAll();
+
+    QJsonArray allSessions = m_testSystem.getAllSessions();
+    QJsonDocument jsonDoc(allSessions);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_testdatabase::getNoSession()
+{
+    m_testSystem.setupServer();
+    m_testSystem.loadDatabase();
+
+    QVERIFY(m_testSystem.deleteSession("DbTestSession1"));
+    QVERIFY(m_testSystem.deleteSession("DbTestSession2"));
+
+    QJsonArray allSessions = m_testSystem.getAllSessions();
+    QVERIFY(allSessions.isEmpty());
+}
+
 void test_testdatabase::noRecordTransactionMissing()
 {
     m_testSystem.setupServer(3, 3);
