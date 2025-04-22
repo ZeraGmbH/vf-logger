@@ -5,23 +5,27 @@
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
 QTEST_MAIN(test_database)
 
-void test_database::cleanup()
-{
-    m_testSystem->cleanup();
-}
-
-void test_database::displaySessionInfo_data()
+void test_database::initTestCase_data()
 {
     QTest::addColumn<TestLoggerSystem::DbType>("DbType");
     QTest::newRow("Mock Databse") << TestLoggerSystem::DbType::MOCK;
     QTest::newRow("SQLite Databse") << TestLoggerSystem::DbType::SQLITE;
 }
 
+void test_database::init()
+{
+    QFETCH_GLOBAL(TestLoggerSystem::DbType, DbType);
+    m_testSystem = std::make_unique<TestLoggerSystem>(DbType);
+}
+
+void test_database::cleanup()
+{
+    m_testSystem->cleanup();
+    m_testSystem.reset();
+}
+
 void test_database::displaySessionInfo()
 {
-    QFETCH(TestLoggerSystem::DbType, DbType);
-    m_testSystem = std::make_unique<TestLoggerSystem>(DbType);
-
     QString sessionName = "Session1";
     QString transactionName = "Transaction1";
 
@@ -46,7 +50,4 @@ void test_database::displaySessionInfo()
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
-
-    m_testSystem.reset();
 }
-
