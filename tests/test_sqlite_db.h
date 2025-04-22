@@ -13,7 +13,6 @@ private slots:
     void createSessionInsertsEntityComponents();
     void createSessionWithCustomerDataAlreadyCreated();
     void logInsertsEntityComponents();
-    void displaySessionInfo();
 private:
     TestLoggerSystem m_testSystem;
 };
