@@ -24,14 +24,6 @@ private slots:
     void recordAllContentSets();
     void recordStartStop();
 
-    void displaySessionInfosInvalidSession();
-    void displaySessionInfosMultipleTransactions();
-
-    void deleteTransaction();
-    void deleteNonexistingTransaction();
-    void deleteSession();
-    void deleteNonexistingSession();
-
     void getAllSessions();
     void getNoSession();
 
