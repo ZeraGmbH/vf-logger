@@ -51,4 +51,9 @@ QVariantMap LoggerContentSetConfig::componentFromContentSets(const QStringList &
     return resultMap;
 }
 
+QMap<int, QStringList> LoggerContentSetConfig::componentFromContentSet(const QString &contentSet)
+{
+    for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment())
+        return confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
+}
 }
