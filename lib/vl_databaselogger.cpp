@@ -514,6 +514,15 @@ QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
     return m_database->displayAllSessions();
 }
 
+QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
+{
+    QString transactionName = parameters["p_transaction"].toString();
+    if(transactionName == "")
+        return false;
+
+    return m_database->displayValues(transactionName);
+}
+
 void DatabaseLogger::initOnce()
 {
     Q_ASSERT(m_initDone == false);
@@ -593,6 +602,15 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 "RPC_getAllSessions",
                                                 VfCpp::cVeinModuleRpc::Param({})),
+                                            &QObject::deleteLater);
+        m_rpcList[tmpval->rpcName()]=tmpval;
+
+        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
+                                                m_entityId,
+                                                this,
+                                                this,
+                                                "RPC_displayActualValues",
+                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}})),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 

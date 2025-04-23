@@ -49,6 +49,7 @@ public slots:
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
     bool deleteTransaction(const QString &transactionName) override;
     QJsonArray displayAllSessions() override;
+    QJsonObject displayValues(const QString &transactionName) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);
@@ -66,6 +67,7 @@ private:
     void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const DatabaseCommandInterface::ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
     void setValidTransactions();
+    QStringList getContentsetList(const QString &transactionName);
 
 
     DBPrivate *m_dPtr = nullptr;
