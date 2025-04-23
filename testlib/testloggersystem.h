@@ -44,6 +44,7 @@ public:
 
     QJsonObject displaySessionsInfos(QString session);
     QJsonArray getAllSessions();
+    QVariant displayActualValues(QString transaction);
 
     TestDbAddSignaller* getSignaller();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);

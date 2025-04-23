@@ -1,4 +1,5 @@
 #include "vl_sqlitedb.h"
+#include "jsonloggedvalues.h"
 #include <vh_logging.h>
 #include <QMetaType>
 #include <QDebug>
@@ -641,13 +642,15 @@ QStringList VeinLogger::SQLiteDB::getContentsetList(const QString &transactionNa
     return contentSetsList;
 }
 
-QJsonObject SQLiteDB::displayValues(const QString &transactionName)
+QVariant SQLiteDB::displayValues(const QString &transactionName)
 {
     setValidTransactions();
     QJsonObject valuesObject;
     if(m_dPtr->m_transactionIds.values().contains(transactionName)) {
+        JsonLoggedValues loggedValues(getContentsetList(transactionName));
+
         QSqlQuery query(m_dPtr->m_logDB);
-        query.prepare("SELECT entities.id,entities.entity_name, components.component_name, valuemap.component_value"
+        query.prepare("SELECT entities.id, components.component_name, valuemap.component_value"
                       " FROM transactions "
                       " INNER JOIN transactions_valuemap ON "
                       " transactions.id = transactions_valuemap.transactionsid "
@@ -660,12 +663,14 @@ QJsonObject SQLiteDB::displayValues(const QString &transactionName)
         query.bindValue(":transaction", transactionName);
         query.exec();
         while(query.next()) {
-            int entityId = query.value("id").toInt();
-            QString entityName = query.value("entity_name").toString();
+            QString entityId = query.value("id").toString();
             QString componentName = query.value("component_name").toString();
             QVariant value = query.value("component_value");
+            loggedValues.appendLoggedValues(entityId, componentName, value);
         }
+        return loggedValues.createLoggedValuesJson();
     }
+    return false;
 }
 
 void SQLiteDB::onOpen(const QString &dbPath)
