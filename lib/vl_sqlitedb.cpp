@@ -626,6 +626,48 @@ QJsonArray SQLiteDB::displayAllSessions()
     return allSessions;
 }
 
+QStringList VeinLogger::SQLiteDB::getContentsetList(const QString &transactionName)
+{
+    QStringList contentSetsList;
+    QSqlQuery contentSetsQuery(m_dPtr->m_logDB);
+    contentSetsQuery.prepare("SELECT transactions.contentset_names FROM transactions WHERE transaction_name= :transaction");
+    contentSetsQuery.bindValue(":transaction",transactionName);
+    contentSetsQuery.exec();
+    while(contentSetsQuery.next()) {
+        QString contentset = contentSetsQuery.value("contentset_names").toString();
+        QStringList list = contentset.split(',');
+        contentSetsList.append(list);
+    }
+    return contentSetsList;
+}
+
+QJsonObject SQLiteDB::displayValues(const QString &transactionName)
+{
+    setValidTransactions();
+    QJsonObject valuesObject;
+    if(m_dPtr->m_transactionIds.values().contains(transactionName)) {
+        QSqlQuery query(m_dPtr->m_logDB);
+        query.prepare("SELECT entities.id,entities.entity_name, components.component_name, valuemap.component_value"
+                      " FROM transactions "
+                      " INNER JOIN transactions_valuemap ON "
+                      " transactions.id = transactions_valuemap.transactionsid "
+                      " INNER JOIN valuemap ON "
+                      " transactions_valuemap.valueid = valuemap.id "
+                      " INNER JOIN components ON "
+                      " valuemap.componentid = components.id "
+                      " INNER JOIN entities ON valuemap.entityiesid = entities.id where transactions.transaction_name = :transaction ;");
+
+        query.bindValue(":transaction", transactionName);
+        query.exec();
+        while(query.next()) {
+            int entityId = query.value("id").toInt();
+            QString entityName = query.value("entity_name").toString();
+            QString componentName = query.value("component_name").toString();
+            QVariant value = query.value("component_value");
+        }
+    }
+}
+
 void SQLiteDB::onOpen(const QString &dbPath)
 {
     QFileInfo fInfo(dbPath);
