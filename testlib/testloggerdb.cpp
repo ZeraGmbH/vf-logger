@@ -172,9 +172,8 @@ QJsonArray TestLoggerDB::displayAllSessions()
     return allSessions;
 }
 
-QJsonObject TestLoggerDB::displayValues(const QString &transactionName)
+QVariant TestLoggerDB::displayValues(const QString &transactionName)
 {
-    return QJsonObject();
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)

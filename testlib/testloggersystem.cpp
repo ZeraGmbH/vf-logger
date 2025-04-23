@@ -189,6 +189,13 @@ QJsonArray TestLoggerSystem::getAllSessions()
     return m_dataLoggerSystem->RPC_getAllSessions(QVariantMap{}).toJsonArray();
 }
 
+QVariant TestLoggerSystem::displayActualValues(QString transaction)
+{
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", transaction);
+    return m_dataLoggerSystem->RPC_displayActualValues(rpcParams);
+}
+
 TestDbAddSignaller *TestLoggerSystem::getSignaller()
 {
     return m_testSignaller.get();

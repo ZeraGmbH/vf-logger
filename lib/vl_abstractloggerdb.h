@@ -39,7 +39,7 @@ public slots:
     virtual QJsonObject displaySessionsInfos(const QString &sessionName) = 0;
     virtual bool deleteTransaction(const QString &transactionName) = 0;
     virtual QJsonArray displayAllSessions() = 0;
-    virtual QJsonObject displayValues(const QString &transactionName) = 0;
+    virtual QVariant displayValues(const QString &transactionName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;

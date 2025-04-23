@@ -517,9 +517,6 @@ QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
 QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
 {
     QString transactionName = parameters["p_transaction"].toString();
-    if(transactionName == "")
-        return false;
-
     return m_database->displayValues(transactionName);
 }
 
