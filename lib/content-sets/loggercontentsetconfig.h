@@ -18,6 +18,7 @@ public:
     static const QList<LoggerContentConfigEntry> &getConfigEnvironment();
     static QStringList getAvailableContentSets();
     static QVariantMap componentFromContentSets(const QStringList &contentSets);
+    static QMap<int, QStringList> componentFromContentSet(const QString &contentSet);
 
 private:
     static QList<LoggerContentConfigEntry> m_loggerConfigEnvironment;
