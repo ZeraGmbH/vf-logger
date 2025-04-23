@@ -618,7 +618,7 @@ QJsonArray SQLiteDB::displayAllSessions()
     QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
     while (sessionQuery.next()) {
         QJsonObject sessionJson;
-        sessionJson["id"] = sessionQuery.value(0).toString();
+        sessionJson["id"] = sessionQuery.value(0).toInt();
         sessionJson["sessionName"] = sessionQuery.value(1).toString();
         allSessions.append(sessionJson);
     }

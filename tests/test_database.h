@@ -20,6 +20,10 @@ private slots:
     void deleteNonexistingTransaction();
     void deleteSession();
     void deleteNonexistingSession();
+
+    void getAllSessions();
+    void getNoSession();
+
 private:
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     std::unique_ptr<TestLoggerSystem> m_testSystem;

@@ -24,9 +24,6 @@ private slots:
     void recordAllContentSets();
     void recordStartStop();
 
-    void getAllSessions();
-    void getNoSession();
-
     // corner cases
     void noRecordTransactionMissing();
     void noRecordSessionMissing();

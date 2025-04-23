@@ -168,7 +168,7 @@ QJsonArray TestLoggerDB::displayAllSessions()
     QJsonArray allSessions;
     for(int id = 0; id < m_sessions.count(); id++) {
         QJsonObject sessionJson;
-        sessionJson["id"] = id;
+        sessionJson["id"] = id+1;
         sessionJson["sessionName"] = m_sessions.keys().at(id);
         allSessions.append(sessionJson);
     }

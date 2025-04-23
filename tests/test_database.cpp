@@ -156,3 +156,34 @@ void test_database::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
         sessionInfo.insert(transaction, temp);
     }
 }
+
+void test_database::getAllSessions()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession2");
+
+    QFile fileSession(":/session-infos/AllSessions.json");
+    QVERIFY(fileSession.open(QFile::ReadOnly));
+    QByteArray jsonExpected = fileSession.readAll();
+
+    QJsonArray allSessions = m_testSystem->getAllSessions();
+    QJsonDocument jsonDoc(allSessions);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_database::getNoSession()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession2");
+
+    QVERIFY(m_testSystem->deleteSession("DbTestSession1"));
+    QVERIFY(m_testSystem->deleteSession("DbTestSession2"));
+
+    QJsonArray allSessions = m_testSystem->getAllSessions();
+    QVERIFY(allSessions.isEmpty());
+}
