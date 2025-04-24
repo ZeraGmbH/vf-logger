@@ -16,6 +16,8 @@ private slots:
     void createSessionWithCustomerDataAlreadyCreated();
     void logInsertsEntityComponents();
 
+    void openDatabaseErrorLate();
+
     void displaySessionInfo();
     void displaySessionInfosInvalidSession();
     void displaySessionInfosMultipleTransactions();

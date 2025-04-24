@@ -10,7 +10,6 @@ private slots:
     void cleanup();
 
     void openDatabaseErrorEarly();
-    void openDatabaseErrorLate();
     void openDatabaseOk();
 
     void createSessionNoCustomerDataSystem();

@@ -84,6 +84,24 @@ void test_database::logInsertsEntityComponents()
     QCOMPARE(spyDbComponentsAdded.count(), 0);
 }
 
+void test_database::openDatabaseErrorLate()
+{
+    //create read-only DB file to see late error
+    QFile DBFile(TestLoggerSystem::DBNameOpenErrorLate);
+    DBFile.open(QIODevice::WriteOnly);
+    DBFile.close();
+    DBFile.setPermissions(QFileDevice::ReadOther);
+
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorLate);
+
+    QFile file(":/vein-dumps/dumpDbOpenErrorLate.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem->dumpStorage();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_database::displaySessionInfo()
 {
     QString sessionName = "Session1";

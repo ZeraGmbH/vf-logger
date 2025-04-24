@@ -5,10 +5,6 @@
 
 TestLoggerDB* TestLoggerDB::m_instance = nullptr;
 
-const QLatin1String TestLoggerDB::DBNameOpenOk = QLatin1String("/tmp/veindb-test/DB_NAME_OPEN_OK");
-const QLatin1String TestLoggerDB::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
-const QLatin1String TestLoggerDB::DBNameOpenErrorLate = QLatin1String("/tmp/DB_NAME_OPEN_ERR");
-
 TestLoggerDB *TestLoggerDB::getCurrentInstance()
 {
     return m_instance;
@@ -250,23 +246,21 @@ void TestLoggerDB::setNextValueWriteCount(int newValueWriteCount)
 void TestLoggerDB::onOpen(const QString &dbPath)
 {
     // This one seems to run in another thread so we can use emit
-    if(dbPath == DBNameOpenOk) {
-        QFile fileForWatcher(dbPath);
-        fileForWatcher.open(QIODevice::WriteOnly);
-        fileForWatcher.close();
-        m_openDbPath = dbPath;
-        emit sigNewSessionList(m_dbSessionNames);
-        for(auto session: m_dbSessionNames)
-            m_sessions.insert(session, Transactions());
-        TimeMachineObject::feedEventLoop();
+    QFile fileForWatcher(dbPath);
+    if(fileForWatcher.exists() && !fileForWatcher.isWritable()){
+        emit sigDatabaseError(QString("Database is read only"));
+        return;
+    }
+    fileForWatcher.open(QIODevice::WriteOnly);
+    fileForWatcher.close();
+    m_openDbPath = dbPath;
+    emit sigNewSessionList(m_dbSessionNames);
+    for(auto session: m_dbSessionNames)
+        m_sessions.insert(session, Transactions());
+    TimeMachineObject::feedEventLoop();
 
-        emit sigDatabaseReady();
-        TimeMachineObject::feedEventLoop();
-    }
-    else {
-        m_openDbPath.clear();
-        emit sigDatabaseError("Could not open test database");
-    }
+    emit sigDatabaseReady();
+    TimeMachineObject::feedEventLoop();
 }
 
 void TestLoggerDB::runBatchedExecution()

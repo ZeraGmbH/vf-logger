@@ -11,6 +11,11 @@
 #include <QThread>
 #include <QDir>
 
+
+const QLatin1String TestLoggerSystem::DBNameOpenOk = QLatin1String("/tmp/veindb-test/DB_NAME_OPEN_OK");
+const QLatin1String TestLoggerSystem::DBNameOpenErrorEarly = QLatin1String("DB_NAME_OPEN_ERR");
+const QLatin1String TestLoggerSystem::DBNameOpenErrorLate = QLatin1String("/tmp/DB_NAME_OPEN_ERR");
+
 TestLoggerSystem::TestLoggerSystem(DbType dbType) :
     m_dbType(dbType)
 {
@@ -86,7 +91,8 @@ void TestLoggerSystem::cleanup()
 
     QDir dirCustomer(getCustomerDataPath());
     dirCustomer.removeRecursively();
-    QFile::remove(TestLoggerDB::DBNameOpenOk);
+    QFile::remove(DBNameOpenOk);
+    QFile::remove(DBNameOpenErrorLate);
 }
 
 void TestLoggerSystem::setComponent(int entityId, QString componentName, QVariant newValue)
@@ -118,7 +124,7 @@ QVariant TestLoggerSystem::getValueOfComponent(int entityId, QString componentNa
 
 void TestLoggerSystem::loadDatabase()
 {
-    setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    setComponent(dataLoggerEntityId, "DatabaseFile", DBNameOpenOk);
     TimeMachineObject::feedEventLoop();
 }
 

@@ -15,21 +15,9 @@ void test_testdatabase::cleanup()
 void test_testdatabase::openDatabaseErrorEarly()
 {
     m_testSystem.setupServer();
-    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorEarly);
+    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorEarly);
 
     QFile file(":/vein-dumps/dumpDbOpenErrorEarly.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
-}
-
-void test_testdatabase::openDatabaseErrorLate()
-{
-    m_testSystem.setupServer();
-    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenErrorLate);
-
-    QFile file(":/vein-dumps/dumpDbOpenErrorLate.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
