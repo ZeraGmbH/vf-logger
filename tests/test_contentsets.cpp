@@ -1,5 +1,8 @@
 #include "test_contentsets.h"
+#include "jsonloggercontentloader.h"
+#include "jsonloggercontentsessionloader.h"
 #include "testloghelpers.h"
+#include "loggercontentsetconfig.h"
 #include <timemachineobject.h>
 #include <QTest>
 
@@ -13,6 +16,17 @@ void test_contentsets::init()
 void test_contentsets::cleanup()
 {
     m_testSystem.cleanup();
+}
+
+void test_contentsets::contentSetsJsonEnviornmentSetTwice()
+{
+    QCOMPARE(VeinLogger::LoggerContentSetConfig::getConfigEnvironment().count(), 2);
+
+    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<JsonLoggerContentLoader>());
+    QCOMPARE(VeinLogger::LoggerContentSetConfig::getConfigEnvironment().count(), 2);
+
+    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
+    QCOMPARE(VeinLogger::LoggerContentSetConfig::getConfigEnvironment().count(), 2);
 }
 
 void test_contentsets::contentSetsSelectValidStringToBeFixed()

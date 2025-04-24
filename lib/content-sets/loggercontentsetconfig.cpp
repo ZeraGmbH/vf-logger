@@ -1,5 +1,6 @@
 #include "loggercontentsetconfig.h"
 #include "vl_componentunion.h"
+#include <qdebug.h>
 
 namespace VeinLogger
 {
@@ -8,6 +9,12 @@ QList<LoggerContentSetConfig::LoggerContentConfigEntry> LoggerContentSetConfig::
 
 void LoggerContentSetConfig::setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler)
 {
+    for(LoggerContentConfigEntry config: m_loggerConfigEnvironment) {
+        if(config.m_configFileDir == configFileDir) {
+            qInfo() << "VeinLogger - the config path" << configFileDir << "is already set.";
+            return;
+        }
+    }
     LoggerContentConfigEntry newConfig = { configFileDir, loggerContentHandler };
     newConfig.m_loggerContentHandler->setConfigFileDir(newConfig.m_configFileDir);
     m_loggerConfigEnvironment.append(newConfig);

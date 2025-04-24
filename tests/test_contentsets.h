@@ -10,6 +10,8 @@ private slots:
     void init();
     void cleanup();
 
+    void contentSetsJsonEnviornmentSetTwice();
+
     void contentSetsSelectValidStringToBeFixed();
     void contentSetsSelectInvalid();
     void contentSetsSelectValid();
