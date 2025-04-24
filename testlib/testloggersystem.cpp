@@ -119,6 +119,7 @@ QVariant TestLoggerSystem::getValueOfComponent(int entityId, QString componentNa
 void TestLoggerSystem::loadDatabase()
 {
     setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerDB::DBNameOpenOk);
+    TimeMachineObject::feedEventLoop();
 }
 
 void TestLoggerSystem::startLogging(QString sessionName, QString transactionName)
@@ -130,6 +131,7 @@ void TestLoggerSystem::startLogging(QString sessionName, QString transactionName
     setComponent(dataLoggerEntityId, "LoggingEnabled", true);
     if(TestLoggerDB::getCurrentInstance())
         TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreRecorded();
+    TimeMachineObject::feedEventLoop();
 }
 
 void TestLoggerSystem::stopLogging()
@@ -141,14 +143,18 @@ bool TestLoggerSystem::deleteTransaction(QString transactionName)
 {
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", transactionName);
-    return m_dataLoggerSystem->RPC_deleteTransaction(rpcParams).toBool();
+    bool ret = m_dataLoggerSystem->RPC_deleteTransaction(rpcParams).toBool();
+    TimeMachineObject::feedEventLoop();
+    return ret;
 }
 
 bool TestLoggerSystem::deleteSession(QString session)
 {
     QVariantMap rpcParams;
     rpcParams.insert("p_session", session);
-    return m_dataLoggerSystem->RPC_deleteSession(rpcParams).toBool();
+    bool ret = m_dataLoggerSystem->RPC_deleteSession(rpcParams).toBool();
+    TimeMachineObject::feedEventLoop();
+    return ret;
 }
 
 void TestLoggerSystem::setNextValueWriteCount(int newValueWriteCount)
