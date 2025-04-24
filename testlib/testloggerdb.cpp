@@ -191,6 +191,9 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::Datab
 
         Q_ASSERT(!variantEntry.componentName.isEmpty());
         componentValuesSorted.insert(variantEntry.componentName, variantEntry);
+
+        emit m_testSignaller->sigEntityAdded(variantEntry.entityId, variantEntry.entityName);
+        emit m_testSignaller->sigComponentAdded(variantEntry.componentName);
     }
     QJsonArray jsonArray;
     for(const auto &component : componentValuesSorted) {
@@ -228,6 +231,9 @@ void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> trans
     if(m_valuesAreInitial) {
         InitialValue initVal = { sessionName, component.value };
         m_initialValues[component.entityId][component.componentName] = initVal;
+
+        emit m_testSignaller->sigEntityAdded(component.entityId, component.entityName);
+        emit m_testSignaller->sigComponentAdded(component.componentName);
     }
     else {
         LoggedValue logVal = { sessionName, component.entityId, component.componentName, component.value, m_valueWriteCount};

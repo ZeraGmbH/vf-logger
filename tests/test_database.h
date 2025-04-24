@@ -12,6 +12,10 @@ private slots:
     void init();
     void cleanup();
 
+    void createSessionInsertsEntityComponents();
+    void createSessionWithCustomerDataAlreadyCreated();
+    void logInsertsEntityComponents();
+
     void displaySessionInfo();
     void displaySessionInfosInvalidSession();
     void displaySessionInfosMultipleTransactions();
