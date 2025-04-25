@@ -89,8 +89,21 @@ void test_database::openDatabaseErrorLate()
     //create read-only DB file to see late error
     QFile DBFile(TestLoggerSystem::DBNameOpenErrorLate);
     DBFile.open(QIODevice::WriteOnly);
+    QFileInfo fInfo(TestLoggerSystem::DBNameOpenErrorLate);
+
+    qInfo() << "test_database_1/ Permissions of " << TestLoggerSystem::DBNameOpenErrorLate << DBFile.permissions();
+    qInfo() << "test_database_1/ *Permissions of " << TestLoggerSystem::DBNameOpenErrorLate << fInfo.permissions() << "owner :" << fInfo.owner();
+    DBFile.setPermissions(QFileDevice::ReadOwner | QFileDevice::ReadGroup | QFileDevice::ReadUser | QFileDevice::ReadOther);
+
+    fInfo.refresh();
+
+    qInfo() << "test_database_1/ Is " << TestLoggerSystem::DBNameOpenErrorLate << "writable: " << DBFile.isWritable();
+    qInfo() << "test_database_1/ Permissions of " << TestLoggerSystem::DBNameOpenErrorLate << DBFile.permissions();
+    qInfo() << "test_database_1/ *Permissions of " << TestLoggerSystem::DBNameOpenErrorLate << fInfo.permissions() << "owner :" << fInfo.owner();
+
+    qInfo() << "test_database_2/ Is " << TestLoggerSystem::DBNameOpenErrorLate << "writable: " << fInfo.isWritable();
+
     DBFile.close();
-    DBFile.setPermissions(QFileDevice::ReadOther);
 
     m_testSystem->setupServer();
     m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorLate);

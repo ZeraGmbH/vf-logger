@@ -701,6 +701,7 @@ void DatabaseLogger::initModmanSessionComponent()
 bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
 {
     bool retVal = false;
+
     QFileInfo fInfo(dbFilePath);
     if(!fInfo.isRelative()) {
         // try to create path
@@ -719,6 +720,7 @@ bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
     }
     else
         onDbError(QString("Relative paths are not accepted: %1").arg(dbFilePath));
+
     return retVal;
 }
 
