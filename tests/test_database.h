@@ -17,6 +17,8 @@ private slots:
     void logInsertsEntityComponents();
 
     void openDatabaseErrorLate();
+    void openDatabaseErrorEarly();
+    void openDatabaseOk();
 
     void displaySessionInfo();
     void displaySessionInfosInvalidSession();

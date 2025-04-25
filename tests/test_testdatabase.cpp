@@ -12,30 +12,6 @@ void test_testdatabase::cleanup()
     m_testSystem.cleanup();
 }
 
-void test_testdatabase::openDatabaseErrorEarly()
-{
-    m_testSystem.setupServer();
-    m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorEarly);
-
-    QFile file(":/vein-dumps/dumpDbOpenErrorEarly.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
-}
-
-void test_testdatabase::openDatabaseOk()
-{
-    m_testSystem.setupServer();
-    m_testSystem.loadDatabase();
-
-    QFile file(":/vein-dumps/dumpDbOpenOk.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-    QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
-}
-
 void test_testdatabase::createSessionNoCustomerDataSystem()
 {
     m_testSystem.setupServer();
