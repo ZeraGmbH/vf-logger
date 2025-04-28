@@ -136,13 +136,11 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QJsonObject jsonObj = m_testSystem->displaySessionsInfos(sessionName);
+    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos(sessionName);
     //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
-    QJsonObject temp = jsonObj.value(transactionName).toObject();
-    temp.insert("Time", QString());
-    jsonObj.insert(transactionName, temp);
+    removeTimeInfoInTransactions(sessionInfo);
 
-    QJsonDocument jsonDoc(jsonObj);
+    QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
