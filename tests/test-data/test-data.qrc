@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
+        <file>database/readOnlyDatabase.db</file>
+
         <file>contentsets/test-session1.json</file>
         <file>contentsets/test-session2.json</file>
         <file>sessions/test-session1.json</file>

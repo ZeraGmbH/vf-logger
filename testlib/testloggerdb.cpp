@@ -2,6 +2,7 @@
 #include "testloggersystem.h"
 #include <timemachineobject.h>
 #include <QJsonArray>
+#include <qfileinfo.h>
 
 TestLoggerDB* TestLoggerDB::m_instance = nullptr;
 
@@ -246,23 +247,23 @@ void TestLoggerDB::setNextValueWriteCount(int newValueWriteCount)
 void TestLoggerDB::onOpen(const QString &dbPath)
 {
     // This one seems to run in another thread so we can use emit
-    if(dbPath == TestLoggerSystem::DBNameOpenOk) {
-        QFile fileForWatcher(dbPath);
-        fileForWatcher.open(QIODevice::WriteOnly);
-        fileForWatcher.close();
-        m_openDbPath = dbPath;
-        emit sigNewSessionList(m_dbSessionNames);
-        for(auto session: m_dbSessionNames)
-            m_sessions.insert(session, Transactions());
-        TimeMachineObject::feedEventLoop();
+    QFileInfo fInfo(dbPath);
+    if(fInfo.exists() && !fInfo.isWritable()){
+        emit sigDatabaseError(QString("Database is read only"));
+        return;
+    }
+    QFile fileForWatcher(dbPath);
+    fileForWatcher.open(QIODevice::WriteOnly);
+    fileForWatcher.close();
+    m_openDbPath = dbPath;
+    emit sigNewSessionList(m_dbSessionNames);
+    for(auto session: m_dbSessionNames)
+        m_sessions.insert(session, Transactions());
+    TimeMachineObject::feedEventLoop();
 
-        emit sigDatabaseReady();
-        TimeMachineObject::feedEventLoop();
-    }
-    else {
-        m_openDbPath.clear();
-        emit sigDatabaseError("Could not open test database");
-    }
+    emit sigDatabaseReady();
+    TimeMachineObject::feedEventLoop();
+
 }
 
 void TestLoggerDB::runBatchedExecution()

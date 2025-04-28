@@ -107,6 +107,18 @@ void test_mockandsqlitedatabase::openDatabaseOk()
     QCOMPARE(loggerEntityDump.value("DatabaseFile").toString(), TestLoggerSystem::DBNameOpenOk);
 }
 
+void test_mockandsqlitedatabase::openDatabaseErrorLate()
+{
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", ":/database/readOnlyDatabase.db");
+
+    QFile file(":/vein-dumps/dumpDbOpenErrorLate.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem->dumpStorage();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_mockandsqlitedatabase::displaySessionInfo()
 {
     QString sessionName = "Session1";
