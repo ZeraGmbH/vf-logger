@@ -48,6 +48,10 @@ public:
     TestDbAddSignaller* getSignaller();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
 
+    static const QLatin1String DBNameOpenOk;
+    static const QLatin1String DBNameOpenErrorEarly;
+    static const QLatin1String DBNameOpenErrorLate;
+
 private:
     DbType m_dbType;
     std::unique_ptr<TestDbAddSignaller> m_testSignaller;
