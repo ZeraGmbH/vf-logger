@@ -1,31 +1,31 @@
-#include "test_database.h"
+#include "test_mockandsqlitedatabase.h"
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
 #include <QTest>
 
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
-QTEST_MAIN(test_database)
+QTEST_MAIN(test_mockandsqlitedatabase)
 
-void test_database::initTestCase_data()
+void test_mockandsqlitedatabase::initTestCase_data()
 {
     QTest::addColumn<TestLoggerSystem::DbType>("DbType");
     QTest::newRow("Mock Databse") << TestLoggerSystem::DbType::MOCK;
     QTest::newRow("SQLite Databse") << TestLoggerSystem::DbType::SQLITE;
 }
 
-void test_database::init()
+void test_mockandsqlitedatabase::init()
 {
     QFETCH_GLOBAL(TestLoggerSystem::DbType, DbType);
     m_testSystem = std::make_unique<TestLoggerSystem>(DbType);
 }
 
-void test_database::cleanup()
+void test_mockandsqlitedatabase::cleanup()
 {
     m_testSystem->cleanup();
     m_testSystem.reset();
 }
 
-void test_database::createSessionInsertsEntityComponents()
+void test_mockandsqlitedatabase::createSessionInsertsEntityComponents()
 {
     m_testSystem->setupServer();
     m_testSystem->appendCustomerDataSystem();
@@ -43,7 +43,7 @@ void test_database::createSessionInsertsEntityComponents()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_database::createSessionWithCustomerDataAlreadyCreated()
+void test_mockandsqlitedatabase::createSessionWithCustomerDataAlreadyCreated()
 {
     m_testSystem->setupServer();
     m_testSystem->appendCustomerDataSystem();
@@ -59,7 +59,7 @@ void test_database::createSessionWithCustomerDataAlreadyCreated()
     QCOMPARE(spyDbComponentsAdded.count(), 0);
 }
 
-void test_database::logInsertsEntityComponents()
+void test_mockandsqlitedatabase::logInsertsEntityComponents()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -84,7 +84,7 @@ void test_database::logInsertsEntityComponents()
     QCOMPARE(spyDbComponentsAdded.count(), 0);
 }
 
-void test_database::openDatabaseErrorEarly()
+void test_mockandsqlitedatabase::openDatabaseErrorEarly()
 {
     m_testSystem->setupServer();
     m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorEarly);
@@ -96,7 +96,7 @@ void test_database::openDatabaseErrorEarly()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_database::openDatabaseOk()
+void test_mockandsqlitedatabase::openDatabaseOk()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -107,7 +107,7 @@ void test_database::openDatabaseOk()
     QCOMPARE(loggerEntityDump.value("DatabaseFile").toString(), TestLoggerSystem::DBNameOpenOk);
 }
 
-void test_database::displaySessionInfo()
+void test_mockandsqlitedatabase::displaySessionInfo()
 {
     QString sessionName = "Session1";
     QString transactionName = "Transaction1";
@@ -135,7 +135,7 @@ void test_database::displaySessionInfo()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_database::displaySessionInfosInvalidSession()
+void test_mockandsqlitedatabase::displaySessionInfosInvalidSession()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -149,7 +149,7 @@ void test_database::displaySessionInfosInvalidSession()
     QVERIFY(sessionInfo.isEmpty());
 }
 
-void test_database::displaySessionInfosMultipleTransactions()
+void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -176,7 +176,7 @@ void test_database::displaySessionInfosMultipleTransactions()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_database::deleteTransaction()
+void test_mockandsqlitedatabase::deleteTransaction()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -195,7 +195,7 @@ void test_database::deleteTransaction()
     QVERIFY(sessionInfo.contains("Transaction2"));
 }
 
-void test_database::deleteNonexistingTransaction()
+void test_mockandsqlitedatabase::deleteNonexistingTransaction()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -208,7 +208,7 @@ void test_database::deleteNonexistingTransaction()
     QVERIFY(!m_testSystem->deleteTransaction("foo"));
 }
 
-void test_database::deleteSession()
+void test_mockandsqlitedatabase::deleteSession()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -223,7 +223,7 @@ void test_database::deleteSession()
     QVERIFY(sessionInfo.isEmpty());
 }
 
-void test_database::deleteNonexistingSession()
+void test_mockandsqlitedatabase::deleteNonexistingSession()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -231,7 +231,7 @@ void test_database::deleteNonexistingSession()
     QVERIFY(!m_testSystem->deleteSession("foo"));
 }
 
-void test_database::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
+void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
 {
     for(QString transaction: sessionInfo.keys()) {
         QJsonObject temp = sessionInfo.value(transaction).toObject();
@@ -240,7 +240,7 @@ void test_database::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
     }
 }
 
-void test_database::getAllSessions()
+void test_mockandsqlitedatabase::getAllSessions()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -257,7 +257,7 @@ void test_database::getAllSessions()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_database::getNoSession()
+void test_mockandsqlitedatabase::getNoSession()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
