@@ -318,12 +318,3 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
-
-void test_testdatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
-{
-    for(QString transaction: sessionInfo.keys()) {
-        QJsonObject temp = sessionInfo.value(transaction).toObject();
-        temp.insert("Time", QString());
-        sessionInfo.insert(transaction, temp);
-    }
-}
