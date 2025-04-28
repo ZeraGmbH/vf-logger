@@ -18,6 +18,7 @@ private slots:
 
     void openDatabaseErrorEarly();
     void openDatabaseOk();
+    void openDatabaseErrorLate();
 
     void displaySessionInfo();
     void displaySessionInfosInvalidSession();

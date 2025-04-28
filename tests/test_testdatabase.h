@@ -9,8 +9,6 @@ class test_testdatabase : public QObject
 private slots:
     void cleanup();
 
-    void openDatabaseErrorLate();
-
     void createSessionNoCustomerDataSystem();
     void setupCustomerData();
     void selectExistingSession();
