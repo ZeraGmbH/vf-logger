@@ -1,10 +1,10 @@
-#ifndef TEST_DATABASE_H
-#define TEST_DATABASE_H
+#ifndef TEST_MOCKANDSQLITEDATABASE_H
+#define TEST_MOCKANDSQLITEDATABASE_H
 
 #include "testloggersystem.h"
 #include <QObject>
 
-class test_database : public QObject
+class test_mockandsqlitedatabase : public QObject
 {
     Q_OBJECT
 private slots:
@@ -36,4 +36,4 @@ private:
     std::unique_ptr<TestLoggerSystem> m_testSystem;
 };
 
-#endif // TEST_DATABASE_H
+#endif // TEST_MOCKANDSQLITEDATABASE_H
