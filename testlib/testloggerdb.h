@@ -36,9 +36,6 @@ public:
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     void setNextValueWriteCount(int newValueWriteCount);
 
-    static const QLatin1String DBNameOpenOk;
-    static const QLatin1String DBNameOpenErrorEarly;
-    static const QLatin1String DBNameOpenErrorLate;
     void onOpen(const QString &dbPath) override;
 
     void runBatchedExecution() override;

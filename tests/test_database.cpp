@@ -84,6 +84,29 @@ void test_database::logInsertsEntityComponents()
     QCOMPARE(spyDbComponentsAdded.count(), 0);
 }
 
+void test_database::openDatabaseErrorEarly()
+{
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorEarly);
+
+    QFile file(":/vein-dumps/dumpDbOpenErrorEarly.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = m_testSystem->dumpStorage();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_database::openDatabaseOk()
+{
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+
+    QJsonObject jsonDumped = QJsonDocument::fromJson(m_testSystem->dumpStorage()).object();
+    QJsonObject loggerEntityDump = jsonDumped.value("2").toObject();
+    QCOMPARE(loggerEntityDump.value("DatabaseReady").toBool(), true);
+    QCOMPARE(loggerEntityDump.value("DatabaseFile").toString(), TestLoggerSystem::DBNameOpenOk);
+}
+
 void test_database::displaySessionInfo()
 {
     QString sessionName = "Session1";
