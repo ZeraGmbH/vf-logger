@@ -517,7 +517,12 @@ QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
 QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
 {
     QString transactionName = parameters["p_transaction"].toString();
-    return m_database->displayValues(transactionName);
+    QJsonObject obj = m_database->displayValues(transactionName);
+    if(obj.contains("false")) {
+        qWarning("Select an existing transaction");
+        return false;
+    }
+    return obj.toVariantMap();
 }
 
 void DatabaseLogger::initOnce()

@@ -172,7 +172,7 @@ QJsonArray TestLoggerDB::displayAllSessions()
     return allSessions;
 }
 
-QVariant TestLoggerDB::displayValues(const QString &transactionName)
+QJsonObject TestLoggerDB::displayValues(const QString &transactionName)
 {
 }
 
