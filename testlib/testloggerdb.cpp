@@ -93,10 +93,6 @@ void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
     m_storageMode = storageMode;
 }
 
-void TestLoggerDB::initLocalData()
-{
-}
-
 static const int testTransactionId = 42;
 
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)

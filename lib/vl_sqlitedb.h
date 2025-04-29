@@ -38,10 +38,8 @@ public:
     static bool isValidDatabase(QString dbPath);
 
 public slots:
-    void initLocalData() override;
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
-    bool addStopTime(int transactionId,  QDateTime time) override;
     bool deleteSession(const QString &session) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
@@ -61,6 +59,8 @@ protected:
     virtual void addEntity(int entityId, QString entityName);
 
 private:
+    void initLocalData();
+    bool addStopTime(int transactionId,  QDateTime time) override;
     bool hasEntityId(int entityId) const;
     bool hasComponentName(const QString &componentName) const;
     void addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component);
