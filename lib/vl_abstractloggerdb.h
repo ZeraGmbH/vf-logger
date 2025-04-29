@@ -31,8 +31,6 @@ signals:
     void sigNewSessionList(QStringList p_sessions);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
-    virtual void initLocalData() = 0;
-
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) = 0 ;
     virtual bool deleteSession(const QString &sessionName) = 0;
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
@@ -42,12 +40,11 @@ public slots:
     virtual QJsonObject displayValues(const QString &transactionName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
-    virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
     virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
-
     virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) = 0;
-
     virtual void runBatchedExecution() = 0; // Another implementation detail which must go
+private:
+    virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 };
 
 /// @b factory function alias to create database

@@ -22,10 +22,8 @@ public:
 
     void setStorageMode(STORAGE_MODE storageMode) override;
 
-    void initLocalData() override;
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
-    bool addStopTime(int transactionId,  QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
@@ -50,6 +48,8 @@ public:
     void valuesFromNowOnAreRecorded();
 
 private:
+    bool addStopTime(int transactionId,  QDateTime time) override;
+
     TestDbAddSignaller* m_testSignaller;
     int m_valueWriteCount = 0;
 
