@@ -280,3 +280,84 @@ void test_mockandsqlitedatabase::getNoSession()
     QJsonArray allSessions = m_testSystem->getAllSessions();
     QVERIFY(allSessions.isEmpty());
 }
+
+void test_mockandsqlitedatabase::displayLoggedValues()
+{
+    int testSet1EntityId = 10;
+    int testSet2EntityId = 11;
+
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "Session1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName2" , 2);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName2" , 2);
+
+    m_testSystem->startLogging("Session1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QFile file(":/logged-values/LogTestSet1.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QJsonObject jsonObj = m_testSystem->displayActualValues("Transaction1").toJsonObject();
+    QJsonDocument jsonDoc(jsonObj);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
+{
+    int testSet1EntityId = 10;
+    int testSet2EntityId = 11;
+
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "session1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName2" , 2);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName2" , 2);
+
+    m_testSystem->startLogging("Session1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QFile file(":/logged-values/LogAll.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+
+    QJsonObject jsonObj = m_testSystem->displayActualValues("Transaction1").toJsonObject();
+    QJsonDocument jsonDoc(jsonObj);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
+{
+    int testSet1EntityId = 10;
+    int testSet2EntityId = 11;
+
+    m_testSystem->setupServer();
+    m_testSystem->loadDatabase();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "session1");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "Transaction1");
+
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName2" , 2);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName2" , 2);
+
+    m_testSystem->startLogging("Session1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    bool retVal = m_testSystem->displayActualValues("InvalidTransaction").toBool();
+    QVERIFY(retVal == false);
+}

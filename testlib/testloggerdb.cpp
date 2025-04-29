@@ -1,5 +1,6 @@
 #include "testloggerdb.h"
 #include "testloggersystem.h"
+#include "jsonloggedvalues.h"
 #include <timemachineobject.h>
 #include <QJsonArray>
 #include <qfileinfo.h>
@@ -174,6 +175,24 @@ QJsonArray TestLoggerDB::displayAllSessions()
 
 QJsonObject TestLoggerDB::displayValues(const QString &transactionName)
 {
+    QStringList contentsetList;
+    for(QString sessionName: m_sessions.keys()) {
+        if(m_sessions[sessionName].contains(transactionName)) {
+            Transactions transaction = m_sessions[sessionName];
+            TransactionInfo transactionInfo = transaction[transactionName];
+            contentsetList = transactionInfo.contentSetList;
+        }
+    }
+    JsonLoggedValues jsonLoggedValues(contentsetList);
+    for(int entityId : m_initialValues.keys()) {
+        QMap<QString, InitialValue> compoValuesMap = m_initialValues[entityId];
+        for(QString componentName : compoValuesMap.keys()) {
+            InitialValue initValue = compoValuesMap[componentName];
+            QVariant value = initValue.value;
+            jsonLoggedValues.appendLoggedValues(QString::number(entityId), componentName, value);
+        }
+    }
+    return jsonLoggedValues.createLoggedValuesJson();
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
