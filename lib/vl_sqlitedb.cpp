@@ -642,10 +642,9 @@ QStringList VeinLogger::SQLiteDB::getContentsetList(const QString &transactionNa
     return contentSetsList;
 }
 
-QVariant SQLiteDB::displayValues(const QString &transactionName)
+QJsonObject SQLiteDB::displayValues(const QString &transactionName)
 {
     setValidTransactions();
-    QJsonObject valuesObject;
     if(m_dPtr->m_transactionIds.values().contains(transactionName)) {
         JsonLoggedValues loggedValues(getContentsetList(transactionName));
 
@@ -670,7 +669,11 @@ QVariant SQLiteDB::displayValues(const QString &transactionName)
         }
         return loggedValues.createLoggedValuesJson();
     }
-    return false;
+    else {
+        QJsonObject obj;
+        obj.insert("false", "false");
+        return obj;
+    }
 }
 
 void SQLiteDB::onOpen(const QString &dbPath)
