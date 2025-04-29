@@ -52,5 +52,8 @@
         <file>vein-dumps/dumpSetContentValidAllSessionChange.json</file>
         <file>vein-dumps/dumpSetContentValidTwo.json</file>
         <file>vein-dumps/dumpSetContentValidTwoSame.json</file>
+
+        <file>logged-values/LogAll.json</file>
+        <file>logged-values/LogTestSet1.json</file>
     </qresource>
 </RCC>

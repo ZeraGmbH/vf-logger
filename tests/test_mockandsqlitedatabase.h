@@ -32,6 +32,10 @@ private slots:
     void getAllSessions();
     void getNoSession();
 
+    void displayLoggedValues();
+    void displayLoggedValuesZeraAll();
+    void displayLoggedValuesInvalidTransaction();
+
 private:
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     std::unique_ptr<TestLoggerSystem> m_testSystem;
