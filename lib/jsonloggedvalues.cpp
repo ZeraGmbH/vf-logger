@@ -41,22 +41,9 @@ void JsonLoggedValues::appendEntitiesOnContentset(QJsonObject &loggedValues, QSt
         for(int entity : componentsMap.keys()) {
             QJsonObject obj;
             if(m_entityCompoValues.contains(QString::number(entity))) {
-                obj = m_entityCompoValues.value(QString::number(entity)).toObject();
-                appendToJson(loggedValues, contentsets.at(i), obj);
+                loggedValues.insert(contentsets.at(i), m_entityCompoValues);
             }
         }
-    }
-}
-
-void JsonLoggedValues::appendToJson(QJsonObject &json, QString contentSet, QJsonObject valuesToAppend)
-{
-    if(!json.contains(contentSet))
-        json.insert(contentSet, valuesToAppend);
-    else {
-        QJsonObject tempObj = json.value(contentSet).toObject();
-        for(auto it = valuesToAppend.constBegin(); it != valuesToAppend.constEnd(); it++)
-            tempObj.insert(it.key(), it.value());
-        json[contentSet] = tempObj;
     }
 }
 
