@@ -1,6 +1,8 @@
 {
     "TestSet1": {
-        "ComponentName1": 1,
-        "ComponentName2": 2
+        "10": {
+            "ComponentName1": 1,
+            "ComponentName2": 2
+        }
     }
 }

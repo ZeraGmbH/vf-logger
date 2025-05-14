@@ -13,7 +13,6 @@ public:
     QJsonObject createLoggedValuesJson();
 
 private:
-    void appendToJson(QJsonObject &json, QString contentSet, QJsonObject valuesToAppend);
     void appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets);
 
     QStringList m_contentsetsList;
