@@ -16,6 +16,7 @@ class DatabaseCommandInterface : public QObject
 public:
     DatabaseCommandInterface();
     void connectDb(AbstractLoggerDB *db);
+    bool isDatabaseConnected();
     struct ComponentInfo
     {
         int entityId;
@@ -32,6 +33,7 @@ signals: // commands are send by signals for databases running in other thread
     void sigFlushToDb();
 private:
     static bool m_componentInfoMetaWasRegistered;
+    bool m_databaseConnected = false;
 };
 
 }

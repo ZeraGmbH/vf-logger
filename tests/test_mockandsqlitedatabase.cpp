@@ -260,6 +260,22 @@ void test_mockandsqlitedatabase::deleteNonexistingSession()
     QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Select an existing session");
 }
 
+void test_mockandsqlitedatabase::deleteSessionBeforeDbLoaded()
+{
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Database is not set");
+}
+
 void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
 {
     for(QString transaction: sessionInfo.keys()) {
