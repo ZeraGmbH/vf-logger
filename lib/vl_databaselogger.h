@@ -5,6 +5,7 @@
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include "vl_loggedcomponents.h"
+#include "rpcdeletesession.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vf-cpp-rpc.h>
@@ -33,7 +34,6 @@ signals:
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
-    QVariant RPC_deleteSession(QVariantMap parameters);
     QVariant RPC_displaySessionsInfos(QVariantMap parameters);
     QVariant RPC_deleteTransaction(QVariantMap parameters);
     QVariant RPC_getAllSessions(QVariantMap parameters);
@@ -72,9 +72,11 @@ private:
     VeinStorage::AbstractComponentPtr m_modmanSessionComponent;
     bool m_initDone = false;
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
+    QMap<QString, VfCpp::VfCppRpcSimplifiedPtr> m_rpcSimplifiedList;
+    std::shared_ptr<RpcDeleteSession> m_rpcDeleteSession;
 
     DBFactory m_databaseFactory;
-    DatabaseCommandInterface m_dbCmdInterface;
+    std::shared_ptr<DatabaseCommandInterface> m_dbCmdInterface;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
     AbstractLoggerDB *m_database = nullptr;
     QThread m_asyncDatabaseThread;

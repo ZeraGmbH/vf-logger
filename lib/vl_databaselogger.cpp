@@ -24,6 +24,7 @@ DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
     m_storageMode(storageMode),
     m_loggedComponents(entitiesWithAllComponentsStoredAlways)
 {
+    m_dbCmdInterface = std::make_shared<DatabaseCommandInterface>();
     switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT:
         m_entityId = 2;
@@ -210,6 +211,11 @@ void DatabaseLogger::processEvent(QEvent *event)
                     m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
                     cEvent->accept();
                 }
+                else if(m_rpcSimplifiedList.contains(rpcData->procedureName())){
+                    const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
+                    m_rpcSimplifiedList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
+                    cEvent->accept();
+                }
                 else if(!cEvent->isAccepted()) {
                     qWarning() << "No remote procedure with entityId:" << m_entityId << "name:" << rpcData->procedureName();
                     VeinComponent::ErrorData *eData = new VeinComponent::ErrorData();
@@ -304,7 +310,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
             m_batchedExecutionTimer.stop();
             m_schedulingTimer.stop();
             m_countdownUpdateTimer.stop();
-            emit m_dbCmdInterface.sigFlushToDb();
+            emit m_dbCmdInterface->sigFlushToDb();
             statusTextToVein("Database loaded");
         }
         m_loggingActive = enabled;
@@ -334,14 +340,14 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
             m_asyncDatabaseThread.start();
         }
 
-        m_dbCmdInterface.connectDb(m_database);
+        m_dbCmdInterface->connectDb(m_database);
         connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
-        emit m_dbCmdInterface.sigOpenDatabase(filePath);
+        emit m_dbCmdInterface->sigOpenDatabase(filePath);
     }
 }
 
@@ -403,12 +409,10 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
 
 void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList)
 {
-    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
     if(success)
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+        m_rpcDeleteSession->sendRpcResult(callId, true);
     else
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
-    m_rpcList.value("RPC_deleteSession(QString p_session)")->sendRpcResult(callId, returnCode, errorMsg, false);
+        m_rpcDeleteSession->sendRpcError(callId, errorMsg);
 
     // check if deleted session is current Session and if it is set sessionName empty
     // We will not check retVal here. If something goes wrong and the session is still available the
@@ -486,14 +490,6 @@ void DatabaseLogger::onDbError(QString errorMsg)
 QString DatabaseLogger::getEntityName(int entityId) const
 {
     return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
-}
-
-QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
-{
-    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
-    QString session = parameters["p_session"].toString();
-    emit m_dbCmdInterface.sigDeleteSession(callId, session);
-    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
@@ -581,18 +577,10 @@ void DatabaseLogger::initOnce()
             emit sigSendEvent(systemEvent);
         }
 
-        VfCpp::cVeinModuleRpc::Ptr tmpval;
-        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
-                                                m_entityId,
-                                                this,
-                                                this,
-                                                "RPC_deleteSession",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}}),
-                                                false,
-                                                false),
-                                            &QObject::deleteLater);
-        m_rpcList[tmpval->rpcName()]=tmpval;
+        m_rpcDeleteSession = std::make_shared<RpcDeleteSession>(this, m_entityId, m_dbCmdInterface);
+        m_rpcSimplifiedList[m_rpcDeleteSession->getSignature()] = m_rpcDeleteSession;
 
+        VfCpp::cVeinModuleRpc::Ptr tmpval;
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
                                                 m_entityId,
                                                 this,
@@ -696,7 +684,7 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
         }
 
         sessionCustomerDataName = storageDb->getStoredValue(200, "FileSelected").toString();
-        emit m_dbCmdInterface.sigAddSession(sessionName, componentsAddedOncePerSession);
+        emit m_dbCmdInterface->sigAddSession(sessionName, componentsAddedOncePerSession);
     }
     else
         sessionCustomerDataName = m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();
@@ -760,7 +748,7 @@ void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, c
     if(m_loggedComponents.isLoggedComponent(entityId, componentName)) {
         QString entityName = getEntityName(entityId);
         DatabaseCommandInterface::ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
-        emit m_dbCmdInterface.sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
+        emit m_dbCmdInterface->sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
     }
 }
 
