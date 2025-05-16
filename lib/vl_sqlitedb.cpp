@@ -433,9 +433,7 @@ bool SQLiteDB::addStopTime(int transactionId, QDateTime time)
 
 void SQLiteDB::onDeleteSession(QUuid callId, const QString &session)
 {
-    if(!m_dPtr->m_logDB.isOpen())
-        emit sigDeleteSessionCompleted(callId, false, "Database not set", QStringList());
-    else if(!m_dPtr->m_sessionIds.contains(session))
+    if(!m_dPtr->m_sessionIds.contains(session))
         emit sigDeleteSessionCompleted(callId, false, "Select an existing session", QStringList());
     else {
         /* Deleting session takes ages for a simple db:

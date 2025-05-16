@@ -28,6 +28,7 @@ private slots:
     void deleteNonexistingTransaction();
     void deleteSession();
     void deleteNonexistingSession();
+    void deleteSessionBeforeDbLoaded();
 
     void getAllSessions();
     void getNoSession();
