@@ -22,10 +22,8 @@ public:
 
     void setStorageMode(STORAGE_MODE storageMode) override;
 
-    void initLocalData() override;
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
-    bool addStopTime(int transactionId,  QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
     QJsonObject displaySessionsInfos(const QString &sessionName) override;
@@ -33,7 +31,7 @@ public:
     QJsonArray displayAllSessions() override;
     QJsonObject displayValues(const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
-    bool deleteSession(const QString &session) override;
+    void onDeleteSession(QUuid callId, const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     void setNextValueWriteCount(int newValueWriteCount);
 
@@ -50,6 +48,8 @@ public:
     void valuesFromNowOnAreRecorded();
 
 private:
+    bool addStopTime(int transactionId,  QDateTime time) override;
+
     TestDbAddSignaller* m_testSignaller;
     int m_valueWriteCount = 0;
 

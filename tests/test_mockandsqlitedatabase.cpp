@@ -1,6 +1,7 @@
 #include "test_mockandsqlitedatabase.h"
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
+#include "loggerstatictexts.h"
 #include <QTest>
 
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
@@ -223,14 +224,24 @@ void test_mockandsqlitedatabase::deleteSession()
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    m_testSystem->startLogging("DbTestSession1", "Transaction1");
-    m_testSystem->stopLogging();
 
-    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
-    QVERIFY(!sessionInfo.isEmpty());
-    QVERIFY(m_testSystem->deleteSession("DbTestSession1"));
-    sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
-    QVERIFY(sessionInfo.isEmpty());
+    QStringList exisitingSessions = getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_existingSessionsComponentName).toStringList();
+    QVERIFY(exisitingSessions.contains("DbTestSession1"));
+    QString currentSession =  getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_sessionNameComponentName).toString();
+    QCOMPARE(currentSession, "DbTestSession1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    exisitingSessions = getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_existingSessionsComponentName).toStringList();
+    QVERIFY(!exisitingSessions.contains("DbTestSession1"));
+    currentSession =  getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_sessionNameComponentName).toString();
+    QCOMPARE(currentSession, "");
 }
 
 void test_mockandsqlitedatabase::deleteNonexistingSession()
@@ -238,7 +249,31 @@ void test_mockandsqlitedatabase::deleteNonexistingSession()
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
 
-    QVERIFY(!m_testSystem->deleteSession("foo"));
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "foo");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Select an existing session");
+}
+
+void test_mockandsqlitedatabase::deleteSessionBeforeDbLoaded()
+{
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
@@ -248,6 +283,11 @@ void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessi
         temp.insert("Time", QString());
         sessionInfo.insert(transaction, temp);
     }
+}
+
+QVariant test_mockandsqlitedatabase::getComponentValue(int entityId, QString component)
+{
+    return m_testSystem->getServer()->getStorage()->getDb()->getStoredValue(entityId, component);
 }
 
 void test_mockandsqlitedatabase::getAllSessions()
@@ -274,8 +314,11 @@ void test_mockandsqlitedatabase::getNoSession()
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession2");
 
-    QVERIFY(m_testSystem->deleteSession("DbTestSession1"));
-    QVERIFY(m_testSystem->deleteSession("DbTestSession2"));
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+    rpcParams.insert("p_session", "DbTestSession2");
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
 
     QJsonArray allSessions = m_testSystem->getAllSessions();
     QVERIFY(allSessions.isEmpty());

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVariant>
 #include <QDateTime>
+#include <QUuid>
 
 namespace VeinLogger
 {
@@ -15,6 +16,7 @@ class DatabaseCommandInterface : public QObject
 public:
     DatabaseCommandInterface();
     void connectDb(AbstractLoggerDB *db);
+    bool isDatabaseConnected();
     struct ComponentInfo
     {
         int entityId;
@@ -27,9 +29,11 @@ signals: // commands are send by signals for databases running in other thread
     void sigOpenDatabase(const QString &filePath);
     void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component);
     void sigAddSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> staticData);
+    void sigDeleteSession(QUuid callId, QString sessionName);
     void sigFlushToDb();
 private:
     static bool m_componentInfoMetaWasRegistered;
+    bool m_databaseConnected = false;
 };
 
 }

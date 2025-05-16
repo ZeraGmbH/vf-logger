@@ -28,6 +28,7 @@ private slots:
     void deleteNonexistingTransaction();
     void deleteSession();
     void deleteNonexistingSession();
+    void deleteSessionBeforeDbLoaded();
 
     void getAllSessions();
     void getNoSession();
@@ -38,6 +39,7 @@ private slots:
 
 private:
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
+    QVariant getComponentValue(int entityId, QString component);
     std::unique_ptr<TestLoggerSystem> m_testSystem;
 };
 

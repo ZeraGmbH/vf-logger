@@ -93,10 +93,6 @@ void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
     m_storageMode = storageMode;
 }
 
-void TestLoggerDB::initLocalData()
-{
-}
-
 static const int testTransactionId = 42;
 
 int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
@@ -232,15 +228,15 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::Datab
     return m_dbSessionNames.count();
 }
 
-bool TestLoggerDB::deleteSession(const QString &session)
+void TestLoggerDB::onDeleteSession(QUuid callId, const QString &session)
 {
-    if(m_sessions.contains(session)) {
+    if(!m_sessions.contains(session))
+        emit sigDeleteSessionCompleted(callId, false, "Select an existing session", QStringList());
+    else{
         m_sessions.remove(session);
         m_dbSessionNames.removeOne(session);
-        emit sigNewSessionList(m_dbSessionNames);
-        return true;
+        emit sigDeleteSessionCompleted(callId, true, QString(), m_dbSessionNames);
     }
-    return false;
 }
 
 void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component)

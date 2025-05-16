@@ -1,11 +1,13 @@
 file(GLOB SOURCES 
     *.cpp
     content-sets/*.cpp
+    rpc/*.cpp
     )
 
 file(GLOB HEADERS
     *.h
     content-sets/*.h
+    rpc/*.h
     )
 
 # Exclude psql files
@@ -51,6 +53,7 @@ target_include_directories(VfLogger
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/content-sets>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/rpc>
     )
 
 export(TARGETS VfLogger NAMESPACE VeinMeta:: FILE VfLoggerTargets.cmake)
