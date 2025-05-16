@@ -1,6 +1,7 @@
 #include "test_mockandsqlitedatabase.h"
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
+#include "loggerstatictexts.h"
 #include <QTest>
 
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
@@ -223,11 +224,12 @@ void test_mockandsqlitedatabase::deleteSession()
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
-    m_testSystem->startLogging("DbTestSession1", "Transaction1");
-    m_testSystem->stopLogging();
 
-    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
-    QVERIFY(!sessionInfo.isEmpty());
+    QStringList exisitingSessions = getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_existingSessionsComponentName).toStringList();
+    QVERIFY(exisitingSessions.contains("DbTestSession1"));
+    QString currentSession =  getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_sessionNameComponentName).toString();
+    QCOMPARE(currentSession, "DbTestSession1");
+
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "DbTestSession1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
@@ -236,8 +238,10 @@ void test_mockandsqlitedatabase::deleteSession()
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0], true);
     QCOMPARE(invokerSpy[0][1], id);
-    sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
-    QVERIFY(sessionInfo.isEmpty());
+    exisitingSessions = getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_existingSessionsComponentName).toStringList();
+    QVERIFY(!exisitingSessions.contains("DbTestSession1"));
+    currentSession =  getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_sessionNameComponentName).toString();
+    QCOMPARE(currentSession, "");
 }
 
 void test_mockandsqlitedatabase::deleteNonexistingSession()
@@ -263,6 +267,11 @@ void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessi
         temp.insert("Time", QString());
         sessionInfo.insert(transaction, temp);
     }
+}
+
+QVariant test_mockandsqlitedatabase::getComponentValue(int entityId, QString component)
+{
+    return m_testSystem->getServer()->getStorage()->getDb()->getStoredValue(entityId, component);
 }
 
 void test_mockandsqlitedatabase::getAllSessions()
