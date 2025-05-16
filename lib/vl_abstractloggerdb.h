@@ -8,6 +8,7 @@
 #include <QVariant>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QUuid>
 #include <functional>
 
 namespace VeinLogger
@@ -29,10 +30,11 @@ signals:
     void sigDatabaseError(QString errorString);
     void sigDatabaseReady();
     void sigNewSessionList(QStringList p_sessions);
+    void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) = 0 ;
-    virtual bool deleteSession(const QString &sessionName) = 0;
+    virtual void onDeleteSession(QUuid callId, const QString &sessionName) = 0;
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
     virtual QJsonObject displaySessionsInfos(const QString &sessionName) = 0;
     virtual bool deleteTransaction(const QString &transactionName) = 0;
