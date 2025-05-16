@@ -21,6 +21,7 @@ public:
     void setupServer(int entityCount = 2,
                      int componentCount = 2,
                      QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
+    TestVeinServer* getServer();
     QMap<int, QList<QString>> getComponentsCreated();
     void appendCustomerDataSystem();
     void appendEventSystem(VeinEvent::EventSystem *system);
@@ -35,7 +36,6 @@ public:
     void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
     void stopLogging();
     bool deleteTransaction(QString transactionName);
-    bool deleteSession(QString session);
 
     void setNextValueWriteCount(int newValueWriteCount);
 

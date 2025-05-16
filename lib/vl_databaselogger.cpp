@@ -338,6 +338,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
         emit m_dbCmdInterface.sigOpenDatabase(filePath);
@@ -398,6 +399,33 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_existingSessionsComponentName,
                                                            QVariant(), sessionNames);
     emit sigSendEvent(event);
+}
+
+void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList)
+{
+    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
+    if(success)
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+    else
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
+    m_rpcList.value("RPC_deleteSession(QString p_session)")->sendRpcResult(callId, returnCode, errorMsg, false);
+
+    // check if deleted session is current Session and if it is set sessionName empty
+    // We will not check retVal here. If something goes wrong and the session is still available the
+    // user can choose it again without risking undefined behavior.
+    if(!newSessionsList.contains(m_dbSessionName)) {
+        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
+        sessionNameCData ->setEntityId(m_entityId);
+        sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
+        sessionNameCData ->setComponentName(LoggerStaticTexts::s_sessionNameComponentName);
+        sessionNameCData ->setNewValue(QString());
+        sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
+        sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+        m_dbSessionName = "";
+        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+    }
+    if(success)
+        updateSessionList(newSessionsList);
 }
 
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
@@ -462,27 +490,10 @@ QString DatabaseLogger::getEntityName(int entityId) const
 
 QVariant DatabaseLogger::RPC_deleteSession(QVariantMap parameters)
 {
+    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
     QString session = parameters["p_session"].toString();
-    if(!m_existingSessions.contains(session)) {
-        qWarning("Select an existing session");
-        return false;
-    }
-    QVariant retVal = m_database->deleteSession(session);
-    // check if deleted session is current Session and if it is set sessionName empty
-    // We will not check retVal here. If something goes wrong and the session is still available the
-    // user can choose it again without risking undefined behavior.
-    if(session == m_dbSessionName) {
-        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
-        sessionNameCData ->setEntityId(m_entityId);
-        sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        sessionNameCData ->setComponentName(LoggerStaticTexts::s_sessionNameComponentName);
-        sessionNameCData ->setNewValue(QString());
-        sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-        m_dbSessionName = "";
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
-    }
-    return retVal;
+    emit m_dbCmdInterface.sigDeleteSession(callId, session);
+    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
@@ -576,7 +587,9 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_deleteSession",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})),
+                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}}),
+                                                false,
+                                                false),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 

@@ -431,12 +431,13 @@ bool SQLiteDB::addStopTime(int transactionId, QDateTime time)
     return false;
 }
 
-bool SQLiteDB::deleteSession(const QString &session)
+void SQLiteDB::onDeleteSession(QUuid callId, const QString &session)
 {
     if(!m_dPtr->m_logDB.isOpen())
-        return false;
-
-    if(m_dPtr->m_sessionIds.contains(session)){
+        emit sigDeleteSessionCompleted(callId, false, "Database not set", QStringList());
+    else if(!m_dPtr->m_sessionIds.contains(session))
+        emit sigDeleteSessionCompleted(callId, false, "Select an existing session", QStringList());
+    else {
         /* Deleting session takes ages for a simple db:
          * On a fresh db with fresh session recording 10s ZeraAll causes delete
          * session take 70s!!!
@@ -451,9 +452,8 @@ bool SQLiteDB::deleteSession(const QString &session)
         updateSessionQuery.finish();
 
         m_dPtr->m_sessionIds.remove(session);
-        emit sigNewSessionList(QStringList(m_dPtr->m_sessionIds.keys()));
+        emit sigDeleteSessionCompleted(callId, true, QString(), QStringList(m_dPtr->m_sessionIds.keys()));
     }
-    return true;
 }
 
 int SQLiteDB::addSession(const QString &sessionName, QList<DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)

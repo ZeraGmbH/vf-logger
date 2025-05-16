@@ -54,6 +54,11 @@ void TestLoggerSystem::setupServer(int entityCount,
     m_server->simulAllModulesLoaded("test-session1.json", QStringList() << "test-session1.json" << "test-session2.json");
 }
 
+TestVeinServer *TestLoggerSystem::getServer()
+{
+    return m_server.get();
+}
+
 QMap<int, QList<QString> > TestLoggerSystem::getComponentsCreated()
 {
     return m_server->getTestEntityComponentInfo();
@@ -149,15 +154,6 @@ bool TestLoggerSystem::deleteTransaction(QString transactionName)
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", transactionName);
     bool ret = m_dataLoggerSystem->RPC_deleteTransaction(rpcParams).toBool();
-    TimeMachineObject::feedEventLoop();
-    return ret;
-}
-
-bool TestLoggerSystem::deleteSession(QString session)
-{
-    QVariantMap rpcParams;
-    rpcParams.insert("p_session", session);
-    bool ret = m_dataLoggerSystem->RPC_deleteSession(rpcParams).toBool();
     TimeMachineObject::feedEventLoop();
     return ret;
 }
