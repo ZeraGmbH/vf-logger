@@ -130,17 +130,21 @@ QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QStr
         return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
 }
 
-QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
+void TestLoggerDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)
 {
-    QJsonObject sessionObject;
-    Transactions allTransactions = m_sessions.value(sessionName);
-    for(auto transactionName: allTransactions.keys()) {
-        QJsonObject transactionObject;
-        transactionObject.insert("contentset", allTransactions.value(transactionName).contentSetList.join(","));
-        transactionObject.insert("guicontext", allTransactions.value(transactionName).guiContext);
-        sessionObject.insert(transactionName, transactionObject);
+    if(!m_sessions.contains(sessionName))
+        emit sigDisplaySessionInfosCompleted(callId, false, "Select an existing session", QJsonObject());
+    else {
+        QJsonObject sessionObject;
+        Transactions allTransactions = m_sessions.value(sessionName);
+        for(auto transactionName: allTransactions.keys()) {
+            QJsonObject transactionObject;
+            transactionObject.insert("contentset", allTransactions.value(transactionName).contentSetList.join(","));
+            transactionObject.insert("guicontext", allTransactions.value(transactionName).guiContext);
+            sessionObject.insert(transactionName, transactionObject);
+        }
+        emit sigDisplaySessionInfosCompleted(callId, true, QString(), sessionObject);
     }
-    return sessionObject;
 }
 
 bool TestLoggerDB::deleteTransaction(const QString &transactionName)

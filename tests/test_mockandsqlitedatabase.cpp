@@ -130,19 +130,27 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", sessionName);
     m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
     m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
-    m_testSystem->startLogging("Session1", transactionName);
+    m_testSystem->startLogging(sessionName, transactionName);
     m_testSystem->stopLogging();
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", sessionName);
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QJsonObject sessionInfo = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
+    //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
+    removeTimeInfoInTransactions(sessionInfo);
+    QJsonDocument jsonDoc(sessionInfo);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
 
     QFile file(":/sqlite-inserts/dumpSessionInfos.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos(sessionName);
-    //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
-    removeTimeInfoInTransactions(sessionInfo);
-
-    QJsonDocument jsonDoc(sessionInfo);
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -156,8 +164,16 @@ void test_mockandsqlitedatabase::displaySessionInfosInvalidSession()
     m_testSystem->startLogging("DbTestSession1", "Transaction1");
     m_testSystem->stopLogging();
 
-    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("NonExistingSession");
-    QVERIFY(sessionInfo.isEmpty());
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "NonExistingSession");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString).toString(), "Select an existing session");
 }
 
 void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
@@ -174,16 +190,25 @@ void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
     m_testSystem->startLogging("DbTestSession1", "Transaction3");
     m_testSystem->stopLogging();
 
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject sessionInfo = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
+    //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
+    removeTimeInfoInTransactions(sessionInfo);
+    QJsonDocument jsonDoc(sessionInfo);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+
     QFile fileSessionInfo(":/session-infos/DbTestSession1MultipleTransactions.json");
     QVERIFY(fileSessionInfo.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileSessionInfo.readAll();
 
-    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
-    //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
-    removeTimeInfoInTransactions(sessionInfo);
-
-    QJsonDocument jsonDoc(sessionInfo);
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -201,7 +226,11 @@ void test_mockandsqlitedatabase::deleteTransaction()
 
     QVERIFY(m_testSystem->deleteTransaction("Transaction1"));
 
-    QJsonObject sessionInfo = m_testSystem->displaySessionsInfos("DbTestSession1");
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+    QJsonObject sessionInfo = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
     QVERIFY(!sessionInfo.contains("Transaction1"));
     QVERIFY(sessionInfo.contains("Transaction2"));
 }
