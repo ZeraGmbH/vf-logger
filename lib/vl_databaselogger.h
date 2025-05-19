@@ -6,6 +6,7 @@
 #include "vl_abstractloggerdb.h"
 #include "vl_loggedcomponents.h"
 #include "rpcdeletesession.h"
+#include "rpcdisplaysessionsinfos.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vf-cpp-rpc.h>
@@ -34,7 +35,6 @@ signals:
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
-    QVariant RPC_displaySessionsInfos(QVariantMap parameters);
     QVariant RPC_deleteTransaction(QVariantMap parameters);
     QVariant RPC_getAllSessions(QVariantMap parameters);
     QVariant RPC_displayActualValues(QVariantMap parameters);
@@ -75,6 +75,7 @@ private:
     QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
     QMap<QString, VfCpp::VfCppRpcSimplifiedPtr> m_rpcSimplifiedList;
     std::shared_ptr<RpcDeleteSession> m_rpcDeleteSession;
+    std::shared_ptr<RpcDisplaySessionsInfos> m_rpcDisplaySessionsInfos;
 
     DBFactory m_databaseFactory;
     std::shared_ptr<DatabaseCommandInterface> m_dbCmdInterface;
