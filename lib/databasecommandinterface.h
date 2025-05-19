@@ -30,6 +30,7 @@ signals: // commands are send by signals for databases running in other thread
     void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component);
     void sigAddSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> staticData);
     void sigDeleteSession(QUuid callId, QString sessionName);
+    void sigDisplaySessionInfos(QUuid callId, QString sessionName);
     void sigFlushToDb();
 private:
     static bool m_componentInfoMetaWasRegistered;

@@ -26,7 +26,7 @@ public:
     bool addStartTime(int transactionId, QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
-    QJsonObject displaySessionsInfos(const QString &sessionName) override;
+    void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
     bool deleteTransaction(const QString &transactionName) override;
     QJsonArray displayAllSessions() override;
     QJsonObject displayValues(const QString &transactionName) override;

@@ -553,26 +553,30 @@ QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &e
     return m_dPtr->readSessionComponent(session, enity, component);
 }
 
-QJsonObject SQLiteDB::displaySessionsInfos(const QString &sessionName)
+void SQLiteDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)
 {
-    m_dPtr->m_displayInfosQuery.bindValue(":sessionname",sessionName);
-    m_dPtr->m_displayInfosQuery.exec();
+    if(!m_dPtr->m_sessionIds.contains(sessionName))
+        emit sigDisplaySessionInfosCompleted(callId, false, "Select an existing session", QJsonObject());
+    else {
+        m_dPtr->m_displayInfosQuery.bindValue(":sessionname",sessionName);
+        m_dPtr->m_displayInfosQuery.exec();
 
-    QJsonObject sessionObject;
-    while(m_dPtr->m_displayInfosQuery.next()){
-        QString transactionName = m_dPtr->m_displayInfosQuery.value("transaction_name").toString();
-        QString startingTime = m_dPtr->m_displayInfosQuery.value("start_time").toString();
-        QString contentset = m_dPtr->m_displayInfosQuery.value("contentset_names").toString();
-        QString guicontext = m_dPtr->m_displayInfosQuery.value("guicontext_name").toString();
+        QJsonObject sessionObject;
+        while(m_dPtr->m_displayInfosQuery.next()){
+            QString transactionName = m_dPtr->m_displayInfosQuery.value("transaction_name").toString();
+            QString startingTime = m_dPtr->m_displayInfosQuery.value("start_time").toString();
+            QString contentset = m_dPtr->m_displayInfosQuery.value("contentset_names").toString();
+            QString guicontext = m_dPtr->m_displayInfosQuery.value("guicontext_name").toString();
 
-        QJsonObject transactionObject;
-        transactionObject.insert("Time", startingTime);
-        transactionObject.insert("contentset", contentset);
-        transactionObject.insert("guicontext", guicontext);
+            QJsonObject transactionObject;
+            transactionObject.insert("Time", startingTime);
+            transactionObject.insert("contentset", contentset);
+            transactionObject.insert("guicontext", guicontext);
 
-        sessionObject.insert(transactionName, transactionObject);
+            sessionObject.insert(transactionName, transactionObject);
+        }
+        emit sigDisplaySessionInfosCompleted(callId, true, QString(), sessionObject);
     }
-    return sessionObject;
 }
 
 void SQLiteDB::setValidTransactions()

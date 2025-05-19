@@ -345,6 +345,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
         emit m_dbCmdInterface->sigOpenDatabase(filePath);
@@ -432,6 +433,16 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
         updateSessionList(newSessionsList);
 }
 
+void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
+{
+    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
+    if(success)
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+    else
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
+    m_rpcList.value("RPC_displaySessionsInfos(QString p_session)")->sendRpcResult(callId, returnCode, errorMsg, infos.toVariantMap());
+}
+
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 {
     for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
@@ -494,16 +505,10 @@ QString DatabaseLogger::getEntityName(int entityId) const
 
 QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
 {
+    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
     QString session = parameters["p_session"].toString();
-    if(session == "")
-        return false;
-    if(!m_existingSessions.contains(session)) {
-        qWarning("Select an existing session");
-        return false;
-    }
-    QJsonObject json = m_database->displaySessionsInfos(session);
-    QVariant retVal = json.toVariantMap();
-    return retVal;
+    emit m_dbCmdInterface->sigDisplaySessionInfos(callId, session);
+    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
@@ -586,7 +591,9 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_displaySessionsInfos",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}})),
+                                                VfCpp::cVeinModuleRpc::Param({{"p_session", "QString"}}),
+                                                false,
+                                                false),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
