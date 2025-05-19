@@ -347,6 +347,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteTransactionCompleted, this, &DatabaseLogger::onDeleteTransactionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigListAllSessionsCompleted, this, &DatabaseLogger::onListAllSessionsCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
         emit m_dbCmdInterface->sigOpenDatabase(filePath);
@@ -450,6 +451,16 @@ void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, 
         m_rpcDisplaySessionsInfos->sendRpcError(callId, errorMsg);
 }
 
+void DatabaseLogger::onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions)
+{
+    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
+    if(success)
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+    else
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
+    m_rpcList.value("RPC_listAllSessions()")->sendRpcResult(callId, returnCode, errorMsg, sessions.toVariantList());
+}
+
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 {
     for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
@@ -512,11 +523,9 @@ QString DatabaseLogger::getEntityName(int entityId) const
 
 QVariant DatabaseLogger::RPC_listAllSessions(QVariantMap parameters)
 {
-    if(m_database == nullptr) {
-        qWarning("set the database");
-        return false;
-    }
-    return m_database->displayAllSessions();
+    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
+    emit m_dbCmdInterface->sigListAllSessions(callId);
+    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
@@ -588,7 +597,9 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_listAllSessions",
-                                                VfCpp::cVeinModuleRpc::Param({})),
+                                                VfCpp::cVeinModuleRpc::Param({}),
+                                                false,
+                                                false),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 

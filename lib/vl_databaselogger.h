@@ -51,6 +51,7 @@ private slots:
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
     void onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
     void onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
+    void onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
 private:
     QString getEntityName(int entityId) const;
     void dbNameToVein(const QString &filePath);

@@ -603,7 +603,7 @@ void SQLiteDB::onDeleteTransaction(QUuid callId, const QString &transactionName)
         emit sigDeleteTransactionCompleted(callId, false, "Select an existing transaction");
 }
 
-QJsonArray SQLiteDB::displayAllSessions()
+void SQLiteDB::onListAllSessions(QUuid callId)
 {
     QJsonArray allSessions;
     QSqlQuery sessionQuery("SELECT * FROM sessions WHERE session_name NOT LIKE '_DELETED_%';", m_dPtr->m_logDB);
@@ -614,7 +614,7 @@ QJsonArray SQLiteDB::displayAllSessions()
         allSessions.append(sessionJson);
     }
     sessionQuery.finish();
-    return allSessions;
+    emit sigListAllSessionsCompleted(callId, true, QString(), allSessions);
 }
 
 QStringList VeinLogger::SQLiteDB::getContentsetList(const QString &transactionName)
