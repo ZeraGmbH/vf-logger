@@ -32,8 +32,8 @@ private slots:
     void deleteNonexistingSession();
     void deleteSessionBeforeDbLoaded();
 
-    void getAllSessions();
-    void getNoSession();
+    void listAllSessions();
+    void listNoSession();
 
     void displayLoggedValues();
     void displayLoggedValuesZeraAll();

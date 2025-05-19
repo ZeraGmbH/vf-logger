@@ -36,7 +36,7 @@ signals:
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
-    QVariant RPC_getAllSessions(QVariantMap parameters);
+    QVariant RPC_listAllSessions(QVariantMap parameters);
     QVariant RPC_displayActualValues(QVariantMap parameters);
 
 private slots:
