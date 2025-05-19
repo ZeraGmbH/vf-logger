@@ -502,7 +502,7 @@ QVariant DatabaseLogger::RPC_displaySessionsInfos(QVariantMap parameters)
         return false;
     }
     QJsonObject json = m_database->displaySessionsInfos(session);
-    QVariant retVal = json.value(session).toVariant();
+    QVariant retVal = json.toVariantMap();
     return retVal;
 }
 

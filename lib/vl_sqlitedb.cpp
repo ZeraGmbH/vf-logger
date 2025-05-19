@@ -572,10 +572,7 @@ QJsonObject SQLiteDB::displaySessionsInfos(const QString &sessionName)
 
         sessionObject.insert(transactionName, transactionObject);
     }
-
-    QJsonObject completeJson;
-    completeJson.insert(sessionName, sessionObject);
-    return completeJson;
+    return sessionObject;
 }
 
 void SQLiteDB::setValidTransactions()

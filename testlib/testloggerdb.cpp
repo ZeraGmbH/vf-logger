@@ -140,9 +140,7 @@ QJsonObject TestLoggerDB::displaySessionsInfos(const QString &sessionName)
         transactionObject.insert("guicontext", allTransactions.value(transactionName).guiContext);
         sessionObject.insert(transactionName, transactionObject);
     }
-    QJsonObject completeJson;
-    completeJson.insert(sessionName, sessionObject);
-    return completeJson;
+    return sessionObject;
 }
 
 bool TestLoggerDB::deleteTransaction(const QString &transactionName)
