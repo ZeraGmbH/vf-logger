@@ -34,6 +34,7 @@ signals:
     void sigDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
     void sigDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
     void sigListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
+    void sigDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) = 0 ;
@@ -42,7 +43,7 @@ public slots:
     virtual void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) = 0;
     virtual void onDeleteTransaction(QUuid callId, const QString &transactionName) = 0;
     virtual void onListAllSessions(QUuid callId) = 0;
-    virtual QJsonObject displayValues(const QString &transactionName) = 0;
+    virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;

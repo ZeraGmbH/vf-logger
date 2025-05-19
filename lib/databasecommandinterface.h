@@ -33,6 +33,7 @@ signals: // commands are send by signals for databases running in other thread
     void sigDeleteTransaction(QUuid callId, QString transactionName);
     void sigDisplaySessionInfos(QUuid callId, QString sessionName);
     void sigListAllSessions(QUuid callId);
+    void sigDisplayActualValues(QUuid callId, QString transactionName);
     void sigFlushToDb();
 private:
     static bool m_componentInfoMetaWasRegistered;

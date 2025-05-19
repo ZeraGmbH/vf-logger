@@ -455,13 +455,23 @@ void test_mockandsqlitedatabase::displayLoggedValues()
     m_testSystem->startLogging("Session1", "Transaction1");
     m_testSystem->stopLogging();
 
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "Transaction1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject jsonObj = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
+    QJsonDocument jsonDoc(jsonObj);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+
     QFile file(":/logged-values/LogTestSet1.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QJsonObject jsonObj = m_testSystem->displayActualValues("Transaction1").toJsonObject();
-    QJsonDocument jsonDoc(jsonObj);
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -484,13 +494,20 @@ void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
     m_testSystem->startLogging("Session1", "Transaction1");
     m_testSystem->stopLogging();
 
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "Transaction1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QJsonObject jsonObj = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
+    QJsonDocument jsonDoc(jsonObj);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+
     QFile file(":/logged-values/LogAll.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QJsonObject jsonObj = m_testSystem->displayActualValues("Transaction1").toJsonObject();
-    QJsonDocument jsonDoc(jsonObj);
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -513,6 +530,14 @@ void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
     m_testSystem->startLogging("Session1", "Transaction1");
     m_testSystem->stopLogging();
 
-    bool retVal = m_testSystem->displayActualValues("InvalidTransaction").toBool();
-    QVERIFY(retVal == false);
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "InvalidTransaction");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Select an existing transaction");
 }

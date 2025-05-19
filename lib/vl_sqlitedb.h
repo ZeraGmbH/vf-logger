@@ -47,7 +47,7 @@ public slots:
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onListAllSessions(QUuid callId) override;
-    QJsonObject displayValues(const QString &transactionName) override;
+    void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);
