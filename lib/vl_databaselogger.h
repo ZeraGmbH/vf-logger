@@ -12,7 +12,6 @@
 #include "rpcdisplayactualvalues.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
-#include <vf-cpp-rpc.h>
 #include <QTimer>
 #include <QFileSystemWatcher>
 #include <QThread>
@@ -75,7 +74,6 @@ private:
     VeinStorage::AbstractEventSystem *m_veinStorage;
     VeinStorage::AbstractComponentPtr m_modmanSessionComponent;
     bool m_initDone = false;
-    QMap<QString, VfCpp::cVeinModuleRpc::Ptr> m_rpcList;
     QMap<QString, VfCpp::VfCppRpcSimplifiedPtr> m_rpcSimplifiedList;
     std::shared_ptr<RpcDeleteSession> m_rpcDeleteSession;
     std::shared_ptr<RpcDeleteTransaction> m_rpcDeleteTransaction;
