@@ -436,12 +436,10 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
 
 void DatabaseLogger::onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg)
 {
-    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
     if(success)
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+        m_rpcDeleteTransaction->sendRpcResult(callId, true);
     else
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
-    m_rpcList.value("RPC_deleteTransaction(QString p_transaction)")->sendRpcResult(callId, returnCode, errorMsg, success);
+        m_rpcDeleteTransaction->sendRpcError(callId, errorMsg);
 }
 
 void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
@@ -510,14 +508,6 @@ void DatabaseLogger::onDbError(QString errorMsg)
 QString DatabaseLogger::getEntityName(int entityId) const
 {
     return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
-}
-
-QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
-{
-    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
-    QString transactionName = parameters["p_transaction"].toString();
-    emit m_dbCmdInterface->sigDeleteTransaction(callId, transactionName);
-    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
@@ -589,19 +579,10 @@ void DatabaseLogger::initOnce()
         m_rpcSimplifiedList[m_rpcDeleteSession->getSignature()] = m_rpcDeleteSession;
         m_rpcDisplaySessionsInfos = std::make_shared<RpcDisplaySessionsInfos>(this, m_entityId, m_dbCmdInterface);
         m_rpcSimplifiedList[m_rpcDisplaySessionsInfos->getSignature()] = m_rpcDisplaySessionsInfos;
+        m_rpcDeleteTransaction = std::make_shared<RpcDeleteTransaction>(this, m_entityId, m_dbCmdInterface);
+        m_rpcSimplifiedList[m_rpcDeleteTransaction->getSignature()] = m_rpcDeleteTransaction;
 
         VfCpp::cVeinModuleRpc::Ptr tmpval;
-        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
-                                                m_entityId,
-                                                this,
-                                                this,
-                                                "RPC_deleteTransaction",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}}),
-                                                false,
-                                                false),
-                                            &QObject::deleteLater);
-        m_rpcList[tmpval->rpcName()]=tmpval;
-
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
                                                 m_entityId,
                                                 this,

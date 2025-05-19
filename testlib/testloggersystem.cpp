@@ -149,15 +149,6 @@ void TestLoggerSystem::stopLogging()
     setComponent(dataLoggerEntityId, "LoggingEnabled", false);
 }
 
-bool TestLoggerSystem::deleteTransaction(QString transactionName)
-{
-    QVariantMap rpcParams;
-    rpcParams.insert("p_transaction", transactionName);
-    bool ret = m_dataLoggerSystem->RPC_deleteTransaction(rpcParams).toBool();
-    TimeMachineObject::feedEventLoop();
-    return ret;
-}
-
 void TestLoggerSystem::setNextValueWriteCount(int newValueWriteCount)
 {
     TestLoggerDB::getCurrentInstance()->setNextValueWriteCount(newValueWriteCount);
