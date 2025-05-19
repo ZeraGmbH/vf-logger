@@ -206,12 +206,7 @@ void DatabaseLogger::processEvent(QEvent *event)
             VeinComponent::RemoteProcedureData *rpcData=nullptr;
             rpcData = static_cast<VeinComponent::RemoteProcedureData *>(cEvent->eventData());
             if(rpcData->command() == VeinComponent::RemoteProcedureData::Command::RPCMD_CALL){
-                if(m_rpcList.contains(rpcData->procedureName())){
-                    const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
-                    m_rpcList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
-                    cEvent->accept();
-                }
-                else if(m_rpcSimplifiedList.contains(rpcData->procedureName())){
+                if(m_rpcSimplifiedList.contains(rpcData->procedureName())){
                     const QUuid callId = rpcData->invokationData().value(VeinComponent::RemoteProcedureData::s_callIdString).toUuid();
                     m_rpcSimplifiedList[rpcData->procedureName()]->callFunction(callId,cEvent->peerId(),rpcData->invokationData());
                     cEvent->accept();
