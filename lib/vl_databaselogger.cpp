@@ -345,6 +345,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigDeleteTransactionCompleted, this, &DatabaseLogger::onDeleteTransactionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
@@ -433,6 +434,16 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
         updateSessionList(newSessionsList);
 }
 
+void DatabaseLogger::onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg)
+{
+    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
+    if(success)
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+    else
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
+    m_rpcList.value("RPC_deleteTransaction(QString p_transaction)")->sendRpcResult(callId, returnCode, errorMsg, success);
+}
+
 void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
 {
     if(success)
@@ -503,8 +514,10 @@ QString DatabaseLogger::getEntityName(int entityId) const
 
 QVariant DatabaseLogger::RPC_deleteTransaction(QVariantMap parameters)
 {
+    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
     QString transactionName = parameters["p_transaction"].toString();
-    return m_database->deleteTransaction(transactionName);
+    emit m_dbCmdInterface->sigDeleteTransaction(callId, transactionName);
+    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
@@ -583,7 +596,9 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_deleteTransaction",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}})),
+                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}}),
+                                                false,
+                                                false),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
