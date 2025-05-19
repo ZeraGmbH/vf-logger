@@ -163,12 +163,6 @@ QString TestLoggerSystem::getCustomerDataPath()
 {
     return "/tmp/test-vf-logger-customerdata/";
 }
-
-QJsonArray TestLoggerSystem::listAllSessions()
-{
-    return m_dataLoggerSystem->RPC_listAllSessions(QVariantMap{}).toJsonArray();
-}
-
 QVariant TestLoggerSystem::displayActualValues(QString transaction)
 {
     QVariantMap rpcParams;

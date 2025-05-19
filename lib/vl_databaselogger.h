@@ -8,6 +8,7 @@
 #include "rpcdeletesession.h"
 #include "rpcdeletetransaction.h"
 #include "rpcdisplaysessionsinfos.h"
+#include "rpclistallsessions.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vf-cpp-rpc.h>
@@ -36,7 +37,6 @@ signals:
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
-    QVariant RPC_listAllSessions(QVariantMap parameters);
     QVariant RPC_displayActualValues(QVariantMap parameters);
 
 private slots:
@@ -79,6 +79,7 @@ private:
     std::shared_ptr<RpcDeleteSession> m_rpcDeleteSession;
     std::shared_ptr<RpcDeleteTransaction> m_rpcDeleteTransaction;
     std::shared_ptr<RpcDisplaySessionsInfos> m_rpcDisplaySessionsInfos;
+    std::shared_ptr<RpcListAllSessions> m_rpcListAllSessions;
 
     DBFactory m_databaseFactory;
     std::shared_ptr<DatabaseCommandInterface> m_dbCmdInterface;
