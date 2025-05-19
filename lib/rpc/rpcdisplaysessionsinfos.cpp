@@ -16,6 +16,10 @@ void RpcDisplaySessionsInfos::callRPCFunction(const QUuid &callId, const QUuid &
 
 void RpcDisplaySessionsInfos::RPC_displaySessionsInfos(QUuid callId, QVariantMap parameters)
 {
-    QString session = parameters["p_session"].toString();
-    emit m_dbCmdInterface->sigDisplaySessionInfos(callId, session);
+    if(m_dbCmdInterface->isDatabaseConnected()) {
+        QString session = parameters["p_session"].toString();
+        emit m_dbCmdInterface->sigDisplaySessionInfos(callId, session);
+    }
+    else
+        sendRpcError(callId, "Database is not set");
 }
