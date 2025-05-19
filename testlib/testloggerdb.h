@@ -27,7 +27,7 @@ public:
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
-    bool deleteTransaction(const QString &transactionName) override;
+    void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     QJsonArray displayAllSessions() override;
     QJsonObject displayValues(const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;

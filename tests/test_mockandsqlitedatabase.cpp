@@ -242,13 +242,21 @@ void test_mockandsqlitedatabase::deleteTransaction()
     m_testSystem->startLogging("DbTestSession1", "Transaction2");
     m_testSystem->stopLogging();
 
-    QVERIFY(m_testSystem->deleteTransaction("Transaction1"));
-
     QVariantMap rpcParams;
-    rpcParams.insert("p_session", "DbTestSession1");
+    rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
-    QJsonObject sessionInfo = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QVERIFY(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toBool());
+
+    rpcParams.clear();
+    rpcParams.insert("p_session", "DbTestSession1");
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+    QJsonObject sessionInfo = invokerSpy[1][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
     QVERIFY(!sessionInfo.contains("Transaction1"));
     QVERIFY(sessionInfo.contains("Transaction2"));
 }
@@ -263,7 +271,16 @@ void test_mockandsqlitedatabase::deleteNonexistingTransaction()
     m_testSystem->startLogging("DbTestSession1", "Transaction1");
     m_testSystem->stopLogging();
 
-    QVERIFY(!m_testSystem->deleteTransaction("foo"));
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "foo");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString).toString(), "Select an existing transaction");
 }
 
 void test_mockandsqlitedatabase::deleteSession()

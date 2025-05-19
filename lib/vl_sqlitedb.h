@@ -45,7 +45,7 @@ public slots:
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
-    bool deleteTransaction(const QString &transactionName) override;
+    void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     QJsonArray displayAllSessions() override;
     QJsonObject displayValues(const QString &transactionName) override;
 

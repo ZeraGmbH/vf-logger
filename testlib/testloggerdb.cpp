@@ -147,16 +147,19 @@ void TestLoggerDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionNa
     }
 }
 
-bool TestLoggerDB::deleteTransaction(const QString &transactionName)
+void TestLoggerDB::onDeleteTransaction(QUuid callId, const QString &transactionName)
 {
     bool deleted = false;
     for(QString sessionName: m_sessions.keys()) {
         if(m_sessions[sessionName].contains(transactionName)) {
             m_sessions[sessionName].remove(transactionName);
-            return true;
+            deleted = true;
         }
     }
-    return false;
+    if(deleted)
+        emit sigDeleteTransactionCompleted(callId, true, QString());
+    else
+        emit sigDeleteTransactionCompleted(callId, false, "Select an existing transaction");
 }
 
 QJsonArray TestLoggerDB::displayAllSessions()

@@ -580,8 +580,9 @@ void SQLiteDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)
     }
 }
 
-bool SQLiteDB::deleteTransaction(const QString &transactionName)
+void SQLiteDB::onDeleteTransaction(QUuid callId, const QString &transactionName)
 {
+    bool deleted = false;
     for(const auto key : m_dPtr->m_transactionIds.keys()) {
         if(m_dPtr->m_transactionIds.value(key) == transactionName){
             QSqlQuery updateTransactionQuery(m_dPtr->m_logDB);
@@ -593,10 +594,13 @@ bool SQLiteDB::deleteTransaction(const QString &transactionName)
             updateTransactionQuery.finish();
 
             m_dPtr->m_transactionIds.remove(key);
-            return true;
+            deleted = true;
         }
     }
-    return false;
+    if(deleted)
+        emit sigDeleteTransactionCompleted(callId, true, QString());
+    else
+        emit sigDeleteTransactionCompleted(callId, false, "Select an existing transaction");
 }
 
 QJsonArray SQLiteDB::displayAllSessions()
