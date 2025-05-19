@@ -453,12 +453,10 @@ void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, 
 
 void DatabaseLogger::onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions)
 {
-    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
     if(success)
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+        m_rpcListAllSessions->sendRpcResult(callId, sessions.toVariantList());
     else
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
-    m_rpcList.value("RPC_listAllSessions()")->sendRpcResult(callId, returnCode, errorMsg, sessions.toVariantList());
+        m_rpcListAllSessions->sendRpcError(callId, errorMsg);
 }
 
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
@@ -519,13 +517,6 @@ void DatabaseLogger::onDbError(QString errorMsg)
 QString DatabaseLogger::getEntityName(int entityId) const
 {
     return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
-}
-
-QVariant DatabaseLogger::RPC_listAllSessions(QVariantMap parameters)
-{
-    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
-    emit m_dbCmdInterface->sigListAllSessions(callId);
-    return QVariant();
 }
 
 QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
@@ -590,19 +581,10 @@ void DatabaseLogger::initOnce()
         m_rpcSimplifiedList[m_rpcDisplaySessionsInfos->getSignature()] = m_rpcDisplaySessionsInfos;
         m_rpcDeleteTransaction = std::make_shared<RpcDeleteTransaction>(this, m_entityId, m_dbCmdInterface);
         m_rpcSimplifiedList[m_rpcDeleteTransaction->getSignature()] = m_rpcDeleteTransaction;
+        m_rpcListAllSessions = std::make_shared<RpcListAllSessions>(this, m_entityId, m_dbCmdInterface);
+        m_rpcSimplifiedList[m_rpcListAllSessions->getSignature()] = m_rpcListAllSessions;
 
         VfCpp::cVeinModuleRpc::Ptr tmpval;
-        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
-                                                m_entityId,
-                                                this,
-                                                this,
-                                                "RPC_listAllSessions",
-                                                VfCpp::cVeinModuleRpc::Param({}),
-                                                false,
-                                                false),
-                                            &QObject::deleteLater);
-        m_rpcList[tmpval->rpcName()]=tmpval;
-
         tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
                                                 m_entityId,
                                                 this,

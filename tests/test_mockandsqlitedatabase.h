@@ -34,6 +34,7 @@ private slots:
 
     void listAllSessions();
     void listNoSession();
+    void listAllSessionsBeforeDbLoaded();
 
     void displayLoggedValues();
     void displayLoggedValuesZeraAll();
