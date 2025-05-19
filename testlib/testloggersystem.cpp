@@ -163,12 +163,6 @@ QString TestLoggerSystem::getCustomerDataPath()
 {
     return "/tmp/test-vf-logger-customerdata/";
 }
-QVariant TestLoggerSystem::displayActualValues(QString transaction)
-{
-    QVariantMap rpcParams;
-    rpcParams.insert("p_transaction", transaction);
-    return m_dataLoggerSystem->RPC_displayActualValues(rpcParams);
-}
 
 TestDbAddSignaller *TestLoggerSystem::getSignaller()
 {

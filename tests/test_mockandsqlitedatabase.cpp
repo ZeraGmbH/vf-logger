@@ -541,3 +541,26 @@ void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
     QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
     QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Select an existing transaction");
 }
+
+void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
+{
+    int testSet1EntityId = 10;
+    int testSet2EntityId = 11;
+
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "session1");
+
+    m_testSystem->startLogging("Session1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "Transaction1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Database is not set");
+}

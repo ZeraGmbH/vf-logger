@@ -39,6 +39,7 @@ private slots:
     void displayLoggedValues();
     void displayLoggedValuesZeraAll();
     void displayLoggedValuesInvalidTransaction();
+    void displayLoggedValuesBeforeDbLoaded();
 
 private:
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
