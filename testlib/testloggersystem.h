@@ -42,7 +42,6 @@ public:
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();
 
-    QJsonObject displaySessionsInfos(QString session);
     QJsonArray getAllSessions();
     QVariant displayActualValues(QString transaction);
 
