@@ -510,7 +510,7 @@ QString DatabaseLogger::getEntityName(int entityId) const
     return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
 }
 
-QVariant DatabaseLogger::RPC_getAllSessions(QVariantMap parameters)
+QVariant DatabaseLogger::RPC_listAllSessions(QVariantMap parameters)
 {
     if(m_database == nullptr) {
         qWarning("set the database");
@@ -587,7 +587,7 @@ void DatabaseLogger::initOnce()
                                                 m_entityId,
                                                 this,
                                                 this,
-                                                "RPC_getAllSessions",
+                                                "RPC_listAllSessions",
                                                 VfCpp::cVeinModuleRpc::Param({})),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;

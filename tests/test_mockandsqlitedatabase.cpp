@@ -376,7 +376,7 @@ QVariant test_mockandsqlitedatabase::getComponentValue(int entityId, QString com
     return m_testSystem->getServer()->getStorage()->getDb()->getStoredValue(entityId, component);
 }
 
-void test_mockandsqlitedatabase::getAllSessions()
+void test_mockandsqlitedatabase::listAllSessions()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -387,13 +387,13 @@ void test_mockandsqlitedatabase::getAllSessions()
     QVERIFY(fileSession.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileSession.readAll();
 
-    QJsonArray allSessions = m_testSystem->getAllSessions();
+    QJsonArray allSessions = m_testSystem->listAllSessions();
     QJsonDocument jsonDoc(allSessions);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
-void test_mockandsqlitedatabase::getNoSession()
+void test_mockandsqlitedatabase::listNoSession()
 {
     m_testSystem->setupServer();
     m_testSystem->loadDatabase();
@@ -406,7 +406,7 @@ void test_mockandsqlitedatabase::getNoSession()
     rpcParams.insert("p_session", "DbTestSession2");
     m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
 
-    QJsonArray allSessions = m_testSystem->getAllSessions();
+    QJsonArray allSessions = m_testSystem->listAllSessions();
     QVERIFY(allSessions.isEmpty());
 }
 
