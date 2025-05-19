@@ -283,6 +283,25 @@ void test_mockandsqlitedatabase::deleteNonexistingTransaction()
     QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString).toString(), "Select an existing transaction");
 }
 
+void test_mockandsqlitedatabase::deleteTransactionBeforeDbLoaded()
+{
+    m_testSystem->setupServer();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testSystem->startLogging("DbTestSession1", "Transaction1");
+    m_testSystem->stopLogging();
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "Transaction1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString).toString(), "Database is not set");
+}
+
 void test_mockandsqlitedatabase::deleteSession()
 {
     m_testSystem->setupServer();
