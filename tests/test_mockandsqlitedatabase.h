@@ -23,6 +23,7 @@ private slots:
     void displaySessionInfo();
     void displaySessionInfosInvalidSession();
     void displaySessionInfosMultipleTransactions();
+    void displaySessionInfoBeforeDbLoaded();
 
     void deleteTransaction();
     void deleteNonexistingTransaction();
