@@ -162,7 +162,7 @@ void TestLoggerDB::onDeleteTransaction(QUuid callId, const QString &transactionN
         emit sigDeleteTransactionCompleted(callId, false, "Select an existing transaction");
 }
 
-QJsonArray TestLoggerDB::displayAllSessions()
+void TestLoggerDB::onListAllSessions(QUuid callId)
 {
     QJsonArray allSessions;
     for(int id = 0; id < m_sessions.count(); id++) {
@@ -171,7 +171,7 @@ QJsonArray TestLoggerDB::displayAllSessions()
         sessionJson["sessionName"] = m_sessions.keys().at(id);
         allSessions.append(sessionJson);
     }
-    return allSessions;
+    emit sigListAllSessionsCompleted(callId, true, QString(), allSessions);
 }
 
 QJsonObject TestLoggerDB::displayValues(const QString &transactionName)

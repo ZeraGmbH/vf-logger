@@ -383,13 +383,21 @@ void test_mockandsqlitedatabase::listAllSessions()
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession2");
 
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0], true);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonArray allSessions = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonArray();
+    QJsonDocument jsonDoc(allSessions);
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+
     QFile fileSession(":/session-infos/AllSessions.json");
     QVERIFY(fileSession.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileSession.readAll();
 
-    QJsonArray allSessions = m_testSystem->listAllSessions();
-    QJsonDocument jsonDoc(allSessions);
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
@@ -406,7 +414,10 @@ void test_mockandsqlitedatabase::listNoSession()
     rpcParams.insert("p_session", "DbTestSession2");
     m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
 
-    QJsonArray allSessions = m_testSystem->listAllSessions();
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
+
+    QJsonArray allSessions = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonArray();
     QVERIFY(allSessions.isEmpty());
 }
 
