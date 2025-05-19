@@ -9,6 +9,7 @@
 #include "rpcdeletetransaction.h"
 #include "rpcdisplaysessionsinfos.h"
 #include "rpclistallsessions.h"
+#include "rpcdisplayactualvalues.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <vf-cpp-rpc.h>
@@ -37,7 +38,6 @@ signals:
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
-    QVariant RPC_displayActualValues(QVariantMap parameters);
 
 private slots:
     void initOnce();
@@ -52,7 +52,7 @@ private slots:
     void onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
     void onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
     void onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
-    void onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
+    void onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
 private:
     QString getEntityName(int entityId) const;
     void dbNameToVein(const QString &filePath);
@@ -81,6 +81,7 @@ private:
     std::shared_ptr<RpcDeleteTransaction> m_rpcDeleteTransaction;
     std::shared_ptr<RpcDisplaySessionsInfos> m_rpcDisplaySessionsInfos;
     std::shared_ptr<RpcListAllSessions> m_rpcListAllSessions;
+    std::shared_ptr<RpcDisplayActualValues> m_rpcDisplayActualValues;
 
     DBFactory m_databaseFactory;
     std::shared_ptr<DatabaseCommandInterface> m_dbCmdInterface;

@@ -41,8 +41,6 @@ public:
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();
 
-    QVariant displayActualValues(QString transaction);
-
     TestDbAddSignaller* getSignaller();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
 

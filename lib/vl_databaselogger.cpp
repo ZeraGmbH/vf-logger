@@ -460,14 +460,12 @@ void DatabaseLogger::onListAllSessionsCompleted(QUuid callId, bool success, QStr
         m_rpcListAllSessions->sendRpcError(callId, errorMsg);
 }
 
-void DatabaseLogger::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
+void DatabaseLogger::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values)
 {
-    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
     if(success)
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+        m_rpcDisplayActualValues->sendRpcResult(callId, values.toVariantMap());
     else
-        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
-    m_rpcList.value("RPC_displayActualValues(QString p_transaction)")->sendRpcResult(callId, returnCode, errorMsg, infos.toVariantMap());
+        m_rpcDisplayActualValues->sendRpcError(callId, errorMsg);
 }
 
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
@@ -530,14 +528,6 @@ QString DatabaseLogger::getEntityName(int entityId) const
     return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
 }
 
-QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
-{
-    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
-    QString transactionName = parameters["p_transaction"].toString();
-    emit m_dbCmdInterface->sigDisplayActualValues(callId, transactionName);
-    return QVariant();
-}
-
 void DatabaseLogger::initOnce()
 {
     Q_ASSERT(m_initDone == false);
@@ -591,18 +581,8 @@ void DatabaseLogger::initOnce()
         m_rpcSimplifiedList[m_rpcDeleteTransaction->getSignature()] = m_rpcDeleteTransaction;
         m_rpcListAllSessions = std::make_shared<RpcListAllSessions>(this, m_entityId, m_dbCmdInterface);
         m_rpcSimplifiedList[m_rpcListAllSessions->getSignature()] = m_rpcListAllSessions;
-
-        VfCpp::cVeinModuleRpc::Ptr tmpval;
-        tmpval= VfCpp::cVeinModuleRpc::Ptr(new VfCpp::cVeinModuleRpc(
-                                                m_entityId,
-                                                this,
-                                                this,
-                                                "RPC_displayActualValues",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}}),
-                                                false,
-                                                false),
-                                            &QObject::deleteLater);
-        m_rpcList[tmpval->rpcName()]=tmpval;
+        m_rpcDisplayActualValues = std::make_shared<RpcDisplayActualValues>(this, m_entityId, m_dbCmdInterface);
+        m_rpcSimplifiedList[m_rpcDisplayActualValues->getSignature()] = m_rpcDisplayActualValues;
 
         m_initDone = true;
     }
