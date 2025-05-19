@@ -29,7 +29,7 @@ public:
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onListAllSessions(QUuid callId) override;
-    QJsonObject displayValues(const QString &transactionName) override;
+    void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;

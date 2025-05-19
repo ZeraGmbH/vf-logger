@@ -174,14 +174,16 @@ void TestLoggerDB::onListAllSessions(QUuid callId)
     emit sigListAllSessionsCompleted(callId, true, QString(), allSessions);
 }
 
-QJsonObject TestLoggerDB::displayValues(const QString &transactionName)
+void TestLoggerDB::onDisplayActualValues(QUuid callId, const QString &transactionName)
 {
+    bool transactionFound = false;
     QStringList contentsetList;
     for(QString sessionName: m_sessions.keys()) {
         if(m_sessions[sessionName].contains(transactionName)) {
             Transactions transaction = m_sessions[sessionName];
             TransactionInfo transactionInfo = transaction[transactionName];
             contentsetList = transactionInfo.contentSetList;
+            transactionFound = true;
         }
     }
     JsonLoggedValues jsonLoggedValues(contentsetList);
@@ -193,7 +195,10 @@ QJsonObject TestLoggerDB::displayValues(const QString &transactionName)
             jsonLoggedValues.appendLoggedValues(QString::number(entityId), componentName, value);
         }
     }
-    return jsonLoggedValues.createLoggedValuesJson();
+    if(transactionFound)
+        emit sigDisplayActualValuesCompleted(callId, true, QString(), jsonLoggedValues.createLoggedValuesJson());
+    else
+        emit sigDisplayActualValuesCompleted(callId, false, "Select an existing transaction", QJsonObject());
 }
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)

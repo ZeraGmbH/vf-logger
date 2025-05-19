@@ -632,7 +632,7 @@ QStringList VeinLogger::SQLiteDB::getContentsetList(const QString &transactionNa
     return contentSetsList;
 }
 
-QJsonObject SQLiteDB::displayValues(const QString &transactionName)
+void SQLiteDB::onDisplayActualValues(QUuid callId, const QString &transactionName)
 {
     if(m_dPtr->m_transactionIds.values().contains(transactionName)) {
         JsonLoggedValues loggedValues(getContentsetList(transactionName));
@@ -656,13 +656,10 @@ QJsonObject SQLiteDB::displayValues(const QString &transactionName)
             QVariant value = query.value("component_value");
             loggedValues.appendLoggedValues(entityId, componentName, value);
         }
-        return loggedValues.createLoggedValuesJson();
+        emit sigDisplayActualValuesCompleted(callId, true, QString(), loggedValues.createLoggedValuesJson());
     }
-    else {
-        QJsonObject obj;
-        obj.insert("false", "false");
-        return obj;
-    }
+    else
+        emit sigDisplayActualValuesCompleted(callId, false, "Select an existing transaction", QJsonObject());
 }
 
 void SQLiteDB::onOpen(const QString &dbPath)

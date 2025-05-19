@@ -348,6 +348,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDeleteTransactionCompleted, this, &DatabaseLogger::onDeleteTransactionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigListAllSessionsCompleted, this, &DatabaseLogger::onListAllSessionsCompleted, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigDisplayActualValuesCompleted, this, &DatabaseLogger::onDisplayActualValuesCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 
         emit m_dbCmdInterface->sigOpenDatabase(filePath);
@@ -459,6 +460,16 @@ void DatabaseLogger::onListAllSessionsCompleted(QUuid callId, bool success, QStr
         m_rpcListAllSessions->sendRpcError(callId, errorMsg);
 }
 
+void DatabaseLogger::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
+{
+    VeinComponent::RemoteProcedureData::RPCResultCodes returnCode;
+    if(success)
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS;
+    else
+        returnCode = VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL;
+    m_rpcList.value("RPC_displayActualValues(QString p_transaction)")->sendRpcResult(callId, returnCode, errorMsg, infos.toVariantMap());
+}
+
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 {
     for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
@@ -521,13 +532,10 @@ QString DatabaseLogger::getEntityName(int entityId) const
 
 QVariant DatabaseLogger::RPC_displayActualValues(QVariantMap parameters)
 {
+    QUuid callId = parameters[VeinComponent::RemoteProcedureData::s_callIdString].toUuid();
     QString transactionName = parameters["p_transaction"].toString();
-    QJsonObject obj = m_database->displayValues(transactionName);
-    if(obj.contains("false")) {
-        qWarning("Select an existing transaction");
-        return false;
-    }
-    return obj.toVariantMap();
+    emit m_dbCmdInterface->sigDisplayActualValues(callId, transactionName);
+    return QVariant();
 }
 
 void DatabaseLogger::initOnce()
@@ -590,7 +598,9 @@ void DatabaseLogger::initOnce()
                                                 this,
                                                 this,
                                                 "RPC_displayActualValues",
-                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}})),
+                                                VfCpp::cVeinModuleRpc::Param({{"p_transaction", "QString"}}),
+                                                false,
+                                                false),
                                             &QObject::deleteLater);
         m_rpcList[tmpval->rpcName()]=tmpval;
 
