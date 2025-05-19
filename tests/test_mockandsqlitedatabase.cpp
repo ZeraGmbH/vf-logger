@@ -141,6 +141,7 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0], true);
     QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
     QJsonObject sessionInfo = invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
     //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
     removeTimeInfoInTransactions(sessionInfo);
@@ -267,6 +268,7 @@ void test_mockandsqlitedatabase::deleteSession()
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0], true);
     QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
     exisitingSessions = getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_existingSessionsComponentName).toStringList();
     QVERIFY(!exisitingSessions.contains("DbTestSession1"));
     currentSession =  getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_sessionNameComponentName).toString();
@@ -286,6 +288,7 @@ void test_mockandsqlitedatabase::deleteNonexistingSession()
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0], true);
     QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
     QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Select an existing session");
 }
 
@@ -302,6 +305,7 @@ void test_mockandsqlitedatabase::deleteSessionBeforeDbLoaded()
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0], true);
     QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_resultCodeString), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
     QCOMPARE(invokerSpy[0][2].toMap().value(VeinComponent::RemoteProcedureData::s_errorMessageString), "Database is not set");
 }
 
