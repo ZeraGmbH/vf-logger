@@ -9,7 +9,7 @@ RpcListAllSessions::RpcListAllSessions(VeinEvent::EventSystem *eventSystem, int 
 {
 }
 
-void RpcListAllSessions::callRPCFunction(const QUuid &callId, const QUuid &peerId, const QVariantMap &parameters)
+void RpcListAllSessions::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_listAllSessions(callId);
 }

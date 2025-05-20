@@ -9,7 +9,7 @@ RpcDisplaySessionsInfos::RpcDisplaySessionsInfos(VeinEvent::EventSystem *eventSy
 {
 }
 
-void RpcDisplaySessionsInfos::callRPCFunction(const QUuid &callId, const QUuid &peerId, const QVariantMap &parameters)
+void RpcDisplaySessionsInfos::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_displaySessionsInfos(callId, parameters);
 }

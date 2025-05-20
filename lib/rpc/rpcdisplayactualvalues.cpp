@@ -9,7 +9,7 @@ RpcDisplayActualValues::RpcDisplayActualValues(VeinEvent::EventSystem *eventSyst
 {
 }
 
-void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QUuid &peerId, const QVariantMap &parameters)
+void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_displayActualValues(callId, parameters);
 }
