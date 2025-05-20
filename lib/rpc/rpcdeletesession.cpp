@@ -9,7 +9,7 @@ RpcDeleteSession::RpcDeleteSession(VeinEvent::EventSystem *eventSystem, int enti
 {
 }
 
-void RpcDeleteSession::callRPCFunction(const QUuid &callId, const QUuid &peerId, const QVariantMap &parameters)
+void RpcDeleteSession::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_deleteSession(callId, parameters);
 }

@@ -10,7 +10,7 @@ RpcDeleteTransaction::RpcDeleteTransaction(VeinEvent::EventSystem *eventSystem, 
 {
 }
 
-void RpcDeleteTransaction::callRPCFunction(const QUuid &callId, const QUuid &peerId, const QVariantMap &parameters)
+void RpcDeleteTransaction::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_deleteTransaction(callId, parameters);
 }
