@@ -27,6 +27,7 @@ public:
     };
 signals: // commands are send by signals for databases running in other thread
     void sigOpenDatabase(const QString &filePath);
+    void sigAddTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName);
     void sigAddStartTime(int transactionId, QDateTime time);
     void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component);
     void sigAddSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> staticData);

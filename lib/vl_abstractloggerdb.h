@@ -30,6 +30,7 @@ signals:
     void sigDatabaseError(QString errorString);
     void sigDatabaseReady();
     void sigNewSessionList(QStringList p_sessions);
+    void sigAddTransactionCompleted(int transactionId);
     void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
     void sigDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
     void sigDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
@@ -46,7 +47,7 @@ public slots:
     virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
 
     virtual void onAddStartTime(int t_transactionId, QDateTime t_time) = 0;
-    virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
+    virtual void onAddTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
     virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) = 0;
     virtual void runBatchedExecution() = 0; // Another implementation detail which must go
 private:

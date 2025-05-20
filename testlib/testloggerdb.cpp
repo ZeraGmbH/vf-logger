@@ -95,13 +95,13 @@ void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
 
 static const int testTransactionId = 42;
 
-int TestLoggerDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
+void TestLoggerDB::onAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
     Transactions currentTransacions = m_sessions.value(sessionName);
     currentTransacions.insert(transactionName, TransactionInfo{guiContextName, contentSets});
     m_sessions[sessionName] = currentTransacions;
     emit m_testSignaller->sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
-    return testTransactionId;
+    emit sigAddTransactionCompleted(testTransactionId);
 }
 
 void TestLoggerDB::onAddStartTime(int transactionId, QDateTime time)

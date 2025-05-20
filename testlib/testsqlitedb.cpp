@@ -17,9 +17,8 @@ void TestSQLiteDB::addEntity(int entityId, QString entityName)
     emit m_testSignaller->sigEntityAdded(entityId, entityName);
 }
 
-int TestSQLiteDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
+void TestSQLiteDB::onAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
-    int transactioId = SQLiteDB::addTransaction(transactionName, sessionName, contentSets, guiContextName);
+    SQLiteDB::onAddTransaction(transactionName, sessionName, contentSets, guiContextName);
     emit m_testSignaller->sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
-    return transactioId;
 }

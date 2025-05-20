@@ -38,7 +38,7 @@ public:
     static bool isValidDatabase(QString dbPath);
 
 public slots:
-    int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
+    void onAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     void onAddStartTime(int transactionId, QDateTime time) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;

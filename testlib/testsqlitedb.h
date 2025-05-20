@@ -13,7 +13,7 @@ public:
 
     void addComponent(const QString &componentName) override;
     void addEntity(int entityId, QString entityName) override;
-    int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
+    void onAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
 
 private:
     TestDbAddSignaller *m_testSignaller;

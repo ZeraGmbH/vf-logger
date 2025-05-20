@@ -365,7 +365,7 @@ void SQLiteDB::addEntity(int entityId, QString entityName)
     }
 }
 
-int SQLiteDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
+void SQLiteDB::onAddTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
     int retVal = -1;
     int sessionId = 0;
@@ -387,7 +387,8 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
     }
     else {
         emit sigDatabaseError(QString("SQLiteDB::addTrancaction m_tranactionSequenceQuery failed: %1").arg(m_dPtr->m_transactionSequenceQuery.lastError().text()));
-        return retVal;
+        emit sigAddTransactionCompleted(retVal);
+        return;
     }
 
     m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
@@ -398,7 +399,8 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
 
     if(m_dPtr->m_transactionInsertQuery.exec() == false) {
         emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
-        return retVal;
+        emit sigAddTransactionCompleted(retVal);
+        return;
     }
     m_dPtr->m_transactionSequenceQuery.finish();
 
@@ -409,7 +411,7 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
     else {
         emit sigDatabaseError(QString("Error in SQLiteDB::addTransaction transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
     }
-    return retVal;
+    emit sigAddTransactionCompleted(retVal);
 }
 
 void SQLiteDB::onAddStartTime(int transactionId, QDateTime time)

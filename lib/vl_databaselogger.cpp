@@ -117,10 +117,8 @@ void DatabaseLogger::processEvent(QEvent *event)
                     else if(componentName == LoggerStaticTexts::s_loggingEnabledComponentName) {
                         bool loggingEnabled = newValue.toBool();
                         if(loggingEnabled) {
-                            if(checkConditionsForStartLog()) {
+                            if(checkConditionsForStartLog())
                                 prepareLogging();
-                                setLoggingEnabled(loggingEnabled);
-                            }
                         }
                         else
                             setLoggingEnabled(loggingEnabled);
@@ -275,9 +273,7 @@ void DatabaseLogger::statusTextToVein(const QString &status)
 
 void DatabaseLogger::prepareLogging()
 {
-    m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, m_contentSets, m_guiContext);
-    m_dbCmdInterface->sigAddStartTime(m_transactionId, QDateTime::currentDateTime());
-    writeCurrentStorageToDb();
+    emit m_dbCmdInterface->sigAddTransaction(m_transactionName, m_dbSessionName, m_contentSets, m_guiContext);
 }
 
 int DatabaseLogger::entityId() const
@@ -339,6 +335,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
+        connect(m_database, &AbstractLoggerDB::sigAddTransactionCompleted, this, &DatabaseLogger::onAddTransactionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteTransactionCompleted, this, &DatabaseLogger::onDeleteTransactionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
@@ -404,6 +401,14 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_existingSessionsComponentName,
                                                            QVariant(), sessionNames);
     emit sigSendEvent(event);
+}
+
+void DatabaseLogger::onAddTransactionCompleted(int transactionId)
+{
+    m_transactionId = transactionId;
+    m_dbCmdInterface->sigAddStartTime(m_transactionId, QDateTime::currentDateTime());
+    writeCurrentStorageToDb();
+    setLoggingEnabled(true);
 }
 
 void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList)
