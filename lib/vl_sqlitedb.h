@@ -48,10 +48,7 @@ public slots:
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onListAllSessions(QUuid callId) override;
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
-
     void onOpen(const QString &dbPath) override;
-    bool isDbStillWitable(const QString &dbPath);
-
     void runBatchedExecution() override;
 
 protected:
@@ -61,6 +58,7 @@ protected:
 private:
     void initLocalData();
     bool addStopTime(int transactionId,  QDateTime time) override;
+    bool isDbStillWitable(const QString &dbPath);
     bool hasEntityId(int entityId) const;
     bool hasComponentName(const QString &componentName) const;
     void addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component);
