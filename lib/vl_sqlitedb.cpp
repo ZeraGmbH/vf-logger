@@ -369,6 +369,7 @@ void SQLiteDB::onAddTransaction(const QString &transactionName, const QString &s
 {
     int retVal = -1;
     int sessionId = 0;
+    QString error;
 
     //check if session exists. If session does not exist add to list.
     if(m_dPtr->m_sessionIds.contains(sessionName)) {
@@ -381,36 +382,33 @@ void SQLiteDB::onAddTransaction(const QString &transactionName, const QString &s
     }
 
     int nexttransactionId = 0;
-    if(m_dPtr->m_transactionSequenceQuery.exec() == true)    {
+    if(m_dPtr->m_transactionSequenceQuery.exec() == true){
         m_dPtr->m_transactionSequenceQuery.next();
         nexttransactionId = m_dPtr->m_transactionSequenceQuery.value(0).toInt()+1;
-    }
-    else {
-        emit sigDatabaseError(QString("SQLiteDB::addTrancaction m_tranactionSequenceQuery failed: %1").arg(m_dPtr->m_transactionSequenceQuery.lastError().text()));
-        emit sigAddTransactionCompleted(retVal);
-        return;
-    }
 
-    m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
-    m_dPtr->m_transactionInsertQuery.bindValue(":sessionid", sessionId);
-    m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", transactionName);
-    m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", contentSets.join(QLatin1Char(',')));
-    m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", guiContextName);
+        m_dPtr->m_transactionInsertQuery.bindValue(":id", nexttransactionId);
+        m_dPtr->m_transactionInsertQuery.bindValue(":sessionid", sessionId);
+        m_dPtr->m_transactionInsertQuery.bindValue(":transaction_name", transactionName);
+        m_dPtr->m_transactionInsertQuery.bindValue(":contentset_names", contentSets.join(QLatin1Char(',')));
+        m_dPtr->m_transactionInsertQuery.bindValue(":guicontext_name", guiContextName);
 
-    if(m_dPtr->m_transactionInsertQuery.exec() == false) {
-        emit sigDatabaseError(QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text()));
-        emit sigAddTransactionCompleted(retVal);
-        return;
+        if(m_dPtr->m_transactionInsertQuery.exec() == false)
+            error = QString("SQLiteDB::addTransaction m_transactionsQuery failed: %1").arg(m_dPtr->m_transactionInsertQuery.lastError().text());
+        else {
+            m_dPtr->m_transactionSequenceQuery.finish();
+            if(nexttransactionId > 0) {
+                m_dPtr->m_transactionIds.insert(nexttransactionId, transactionName);
+                retVal = nexttransactionId;
+            }
+            else
+                error = QString("Error in SQLiteDB::addTransaction transaction: %1").arg(m_dPtr->m_logDB.lastError().text());
+        }
     }
-    m_dPtr->m_transactionSequenceQuery.finish();
+    else
+        error = QString("SQLiteDB::addTrancaction m_tranactionSequenceQuery failed: %1").arg(m_dPtr->m_transactionSequenceQuery.lastError().text());
 
-    if(nexttransactionId > 0) {
-        m_dPtr->m_transactionIds.insert(nexttransactionId, transactionName);
-        retVal = nexttransactionId;
-    }
-    else {
-        emit sigDatabaseError(QString("Error in SQLiteDB::addTransaction transaction: %1").arg(m_dPtr->m_logDB.lastError().text()));
-    }
+    if(!error.isEmpty())
+        emit sigDatabaseError(error);
     emit sigAddTransactionCompleted(retVal);
 }
 
