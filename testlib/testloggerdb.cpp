@@ -104,14 +104,13 @@ int TestLoggerDB::addTransaction(const QString &transactionName, const QString &
     return testTransactionId;
 }
 
-bool TestLoggerDB::addStartTime(int transactionId, QDateTime time)
+void TestLoggerDB::onAddStartTime(int transactionId, QDateTime time)
 {
     Q_UNUSED(time);
     if(transactionId != testTransactionId)
         qFatal("Unexpected transaction id: %i!", transactionId);
     QJsonObject entry {{"StartTime", QJsonValue(m_valueWriteCount)}};
     m_startStopEvents.append(entry);
-    return true;
 }
 
 bool TestLoggerDB::addStopTime(int transactionId, QDateTime time)

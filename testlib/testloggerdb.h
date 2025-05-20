@@ -23,7 +23,7 @@ public:
     void setStorageMode(STORAGE_MODE storageMode) override;
 
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
-    bool addStartTime(int transactionId, QDateTime time) override;
+    void onAddStartTime(int transactionId, QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;

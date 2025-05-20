@@ -45,7 +45,7 @@ public slots:
     virtual void onListAllSessions(QUuid callId) = 0;
     virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
 
-    virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
+    virtual void onAddStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
     virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) = 0;
     virtual void runBatchedExecution() = 0; // Another implementation detail which must go
