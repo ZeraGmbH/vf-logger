@@ -42,6 +42,10 @@ private slots:
     void displayLoggedValuesBeforeDbLoaded();
 
 private:
+    void logATransaction(QString session, QString transaction, QStringList contentSets);
+    QVariant getResultCode(QVariant rpcReturnData);
+    QString getErrorString(QVariant rpcReturnData);
+    QVariant getReturnedResult(QVariant rpcReturnData);
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     QVariant getComponentValue(int entityId, QString component);
     std::unique_ptr<TestLoggerSystem> m_testSystem;
