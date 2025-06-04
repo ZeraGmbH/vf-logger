@@ -20,6 +20,7 @@
         "ScheduledLoggingDuration": null,
         "ScheduledLoggingEnabled": false,
         "availableContentSets": [
+            "TestSet1",
             "TestSet3",
             "TestSet4",
             "ZeraAll"

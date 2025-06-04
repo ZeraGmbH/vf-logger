@@ -477,6 +477,15 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_availableContentSetsComponentName,
                                                            QVariant(), availContentSets);
     emit sigSendEvent(event);
+
+    if(!newSession.toString().isEmpty()) {
+        if(m_veinStorage->getDb()->hasStoredValue(2, "currentContentSets")) {
+            QVariant oldValue = m_veinStorage->getDb()->getStoredValue(2, "currentContentSets");
+            QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName,
+                                                                   oldValue, QVariantList());
+            emit sigSendEvent(event);
+        }
+    }
 }
 
 void DatabaseLogger::onDbReady()
