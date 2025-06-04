@@ -84,6 +84,24 @@ void test_contentsets::contentSetsSelectValidTwoSame()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
+void test_contentsets::sameContentSetDifferentSession()
+{
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    QVariantMap loggedComponents = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggedComponents").toMap();
+    QCOMPARE(loggedComponents.count(), 1);
+    QCOMPARE(loggedComponents.keys().at(0), "10");
+
+    m_testSystem.changeSession();
+    QVariant currentContentSets = m_testSystem.getValueOfComponent(dataLoggerEntityId, "currentContentSets");
+    QVERIFY(currentContentSets.toStringList().isEmpty());
+
+
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    loggedComponents = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggedComponents").toMap();
+    QCOMPARE(loggedComponents.count(), 1);
+    QCOMPARE(loggedComponents.keys().at(0), "11");
+}
+
 void test_contentsets::contentSetsSelectValidAll()
 {
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");

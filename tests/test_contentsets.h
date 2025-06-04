@@ -17,6 +17,7 @@ private slots:
     void contentSetsSelectValid();
     void contentSetsSelectValidTwo();
     void contentSetsSelectValidTwoSame();
+    void sameContentSetDifferentSession();
     void contentSetsSelectValidAll();
     void contentSetsSelectValidSequence();
 
