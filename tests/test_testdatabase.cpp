@@ -318,3 +318,31 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
+
+void test_testdatabase::noRecordSessionChange()
+{
+    m_testSystem.setupServer();
+    m_testSystem.loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    bool isLoggingEnabled = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggingEnabled").toBool();
+    QCOMPARE(isLoggingEnabled, false);
+
+    m_testSystem.changeSession();
+    isLoggingEnabled = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggingEnabled").toBool();
+    QCOMPARE(isLoggingEnabled, false);
+}
+
+void test_testdatabase::stopRecordingOnSessionChange()
+{
+    m_testSystem.setupServer();
+    m_testSystem.loadDatabase();
+    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.startLogging();
+    bool isLoggingEnabled = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggingEnabled").toBool();
+    QCOMPARE(isLoggingEnabled, true);
+
+    m_testSystem.changeSession();
+    isLoggingEnabled = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggingEnabled").toBool();
+    QCOMPARE(isLoggingEnabled, false);
+
+}

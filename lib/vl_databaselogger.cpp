@@ -465,6 +465,7 @@ void DatabaseLogger::onDisplayActualValuesCompleted(QUuid callId, bool success, 
 
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 {
+    setLoggingEnabled(false);
     for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
         env.m_loggerContentHandler->setSession(newSession.toString());
     const QStringList availContentSetStrings = LoggerContentSetConfig::getAvailableContentSets();
