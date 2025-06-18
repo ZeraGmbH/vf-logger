@@ -68,6 +68,8 @@ private:
     void writeCurrentStorageToDb();
     QStringList getComponentsFilteredForDb(int entityId);
     void terminateCurrentDb();
+    void emptyCurrentContentSets();
+    void emptyLoggedComponents();
 
     int m_entityId;
     QLatin1String m_entityName;

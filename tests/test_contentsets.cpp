@@ -94,7 +94,8 @@ void test_contentsets::sameContentSetDifferentSession()
     m_testSystem.changeSession();
     QVariant currentContentSets = m_testSystem.getValueOfComponent(dataLoggerEntityId, "currentContentSets");
     QVERIFY(currentContentSets.toStringList().isEmpty());
-
+    loggedComponents = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggedComponents").toMap();
+    QVERIFY(loggedComponents.isEmpty());
 
     m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
     loggedComponents = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggedComponents").toMap();

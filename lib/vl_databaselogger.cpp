@@ -463,6 +463,26 @@ void DatabaseLogger::onDisplayActualValuesCompleted(QUuid callId, bool success, 
         m_rpcDisplayActualValues->sendRpcError(callId, errorMsg);
 }
 
+void VeinLogger::DatabaseLogger::emptyCurrentContentSets()
+{
+    if(m_veinStorage->getDb()->hasStoredValue(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName)) {
+        QVariant oldValue = m_veinStorage->getDb()->getStoredValue(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName);
+        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName,
+                                                               oldValue, QVariantList());
+        emit sigSendEvent(event);
+    }
+}
+
+void DatabaseLogger::emptyLoggedComponents()
+{
+    if(m_veinStorage->getDb()->hasStoredValue(m_entityId, LoggerStaticTexts::loggedComponentsComponentName)) {
+        QVariant oldValue = m_veinStorage->getDb()->getStoredValue(m_entityId, LoggerStaticTexts::loggedComponentsComponentName);
+        QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::loggedComponentsComponentName,
+                                                               oldValue, QVariantMap());
+        emit sigSendEvent(event);
+    }
+}
+
 void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 {
     setLoggingEnabled(false);
@@ -480,12 +500,8 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
     emit sigSendEvent(event);
 
     if(!newSession.toString().isEmpty()) {
-        if(m_veinStorage->getDb()->hasStoredValue(m_entityId, "currentContentSets")) {
-            QVariant oldValue = m_veinStorage->getDb()->getStoredValue(m_entityId, "currentContentSets");
-            QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName,
-                                                                   oldValue, QVariantList());
-            emit sigSendEvent(event);
-        }
+        emptyCurrentContentSets();
+        emptyLoggedComponents();
     }
 }
 
