@@ -37,9 +37,8 @@ QJsonObject JsonLoggedValues::createLoggedValuesJson()
 void JsonLoggedValues::appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets)
 {
     for(int i = 0; i < contentsets.size(); i++) {
-        QMap<int, QStringList> componentsMap = VeinLogger::LoggerContentSetConfig::componentFromContentSet(contentsets.at(i));
+        QMap<int, QStringList> componentsMap = VeinLogger::LoggerContentSetConfig::EntitiesComponentsLoggedFromContentSet(contentsets.at(i));
         for(int entity : componentsMap.keys()) {
-            QJsonObject obj;
             if(m_entityCompoValues.contains(QString::number(entity))) {
                 loggedValues.insert(contentsets.at(i), m_entityCompoValues);
             }
