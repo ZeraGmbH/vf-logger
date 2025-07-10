@@ -10,10 +10,10 @@ class JsonLoggedValues : public QObject
 public:
     explicit JsonLoggedValues(QStringList contentsetsList, QObject *parent = nullptr);
     void appendLoggedValues(QString entityId, QString componentName, QVariant value);
-    QJsonObject createLoggedValuesJson();
+    QJsonObject createLoggedValuesJson(QString sessionDeviceName);
 
 private:
-    void appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets);
+    void appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets, QString sessionDeviceName);
 
     QStringList m_contentsetsList;
     QJsonObject m_entityCompoValues;

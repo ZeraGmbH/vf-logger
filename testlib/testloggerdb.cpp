@@ -196,7 +196,7 @@ void TestLoggerDB::onDisplayActualValues(QUuid callId, const QString &transactio
         }
     }
     if(transactionFound)
-        emit sigDisplayActualValuesCompleted(callId, true, QString(), jsonLoggedValues.createLoggedValuesJson());
+        emit sigDisplayActualValuesCompleted(callId, true, QString(), jsonLoggedValues.createLoggedValuesJson(""));
     else
         emit sigDisplayActualValuesCompleted(callId, false, "Select an existing transaction", QJsonObject());
 }

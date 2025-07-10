@@ -650,13 +650,16 @@ void SQLiteDB::onDisplayActualValues(QUuid callId, const QString &transactionNam
 
         query.bindValue(":transaction", transactionName);
         query.exec();
+        QString sessionDeviceName = "";
         while(query.next()) {
             QString entityId = query.value("id").toString();
             QString componentName = query.value("component_name").toString();
             QVariant value = query.value("component_value");
             loggedValues.appendLoggedValues(entityId, componentName, value);
+            if(entityId == "0" && componentName == "Session")
+                sessionDeviceName = value.toString();
         }
-        emit sigDisplayActualValuesCompleted(callId, true, QString(), loggedValues.createLoggedValuesJson());
+        emit sigDisplayActualValuesCompleted(callId, true, QString(), loggedValues.createLoggedValuesJson(sessionDeviceName));
     }
     else
         emit sigDisplayActualValuesCompleted(callId, false, "Select an existing transaction", QJsonObject());
