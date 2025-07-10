@@ -18,7 +18,7 @@ public:
     static const QList<LoggerContentConfigEntry> &getConfigEnvironment();
     static QStringList getAvailableContentSets();
     static QVariantMap componentFromContentSets(const QStringList &contentSets);
-    static QMap<int, QStringList> EntitiesComponentsLoggedFromContentSet(const QString &contentSet);
+    static QMap<int, QStringList> EntitiesComponentsLoggedFromContentSet(const QString &contentSet, QString sessionDeviceName);
 
 private:
     static QList<LoggerContentConfigEntry> m_loggerConfigEnvironment;

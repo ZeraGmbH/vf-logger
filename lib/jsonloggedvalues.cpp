@@ -21,23 +21,23 @@ void JsonLoggedValues::appendLoggedValues(QString entityId, QString componentNam
     }
 }
 
-QJsonObject JsonLoggedValues::createLoggedValuesJson()
+QJsonObject JsonLoggedValues::createLoggedValuesJson(QString sessionDeviceName)
 {
     QJsonObject loggedValues;
 
     if(m_contentsetsList.contains("ZeraAll")) {
         QStringList contentsetAll = VeinLogger::LoggerContentSetConfig::getAvailableContentSets();
-        appendEntitiesOnContentset(loggedValues, contentsetAll);
+        appendEntitiesOnContentset(loggedValues, contentsetAll, sessionDeviceName);
     }
     else
-        appendEntitiesOnContentset(loggedValues, m_contentsetsList);
+        appendEntitiesOnContentset(loggedValues, m_contentsetsList, sessionDeviceName);
     return loggedValues;
 }
 
-void JsonLoggedValues::appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets)
+void JsonLoggedValues::appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets, QString sessionDeviceName)
 {
     for(int i = 0; i < contentsets.size(); i++) {
-        QMap<int, QStringList> componentsMap = VeinLogger::LoggerContentSetConfig::EntitiesComponentsLoggedFromContentSet(contentsets.at(i));
+        QMap<int, QStringList> componentsMap = VeinLogger::LoggerContentSetConfig::EntitiesComponentsLoggedFromContentSet(contentsets.at(i), sessionDeviceName);
         for(int entity : componentsMap.keys()) {
             if(m_entityCompoValues.contains(QString::number(entity))) {
                 loggedValues.insert(contentsets.at(i), m_entityCompoValues);
