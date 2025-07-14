@@ -423,6 +423,49 @@ void test_mockandsqlitedatabase::displayLoggedValues()
     QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
 }
 
+void test_mockandsqlitedatabase::displayLoggedValuesOnDifferentSessionDeviceName()
+{
+    int testSet1EntityId = 10;
+    int testSet2EntityId = 11;
+    int entityAndComponentCount = 2;
+    m_testSystem->setupServer(entityAndComponentCount , entityAndComponentCount , QList<int>() << systemEntityId);
+
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet1EntityId, "ComponentName2" , 2);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName1" , 1);
+    m_testSystem->setComponent(testSet2EntityId, "ComponentName2" , 2);
+
+    m_testSystem->loadDatabase();
+    logATransaction("Session1", "Transaction1", QStringList() << "TestSet2");
+
+    m_testSystem->changeSession();
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "Transaction1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+    QCOMPARE(invokerSpy.count(), 1);
+    QVERIFY(invokerSpy[0][0].toBool());
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+
+    QJsonDocument jsonDoc(filterEntitySystem(jsonObj));
+    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+
+    QFile file(":/logged-values/LogTestSet2.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QJsonParseError parseError;
+    QJsonDocument docActual = QJsonDocument::fromJson(file.readAll(), &parseError);
+
+    QJsonObject filteredActual = filterEntitySystem(docActual.object());
+    jsonDoc = QJsonDocument(filterEntitySystem(docActual.object()));
+    QString jsonExpected = jsonDoc.toJson(QJsonDocument::Indented);
+
+    // We ingore 'System' Entity in this comparison
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
 void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
 {
     int testSet1EntityId = 10;
@@ -518,4 +561,16 @@ QString test_mockandsqlitedatabase::getErrorString(QVariant rpcReturnData)
 QVariant test_mockandsqlitedatabase::getReturnedResult(QVariant rpcReturnData)
 {
     return rpcReturnData.toMap().value(VeinComponent::RemoteProcedureData::s_returnString);
+}
+
+QJsonObject test_mockandsqlitedatabase::filterEntitySystem(QJsonObject obj)
+{
+    QJsonObject filtered;
+    for (auto it = obj.begin(); it != obj.end(); ++it) {
+        if (it.key() == "0")
+            continue; // Skip key "0"
+        if (it.value().isObject())
+            filtered[it.key()] = filterEntitySystem(it.value().toObject());
+    }
+    return filtered;
 }

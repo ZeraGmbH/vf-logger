@@ -37,6 +37,7 @@ private slots:
     void listAllSessionsBeforeDbLoaded();
 
     void displayLoggedValues();
+    void displayLoggedValuesOnDifferentSessionDeviceName();
     void displayLoggedValuesZeraAll();
     void displayLoggedValuesInvalidTransaction();
     void displayLoggedValuesBeforeDbLoaded();
@@ -48,6 +49,7 @@ private:
     QVariant getReturnedResult(QVariant rpcReturnData);
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     QVariant getComponentValue(int entityId, QString component);
+    QJsonObject filterEntitySystem(QJsonObject obj);
     std::unique_ptr<TestLoggerSystem> m_testSystem;
 };
 
