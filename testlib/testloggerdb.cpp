@@ -187,16 +187,19 @@ void TestLoggerDB::onDisplayActualValues(QUuid callId, const QString &transactio
         }
     }
     JsonLoggedValues jsonLoggedValues(contentsetList);
+    QString sessionDeviceName = "";
     for(int entityId : m_initialValues.keys()) {
         QMap<QString, InitialValue> compoValuesMap = m_initialValues[entityId];
         for(QString componentName : compoValuesMap.keys()) {
             InitialValue initValue = compoValuesMap[componentName];
             QVariant value = initValue.value;
-            jsonLoggedValues.appendLoggedValues(QString::number(entityId), componentName, value);
+            jsonLoggedValues.appendLoggedValues(QString::number(entityId), componentName, value.toJsonValue());
+            if(entityId == 0 && componentName == "Session")
+                sessionDeviceName = value.toString();
         }
     }
     if(transactionFound)
-        emit sigDisplayActualValuesCompleted(callId, true, QString(), jsonLoggedValues.createLoggedValuesJson(""));
+        emit sigDisplayActualValuesCompleted(callId, true, QString(), jsonLoggedValues.createLoggedValuesJson(sessionDeviceName));
     else
         emit sigDisplayActualValuesCompleted(callId, false, "Select an existing transaction", QJsonObject());
 }
