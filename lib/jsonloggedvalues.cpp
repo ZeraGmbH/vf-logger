@@ -40,7 +40,10 @@ void JsonLoggedValues::appendEntitiesOnContentset(QJsonObject &loggedValues, QSt
         QMap<int, QStringList> componentsMap = VeinLogger::LoggerContentSetConfig::EntitiesComponentsLoggedFromContentSet(contentsets.at(i), sessionDeviceName);
         for(int entity : componentsMap.keys()) {
             if(m_entityCompoValues.contains(QString::number(entity))) {
-                loggedValues.insert(contentsets.at(i), m_entityCompoValues);
+                QJsonObject obj;
+                QString strEntity = QString::number(entity);
+                obj.insert(strEntity, m_entityCompoValues.value(strEntity));
+                loggedValues.insert(contentsets.at(i), obj);
             }
         }
     }
