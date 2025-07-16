@@ -1,11 +1,15 @@
 #include "rpcdeletesession.h"
 #include <vf-cpp-rpc-signature.h>
 
-RpcDeleteSession::RpcDeleteSession(VeinEvent::EventSystem *eventSystem, int entityId, std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    m_dbCmdInterface(dbCmdInterface),
+RpcDeleteSession::RpcDeleteSession(VeinEvent::EventSystem *eventSystem,
+                                   int entityId,
+                                   std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
     VfCpp::VfCppRpcSimplified(eventSystem,
                               entityId,
-                              VfCpp::VfCppRpcSignature::createRpcSignature("RPC_deleteSession", VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}})))
+                              VfCpp::VfCppRpcSignature::createRpcSignature(
+                                  "RPC_deleteSession",
+                                  VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}}))),
+    m_dbCmdInterface(dbCmdInterface)
 {
 }
 
