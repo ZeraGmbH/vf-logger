@@ -1,13 +1,14 @@
 #include "rpcdisplaysessionsinfos.h"
+#include "vl_databaselogger.h"
 #include <vf-cpp-rpc-signature.h>
 
-RpcDisplaySessionsInfos::RpcDisplaySessionsInfos(VeinEvent::EventSystem *eventSystem, int entityId, std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    VfCpp::VfCppRpcSimplified(eventSystem,
+RpcDisplaySessionsInfos::RpcDisplaySessionsInfos(VeinLogger::DatabaseLogger *dbLogger, int entityId) :
+    VfCpp::VfCppRpcSimplified(dbLogger,
                               entityId,
                               VfCpp::VfCppRpcSignature::createRpcSignature(
                                   "RPC_displaySessionsInfos",
                                   VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}}))),
-    m_dbCmdInterface(dbCmdInterface)
+    m_dbLogger(dbLogger)
 {
 }
 
@@ -18,9 +19,9 @@ void RpcDisplaySessionsInfos::callRPCFunction(const QUuid &callId, const QVarian
 
 void RpcDisplaySessionsInfos::RPC_displaySessionsInfos(QUuid callId, QVariantMap parameters)
 {
-    if(m_dbCmdInterface->isDatabaseConnected()) {
+    if(m_dbLogger->isDatabaseReady()) {
         QString session = parameters["p_session"].toString();
-        emit m_dbCmdInterface->sigDisplaySessionInfos(callId, session);
+        m_dbLogger->getDb()->startDisplaySessionsInfos(callId, session);
     }
     else
         sendRpcError(callId, "Database is not set");

@@ -1,20 +1,22 @@
 #ifndef RPCDISPLAYSESSIONSINFOS_H
 #define RPCDISPLAYSESSIONSINFOS_H
 
-#include "databasecommandinterface.h"
 #include <vf-cpp-rpc-simplified.h>
+#include <QUuid>
+
+namespace VeinLogger {
+class DatabaseLogger;
+}
 
 class RpcDisplaySessionsInfos : public VfCpp::VfCppRpcSimplified
 {
 public:
-    RpcDisplaySessionsInfos(VeinEvent::EventSystem *eventSystem,
-                            int entityId,
-                            std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface);
+    RpcDisplaySessionsInfos(VeinLogger::DatabaseLogger *dbLogger, int entityId);
 private slots:
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
 private:
     void RPC_displaySessionsInfos(QUuid callId, QVariantMap parameters);
-    std::shared_ptr<VeinLogger::DatabaseCommandInterface> m_dbCmdInterface = nullptr;
+    VeinLogger::DatabaseLogger *m_dbLogger;
 };
 
 #endif // RPCDISPLAYSESSIONSINFOS_H

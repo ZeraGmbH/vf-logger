@@ -1,20 +1,21 @@
 #ifndef RPCDELETETRANSACTION_H
 #define RPCDELETETRANSACTION_H
 
-#include "databasecommandinterface.h"
 #include <vf-cpp-rpc-simplified.h>
+
+namespace VeinLogger {
+class DatabaseLogger;
+}
 
 class RpcDeleteTransaction : public VfCpp::VfCppRpcSimplified
 {
 public:
-    RpcDeleteTransaction(VeinEvent::EventSystem *eventSystem,
-                         int entityId,
-                         std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface);
+    RpcDeleteTransaction(VeinLogger::DatabaseLogger *dbLogger, int entityId);
 private slots:
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
 private:
     void RPC_deleteTransaction(QUuid callId, QVariantMap parameters);
-    std::shared_ptr<VeinLogger::DatabaseCommandInterface> m_dbCmdInterface = nullptr;
+    VeinLogger::DatabaseLogger *m_dbLogger;
 };
 
 #endif // RPCDELETETRANSACTION_H

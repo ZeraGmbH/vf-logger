@@ -26,6 +26,10 @@ public:
     virtual bool requiresOwnThread() = 0;
 
     virtual bool hasSessionName(const QString &dbSessionName) const = 0;
+
+    void startDeleteTransaction(QUuid callId, QString transactionName);
+    void startDisplaySessionsInfos(QUuid callId, const QString &sessionName);
+
 signals:
     void sigDatabaseError(QString errorString);
     void sigDatabaseReady();
