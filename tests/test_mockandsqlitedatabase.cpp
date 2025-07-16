@@ -10,8 +10,8 @@ QTEST_MAIN(test_mockandsqlitedatabase)
 void test_mockandsqlitedatabase::initTestCase_data()
 {
     QTest::addColumn<TestLoggerSystem::DbType>("DbType");
-    QTest::newRow("Mock Databse") << TestLoggerSystem::DbType::MOCK;
-    QTest::newRow("SQLite Databse") << TestLoggerSystem::DbType::SQLITE;
+    QTest::newRow("Mock Database") << TestLoggerSystem::DbType::MOCK;
+    QTest::newRow("SQLite Database") << TestLoggerSystem::DbType::SQLITE;
 }
 
 void test_mockandsqlitedatabase::init()
