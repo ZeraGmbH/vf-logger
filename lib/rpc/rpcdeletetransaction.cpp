@@ -11,11 +11,27 @@ RpcDeleteTransaction::RpcDeleteTransaction(VeinLogger::DatabaseLogger *dbLogger,
                                   VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}}))),
     m_dbLogger(dbLogger)
 {
+    connect(m_dbLogger, &VeinLogger::DatabaseLogger::sigOpenDatabase,
+            this, &RpcDeleteTransaction::onOpenDatabase);
 }
 
 void RpcDeleteTransaction::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_deleteTransaction(callId, parameters);
+}
+
+void RpcDeleteTransaction::onOpenDatabase()
+{
+    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDeleteTransactionCompleted,
+            this, &RpcDeleteTransaction::onDeleteTransactionCompleted, Qt::QueuedConnection);
+}
+
+void RpcDeleteTransaction::onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg)
+{
+    if(success)
+        sendRpcResult(callId, true);
+    else
+        sendRpcError(callId, errorMsg);
 }
 
 void RpcDeleteTransaction::RPC_deleteTransaction(QUuid callId, QVariantMap parameters)

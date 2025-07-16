@@ -53,7 +53,6 @@ DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
     connect(&m_schedulingTimer, &QTimer::timeout, this, [this]() {
         setLoggingEnabled(false);
     });
-
 }
 
 DatabaseLogger::~DatabaseLogger()
@@ -105,7 +104,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
                                 closeDatabase();
                             else
-                                onOpenDatabase(newValue.toString());
+                                openDatabase(newValue.toString());
                         }
 
                         // a good place to reset selected sessionName - however db-open ends up with
@@ -332,7 +331,7 @@ void DatabaseLogger::dbNameToVein(const QString &filePath)
     emit sigSendEvent(event);
 }
 
-void DatabaseLogger::onOpenDatabase(const QString &filePath)
+void DatabaseLogger::openDatabase(const QString &filePath)
 {
     m_databaseFilePath = filePath;
     qInfo("Open database %s", qPrintable(filePath));
@@ -350,13 +349,13 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
-        connect(m_database, &AbstractLoggerDB::sigDeleteTransactionCompleted, this, &DatabaseLogger::onDeleteTransactionCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigListAllSessionsCompleted, this, &DatabaseLogger::onListAllSessionsCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplayActualValuesCompleted, this, &DatabaseLogger::onDisplayActualValuesCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
 
         emit m_dbCmdInterface->sigOpenDatabase(filePath);
+        emit sigOpenDatabase(filePath);
     }
 }
 
@@ -439,14 +438,6 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
     }
     if(success)
         updateSessionList(newSessionsList);
-}
-
-void DatabaseLogger::onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg)
-{
-    if(success)
-        m_rpcDeleteTransaction->sendRpcResult(callId, true);
-    else
-        m_rpcDeleteTransaction->sendRpcError(callId, errorMsg);
 }
 
 void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
