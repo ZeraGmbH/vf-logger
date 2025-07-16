@@ -315,7 +315,7 @@ void DatabaseLogger::setLoggingEnabled(bool enabled)
             m_batchedExecutionTimer.stop();
             m_schedulingTimer.stop();
             m_countdownUpdateTimer.stop();
-            emit m_dbCmdInterface->sigFlushToDb();
+            getDb()->startFlushToDb();
             statusTextToVein("Database loaded");
         }
         m_loggingActive = enabled;
@@ -354,7 +354,7 @@ void DatabaseLogger::onOpenDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigListAllSessionsCompleted, this, &DatabaseLogger::onListAllSessionsCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDisplayActualValuesCompleted, this, &DatabaseLogger::onDisplayActualValuesCompleted, Qt::QueuedConnection);
-        connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
+        connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
 
         emit m_dbCmdInterface->sigOpenDatabase(filePath);
     }

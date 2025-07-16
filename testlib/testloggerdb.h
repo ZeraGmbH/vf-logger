@@ -32,8 +32,6 @@ public:
 
     void onOpen(const QString &dbPath) override;
 
-    void runBatchedExecution() override;
-
 // Test specific additions
     static TestLoggerDB* getCurrentInstance(); // no singleton!!!
     QByteArray getJsonDumpedComponentStored();
@@ -48,6 +46,7 @@ private:
     void onListAllSessions(QUuid callId) override;
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
+    void onFlushToDb() override;
     bool addStopTime(int transactionId,  QDateTime time) override;
 
     TestDbAddSignaller* m_testSignaller;

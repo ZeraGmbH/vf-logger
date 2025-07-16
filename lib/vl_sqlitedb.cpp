@@ -221,7 +221,7 @@ SQLiteDB::SQLiteDB() :
 
 SQLiteDB::~SQLiteDB()
 {
-    runBatchedExecution(); //finish the remaining batch of data
+    onFlushToDb(); //finish the remaining batch of data
     m_dPtr->m_logDB.close();
     delete m_dPtr;
     QSqlDatabase::removeDatabase("VFLogDB");
@@ -834,7 +834,7 @@ bool SQLiteDB::isDbStillWitable(const QString &dbPath)
     return storageOK;
 }
 
-void SQLiteDB::runBatchedExecution()
+void SQLiteDB::onFlushToDb()
 {
     QString dbFileName = m_dPtr->m_logDB.databaseName();
     if(!isDbStillWitable(dbFileName)) {

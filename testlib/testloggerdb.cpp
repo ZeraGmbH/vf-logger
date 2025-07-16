@@ -298,7 +298,7 @@ void TestLoggerDB::onOpen(const QString &dbPath)
 
 }
 
-void TestLoggerDB::runBatchedExecution()
+void TestLoggerDB::onFlushToDb()
 {
     // Surprise: This is a poor mimic of what SQLite implementation does
     addStopTime(testTransactionId, QDateTime());

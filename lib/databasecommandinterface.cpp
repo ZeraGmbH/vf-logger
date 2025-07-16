@@ -24,7 +24,6 @@ void DatabaseCommandInterface::connectDb(AbstractLoggerDB *db)
     connect(this, &DatabaseCommandInterface::sigAddLoggedValue, db, &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
     connect(this, &DatabaseCommandInterface::sigAddSession, db, &AbstractLoggerDB::addSession, Qt::QueuedConnection);
     connect(this, &DatabaseCommandInterface::sigOpenDatabase, db, &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
-    connect(this, &DatabaseCommandInterface::sigFlushToDb, db, &AbstractLoggerDB::runBatchedExecution, Qt::QueuedConnection);
 }
 
 bool DatabaseCommandInterface::isDatabaseConnected()

@@ -44,3 +44,10 @@ void VeinLogger::AbstractLoggerDB::startDeleteSession(QUuid callId, const QStrin
                               Q_ARG(QUuid, callId),
                               Q_ARG(QString, sessionName));
 }
+
+void VeinLogger::AbstractLoggerDB::startFlushToDb()
+{
+    QMetaObject::invokeMethod(this,
+                              "onFlushToDb",
+                              Qt::QueuedConnection);
+}
