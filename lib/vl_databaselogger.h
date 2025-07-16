@@ -31,6 +31,7 @@ public:
     void processEvent(QEvent *event) override;
     int entityId() const;
     QString entityName() const;
+    bool checkConditionsForStartLog();
 
 signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
@@ -62,7 +63,6 @@ private:
     void handleLoggedComponentsChange(QVariant newValue);
     void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
     QString handleVeinDbSessionNameSet(QString sessionName);
-    bool checkConditionsForStartLog();
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
