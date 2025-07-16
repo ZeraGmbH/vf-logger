@@ -2,11 +2,15 @@
 #include <vf-cpp-rpc-signature.h>
 
 
-RpcDeleteTransaction::RpcDeleteTransaction(VeinEvent::EventSystem *eventSystem, int entityId, std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    m_dbCmdInterface(dbCmdInterface),
+RpcDeleteTransaction::RpcDeleteTransaction(VeinEvent::EventSystem *eventSystem,
+                                           int entityId,
+                                           std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
     VfCpp::VfCppRpcSimplified(eventSystem,
                               entityId,
-                              VfCpp::VfCppRpcSignature::createRpcSignature("RPC_deleteTransaction", VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}})))
+                              VfCpp::VfCppRpcSignature::createRpcSignature(
+                                  "RPC_deleteTransaction",
+                                  VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}}))),
+    m_dbCmdInterface(dbCmdInterface)
 {
 }
 
