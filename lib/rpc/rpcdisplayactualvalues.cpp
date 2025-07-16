@@ -1,11 +1,15 @@
 #include "rpcdisplayactualvalues.h"
 #include <vf-cpp-rpc-signature.h>
 
-RpcDisplayActualValues::RpcDisplayActualValues(VeinEvent::EventSystem *eventSystem, int entityId, std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    m_dbCmdInterface(dbCmdInterface),
+RpcDisplayActualValues::RpcDisplayActualValues(VeinEvent::EventSystem *eventSystem,
+                                               int entityId,
+                                               std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
     VfCpp::VfCppRpcSimplified(eventSystem,
                               entityId,
-                              VfCpp::VfCppRpcSignature::createRpcSignature("RPC_displayActualValues", VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}})))
+                              VfCpp::VfCppRpcSignature::createRpcSignature(
+                                  "RPC_displayActualValues",
+                                  VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}}))),
+    m_dbCmdInterface(dbCmdInterface)
 {
 }
 
