@@ -31,7 +31,10 @@ public:
     void processEvent(QEvent *event) override;
     int entityId() const;
     QString entityName() const;
-    bool checkConditionsForStartLog();
+
+    AbstractLoggerDB *getDb() const;
+    bool isDatabaseReady() const;
+    bool checkConditionsForStartLog() const;
 
 signals:
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go

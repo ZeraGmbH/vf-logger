@@ -290,6 +290,16 @@ QString DatabaseLogger::entityName() const
     return m_entityName;
 }
 
+AbstractLoggerDB *DatabaseLogger::getDb() const
+{
+    return m_database;
+}
+
+bool DatabaseLogger::isDatabaseReady() const
+{
+    return m_dbReady;
+}
+
 void DatabaseLogger::setLoggingEnabled(bool enabled)
 {
     if(enabled != m_loggingActive) {
@@ -679,7 +689,7 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     return sessionCustomerDataName;
 }
 
-bool DatabaseLogger::checkConditionsForStartLog()
+bool DatabaseLogger::checkConditionsForStartLog() const
 {
     bool validConditions = true;
     if(!m_dbReady) {
