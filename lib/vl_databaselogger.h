@@ -37,6 +37,7 @@ public:
     bool checkConditionsForStartLog() const;
 
 signals:
+    void sigOpenDatabase(const QString &filePath);
     void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
 public slots:
     void setLoggingEnabled(bool enabled);
@@ -44,7 +45,6 @@ public slots:
 
 private slots:
     void initOnce();
-    void onOpenDatabase(const QString &filePath);
     void onModmanSessionChange(QVariant newSession);
     void onDbReady();
     void onDbError(QString errorMsg);
@@ -52,11 +52,11 @@ private slots:
     void checkDatabaseStillValid();
     void updateSessionList(QStringList sessionNames);
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
-    void onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
     void onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
     void onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
     void onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
 private:
+    void openDatabase(const QString &filePath);
     QString getEntityName(int entityId) const;
     void dbNameToVein(const QString &filePath);
     void statusTextToVein(const QString &status);
