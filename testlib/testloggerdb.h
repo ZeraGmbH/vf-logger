@@ -26,7 +26,6 @@ public:
     bool addStartTime(int transactionId, QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
-    void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
     void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
@@ -48,6 +47,7 @@ private:
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
     void onListAllSessions(QUuid callId) override;
+    void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
 
     TestDbAddSignaller* m_testSignaller;

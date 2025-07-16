@@ -27,3 +27,11 @@ void VeinLogger::AbstractLoggerDB::startListAllSessions(QUuid callId)
                               Q_ARG(QUuid, callId));
 }
 
+void VeinLogger::AbstractLoggerDB::startDisplayActualValues(QUuid callId, QString transactionName)
+{
+    QMetaObject::invokeMethod(this,
+                              "onDisplayActualValues",
+                              Qt::QueuedConnection,
+                              Q_ARG(QUuid, callId),
+                              Q_ARG(QString, transactionName));
+}

@@ -612,7 +612,7 @@ void DatabaseLogger::initOnce()
         m_rpcSimplifiedList[m_rpcDeleteTransaction->getSignature()] = m_rpcDeleteTransaction;
         m_rpcListAllSessions = std::make_shared<RpcListAllSessions>(this, m_entityId);
         m_rpcSimplifiedList[m_rpcListAllSessions->getSignature()] = m_rpcListAllSessions;
-        m_rpcDisplayActualValues = std::make_shared<RpcDisplayActualValues>(this, m_entityId, m_dbCmdInterface);
+        m_rpcDisplayActualValues = std::make_shared<RpcDisplayActualValues>(this, m_entityId);
         m_rpcSimplifiedList[m_rpcDisplayActualValues->getSignature()] = m_rpcDisplayActualValues;
 
         m_initDone = true;

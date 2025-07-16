@@ -44,7 +44,6 @@ public slots:
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
-    void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);
@@ -59,6 +58,7 @@ private:
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
     void onListAllSessions(QUuid callId) override;
+    void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
 
     void initLocalData();

@@ -1,15 +1,15 @@
 #include "rpcdisplayactualvalues.h"
+#include "vl_databaselogger.h"
 #include <vf-cpp-rpc-signature.h>
 
-RpcDisplayActualValues::RpcDisplayActualValues(VeinEvent::EventSystem *eventSystem,
-                                               int entityId,
-                                               std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    VfCpp::VfCppRpcSimplified(eventSystem,
+RpcDisplayActualValues::RpcDisplayActualValues(VeinLogger::DatabaseLogger *dbLogger,
+                                               int entityId) :
+    VfCpp::VfCppRpcSimplified(dbLogger,
                               entityId,
                               VfCpp::VfCppRpcSignature::createRpcSignature(
                                   "RPC_displayActualValues",
                                   VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}}))),
-    m_dbCmdInterface(dbCmdInterface)
+    m_dbLogger(dbLogger)
 {
 }
 
@@ -20,9 +20,9 @@ void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariant
 
 void RpcDisplayActualValues::RPC_displayActualValues(QUuid callId, QVariantMap parameters)
 {
-    if(m_dbCmdInterface->isDatabaseConnected()) {
+    if(m_dbLogger->isDatabaseReady()) {
         QString transaction = parameters["p_transaction"].toString();
-        emit m_dbCmdInterface->sigDisplayActualValues(callId, transaction);
+        m_dbLogger->getDb()->startDisplayActualValues(callId, transaction);
     }
     else
         sendRpcError(callId, "Database is not set");

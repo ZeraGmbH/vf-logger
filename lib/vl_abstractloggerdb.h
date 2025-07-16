@@ -30,6 +30,7 @@ public:
     void startDeleteTransaction(QUuid callId, QString transactionName);
     void startDisplaySessionsInfos(QUuid callId, const QString &sessionName);
     void startListAllSessions(QUuid callId);
+    void startDisplayActualValues(QUuid callId, QString transactionName);
 
 signals:
     void sigDatabaseError(QString errorString);
@@ -45,7 +46,6 @@ public slots:
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) = 0 ;
     virtual void onDeleteSession(QUuid callId, const QString &sessionName) = 0;
     virtual QVariant readSessionComponent(const QString &dbSessionName, const QString &entityName, const QString &componentName) = 0;
-    virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
 
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
     virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
@@ -56,6 +56,7 @@ private slots:
     virtual void onDeleteTransaction(QUuid callId, const QString &transactionName) = 0;
     virtual void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) = 0;
     virtual void onListAllSessions(QUuid callId) = 0;
+    virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
 private:
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 };
