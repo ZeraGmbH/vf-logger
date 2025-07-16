@@ -19,3 +19,11 @@ void VeinLogger::AbstractLoggerDB::startDisplaySessionsInfos(QUuid callId, const
                               Q_ARG(QString, sessionName));
 }
 
+void VeinLogger::AbstractLoggerDB::startListAllSessions(QUuid callId)
+{
+    QMetaObject::invokeMethod(this,
+                              "onListAllSessions",
+                              Qt::QueuedConnection,
+                              Q_ARG(QUuid, callId));
+}
+

@@ -1,15 +1,15 @@
 #include "rpclistallsessions.h"
+#include "vl_databaselogger.h"
 #include <vf-cpp-rpc-signature.h>
 
-RpcListAllSessions::RpcListAllSessions(VeinEvent::EventSystem *eventSystem,
-                                       int entityId,
-                                       std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    VfCpp::VfCppRpcSimplified(eventSystem,
+RpcListAllSessions::RpcListAllSessions(VeinLogger::DatabaseLogger *dbLogger,
+                                       int entityId) :
+    VfCpp::VfCppRpcSimplified(dbLogger,
                               entityId,
                               VfCpp::VfCppRpcSignature::createRpcSignature(
                                     "RPC_listAllSessions",
                                     VfCpp::VfCppRpcSignature::RPCParams({}))),
-    m_dbCmdInterface(dbCmdInterface)
+    m_dbLogger(dbLogger)
 {
 }
 
@@ -21,8 +21,8 @@ void RpcListAllSessions::callRPCFunction(const QUuid &callId, const QVariantMap 
 
 void RpcListAllSessions::RPC_listAllSessions(QUuid callId)
 {
-    if(m_dbCmdInterface->isDatabaseConnected())
-        emit m_dbCmdInterface->sigListAllSessions(callId);
+    if(m_dbLogger->isDatabaseReady())
+        m_dbLogger->getDb()->startListAllSessions(callId);
     else
         sendRpcError(callId, "Database is not set");
 }

@@ -44,9 +44,6 @@ public slots:
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
-    void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
-    void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
-    void onListAllSessions(QUuid callId) override;
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
 
     void onOpen(const QString &dbPath) override;
@@ -59,8 +56,12 @@ protected:
     virtual void addEntity(int entityId, QString entityName);
 
 private:
-    void initLocalData();
+    void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
+    void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
+    void onListAllSessions(QUuid callId) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
+
+    void initLocalData();
     bool hasEntityId(int entityId) const;
     bool hasComponentName(const QString &componentName) const;
     void addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component);
