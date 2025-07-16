@@ -933,7 +933,6 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
 
         //do not use QHash here, the sorted key lists are required
         QMultiMap<QVariant, QVariant> tmpSessionIds; //session_id, valuemap_id
-        QSet<int> activeTransactions;
         QMap<int, QVariant> tmpValues; //valuemap_id, component_value
 
         //code that is used in both loops
@@ -982,12 +981,6 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
             }
 
             m_dPtr->m_sessionMappingInsertQuery.finish();
-
-            // Add stop time to active transactions. we have to that here becaus a bathc might be written after the script is removed.
-            // The result is an sql conflict.
-            for(int id : activeTransactions.values()) {
-                addStopTime(id ,QDateTime::currentDateTime());
-            }
 
             if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code
                 emit sigDatabaseError(QString("Error in database transaction commit: %1").arg(m_dPtr->m_logDB.lastError().text()));
