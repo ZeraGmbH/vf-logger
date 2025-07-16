@@ -2,10 +2,12 @@
 #include <vf-cpp-rpc-signature.h>
 
 RpcDisplaySessionsInfos::RpcDisplaySessionsInfos(VeinEvent::EventSystem *eventSystem, int entityId, std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    m_dbCmdInterface(dbCmdInterface),
     VfCpp::VfCppRpcSimplified(eventSystem,
                               entityId,
-                              VfCpp::VfCppRpcSignature::createRpcSignature("RPC_displaySessionsInfos", VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}})))
+                              VfCpp::VfCppRpcSignature::createRpcSignature(
+                                  "RPC_displaySessionsInfos",
+                                  VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}}))),
+    m_dbCmdInterface(dbCmdInterface)
 {
 }
 

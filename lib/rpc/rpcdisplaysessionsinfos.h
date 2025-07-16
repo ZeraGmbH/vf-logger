@@ -7,7 +7,9 @@
 class RpcDisplaySessionsInfos : public VfCpp::VfCppRpcSimplified
 {
 public:
-    RpcDisplaySessionsInfos(VeinEvent::EventSystem *eventSystem, int entityId, std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface);
+    RpcDisplaySessionsInfos(VeinEvent::EventSystem *eventSystem,
+                            int entityId,
+                            std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface);
 private slots:
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
 private:
