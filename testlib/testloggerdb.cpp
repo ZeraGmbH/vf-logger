@@ -126,8 +126,10 @@ bool TestLoggerDB::addStopTime(int transactionId, QDateTime time)
 
 QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
 {
-    if(p_entity == "CustomerData" && p_component == "FileSelected")
+    Q_UNUSED(p_session)
+    if (p_entity == "CustomerData" && p_component == "FileSelected")
         return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
+    return QVariant();
 }
 
 void TestLoggerDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)
@@ -150,9 +152,9 @@ void TestLoggerDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionNa
 void TestLoggerDB::onDeleteTransaction(QUuid callId, const QString &transactionName)
 {
     bool deleted = false;
-    for(QString sessionName: m_sessions.keys()) {
-        if(m_sessions[sessionName].contains(transactionName)) {
-            m_sessions[sessionName].remove(transactionName);
+    for(Transactions &transactions : m_sessions) {
+        if(transactions.contains(transactionName)) {
+            transactions.remove(transactionName);
             deleted = true;
         }
     }
@@ -178,10 +180,9 @@ void TestLoggerDB::onDisplayActualValues(QUuid callId, const QString &transactio
 {
     bool transactionFound = false;
     QStringList contentsetList;
-    for(QString sessionName: m_sessions.keys()) {
-        if(m_sessions[sessionName].contains(transactionName)) {
-            Transactions transaction = m_sessions[sessionName];
-            TransactionInfo transactionInfo = transaction[transactionName];
+    for (const Transactions &transactions : qAsConst(m_sessions)) {
+        if (transactions.contains(transactionName)) {
+            TransactionInfo transactionInfo = transactions[transactionName];
             contentsetList = transactionInfo.contentSetList;
             transactionFound = true;
         }
@@ -289,7 +290,7 @@ void TestLoggerDB::onOpen(const QString &dbPath)
     fileForWatcher.close();
     m_openDbPath = dbPath;
     emit sigNewSessionList(m_dbSessionNames);
-    for(auto session: m_dbSessionNames)
+    for (const auto &session : qAsConst(m_dbSessionNames))
         m_sessions.insert(session, Transactions());
     TimeMachineObject::feedEventLoop();
 
