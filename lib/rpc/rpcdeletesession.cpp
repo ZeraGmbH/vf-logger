@@ -1,15 +1,15 @@
 #include "rpcdeletesession.h"
+#include "vl_databaselogger.h"
 #include <vf-cpp-rpc-signature.h>
 
-RpcDeleteSession::RpcDeleteSession(VeinEvent::EventSystem *eventSystem,
-                                   int entityId,
-                                   std::shared_ptr<VeinLogger::DatabaseCommandInterface> dbCmdInterface) :
-    VfCpp::VfCppRpcSimplified(eventSystem,
+RpcDeleteSession::RpcDeleteSession(VeinLogger::DatabaseLogger *dbLogger,
+                                   int entityId) :
+    VfCpp::VfCppRpcSimplified(dbLogger,
                               entityId,
                               VfCpp::VfCppRpcSignature::createRpcSignature(
                                   "RPC_deleteSession",
                                   VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}}))),
-    m_dbCmdInterface(dbCmdInterface)
+    m_dbLogger(dbLogger)
 {
 }
 
@@ -20,9 +20,9 @@ void RpcDeleteSession::callRPCFunction(const QUuid &callId, const QVariantMap &p
 
 void RpcDeleteSession::RPC_deleteSession(QUuid callId, QVariantMap parameters)
 {
-    if(m_dbCmdInterface->isDatabaseConnected()) {
+    if(m_dbLogger->isDatabaseReady()) {
         QString session = parameters["p_session"].toString();
-        emit m_dbCmdInterface->sigDeleteSession(callId, session);
+        emit m_dbLogger->getDb()->startDeleteSession(callId, session);
     }
     else
         sendRpcError(callId, "Database is not set");

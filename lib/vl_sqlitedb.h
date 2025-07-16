@@ -40,7 +40,6 @@ public:
 public slots:
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
-    void onDeleteSession(QUuid callId, const QString &session) override;
     int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
@@ -59,6 +58,7 @@ private:
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
     void onListAllSessions(QUuid callId) override;
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
+    void onDeleteSession(QUuid callId, const QString &session) override;
     bool addStopTime(int transactionId,  QDateTime time) override;
 
     void initLocalData();

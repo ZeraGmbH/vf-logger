@@ -35,3 +35,12 @@ void VeinLogger::AbstractLoggerDB::startDisplayActualValues(QUuid callId, QStrin
                               Q_ARG(QUuid, callId),
                               Q_ARG(QString, transactionName));
 }
+
+void VeinLogger::AbstractLoggerDB::startDeleteSession(QUuid callId, const QString &sessionName)
+{
+    QMetaObject::invokeMethod(this,
+                              "onDeleteSession",
+                              Qt::QueuedConnection,
+                              Q_ARG(QUuid, callId),
+                              Q_ARG(QString, sessionName));
+}

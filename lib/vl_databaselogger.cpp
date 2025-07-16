@@ -604,7 +604,7 @@ void DatabaseLogger::initOnce()
             emit sigSendEvent(systemEvent);
         }
 
-        m_rpcDeleteSession = std::make_shared<RpcDeleteSession>(this, m_entityId, m_dbCmdInterface);
+        m_rpcDeleteSession = std::make_shared<RpcDeleteSession>(this, m_entityId);
         m_rpcSimplifiedList[m_rpcDeleteSession->getSignature()] = m_rpcDeleteSession;
         m_rpcDisplaySessionsInfos = std::make_shared<RpcDisplaySessionsInfos>(this, m_entityId);
         m_rpcSimplifiedList[m_rpcDisplaySessionsInfos->getSignature()] = m_rpcDisplaySessionsInfos;
