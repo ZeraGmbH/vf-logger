@@ -7,9 +7,10 @@ namespace VeinLogger
 
 QList<LoggerContentSetConfig::LoggerContentConfigEntry> LoggerContentSetConfig::m_loggerConfigEnvironment;
 
-void LoggerContentSetConfig::setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler)
+void LoggerContentSetConfig::setJsonEnvironment(const QString &configFileDir,
+                                                std::shared_ptr<LoggerContentHandler> loggerContentHandler)
 {
-    for(LoggerContentConfigEntry config: m_loggerConfigEnvironment) {
+    for (const LoggerContentConfigEntry &config : qAsConst(m_loggerConfigEnvironment)) {
         if(config.m_configFileDir == configFileDir) {
             qInfo() << "VeinLogger - the config path" << configFileDir << "is already set.";
             return;
@@ -59,8 +60,8 @@ QMap<int, QStringList> LoggerContentSetConfig::EntitiesComponentsLoggedFromConte
 
     for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment()) {
         confEnv.m_loggerContentHandler->setSession(sessionDeviceName);
-        QStringList availableContentsets = confEnv.m_loggerContentHandler->getAvailableContentSets();
-        for(auto availContenset : availableContentsets)
+        const QStringList availableContentsets = confEnv.m_loggerContentHandler->getAvailableContentSets();
+        for (const auto &availContenset : availableContentsets)
             if(availContenset == contentSet)
                 return confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
     }

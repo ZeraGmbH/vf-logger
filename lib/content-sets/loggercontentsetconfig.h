@@ -10,7 +10,8 @@ namespace VeinLogger
 class LoggerContentSetConfig
 {
 public:
-    static void setJsonEnvironment(const QString configFileDir, std::shared_ptr<LoggerContentHandler> loggerContentHandler);
+    static void setJsonEnvironment(const QString &configFileDir,
+                                   std::shared_ptr<LoggerContentHandler> loggerContentHandler);
     struct LoggerContentConfigEntry {
         QString m_configFileDir;
         std::shared_ptr<LoggerContentHandler> m_loggerContentHandler;
