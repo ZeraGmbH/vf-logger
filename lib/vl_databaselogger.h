@@ -65,7 +65,7 @@ private:
     void handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
-    QString handleVeinDbSessionNameSet(QString sessionName);
+    void handleVeinDbSessionNameSet(QString sessionName);
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();

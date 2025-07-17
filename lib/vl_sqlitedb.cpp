@@ -89,26 +89,6 @@ class DBPrivate
         return doubleListValue;
     }
 
-
-    QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component){
-        QVariant retVal;
-        if(m_logDB.isOpen()){
-            m_sessionCustomerQuery.bindValue(":sessionname",p_session);
-            m_sessionCustomerQuery.bindValue(":entity",p_entity);
-            m_sessionCustomerQuery.bindValue(":component",p_component);
-            if (!m_sessionCustomerQuery.exec()){
-                QString err=m_sessionCustomerQuery.lastError().text();
-                return retVal;
-            }
-
-            while(m_sessionCustomerQuery.next()){
-                int fieldNo = m_sessionCustomerQuery.record().indexOf("component_value");
-                retVal=m_sessionCustomerQuery.value(fieldNo);
-            }
-        }
-        return retVal;
-    }
-
     QHash<QString, int> m_sessionIds;
     QHash<int, QString> m_transactionIds;
     QVector<int> m_entityIds;
@@ -547,11 +527,6 @@ void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transacti
         sessionId = newSession;
     }
     addLoggedValue(sessionId, transactionIds, component);
-}
-
-QVariant SQLiteDB::readSessionComponent(const QString &session, const QString &enity, const QString &component)
-{
-    return m_dPtr->readSessionComponent(session, enity, component);
 }
 
 void SQLiteDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)

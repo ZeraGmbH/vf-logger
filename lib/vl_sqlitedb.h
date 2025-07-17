@@ -42,7 +42,6 @@ public slots:
     bool addStartTime(int transactionId, QDateTime time) override;
     int addSession(const QString &sessionName, QList<ComponentInfo> componentsStoredOncePerSession) override;
     void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, ComponentInfo component) override;
-    QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);

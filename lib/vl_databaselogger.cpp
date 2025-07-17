@@ -164,22 +164,16 @@ void DatabaseLogger::processEvent(QEvent *event)
                     }
                     else if(componentName == LoggerStaticTexts::s_sessionNameComponentName) {
                         m_dbSessionName = newValue.toString();
-                        QEvent *event;
-                        event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_sessionNameComponentName,
-                                                                       cData->oldValue(), newValue);
+                        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_sessionNameComponentName,
+                                                                               cData->oldValue(), newValue);
                         emit sigSendEvent(event);
 
-                        QVariant sessionCustomerDataName = "";
-                        if(!m_dbSessionName.isEmpty()) {
+                        if (!m_dbSessionName.isEmpty()) {
                             if(m_dbReady)
-                                sessionCustomerDataName = handleVeinDbSessionNameSet(m_dbSessionName);
+                                handleVeinDbSessionNameSet(m_dbSessionName);
                             else
                                 qWarning("Cannot set session '%s' - database is not ready yet!", qPrintable(m_dbSessionName));
                         }
-
-                        event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_customerDataComponentName,
-                                                                       QVariant(), sessionCustomerDataName);
-                        emit sigSendEvent(event);
                     }
                     else if(componentName == LoggerStaticTexts::s_guiContextComponentName) {
                         m_guiContext = newValue.toString();
@@ -616,9 +610,8 @@ void DatabaseLogger::handleLoggedComponentsChange(QVariant newValue)
     }
 }
 
-QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
+void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
-    QString sessionCustomerDataName;
     if(!m_database->hasSessionName(sessionName)) {
         QMultiHash<int, QString> tmpStaticComps;
         const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
@@ -645,13 +638,8 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
                 componentsAddedOncePerSession.append(component);
             }
         }
-
-        sessionCustomerDataName = storageDb->getStoredValue(200, "FileSelected").toString();
         emit sigAddSession(sessionName, componentsAddedOncePerSession);
     }
-    else
-        sessionCustomerDataName = m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();
-    return sessionCustomerDataName;
 }
 
 bool DatabaseLogger::checkConditionsForStartLog() const

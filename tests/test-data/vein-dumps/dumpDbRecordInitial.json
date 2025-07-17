@@ -1,6 +1,6 @@
 {
     "2": {
-        "CustomerData": "/tmp/test-vf-logger-customerdata/test_customer_data.json",
+        "CustomerData": "",
         "DatabaseFile": "/tmp/veindb-test/DB_NAME_OPEN_OK",
         "DatabaseReady": true,
         "EntityName": "_LoggingSystem",

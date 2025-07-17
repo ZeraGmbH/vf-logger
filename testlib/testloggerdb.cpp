@@ -124,14 +124,6 @@ bool TestLoggerDB::addStopTime(int transactionId, QDateTime time)
     return true;
 }
 
-QVariant TestLoggerDB::readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component)
-{
-    Q_UNUSED(p_session)
-    if (p_entity == "CustomerData" && p_component == "FileSelected")
-        return TestLoggerSystem::getCustomerDataPath() + "test_customer_data.json";
-    return QVariant();
-}
-
 void TestLoggerDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)
 {
     if(!m_sessions.contains(sessionName))
