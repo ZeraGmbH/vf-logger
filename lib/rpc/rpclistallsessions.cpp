@@ -11,12 +11,28 @@ RpcListAllSessions::RpcListAllSessions(VeinLogger::DatabaseLogger *dbLogger,
                                     VfCpp::VfCppRpcSignature::RPCParams({}))),
     m_dbLogger(dbLogger)
 {
+    connect(m_dbLogger, &VeinLogger::DatabaseLogger::sigOpenDatabase,
+            this, &RpcListAllSessions::onOpenDatabase);
+}
+
+void RpcListAllSessions::onOpenDatabase()
+{
+    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigListAllSessionsCompleted,
+            this, &RpcListAllSessions::onListAllSessionsCompleted, Qt::QueuedConnection);
 }
 
 void RpcListAllSessions::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     Q_UNUSED(parameters)
     RPC_listAllSessions(callId);
+}
+
+void RpcListAllSessions::onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions)
+{
+    if(success)
+        sendRpcResult(callId, sessions.toVariantList());
+    else
+        sendRpcError(callId, errorMsg);
 }
 
 void RpcListAllSessions::RPC_listAllSessions(QUuid callId)
