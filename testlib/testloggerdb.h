@@ -26,8 +26,8 @@ public:
     bool addStartTime(int transactionId, QDateTime time) override;
 
     QVariant readSessionComponent(const QString &p_session, const QString &p_entity, const QString &p_component) override;
-    int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
-    void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
+    int addSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) override;
+    void addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component) override;
     void setNextValueWriteCount(int newValueWriteCount);
 
     void onOpen(const QString &dbPath) override;

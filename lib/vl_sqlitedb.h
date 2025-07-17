@@ -40,8 +40,8 @@ public:
 public slots:
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool addStartTime(int transactionId, QDateTime time) override;
-    int addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession) override;
-    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component) override;
+    int addSession(const QString &sessionName, QList<ComponentInfo> componentsStoredOncePerSession) override;
+    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, ComponentInfo component) override;
     QVariant readSessionComponent(const QString &session, const QString &enity, const QString &component) override;
 
     void onOpen(const QString &dbPath) override;
@@ -63,8 +63,8 @@ private:
     void initLocalData();
     bool hasEntityId(int entityId) const;
     bool hasComponentName(const QString &componentName) const;
-    void addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component);
-    void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const DatabaseCommandInterface::ComponentInfo &component);
+    void addEntityComponent(const ComponentInfo &component);
+    void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
     QStringList getContentsetList(const QString &transactionName);
 

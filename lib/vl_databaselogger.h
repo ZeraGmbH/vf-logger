@@ -36,9 +36,12 @@ public:
     bool isDatabaseReady() const;
     bool checkConditionsForStartLog() const;
 
+
 signals:
     void sigOpenDatabase(const QString &filePath);
     void sigDatabaseError(const QString &errorMsg);
+    void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, ComponentInfo component);
+    void sigAddSession(const QString &sessionName, QList<ComponentInfo> staticData);
     void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
 public slots:
     void setLoggingEnabled(bool enabled);
@@ -85,7 +88,6 @@ private:
     std::shared_ptr<RpcDisplayActualValues> m_rpcDisplayActualValues;
 
     DBFactory m_databaseFactory;
-    std::shared_ptr<DatabaseCommandInterface> m_dbCmdInterface;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
     AbstractLoggerDB *m_database = nullptr;
     QThread m_asyncDatabaseThread;
