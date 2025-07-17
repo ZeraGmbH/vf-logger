@@ -416,11 +416,8 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
 
 void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList)
 {
-    if(success)
-        m_rpcDeleteSession->sendRpcResult(callId, true);
-    else
-        m_rpcDeleteSession->sendRpcError(callId, errorMsg);
-
+    Q_UNUSED(callId)
+    Q_UNUSED(errorMsg)
     // check if deleted session is current Session and if it is set sessionName empty
     // We will not check retVal here. If something goes wrong and the session is still available the
     // user can choose it again without risking undefined behavior.
@@ -437,6 +434,7 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
     }
     if(success)
         updateSessionList(newSessionsList);
+    emit sigDeleteSessionCompleted(callId, success, errorMsg);
 }
 
 void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)

@@ -38,7 +38,8 @@ public:
 
 signals:
     void sigOpenDatabase(const QString &filePath);
-    void sigDatabaseError(const QString &errorMsg); // for comptibility - make it go
+    void sigDatabaseError(const QString &errorMsg);
+    void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
