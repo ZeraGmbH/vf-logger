@@ -53,7 +53,6 @@ private slots:
     void checkDatabaseStillValid();
     void updateSessionList(QStringList sessionNames);
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
-    void onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
     void onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
 private:
     void openDatabase(const QString &filePath);

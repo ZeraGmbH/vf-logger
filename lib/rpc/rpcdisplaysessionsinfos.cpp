@@ -10,11 +10,27 @@ RpcDisplaySessionsInfos::RpcDisplaySessionsInfos(VeinLogger::DatabaseLogger *dbL
                                   VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}}))),
     m_dbLogger(dbLogger)
 {
+    connect(m_dbLogger, &VeinLogger::DatabaseLogger::sigOpenDatabase,
+            this, &RpcDisplaySessionsInfos::onOpenDatabase);
+}
+
+void RpcDisplaySessionsInfos::onOpenDatabase()
+{
+    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDisplaySessionInfosCompleted,
+            this, &RpcDisplaySessionsInfos::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
 }
 
 void RpcDisplaySessionsInfos::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_displaySessionsInfos(callId, parameters);
+}
+
+void RpcDisplaySessionsInfos::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
+{
+    if(success)
+        sendRpcResult(callId, infos.toVariantMap());
+    else
+        sendRpcError(callId, errorMsg);
 }
 
 void RpcDisplaySessionsInfos::RPC_displaySessionsInfos(QUuid callId, QVariantMap parameters)
