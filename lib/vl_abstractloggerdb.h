@@ -1,7 +1,6 @@
 #ifndef VEINLOGGER_ABSTRACTLOGGERDB_H
 #define VEINLOGGER_ABSTRACTLOGGERDB_H
 
-#include "databasecommandinterface.h"
 #include <QObject>
 #include <QVector>
 #include <QDateTime>
@@ -13,6 +12,17 @@
 
 namespace VeinLogger
 {
+
+struct ComponentInfo
+{
+    int entityId;
+    QString entityName;
+    QString componentName;
+    QVariant value;
+    QDateTime timestamp;
+};
+
+
 class AbstractLoggerDB : public QObject
 {
     Q_OBJECT

@@ -1,7 +1,6 @@
 #ifndef VL_DATALOGGER_H
 #define VL_DATALOGGER_H
 
-#include "databasecommandinterface.h"
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include "vl_loggedcomponents.h"
