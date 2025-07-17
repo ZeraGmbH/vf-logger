@@ -16,7 +16,6 @@ public:
     static const QLatin1String s_scheduledLoggingCountdownComponentName;
     static const QLatin1String s_existingSessionsComponentName;
 
-    static const QLatin1String s_customerDataComponentName;
     static const QLatin1String s_sessionNameComponentName;
     static const QLatin1String s_guiContextComponentName;
     static const QLatin1String s_transactionNameComponentName;

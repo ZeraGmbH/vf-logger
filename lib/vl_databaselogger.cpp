@@ -384,11 +384,6 @@ void DatabaseLogger::closeDatabase()
     m_databaseFilePath.clear();
     dbNameToVein(m_databaseFilePath);
 
-    // set CustomerData component empty
-    event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_customerDataComponentName,
-                                                           QVariant(), QString());
-    emit sigSendEvent(event);
-
     updateSessionList(QStringList());
 
     qInfo() << "Unloaded database:" << closedDb;
@@ -540,7 +535,6 @@ void DatabaseLogger::initOnce()
         componentData.insert(LoggerStaticTexts::s_scheduledLoggingDurationComponentName, QVariant());
         componentData.insert(LoggerStaticTexts::s_scheduledLoggingCountdownComponentName, QVariant(0));
         componentData.insert(LoggerStaticTexts::s_existingSessionsComponentName, QStringList());
-        componentData.insert(LoggerStaticTexts::s_customerDataComponentName, QString());
         componentData.insert(LoggerStaticTexts::loggedComponentsComponentName, QVariantMap());
 
         // TODO: Add more from modulemanager

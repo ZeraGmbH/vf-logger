@@ -9,7 +9,6 @@ const QLatin1String LoggerStaticTexts::s_scheduledLoggingEnabledComponentName = 
 const QLatin1String LoggerStaticTexts::s_scheduledLoggingDurationComponentName = QLatin1String("ScheduledLoggingDuration");
 const QLatin1String LoggerStaticTexts::s_scheduledLoggingCountdownComponentName = QLatin1String("ScheduledLoggingCountdown");
 const QLatin1String LoggerStaticTexts::s_existingSessionsComponentName = QLatin1String("ExistingSessions");
-const QLatin1String LoggerStaticTexts::s_customerDataComponentName = QLatin1String("CustomerData");
 const QLatin1String LoggerStaticTexts::s_sessionNameComponentName = QLatin1String("sessionName");
 const QLatin1String LoggerStaticTexts::s_guiContextComponentName = QLatin1String("guiContext");
 const QLatin1String LoggerStaticTexts::s_transactionNameComponentName = QLatin1String("transactionName");

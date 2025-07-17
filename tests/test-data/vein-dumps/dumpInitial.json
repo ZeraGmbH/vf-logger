@@ -101,7 +101,6 @@
         "EntityName": "EntityName12"
     },
     "2": {
-        "CustomerData": "",
         "DatabaseFile": "",
         "DatabaseReady": false,
         "EntityName": "_LoggingSystem",
