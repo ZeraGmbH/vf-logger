@@ -23,7 +23,12 @@ void RpcDisplayActualValues::onOpenDatabase()
 
 void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
-    RPC_displayActualValues(callId, parameters);
+    if(m_dbLogger->isDatabaseReady()) {
+        QString transaction = parameters["p_transaction"].toString();
+        m_dbLogger->getDb()->startDisplayActualValues(callId, transaction);
+    }
+    else
+        sendRpcError(callId, "Database is not set");
 }
 
 void RpcDisplayActualValues::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values)
@@ -32,14 +37,4 @@ void RpcDisplayActualValues::onDisplayActualValuesCompleted(QUuid callId, bool s
         sendRpcResult(callId, values.toVariantMap());
     else
         sendRpcError(callId, errorMsg);
-}
-
-void RpcDisplayActualValues::RPC_displayActualValues(QUuid callId, QVariantMap parameters)
-{
-    if(m_dbLogger->isDatabaseReady()) {
-        QString transaction = parameters["p_transaction"].toString();
-        m_dbLogger->getDb()->startDisplayActualValues(callId, transaction);
-    }
-    else
-        sendRpcError(callId, "Database is not set");
 }

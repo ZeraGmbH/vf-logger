@@ -17,7 +17,6 @@ private slots:
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
 private:
-    void RPC_listAllSessions(QUuid callId);
     VeinLogger::DatabaseLogger *m_dbLogger;
 };
 

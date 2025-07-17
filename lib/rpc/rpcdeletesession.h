@@ -16,7 +16,6 @@ private slots:
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
 private:
-    void RPC_deleteSession(QUuid callId, QVariantMap parameters);
     VeinLogger::DatabaseLogger *m_dbLogger;
 };
 
