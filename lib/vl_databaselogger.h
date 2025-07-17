@@ -53,7 +53,6 @@ private slots:
     void checkDatabaseStillValid();
     void updateSessionList(QStringList sessionNames);
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
-    void onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
 private:
     void openDatabase(const QString &filePath);
     QString getEntityName(int entityId) const;
