@@ -11,6 +11,8 @@
 #include <QStorageInfo>
 #include <QJsonDocument>
 
+Q_DECLARE_METATYPE(VeinLogger::ComponentInfo)
+
 namespace VeinLogger
 {
 DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
@@ -24,7 +26,6 @@ DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
     m_storageMode(storageMode),
     m_loggedComponents(entitiesWithAllComponentsStoredAlways)
 {
-    m_dbCmdInterface = std::make_shared<DatabaseCommandInterface>();
     switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT:
         m_entityId = 2;
@@ -344,14 +345,16 @@ void DatabaseLogger::openDatabase(const QString &filePath)
             m_asyncDatabaseThread.start();
         }
 
-        m_dbCmdInterface->connectDb(m_database);
         connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
+        connect(this, &DatabaseLogger::sigAddLoggedValue, m_database, &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
+        connect(this, &DatabaseLogger::sigAddSession, m_database, &AbstractLoggerDB::addSession, Qt::QueuedConnection);
+        connect(this, &DatabaseLogger::sigOpenDatabase, m_database, &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
+
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
 
-        emit m_dbCmdInterface->sigOpenDatabase(filePath);
         emit sigOpenDatabase(filePath);
     }
 }
@@ -628,11 +631,11 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
             for(const QString &comp : getComponentsFilteredForDb(1150))
                 tmpStaticComps.insert(1150, comp);
 
-        QList<DatabaseCommandInterface::ComponentInfo> componentsAddedOncePerSession;
+        QList<ComponentInfo> componentsAddedOncePerSession;
         for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
             const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
             for(const QString &tmpComponentName : tmpComponents) {
-                DatabaseCommandInterface::ComponentInfo component = {
+                ComponentInfo component = {
                     tmpEntityId,
                     getEntityName(tmpEntityId),
                     tmpComponentName,
@@ -644,7 +647,7 @@ QString DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
         }
 
         sessionCustomerDataName = storageDb->getStoredValue(200, "FileSelected").toString();
-        emit m_dbCmdInterface->sigAddSession(sessionName, componentsAddedOncePerSession);
+        emit sigAddSession(sessionName, componentsAddedOncePerSession);
     }
     else
         sessionCustomerDataName = m_database->readSessionComponent(sessionName,"CustomerData", "FileSelected").toString();
@@ -707,8 +710,8 @@ void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, c
 {
     if(m_loggedComponents.isLoggedComponent(entityId, componentName)) {
         QString entityName = getEntityName(entityId);
-        DatabaseCommandInterface::ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
-        emit m_dbCmdInterface->sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
+        ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
+        emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
     }
 }
 

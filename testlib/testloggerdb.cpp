@@ -205,16 +205,16 @@ void TestLoggerDB::onDisplayActualValues(QUuid callId, const QString &transactio
         emit sigDisplayActualValuesCompleted(callId, false, "Select an existing transaction", QJsonObject());
 }
 
-int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
+int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession)
 {
     // for vf-logger
     m_dbSessionNames.append(sessionName);
     emit sigNewSessionList(m_dbSessionNames);
     m_sessions.insert(sessionName, Transactions());
 
-    QMap<QString, VeinLogger::DatabaseCommandInterface::ComponentInfo> componentValuesSorted;
+    QMap<QString, VeinLogger::ComponentInfo> componentValuesSorted;
     for(int i=0; i<componentsStoredOncePerSession.count(); i++) {
-        VeinLogger::DatabaseCommandInterface::ComponentInfo variantEntry = componentsStoredOncePerSession[i];
+        VeinLogger::ComponentInfo variantEntry = componentsStoredOncePerSession[i];
         Q_ASSERT(variantEntry.timestamp.isValid());
         // timestamps must be there but are not suited for textfile dumps
         variantEntry.timestamp = QDateTime::fromSecsSinceEpoch(m_valueWriteCount, Qt::UTC);
@@ -253,7 +253,7 @@ void TestLoggerDB::onDeleteSession(QUuid callId, const QString &session)
     }
 }
 
-void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::DatabaseCommandInterface::ComponentInfo component)
+void TestLoggerDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component)
 {
     if(!transactionIds.contains(testTransactionId))
         qFatal("Unexpected transaction ids!");

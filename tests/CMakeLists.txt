@@ -29,7 +29,6 @@ SETUP_TESTS(
     test_loggercontentsessionloader
     test_testdatabase
     test_testlib_testloggersystem
-    test_db_command_interface_meta_registered
     test_loggedcomponents
     test_entities_stored_always
     test_mockandsqlitedatabase

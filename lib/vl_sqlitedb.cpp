@@ -375,7 +375,7 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
         sessionId=m_dPtr->m_sessionIds.value(sessionName);
     }
     else {
-        int newSession = addSession(sessionName, QList<DatabaseCommandInterface::ComponentInfo>());
+        int newSession = addSession(sessionName, QList<ComponentInfo>());
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }
@@ -455,7 +455,7 @@ void SQLiteDB::onDeleteSession(QUuid callId, const QString &session)
     }
 }
 
-int SQLiteDB::addSession(const QString &sessionName, QList<DatabaseCommandInterface::ComponentInfo> componentsStoredOncePerSession)
+int SQLiteDB::addSession(const QString &sessionName, QList<ComponentInfo> componentsStoredOncePerSession)
 {
     int retVal = -1;
     if(m_dPtr->m_sessionIds.contains(sessionName) == false) {
@@ -504,7 +504,7 @@ int SQLiteDB::addSession(const QString &sessionName, QList<DatabaseCommandInterf
     return retVal;
 }
 
-void VeinLogger::SQLiteDB::addEntityComponent(const DatabaseCommandInterface::ComponentInfo &component)
+void VeinLogger::SQLiteDB::addEntityComponent(const ComponentInfo &component)
 {
     if(!hasEntityId(component.entityId))
         addEntity(component.entityId, component.entityName);
@@ -512,7 +512,7 @@ void VeinLogger::SQLiteDB::addEntityComponent(const DatabaseCommandInterface::Co
         addComponent(component.componentName);
 }
 
-void SQLiteDB::addLoggedValue(int sessionId, const QVector<int> &t_transactionIds, const DatabaseCommandInterface::ComponentInfo &component)
+void SQLiteDB::addLoggedValue(int sessionId, const QVector<int> &t_transactionIds, const ComponentInfo &component)
 {
     addEntityComponent(component);
 
@@ -535,14 +535,14 @@ void SQLiteDB::addLoggedValue(int sessionId, const QVector<int> &t_transactionId
     m_dPtr->m_batchVector.append(batchData);
 }
 
-void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, DatabaseCommandInterface::ComponentInfo component)
+void SQLiteDB::addLoggedValue(const QString &sessionName, QVector<int> transactionIds, ComponentInfo component)
 {
     int sessionId = 0;
     if(m_dPtr->m_sessionIds.contains(sessionName)) {
         sessionId=m_dPtr->m_sessionIds.value(sessionName);
     }
     else {
-        int newSession = addSession(sessionName,QList<DatabaseCommandInterface::ComponentInfo>());
+        int newSession = addSession(sessionName,QList<ComponentInfo>());
         Q_ASSERT(newSession >= 0);
         sessionId = newSession;
     }
