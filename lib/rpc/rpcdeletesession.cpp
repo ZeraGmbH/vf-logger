@@ -11,11 +11,21 @@ RpcDeleteSession::RpcDeleteSession(VeinLogger::DatabaseLogger *dbLogger,
                                   VfCpp::VfCppRpcSignature::RPCParams({{"p_session", "QString"}}))),
     m_dbLogger(dbLogger)
 {
+    connect(m_dbLogger, &VeinLogger::DatabaseLogger::sigDeleteSessionCompleted,
+            this, &RpcDeleteSession::onDeleteSessionCompleted, Qt::QueuedConnection);
 }
 
 void RpcDeleteSession::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     RPC_deleteSession(callId, parameters);
+}
+
+void RpcDeleteSession::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg)
+{
+    if(success)
+        sendRpcResult(callId, true);
+    else
+        sendRpcError(callId, errorMsg);
 }
 
 void RpcDeleteSession::RPC_deleteSession(QUuid callId, QVariantMap parameters)
