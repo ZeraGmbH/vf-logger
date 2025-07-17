@@ -17,7 +17,12 @@ RpcDeleteSession::RpcDeleteSession(VeinLogger::DatabaseLogger *dbLogger,
 
 void RpcDeleteSession::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
-    RPC_deleteSession(callId, parameters);
+    if(m_dbLogger->isDatabaseReady()) {
+        QString session = parameters["p_session"].toString();
+        emit m_dbLogger->getDb()->startDeleteSession(callId, session);
+    }
+    else
+        sendRpcError(callId, "Database is not set");
 }
 
 void RpcDeleteSession::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg)
@@ -28,12 +33,3 @@ void RpcDeleteSession::onDeleteSessionCompleted(QUuid callId, bool success, QStr
         sendRpcError(callId, errorMsg);
 }
 
-void RpcDeleteSession::RPC_deleteSession(QUuid callId, QVariantMap parameters)
-{
-    if(m_dbLogger->isDatabaseReady()) {
-        QString session = parameters["p_session"].toString();
-        emit m_dbLogger->getDb()->startDeleteSession(callId, session);
-    }
-    else
-        sendRpcError(callId, "Database is not set");
-}

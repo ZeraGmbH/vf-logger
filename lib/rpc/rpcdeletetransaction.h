@@ -16,7 +16,6 @@ private slots:
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
 private:
-    void RPC_deleteTransaction(QUuid callId, QVariantMap parameters);
     VeinLogger::DatabaseLogger *m_dbLogger;
 };
 

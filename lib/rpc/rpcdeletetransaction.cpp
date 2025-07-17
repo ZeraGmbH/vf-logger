@@ -23,7 +23,12 @@ void RpcDeleteTransaction::onOpenDatabase()
 
 void RpcDeleteTransaction::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
-    RPC_deleteTransaction(callId, parameters);
+    if(m_dbLogger->isDatabaseReady()) {
+        QString transaction = parameters["p_transaction"].toString();
+        m_dbLogger->getDb()->startDeleteTransaction(callId, transaction);
+    }
+    else
+        sendRpcError(callId, "Database is not set");
 }
 
 void RpcDeleteTransaction::onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg)
@@ -32,14 +37,4 @@ void RpcDeleteTransaction::onDeleteTransactionCompleted(QUuid callId, bool succe
         sendRpcResult(callId, true);
     else
         sendRpcError(callId, errorMsg);
-}
-
-void RpcDeleteTransaction::RPC_deleteTransaction(QUuid callId, QVariantMap parameters)
-{
-    if(m_dbLogger->isDatabaseReady()) {
-        QString transaction = parameters["p_transaction"].toString();
-        m_dbLogger->getDb()->startDeleteTransaction(callId, transaction);
-    }
-    else
-        sendRpcError(callId, "Database is not set");
 }

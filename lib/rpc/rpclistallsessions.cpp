@@ -24,7 +24,10 @@ void RpcListAllSessions::onOpenDatabase()
 void RpcListAllSessions::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     Q_UNUSED(parameters)
-    RPC_listAllSessions(callId);
+    if(m_dbLogger->isDatabaseReady())
+        m_dbLogger->getDb()->startListAllSessions(callId);
+    else
+        sendRpcError(callId, "Database is not set");
 }
 
 void RpcListAllSessions::onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions)
@@ -33,12 +36,4 @@ void RpcListAllSessions::onListAllSessionsCompleted(QUuid callId, bool success, 
         sendRpcResult(callId, sessions.toVariantList());
     else
         sendRpcError(callId, errorMsg);
-}
-
-void RpcListAllSessions::RPC_listAllSessions(QUuid callId)
-{
-    if(m_dbLogger->isDatabaseReady())
-        m_dbLogger->getDb()->startListAllSessions(callId);
-    else
-        sendRpcError(callId, "Database is not set");
 }

@@ -22,7 +22,12 @@ void RpcDisplaySessionsInfos::onOpenDatabase()
 
 void RpcDisplaySessionsInfos::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
-    RPC_displaySessionsInfos(callId, parameters);
+    if(m_dbLogger->isDatabaseReady()) {
+        QString session = parameters["p_session"].toString();
+        m_dbLogger->getDb()->startDisplaySessionsInfos(callId, session);
+    }
+    else
+        sendRpcError(callId, "Database is not set");
 }
 
 void RpcDisplaySessionsInfos::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
@@ -31,14 +36,4 @@ void RpcDisplaySessionsInfos::onDisplaySessionInfosCompleted(QUuid callId, bool 
         sendRpcResult(callId, infos.toVariantMap());
     else
         sendRpcError(callId, errorMsg);
-}
-
-void RpcDisplaySessionsInfos::RPC_displaySessionsInfos(QUuid callId, QVariantMap parameters)
-{
-    if(m_dbLogger->isDatabaseReady()) {
-        QString session = parameters["p_session"].toString();
-        m_dbLogger->getDb()->startDisplaySessionsInfos(callId, session);
-    }
-    else
-        sendRpcError(callId, "Database is not set");
 }
