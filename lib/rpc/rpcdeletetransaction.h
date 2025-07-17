@@ -12,8 +12,8 @@ class RpcDeleteTransaction : public VfCpp::VfCppRpcSimplified
 public:
     RpcDeleteTransaction(VeinLogger::DatabaseLogger *dbLogger, int entityId);
 private slots:
-    void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onOpenDatabase();
+    void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
 private:
     void RPC_deleteTransaction(QUuid callId, QVariantMap parameters);

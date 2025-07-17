@@ -13,8 +13,8 @@ public:
     RpcDisplayActualValues(VeinLogger::DatabaseLogger *dbLogger,
                            int entityId);
 private slots:
-    void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onOpenDatabase();
+    void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
     void onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
 private:
     void RPC_displayActualValues(QUuid callId, QVariantMap parameters);

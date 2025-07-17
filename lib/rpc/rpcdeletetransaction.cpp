@@ -15,15 +15,15 @@ RpcDeleteTransaction::RpcDeleteTransaction(VeinLogger::DatabaseLogger *dbLogger,
             this, &RpcDeleteTransaction::onOpenDatabase);
 }
 
-void RpcDeleteTransaction::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
-{
-    RPC_deleteTransaction(callId, parameters);
-}
-
 void RpcDeleteTransaction::onOpenDatabase()
 {
     connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDeleteTransactionCompleted,
             this, &RpcDeleteTransaction::onDeleteTransactionCompleted, Qt::QueuedConnection);
+}
+
+void RpcDeleteTransaction::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
+{
+    RPC_deleteTransaction(callId, parameters);
 }
 
 void RpcDeleteTransaction::onDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg)

@@ -15,15 +15,15 @@ RpcDisplayActualValues::RpcDisplayActualValues(VeinLogger::DatabaseLogger *dbLog
             this, &RpcDisplayActualValues::onOpenDatabase);
 }
 
-void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
-{
-    RPC_displayActualValues(callId, parameters);
-}
-
 void RpcDisplayActualValues::onOpenDatabase()
 {
     connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDisplayActualValuesCompleted,
             this, &RpcDisplayActualValues::onDisplayActualValuesCompleted, Qt::QueuedConnection);
+}
+
+void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
+{
+    RPC_displayActualValues(callId, parameters);
 }
 
 void RpcDisplayActualValues::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values)
