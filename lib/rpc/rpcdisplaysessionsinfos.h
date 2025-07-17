@@ -13,7 +13,9 @@ class RpcDisplaySessionsInfos : public VfCpp::VfCppRpcSimplified
 public:
     RpcDisplaySessionsInfos(VeinLogger::DatabaseLogger *dbLogger, int entityId);
 private slots:
+    void onOpenDatabase();
     void callRPCFunction(const QUuid &callId, const QVariantMap &parameters) override;
+    void onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
 private:
     void RPC_displaySessionsInfos(QUuid callId, QVariantMap parameters);
     VeinLogger::DatabaseLogger *m_dbLogger;

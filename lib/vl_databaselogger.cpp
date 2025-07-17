@@ -349,7 +349,6 @@ void DatabaseLogger::openDatabase(const QString &filePath)
         connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
-        connect(m_database, &AbstractLoggerDB::sigDisplaySessionInfosCompleted, this, &DatabaseLogger::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
         connect(m_database, &AbstractLoggerDB::sigListAllSessionsCompleted, this, &DatabaseLogger::onListAllSessionsCompleted, Qt::QueuedConnection);
         connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
 
@@ -435,14 +434,6 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
     if(success)
         updateSessionList(newSessionsList);
     emit sigDeleteSessionCompleted(callId, success, errorMsg);
-}
-
-void DatabaseLogger::onDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos)
-{
-    if(success)
-        m_rpcDisplaySessionsInfos->sendRpcResult(callId, infos.toVariantMap());
-    else
-        m_rpcDisplaySessionsInfos->sendRpcError(callId, errorMsg);
 }
 
 void DatabaseLogger::onListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions)
