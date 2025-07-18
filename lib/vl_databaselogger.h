@@ -33,8 +33,6 @@ public:
 
     AbstractLoggerDB *getDb() const;
     bool isDatabaseReady() const;
-    QStringList checkConditionsForStartLog() const;
-
 
 signals:
     void sigOpenDatabase(const QString &filePath);
@@ -56,6 +54,7 @@ private slots:
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
 private:
     void openDatabase(const QString &filePath);
+    QStringList checkConditionsForStartLog() const;
     QString getEntityName(int entityId) const;
     void dbNameToVein(const QString &filePath);
     void statusTextToVein(const QString &status);
