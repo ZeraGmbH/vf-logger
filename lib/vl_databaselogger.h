@@ -39,8 +39,8 @@ public:
 signals:
     void sigOpenDatabase(const QString &filePath);
     void sigDatabaseError(const QString &errorMsg);
-    void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, ComponentInfo component);
-    void sigAddSession(const QString &sessionName, QList<ComponentInfo> staticData);
+    void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component);
+    void sigAddSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> staticData);
     void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
 public slots:
     void setLoggingEnabled(bool enabled);
