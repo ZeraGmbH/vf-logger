@@ -514,7 +514,8 @@ void DatabaseLogger::initOnce()
         componentData.insert(LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList());
         componentData.insert(LoggerStaticTexts::s_availableContentSetsComponentName, QVariantList());
 
-        for(const QString &componentName : componentData.keys()) {
+        for (auto iter = componentData.keyBegin(); iter != componentData.keyEnd(); iter++) {
+            const QString &componentName = *iter;
             QEvent *addEvent = VfServerComponentAdd::generateEvent(m_entityId, componentName, componentData.value(componentName));
             emit sigSendEvent(addEvent);
         }
