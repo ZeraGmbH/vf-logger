@@ -1,12 +1,14 @@
 file(GLOB SOURCES 
     *.cpp
     content-sets/*.cpp
+    file-helpers/*.cpp
     rpc/*.cpp
     )
 
 file(GLOB HEADERS
     *.h
     content-sets/*.h
+    file-helpers/*.h
     rpc/*.h
     )
 
@@ -53,6 +55,7 @@ target_include_directories(VfLogger
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/content-sets>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/file-helpers>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/rpc>
     )
 

@@ -1,16 +1,13 @@
 #ifndef CUSTOMERDATASYSTEM_H
 #define CUSTOMERDATASYSTEM_H
 
+#include "modman_util.h"
 #include <ve_eventsystem.h>
 #include <QJsonDocument>
-#include <QFileSystemWatcher>
 #include <QTimer>
 #include <QFile>
 #include <QUuid>
 #include <QFutureWatcher>
-#include <functional>
-
-#include "modman_util.h"
 
 namespace VeinComponent
 {
