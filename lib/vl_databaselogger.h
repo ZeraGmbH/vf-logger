@@ -33,7 +33,7 @@ public:
 
     AbstractLoggerDB *getDb() const;
     bool isDatabaseReady() const;
-    bool checkConditionsForStartLog() const;
+    QStringList checkConditionsForStartLog() const;
 
 
 signals:

@@ -117,10 +117,13 @@ void DatabaseLogger::processEvent(QEvent *event)
                     else if(componentName == LoggerStaticTexts::s_loggingEnabledComponentName) {
                         bool loggingEnabled = newValue.toBool();
                         if(loggingEnabled) {
-                            if(checkConditionsForStartLog()) {
+                            const QStringList errs = checkConditionsForStartLog();
+                            if(errs.isEmpty()) {
                                 prepareLogging();
                                 setLoggingEnabled(loggingEnabled);
                             }
+                            else
+                                qWarning() << errs;
                         }
                         else
                             setLoggingEnabled(loggingEnabled);
@@ -599,22 +602,16 @@ void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
     }
 }
 
-bool DatabaseLogger::checkConditionsForStartLog() const
+QStringList DatabaseLogger::checkConditionsForStartLog() const
 {
-    bool validConditions = true;
-    if(!m_dbReady) {
-        validConditions = false;
-        qWarning("Logging requires a database!");
-    }
-    if(m_dbSessionName.isEmpty()) {
-        validConditions = false;
-        qWarning("Logging requires a valid sessionName!");
-    }
-    if(m_transactionName.isEmpty()) {
-        validConditions = false;
-        qWarning("Logging requires a valid transactionName!");
-    }
-    return validConditions;
+    QStringList errMsgs;
+    if(!m_dbReady)
+        errMsgs.append("Logging requires a database!");
+    if(m_dbSessionName.isEmpty())
+        errMsgs.append("Logging requires a valid sessionName!");
+    if(m_transactionName.isEmpty())
+        errMsgs.append("Logging requires a valid transactionName!");
+    return errMsgs;
 }
 
 void DatabaseLogger::initModmanSessionComponent()
