@@ -1,13 +1,13 @@
 #include "vl_databaselogger.h"
 #include "loggerstatictexts.h"
 #include "loggercontentsetconfig.h"
+#include "databasefilepathchecker.h"
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
 #include <vf_client_component_setter.h>
 #include <vf_server_component_setter.h>
 #include <QHash>
-#include <QDir>
 #include <QJsonDocument>
 
 Q_DECLARE_METATYPE(VeinLogger::ComponentInfo)
@@ -329,27 +329,31 @@ void DatabaseLogger::openDatabase(const QString &filePath)
 {
     m_databaseFilePath = filePath;
     qInfo("Open database %s", qPrintable(filePath));
-    if(checkDBFilePath(filePath)) {
-        terminateCurrentDb();
-        m_database = m_databaseFactory();
-        m_database->setStorageMode(m_storageMode);
-        if(m_database->requiresOwnThread()) {
-            m_database->moveToThread(&m_asyncDatabaseThread);
-            m_asyncDatabaseThread.start();
-        }
-
-        connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
-        connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
-        connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
-        connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
-        connect(this, &DatabaseLogger::sigAddLoggedValue, m_database, &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
-        connect(this, &DatabaseLogger::sigAddSession, m_database, &AbstractLoggerDB::addSession, Qt::QueuedConnection);
-        connect(this, &DatabaseLogger::sigOpenDatabase, m_database, &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
-
-        connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
-
-        emit sigOpenDatabase(filePath);
+    const QString errMsg = DatabaseFilePathChecker::createAndCheckDir(filePath);
+    if(!errMsg.isEmpty()) {
+        onDbError(errMsg);
+        return;
     }
+
+    terminateCurrentDb();
+    m_database = m_databaseFactory();
+    m_database->setStorageMode(m_storageMode);
+    if(m_database->requiresOwnThread()) {
+        m_database->moveToThread(&m_asyncDatabaseThread);
+        m_asyncDatabaseThread.start();
+    }
+
+    connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
+    connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
+    connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
+    connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
+    connect(this, &DatabaseLogger::sigAddLoggedValue, m_database, &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
+    connect(this, &DatabaseLogger::sigAddSession, m_database, &AbstractLoggerDB::addSession, Qt::QueuedConnection);
+    connect(this, &DatabaseLogger::sigOpenDatabase, m_database, &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
+
+    connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
+
+    emit sigOpenDatabase(filePath);
 }
 
 void DatabaseLogger::terminateCurrentDb()
@@ -636,30 +640,6 @@ void DatabaseLogger::initModmanSessionComponent()
 
     if(m_modmanSessionComponent->getValue().isValid())
         onModmanSessionChange(m_modmanSessionComponent->getValue());
-}
-
-bool DatabaseLogger::checkDBFilePath(const QString &dbFilePath)
-{
-    bool retVal = false;
-    QFileInfo fInfo(dbFilePath);
-    if(!fInfo.isRelative()) {
-        // try to create path
-        if(!fInfo.absoluteDir().exists()) {
-            QDir dir;
-            dir.mkpath(fInfo.absoluteDir().path());
-        }
-        if(fInfo.absoluteDir().exists()) {
-            if(fInfo.isFile() || fInfo.exists() == false)
-                retVal = true;
-            else
-                onDbError(QString("Path is not a valid file location: %1").arg(dbFilePath));
-        }
-        else
-            onDbError(QString("Parent directory for path does not exist: %1").arg(dbFilePath));
-    }
-    else
-        onDbError(QString("Relative paths are not accepted: %1").arg(dbFilePath));
-    return retVal;
 }
 
 void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)

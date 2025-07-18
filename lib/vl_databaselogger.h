@@ -60,7 +60,6 @@ private:
     void dbNameToVein(const QString &filePath);
     void statusTextToVein(const QString &status);
     void initModmanSessionComponent();
-    bool checkDBFilePath(const QString &dbFilePath);
     void handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData);
     void handleLoggedComponentsChange(QVariant newValue);
     void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
