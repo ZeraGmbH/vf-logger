@@ -399,19 +399,13 @@ void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QStrin
 {
     Q_UNUSED(callId)
     Q_UNUSED(errorMsg)
-    // check if deleted session is current Session and if it is set sessionName empty
-    // We will not check retVal here. If something goes wrong and the session is still available the
-    // user can choose it again without risking undefined behavior.
+    // check if deleted session is current session (or got lost..)
+    // If so set sessionName empty
     if(!newSessionsList.contains(m_dbSessionName)) {
-        VeinComponent::ComponentData *sessionNameCData = new VeinComponent::ComponentData();
-        sessionNameCData ->setEntityId(m_entityId);
-        sessionNameCData ->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
-        sessionNameCData ->setComponentName(LoggerStaticTexts::s_sessionNameComponentName);
-        sessionNameCData ->setNewValue(QString());
-        sessionNameCData ->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-        sessionNameCData ->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
+        QEvent *event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_sessionNameComponentName,
+                                                               m_dbSessionName, QString());
         m_dbSessionName = "";
-        emit sigSendEvent(new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, sessionNameCData));
+        emit sigSendEvent(event);
     }
     if(success)
         updateSessionList(newSessionsList);
