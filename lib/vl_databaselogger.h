@@ -1,6 +1,7 @@
 #ifndef VL_DATALOGGER_H
 #define VL_DATALOGGER_H
 
+#include "databasefilewatcher.h"
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
 #include "vl_loggedcomponents.h"
@@ -12,7 +13,6 @@
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <QTimer>
-#include <QFileSystemWatcher>
 #include <QThread>
 
 namespace VeinLogger
@@ -52,7 +52,6 @@ private slots:
     void onDbReady();
     void onDbError(QString errorMsg);
     void onSchedulerCountdownToVein();
-    void checkDatabaseStillValid();
     void updateSessionList(QStringList sessionNames);
     void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
 private:
@@ -106,8 +105,7 @@ private:
     int m_transactionId;
     QString m_guiContext;
     QString m_loggerStatusText;
-
-    QFileSystemWatcher m_deleteWatcher;
+    std::unique_ptr<DatabaseFileWatcher> m_dbFileWatcher;
 };
 }
 

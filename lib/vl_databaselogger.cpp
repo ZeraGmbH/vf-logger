@@ -8,7 +8,6 @@
 #include <vf_server_component_setter.h>
 #include <QHash>
 #include <QDir>
-#include <QStorageInfo>
 #include <QJsonDocument>
 
 Q_DECLARE_METATYPE(VeinLogger::ComponentInfo)
@@ -369,12 +368,7 @@ void DatabaseLogger::closeDatabase()
     setLoggingEnabled(false);
 
     terminateCurrentDb();
-    if(m_deleteWatcher.directories().count()) {
-        const QStringList watchedDirs = m_deleteWatcher.directories();
-        for(const QString &watchDir : watchedDirs)
-            m_deleteWatcher.removePath(watchDir);
-        QObject::disconnect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
-    }
+    m_dbFileWatcher.reset();
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_databaseReadyComponentName, QVariant(), false);
     emit sigSendEvent(event);
     setLoggingEnabled(false);
@@ -387,13 +381,6 @@ void DatabaseLogger::closeDatabase()
     updateSessionList(QStringList());
 
     qInfo() << "Unloaded database:" << closedDb;
-}
-
-void DatabaseLogger::checkDatabaseStillValid()
-{
-    QFile dbFile(m_databaseFilePath);
-    if(!dbFile.exists())
-        onDbError(QString("Watcher detected database file %1 is gone!").arg(m_databaseFilePath));
 }
 
 void DatabaseLogger::updateSessionList(QStringList sessionNames)
@@ -476,24 +463,11 @@ void DatabaseLogger::onDbReady()
 
     setLoggingEnabled(false);
 
-    // * To avoid fire storm on logging we watch file's dir
-    // * For removable devices: mount-point's parent dir
-    QFileInfo fileInfo(m_databaseFilePath);
-    QStorageInfo storageInfo(fileInfo.absolutePath());
-    QStringList watchedPaths;
-    watchedPaths.append(fileInfo.absolutePath());
-    if(!storageInfo.isRoot()) {
-        QDir tmpDir(storageInfo.rootPath());
-        tmpDir.cdUp();
-        if(!tmpDir.isRoot())
-            watchedPaths.append(tmpDir.path());
-    }
-    qInfo("Database logger watching path(s): %s", qPrintable(watchedPaths.join(QStringLiteral(" + "))));
-    QStringList unWatchedPaths = m_deleteWatcher.addPaths(watchedPaths);
-    if(m_deleteWatcher.directories().count())
-        QObject::connect(&m_deleteWatcher, &QFileSystemWatcher::directoryChanged, this, &DatabaseLogger::checkDatabaseStillValid);
-    if(unWatchedPaths.count())
-        qWarning("Unwatched paths: %s", qPrintable(unWatchedPaths.join(QStringLiteral(" + "))));
+    m_dbFileWatcher = std::make_unique<DatabaseFileWatcher>();
+    connect(m_dbFileWatcher.get(), &DatabaseFileWatcher::sigFileError, this, [&]() {
+        onDbError(QString("Watcher detected database file %1 is gone!").arg(m_databaseFilePath));
+    });
+    m_dbFileWatcher->startWatch(m_databaseFilePath);
 
     m_dbReady = true;
     statusTextToVein("Database loaded");
