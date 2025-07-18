@@ -514,8 +514,6 @@ void DatabaseLogger::initOnce()
         componentData.insert(LoggerStaticTexts::s_scheduledLoggingCountdownComponentName, QVariant(0));
         componentData.insert(LoggerStaticTexts::s_existingSessionsComponentName, QStringList());
         componentData.insert(LoggerStaticTexts::loggedComponentsComponentName, QVariantMap());
-
-        // TODO: Add more from modulemanager
         componentData.insert(LoggerStaticTexts::s_sessionNameComponentName, QString());
         componentData.insert(LoggerStaticTexts::s_guiContextComponentName, QString());
         componentData.insert(LoggerStaticTexts::s_transactionNameComponentName, QString());
