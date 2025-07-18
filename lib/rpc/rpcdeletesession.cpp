@@ -19,7 +19,7 @@ void RpcDeleteSession::callRPCFunction(const QUuid &callId, const QVariantMap &p
 {
     if(m_dbLogger->isDatabaseReady()) {
         QString session = parameters["p_session"].toString();
-        emit m_dbLogger->getDb()->startDeleteSession(callId, session);
+        m_dbLogger->getDb()->startDeleteSession(callId, session);
     }
     else
         sendRpcError(callId, "Database is not set");
