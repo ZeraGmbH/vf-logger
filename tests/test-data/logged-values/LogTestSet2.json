@@ -1,16 +1,17 @@
 {
-    "TestSet2": {
-        "0": {
-            "DevMode": 0,
-            "Entities": "0;2;10;11",
-            "ModulesPaused": 0,
-            "Session": "test-session1.json",
-            "SessionsAvailable": "test-session1.json;test-session2.json",
-            "XSession": ""
-        },
-        "11": {
-            "ComponentName1": 1,
-            "ComponentName2": 2
-        }
-    }
+    "0": {
+        "DevMode": 0,
+        "Entities": "10;11;2;0",
+        "ModulesPaused": 0,
+        "Session": "test-session1.json",
+        "SessionsAvailable": "test-session1.json;test-session2.json",
+        "XSession": ""
+    },
+    "11": {
+        "ComponentName1": 1,
+        "ComponentName2": 2
+    },
+    "contentsets": [
+        "TestSet2"
+    ]
 }
