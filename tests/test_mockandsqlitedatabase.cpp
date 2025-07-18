@@ -453,22 +453,15 @@ void test_mockandsqlitedatabase::displayLoggedValuesOnDifferentSessionDeviceName
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
     QCOMPARE(invokerSpy[0][1], id);
     QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
-
-    QJsonDocument jsonDoc(filterEntitySystem(jsonObj));
-    QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    QJsonObject jsonDumped = getReturnedResult(invokerSpy[0][2]).toJsonObject();
 
     QFile file(":/logged-values/LogTestSet2.json");
     QVERIFY(file.open(QFile::ReadOnly));
     QJsonParseError parseError;
     QJsonDocument docActual = QJsonDocument::fromJson(file.readAll(), &parseError);
+    QJsonObject jsonExpected = docActual.object();
 
-    QJsonObject filteredActual = filterEntitySystem(docActual.object());
-    jsonDoc = QJsonDocument(filterEntitySystem(docActual.object()));
-    QString jsonExpected = jsonDoc.toJson(QJsonDocument::Indented);
-
-    // We ingore 'System' Entity in this comparison
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(compareAndLogOnDiffIgnoringEntity(jsonExpected, jsonDumped, "0"));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
@@ -727,14 +720,32 @@ QVariant test_mockandsqlitedatabase::getReturnedResult(QVariant rpcReturnData)
     return rpcReturnData.toMap().value(VeinComponent::RemoteProcedureData::s_returnString);
 }
 
-QJsonObject test_mockandsqlitedatabase::filterEntitySystem(QJsonObject obj)
+bool test_mockandsqlitedatabase::compareAndLogOnDiffIgnoringEntity(QJsonObject expected, QJsonObject dumped, QString entityToBeIgnored)
 {
-    QJsonObject filtered;
-    for (auto it = obj.begin(); it != obj.end(); ++it) {
-        if (it.key() == "0")
-            continue; // Skip key "0"
-        if (it.value().isObject())
-            filtered[it.key()] = filterEntitySystem(it.value().toObject());
+    QJsonObject filteredExpected, filteredDumped;
+    for (auto it = dumped.begin(); it != dumped.end(); ++it) {
+        if (it.key() != entityToBeIgnored)
+            filteredDumped.insert(it.key(), it.value());
     }
-    return filtered;
+    for (auto it = expected.begin(); it != expected.end(); ++it) {
+        if (it.key() != entityToBeIgnored)
+            filteredExpected.insert(it.key(), it.value());
+    }
+    QJsonDocument jsonDoc(filteredDumped);
+    QString strFilteredDumped = jsonDoc.toJson(QJsonDocument::Indented);
+    jsonDoc = QJsonDocument(filteredExpected);
+    QString strFilteredExpected = jsonDoc.toJson(QJsonDocument::Indented);
+    if(strFilteredDumped != strFilteredExpected) {
+        qWarning("EntityID 0 is not compared !");
+        qWarning("Expected:");
+        jsonDoc = QJsonDocument(expected);
+        QString strJsonExpected = jsonDoc.toJson(QJsonDocument::Indented);
+        qInfo("%s", qPrintable(strJsonExpected));
+        qWarning("Dumped:");
+        jsonDoc = QJsonDocument(dumped);
+        QString strJsonDumped= jsonDoc.toJson(QJsonDocument::Indented);
+        qInfo("%s", qPrintable(strJsonDumped));
+        return false;
+    }
+    return true;
 }

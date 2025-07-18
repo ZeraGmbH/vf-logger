@@ -1,9 +1,9 @@
 #include "jsonloggedvalues.h"
 #include "loggercontentsetconfig.h"
+#include <qjsonarray.h>
 
-JsonLoggedValues::JsonLoggedValues(QStringList contentsetsList, QObject *parent)
-    : QObject{parent},
-    m_contentsetsList(contentsetsList)
+JsonLoggedValues::JsonLoggedValues(QStringList contentsetsList)
+    : m_contentsetsList(contentsetsList)
 {
 }
 
@@ -24,25 +24,19 @@ void JsonLoggedValues::appendLoggedValues(QString entityId, QString componentNam
 QJsonObject JsonLoggedValues::createLoggedValuesJson(QString sessionDeviceName)
 {
     QJsonObject loggedValues;
-
+    QJsonArray jsonArray;
     if(m_contentsetsList.contains("ZeraAll")) {
-        QStringList contentsetAll = VeinLogger::LoggerContentSetConfig::getAvailableContentSets();
-        appendEntitiesOnContentset(loggedValues, contentsetAll, sessionDeviceName);
+        QStringList contentsetAll = VeinLogger::LoggerContentSetConfig::getAvailableContentSets(sessionDeviceName);
+        for (const QString &contentSet : contentsetAll)
+            jsonArray.append(contentSet);
     }
     else
-        appendEntitiesOnContentset(loggedValues, m_contentsetsList, sessionDeviceName);
-    return loggedValues;
-}
+        for (const QString &contentSet : m_contentsetsList)
+            jsonArray.append(contentSet);
+    loggedValues.insert("contentsets", jsonArray);
+    for (auto it = m_entityCompoValues.begin(); it != m_entityCompoValues.end(); ++it)
+        loggedValues.insert(it.key(), it.value());
 
-void JsonLoggedValues::appendEntitiesOnContentset(QJsonObject &loggedValues, QStringList contentsets, QString sessionDeviceName)
-{
-    for(int i = 0; i < contentsets.size(); i++) {
-        QMap<int, QStringList> componentsMap = VeinLogger::LoggerContentSetConfig::EntitiesComponentsLoggedFromContentSet(contentsets.at(i), sessionDeviceName);
-        for(int entity : componentsMap.keys()) {
-            if(m_entityCompoValues.contains(QString::number(entity))) {
-                loggedValues.insert(contentsets.at(i), m_entityCompoValues);
-            }
-        }
-    }
+    return loggedValues;
 }
 

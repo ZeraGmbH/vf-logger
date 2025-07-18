@@ -34,6 +34,20 @@ QStringList LoggerContentSetConfig::getAvailableContentSets()
     return ret;
 }
 
+QStringList LoggerContentSetConfig::getAvailableContentSets(QString sessionDeviceName)
+{
+    QStringList ret;
+    if(sessionDeviceName.isEmpty())
+        return getAvailableContentSets();
+    for(auto &confEnv: m_loggerConfigEnvironment) {
+        QString activeSession = confEnv.m_loggerContentHandler->getSession();
+        confEnv.m_loggerContentHandler->setSession(sessionDeviceName);
+        ret.append(confEnv.m_loggerContentHandler->getAvailableContentSets());
+        confEnv.m_loggerContentHandler->setSession(activeSession);
+    }
+    return ret;
+}
+
 QVariantMap LoggerContentSetConfig::componentFromContentSets(const QStringList &contentSets)
 {
     typedef QMap<int, QStringList> EntityComponenMap;
@@ -52,18 +66,4 @@ QVariantMap LoggerContentSetConfig::componentFromContentSets(const QStringList &
     return resultMap;
 }
 
-QMap<int, QStringList> LoggerContentSetConfig::EntitiesComponentsLoggedFromContentSet(const QString &contentSet, QString sessionDeviceName)
-{
-    if(sessionDeviceName.isEmpty())
-        for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment())
-            return confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
-
-    for(auto &confEnv: LoggerContentSetConfig::getConfigEnvironment()) {
-        confEnv.m_loggerContentHandler->setSession(sessionDeviceName);
-        const QStringList availableContentsets = confEnv.m_loggerContentHandler->getAvailableContentSets();
-        for (const auto &availContenset : availableContentsets)
-            if(availContenset == contentSet)
-                return confEnv.m_loggerContentHandler->getEntityComponents(contentSet);
-    }
-}
 }

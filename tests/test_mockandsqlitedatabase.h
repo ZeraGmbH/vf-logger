@@ -59,7 +59,7 @@ private:
     QVariant getReturnedResult(QVariant rpcReturnData);
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     QVariant getComponentValue(int entityId, QString component);
-    QJsonObject filterEntitySystem(QJsonObject obj);
+    bool compareAndLogOnDiffIgnoringEntity(QJsonObject expected, QJsonObject dumped, QString entityToBeIgnored);
     std::unique_ptr<TestLoggerSystem> m_testSystem;
 };
 
