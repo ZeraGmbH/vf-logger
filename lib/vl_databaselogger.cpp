@@ -7,6 +7,7 @@
 #include <vf-cpp-rpc.h>
 #include <vf_client_component_setter.h>
 #include <vf_server_component_setter.h>
+#include <vf_server_component_add.h>
 #include <QHash>
 #include <QJsonDocument>
 
@@ -495,7 +496,6 @@ void DatabaseLogger::initOnce()
         VeinEvent::CommandEvent *systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, systemData);
         emit sigSendEvent(systemEvent);
 
-        VeinComponent::ComponentData *initialData = nullptr;
         QHash<QString, QVariant> componentData;
         componentData.insert(LoggerStaticTexts::s_entityNameComponentName, entityName());
         componentData.insert(LoggerStaticTexts::s_loggingEnabledComponentName, QVariant(false));
@@ -515,16 +515,8 @@ void DatabaseLogger::initOnce()
         componentData.insert(LoggerStaticTexts::s_availableContentSetsComponentName, QVariantList());
 
         for(const QString &componentName : componentData.keys()) {
-            initialData = new VeinComponent::ComponentData();
-            initialData->setEntityId(m_entityId);
-            initialData->setCommand(VeinComponent::ComponentData::Command::CCMD_ADD);
-            initialData->setComponentName(componentName);
-            initialData->setNewValue(componentData.value(componentName));
-            initialData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
-            initialData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
-
-            systemEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, initialData);
-            emit sigSendEvent(systemEvent);
+            QEvent *addEvent = VfServerComponentAdd::generateEvent(m_entityId, componentName, componentData.value(componentName));
+            emit sigSendEvent(addEvent);
         }
 
         m_rpcDeleteSession = std::make_shared<RpcDeleteSession>(this, m_entityId);
