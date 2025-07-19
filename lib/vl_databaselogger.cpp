@@ -297,6 +297,14 @@ bool DatabaseLogger::isDatabaseReady() const
     return m_dbReady;
 }
 
+void DatabaseLogger::startTakeSnapshot(const QUuid &callId,
+                                       const QString &transactionName,
+                                       const QString &sessionName,
+                                       const QStringList &contentSets,
+                                       const QString &guiContext)
+{
+}
+
 void DatabaseLogger::setLoggingEnabled(bool enabled)
 {
     if(enabled != m_loggingActive) {
@@ -540,6 +548,8 @@ void DatabaseLogger::initOnce()
         m_rpcSimplifiedList[m_rpcListAllSessions->getSignature()] = m_rpcListAllSessions;
         m_rpcDisplayActualValues = std::make_shared<RpcDisplayActualValues>(this, m_entityId);
         m_rpcSimplifiedList[m_rpcDisplayActualValues->getSignature()] = m_rpcDisplayActualValues;
+        m_rpcCreateSnapshot = std::make_shared<RpcCreateSnapshot>(this, m_entityId);
+        m_rpcSimplifiedList[m_rpcCreateSnapshot->getSignature()] = m_rpcCreateSnapshot;
 
         m_initDone = true;
     }

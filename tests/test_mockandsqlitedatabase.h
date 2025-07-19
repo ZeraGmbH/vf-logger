@@ -4,6 +4,12 @@
 #include "testloggersystem.h"
 #include <QObject>
 
+enum enSnapshotMethod
+{
+    VEIN_COMPONENTS,
+    VEIN_RPC
+};
+
 class test_mockandsqlitedatabase : public QObject
 {
     Q_OBJECT
@@ -50,7 +56,9 @@ private:
     void removeTimeInfoInTransactions(QJsonObject &sessionInfo);
     QVariant getComponentValue(int entityId, QString component);
     QJsonObject filterEntitySystem(QJsonObject obj);
+
     std::unique_ptr<TestLoggerSystem> m_testSystem;
+    enSnapshotMethod m_currSnapshotMethod;
 };
 
 #endif // TEST_MOCKANDSQLITEDATABASE_H

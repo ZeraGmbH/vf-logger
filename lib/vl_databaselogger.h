@@ -10,6 +10,7 @@
 #include "rpcdisplaysessionsinfos.h"
 #include "rpclistallsessions.h"
 #include "rpcdisplayactualvalues.h"
+#include "rpccreatesnapshot.h"
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
 #include <QTimer>
@@ -33,13 +34,18 @@ public:
 
     std::shared_ptr<AbstractLoggerDB> getDb() const;
     bool isDatabaseReady() const;
-
+    void startTakeSnapshot(const QUuid &callId,
+                           const QString &transactionName,
+                           const QString &sessionName,
+                           const QStringList &contentSets,
+                           const QString &guiContext);
 signals:
     void sigOpenDatabase(const QString &filePath);
     void sigDatabaseError(const QString &errorMsg);
     void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component);
     void sigAddSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> staticData);
     void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
+    void sigTakeSnapshotCompleted(QUuid callId, bool success, QString errorMsg);
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
@@ -82,6 +88,7 @@ private:
     std::shared_ptr<RpcDisplaySessionsInfos> m_rpcDisplaySessionsInfos;
     std::shared_ptr<RpcListAllSessions> m_rpcListAllSessions;
     std::shared_ptr<RpcDisplayActualValues> m_rpcDisplayActualValues;
+    std::shared_ptr<RpcCreateSnapshot> m_rpcCreateSnapshot;
 
     DBFactory m_databaseFactory;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;

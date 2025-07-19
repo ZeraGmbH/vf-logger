@@ -5,18 +5,24 @@
 #include <QTest>
 
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
+Q_DECLARE_METATYPE(enSnapshotMethod)
+
 QTEST_MAIN(test_mockandsqlitedatabase)
 
 void test_mockandsqlitedatabase::initTestCase_data()
 {
     QTest::addColumn<TestLoggerSystem::DbType>("DbType");
-    QTest::newRow("Mock Database") << TestLoggerSystem::DbType::MOCK;
-    QTest::newRow("SQLite Database") << TestLoggerSystem::DbType::SQLITE;
+    QTest::addColumn<enSnapshotMethod>("SnapshotMethod");
+    QTest::newRow("Mock Database") << TestLoggerSystem::DbType::MOCK << VEIN_COMPONENTS;
+    QTest::newRow("SQLite Database") << TestLoggerSystem::DbType::SQLITE  << VEIN_COMPONENTS;
+    //QTest::newRow("Mock Database RPC") << TestLoggerSystem::DbType::MOCK << VEIN_RPC;
 }
 
 void test_mockandsqlitedatabase::init()
 {
     QFETCH_GLOBAL(TestLoggerSystem::DbType, DbType);
+    QFETCH_GLOBAL(enSnapshotMethod, SnapshotMethod);
+    m_currSnapshotMethod = SnapshotMethod;
     m_testSystem = std::make_unique<TestLoggerSystem>(DbType);
     m_testSystem->setupServer();
 }
@@ -543,11 +549,20 @@ void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)
 {
-    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", session);
-    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
-    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", contentSets);
-    m_testSystem->startLogging(session, transaction);
-    m_testSystem->stopLogging();
+    const QString defaultGuiContext = "ZeraGuiActualValues";
+    if (m_currSnapshotMethod == VEIN_COMPONENTS) {
+        m_testSystem->setComponent(dataLoggerEntityId, "sessionName", session);
+        m_testSystem->setComponent(dataLoggerEntityId, "guiContext", defaultGuiContext);
+        m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", contentSets);
+        m_testSystem->startLogging(session, transaction);
+        m_testSystem->stopLogging();
+    }
+    else {
+        m_testSystem->setComponent(dataLoggerEntityId, "sessionName", session);
+        QVariantMap rpcParams;
+        rpcParams.insert("p_contentSets", contentSets);
+        rpcParams.insert("p_guiContext", defaultGuiContext);
+    }
 }
 
 QVariant test_mockandsqlitedatabase::getResultCode(QVariant rpcReturnData)
