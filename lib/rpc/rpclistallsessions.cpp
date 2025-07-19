@@ -17,7 +17,7 @@ RpcListAllSessions::RpcListAllSessions(VeinLogger::DatabaseLogger *dbLogger,
 
 void RpcListAllSessions::onOpenDatabase()
 {
-    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigListAllSessionsCompleted,
+    connect(m_dbLogger->getDb().get(), &VeinLogger::AbstractLoggerDB::sigListAllSessionsCompleted,
             this, &RpcListAllSessions::onListAllSessionsCompleted, Qt::QueuedConnection);
 }
 

@@ -31,7 +31,7 @@ public:
     int entityId() const;
     QString entityName() const;
 
-    AbstractLoggerDB *getDb() const;
+    std::shared_ptr<AbstractLoggerDB> getDb() const;
     bool isDatabaseReady() const;
 
 signals:
@@ -85,7 +85,7 @@ private:
 
     DBFactory m_databaseFactory;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
-    AbstractLoggerDB *m_database = nullptr;
+    std::shared_ptr<AbstractLoggerDB> m_database;
     QThread m_asyncDatabaseThread;
     QString m_databaseFilePath;
     QStringList m_existingSessions;

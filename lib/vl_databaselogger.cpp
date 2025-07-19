@@ -287,7 +287,7 @@ QString DatabaseLogger::entityName() const
     return m_entityName;
 }
 
-AbstractLoggerDB *DatabaseLogger::getDb() const
+std::shared_ptr<AbstractLoggerDB> DatabaseLogger::getDb() const
 {
     return m_database;
 }
@@ -347,15 +347,23 @@ void DatabaseLogger::openDatabase(const QString &filePath)
         m_asyncDatabaseThread.start();
     }
 
-    connect(m_database, &AbstractLoggerDB::sigDatabaseReady, this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
-    connect(m_database, &AbstractLoggerDB::sigDatabaseError, this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
-    connect(m_database, &AbstractLoggerDB::sigNewSessionList, this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
-    connect(m_database, &AbstractLoggerDB::sigDeleteSessionCompleted, this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
-    connect(this, &DatabaseLogger::sigAddLoggedValue, m_database, &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
-    connect(this, &DatabaseLogger::sigAddSession, m_database, &AbstractLoggerDB::addSession, Qt::QueuedConnection);
-    connect(this, &DatabaseLogger::sigOpenDatabase, m_database, &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
+    connect(m_database.get(), &AbstractLoggerDB::sigDatabaseReady,
+            this, &DatabaseLogger::onDbReady, Qt::QueuedConnection);
+    connect(m_database.get(), &AbstractLoggerDB::sigDatabaseError,
+            this, &DatabaseLogger::onDbError, Qt::QueuedConnection);
+    connect(m_database.get(), &AbstractLoggerDB::sigNewSessionList,
+            this, &DatabaseLogger::updateSessionList, Qt::QueuedConnection);
+    connect(m_database.get(), &AbstractLoggerDB::sigDeleteSessionCompleted,
+            this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
+    connect(this, &DatabaseLogger::sigAddLoggedValue,
+            m_database.get(), &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
+    connect(this, &DatabaseLogger::sigAddSession,
+            m_database.get(), &AbstractLoggerDB::addSession, Qt::QueuedConnection);
+    connect(this, &DatabaseLogger::sigOpenDatabase,
+            m_database.get(), &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
 
-    connect(&m_batchedExecutionTimer, &QTimer::timeout, m_database, &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
+    connect(&m_batchedExecutionTimer, &QTimer::timeout,
+            m_database.get(), &AbstractLoggerDB::onFlushToDb, Qt::QueuedConnection);
 
     emit sigOpenDatabase(filePath);
 }
@@ -364,8 +372,7 @@ void DatabaseLogger::terminateCurrentDb()
 {
     m_asyncDatabaseThread.quit();
     m_asyncDatabaseThread.wait();
-    delete m_database;
-    m_database = nullptr;
+    m_database.reset();
 }
 
 void DatabaseLogger::closeDatabase()

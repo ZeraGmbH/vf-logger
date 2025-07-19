@@ -17,7 +17,7 @@ RpcDisplayActualValues::RpcDisplayActualValues(VeinLogger::DatabaseLogger *dbLog
 
 void RpcDisplayActualValues::onOpenDatabase()
 {
-    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDisplayActualValuesCompleted,
+    connect(m_dbLogger->getDb().get(), &VeinLogger::AbstractLoggerDB::sigDisplayActualValuesCompleted,
             this, &RpcDisplayActualValues::onDisplayActualValuesCompleted, Qt::QueuedConnection);
 }
 

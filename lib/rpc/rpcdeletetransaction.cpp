@@ -17,7 +17,7 @@ RpcDeleteTransaction::RpcDeleteTransaction(VeinLogger::DatabaseLogger *dbLogger,
 
 void RpcDeleteTransaction::onOpenDatabase()
 {
-    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDeleteTransactionCompleted,
+    connect(m_dbLogger->getDb().get(), &VeinLogger::AbstractLoggerDB::sigDeleteTransactionCompleted,
             this, &RpcDeleteTransaction::onDeleteTransactionCompleted, Qt::QueuedConnection);
 }
 

@@ -16,7 +16,7 @@ RpcDisplaySessionsInfos::RpcDisplaySessionsInfos(VeinLogger::DatabaseLogger *dbL
 
 void RpcDisplaySessionsInfos::onOpenDatabase()
 {
-    connect(m_dbLogger->getDb(), &VeinLogger::AbstractLoggerDB::sigDisplaySessionInfosCompleted,
+    connect(m_dbLogger->getDb().get(), &VeinLogger::AbstractLoggerDB::sigDisplaySessionInfosCompleted,
             this, &RpcDisplaySessionsInfos::onDisplaySessionInfosCompleted, Qt::QueuedConnection);
 }
 

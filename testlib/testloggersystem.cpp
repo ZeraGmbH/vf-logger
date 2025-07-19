@@ -35,12 +35,12 @@ void TestLoggerSystem::setupServer(int entityCount,
     m_server->addTestEntities(entityCount, componentCount);
     m_testSignaller = std::make_unique<TestDbAddSignaller>();
 
-    const VeinLogger::DBFactory sqliteFactory = [=]() -> VeinLogger::AbstractLoggerDB* {
+    const VeinLogger::DBFactory sqliteFactory = [=]() -> std::shared_ptr<VeinLogger::AbstractLoggerDB> {
         switch(m_dbType) {
         case MOCK:
-            return new TestLoggerDB(m_testSignaller.get());
+            return std::make_shared<TestLoggerDB>(m_testSignaller.get());
         case SQLITE:
-            return new TestSQLiteDB(m_testSignaller.get());
+            return std::make_shared<TestSQLiteDB>(m_testSignaller.get());
         }
         return nullptr;
     };

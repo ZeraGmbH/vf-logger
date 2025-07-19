@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QUuid>
+#include <memory>
 #include <functional>
 
 namespace VeinLogger
@@ -72,7 +73,7 @@ private:
 };
 
 /// @b factory function alias to create database
-using DBFactory = std::function<AbstractLoggerDB *()>;
+using DBFactory = std::function<std::shared_ptr<AbstractLoggerDB>()>;
 } // namespace VeinLogger
 
 #endif // VEINLOGGER_ABSTRACTLOGGERDB_H
