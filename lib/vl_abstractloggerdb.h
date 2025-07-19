@@ -76,4 +76,6 @@ private:
 using DBFactory = std::function<std::shared_ptr<AbstractLoggerDB>()>;
 } // namespace VeinLogger
 
+typedef std::shared_ptr<VeinLogger::AbstractLoggerDB> AbstractLoggerDBPtr;
+
 #endif // VEINLOGGER_ABSTRACTLOGGERDB_H

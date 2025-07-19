@@ -287,7 +287,7 @@ QString DatabaseLogger::entityName() const
     return m_entityName;
 }
 
-std::shared_ptr<AbstractLoggerDB> DatabaseLogger::getDb() const
+AbstractLoggerDBPtr DatabaseLogger::getDb() const
 {
     return m_database;
 }
