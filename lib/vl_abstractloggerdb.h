@@ -56,10 +56,15 @@ signals:
     void sigDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
-    virtual int addSession(const QString &dbSessionName, QList<ComponentInfo> componentsStoredOncePerSession) = 0 ;
+    virtual int addSession(const QString &dbSessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) = 0;
     virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
-    virtual int addTransaction(const QString &transactionName, const QString &dbSessionName, const QStringList &contentSets, const QString &guiContextName) = 0;
-    virtual void addLoggedValue(const QString &dbSessionName, QVector<int> t_transactionIds, ComponentInfo component) = 0;
+    virtual int addTransaction(const QString &transactionName,
+                               const QString &dbSessionName,
+                               const QStringList &contentSets,
+                               const QString &guiContextName) = 0;
+    virtual void addLoggedValue(const QString &dbSessionName,
+                                QVector<int> t_transactionIds,
+                                VeinLogger::ComponentInfo component) = 0;
     virtual void onFlushToDb() = 0;
 
 private slots:
