@@ -44,6 +44,9 @@ private slots:
 
     void taskAddTransaction();
     void taskAddTransactionNoDb();
+    void taskAddTransactionNoTransactionName();
+    void taskAddTransactionNoSessionName();
+    void taskAddTransactionNoContentSets();
 
 private:
     void logATransaction(QString session, QString transaction, QStringList contentSets);

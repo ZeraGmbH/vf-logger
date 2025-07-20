@@ -22,11 +22,29 @@ TaskDbAddTransaction::TaskDbAddTransaction(AbstractLoggerDBPtr loggerDb,
 
 void TaskDbAddTransaction::start()
 {
-    if(m_loggerDb)
+    bool allConditionsOk = true;
+    if (m_loggerDb == nullptr){
+        qWarning("No database set in TaskDbAddTransaction");
+        allConditionsOk = false;
+    }
+    if (m_param.m_transactionName.isEmpty()) {
+        qWarning("Cannot add nameless transaction in TaskDbAddTransaction");
+        allConditionsOk = false;
+    }
+    if (m_param.m_dbSessionName.isEmpty()) {
+        qWarning("Cannot add transaction to nameless session in TaskDbAddTransaction");
+        allConditionsOk = false;
+    }
+    if (m_param.m_contentSets.isEmpty()) {
+        qWarning("Cannot add transaction without content sets in TaskDbAddTransaction");
+        allConditionsOk = false;
+    }
+
+    if(allConditionsOk)
         m_loggerDb->startAddTransaction(m_param);
     else {
         qWarning("No database set in TaskDbAddTransaction");
-        finishTask(false);
+        finishTaskQueued(false);
     }
 }
 
