@@ -1,5 +1,6 @@
 #include "test_mockandsqlitedatabase.h"
 #include "taskdbaddtransaction.h"
+#include "taskdbupdatetransactionstarttime.h"
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
 #include "loggerstatictexts.h"
@@ -585,7 +586,7 @@ void test_mockandsqlitedatabase::taskAddTransactionNoDb()
 
     const VeinLogger::StartTransactionParam param = {transactionName, sessionName, contentSets, guiContextName};
     std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
-    TaskDbAddTransaction task(loggerDb,  param, transactionId);
+    TaskDbAddTransaction task(loggerDb, param, transactionId);
     QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
     task.start();
     TimeMachineObject::feedEventLoop();
@@ -602,7 +603,7 @@ void test_mockandsqlitedatabase::taskAddTransactionNoTransactionName()
 
     const VeinLogger::StartTransactionParam param = {"", "sessionName", QStringList() << "cs1" << "cs2", "guiContextName"};
     std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
-    TaskDbAddTransaction task(loggerDb,  param, transactionId);
+    TaskDbAddTransaction task(loggerDb, param, transactionId);
     QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
     task.start();
     TimeMachineObject::feedEventLoop();
@@ -619,7 +620,7 @@ void test_mockandsqlitedatabase::taskAddTransactionNoSessionName()
 
     const VeinLogger::StartTransactionParam param = {"transactionName", "", QStringList() << "cs1" << "cs2", "guiContextName"};
     std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
-    TaskDbAddTransaction task(loggerDb,  param, transactionId);
+    TaskDbAddTransaction task(loggerDb, param, transactionId);
     QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
     task.start();
     TimeMachineObject::feedEventLoop();
@@ -636,7 +637,7 @@ void test_mockandsqlitedatabase::taskAddTransactionNoContentSets()
 
     const VeinLogger::StartTransactionParam param = {"transactionName", "sessionName", QStringList(), "guiContextName"};
     std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
-    TaskDbAddTransaction task(loggerDb,  param, transactionId);
+    TaskDbAddTransaction task(loggerDb, param, transactionId);
     QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
     task.start();
     TimeMachineObject::feedEventLoop();
@@ -645,6 +646,62 @@ void test_mockandsqlitedatabase::taskAddTransactionNoContentSets()
     QCOMPARE(spyTask[0][0], false);
     QCOMPARE(*transactionId, -1);
 }
+
+void test_mockandsqlitedatabase::taskUpdateTransactionStartTime()
+{
+    m_testSystem->loadDatabase();
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+    TestDbAddSignaller* signaller = m_testSystem->getSignaller();
+    QSignalSpy spyUpdateTransaction(signaller, &TestDbAddSignaller::sigTransactionUpdateStart);
+
+    // create transaction
+    const VeinLogger::StartTransactionParam param = {"transactionName", "sessionName", QStringList() << "cs1" << "cs2", "guiContextName"};
+    std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
+    TaskDbAddTransaction taskCreateTransaction(loggerDb, param, transactionId);
+    taskCreateTransaction.start();
+    TimeMachineObject::feedEventLoop();
+
+    QDateTime startTime = QDateTime::fromSecsSinceEpoch(0);
+    TaskDbUpdateTransactionStartTime task(loggerDb, transactionId, startTime);
+    QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], true);
+    QCOMPARE(spyUpdateTransaction.count(), 1);
+}
+
+void test_mockandsqlitedatabase::taskUpdateTransactionStartTimeNoDb()
+{
+    QDateTime startTime = QDateTime::fromSecsSinceEpoch(0);
+    std::shared_ptr<int> transactionId = std::make_shared<int>(42);
+    TaskDbUpdateTransactionStartTime task(nullptr, transactionId, startTime);
+    QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], false);
+}
+
+/*void test_mockandsqlitedatabase::taskUpdateTransactionStartTimeInvalidTaskId()
+{
+    m_testSystem->loadDatabase();
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+    TestDbAddSignaller* signaller = m_testSystem->getSignaller();
+    QSignalSpy spyUpdateTransaction(signaller, &TestDbAddSignaller::sigTransactionUpdateStart);
+
+    std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
+    QDateTime startTime = QDateTime::fromSecsSinceEpoch(0);
+    TaskDbUpdateTransactionStartTime task(loggerDb, transactionId, startTime);
+    QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], false);
+}*/
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)
 {

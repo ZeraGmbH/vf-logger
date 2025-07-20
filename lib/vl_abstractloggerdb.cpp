@@ -82,6 +82,24 @@ void AbstractLoggerDB::startAddTransactionQueued(const StartTransactionParam &pa
                               Q_ARG(int, transactionId));
 }
 
+void AbstractLoggerDB::startUpdateTransactionStartTime(int transactionId, const QDateTime &time)
+{
+    QMetaObject::invokeMethod(this,
+                              "startUpdateTransactionStartTimeQueued",
+                              Qt::QueuedConnection,
+                              Q_ARG(int, transactionId),
+                              Q_ARG(QDateTime, time));
+}
+
+void AbstractLoggerDB::startUpdateTransactionStartTimeQueued(int transactionId, const QDateTime &time)
+{
+    bool ok = updateTransactionStartTime(transactionId, time);
+    QMetaObject::invokeMethod(this,
+                              "sigUpdateTransactionStartTimeCompleted",
+                              Qt::QueuedConnection,
+                              Q_ARG(bool, ok));
+}
+
 void AbstractLoggerDB::startFlushToDb()
 {
     QMetaObject::invokeMethod(this,

@@ -19,7 +19,14 @@ void TestSQLiteDB::addEntity(int entityId, QString entityName)
 
 int TestSQLiteDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
-    int transactioId = SQLiteDB::addTransaction(transactionName, sessionName, contentSets, guiContextName);
+    int transactionId = SQLiteDB::addTransaction(transactionName, sessionName, contentSets, guiContextName);
     emit m_testSignaller->sigAddTransaction(transactionName, sessionName, contentSets, guiContextName);
-    return transactioId;
+    return transactionId;
+}
+
+bool TestSQLiteDB::updateTransactionStartTime(int transactionId, QDateTime time)
+{
+    bool ok = SQLiteDB::updateTransactionStartTime(transactionId, time);
+    emit m_testSignaller->sigTransactionUpdateStart(transactionId, time);
+    return ok;
 }
