@@ -271,7 +271,7 @@ void DatabaseLogger::statusTextToVein(const QString &status)
 void DatabaseLogger::prepareLogging()
 {
     m_transactionId = m_database->addTransaction(m_transactionName, m_dbSessionName, m_contentSets, m_guiContext);
-    m_database->addStartTime(m_transactionId, QDateTime::currentDateTime());
+    m_database->updateTransactionStartTime(m_transactionId, QDateTime::currentDateTime());
     writeCurrentStorageToDb();
 }
 

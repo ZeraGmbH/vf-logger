@@ -104,7 +104,7 @@ int TestLoggerDB::addTransaction(const QString &transactionName, const QString &
     return testTransactionId;
 }
 
-bool TestLoggerDB::addStartTime(int transactionId, QDateTime time)
+bool TestLoggerDB::updateTransactionStartTime(int transactionId, QDateTime time)
 {
     Q_UNUSED(time);
     if(transactionId != testTransactionId)

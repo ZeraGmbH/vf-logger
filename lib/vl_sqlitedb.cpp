@@ -392,7 +392,7 @@ int SQLiteDB::addTransaction(const QString &transactionName, const QString &sess
     return retVal;
 }
 
-bool SQLiteDB::addStartTime(int transactionId, QDateTime time)
+bool SQLiteDB::updateTransactionStartTime(int transactionId, QDateTime time)
 {
     QSqlQuery logtimeQuery(QString("UPDATE transactions SET (start_time) = ('\%0\') WHERE id = \'%1\';").arg(time.toString()).arg(transactionId),m_dPtr->m_logDB);
     if(logtimeQuery.exec()){

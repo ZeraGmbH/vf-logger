@@ -49,7 +49,7 @@ public:
                                const QString &dbSessionName,
                                const QStringList &contentSets,
                                const QString &guiContextName) = 0;
-    virtual bool addStartTime(int transactionId, QDateTime t_time) = 0;
+    virtual bool updateTransactionStartTime(int transactionId, QDateTime t_time) = 0;
 
     void startDeleteTransaction(QUuid callId, QString transactionName);
     void startDisplaySessionsInfos(QUuid callId, const QString &sessionName);
