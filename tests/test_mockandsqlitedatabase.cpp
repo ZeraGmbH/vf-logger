@@ -546,8 +546,8 @@ void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
 void test_mockandsqlitedatabase::taskAddTransaction()
 {
     m_testSystem->loadDatabase();
-    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
 
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
     TestDbAddSignaller* signaller = m_testSystem->getSignaller();
     QSignalSpy spyAddTransaction(signaller, &TestDbAddSignaller::sigAddTransaction);
 
@@ -572,6 +572,29 @@ void test_mockandsqlitedatabase::taskAddTransaction()
     QCOMPARE(spyAddTransaction[0][1], sessionName);
     QCOMPARE(spyAddTransaction[0][2], contentSets);
     QCOMPARE(spyAddTransaction[0][3], guiContextName);
+}
+
+void test_mockandsqlitedatabase::taskAddTransactionNoDb()
+{
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+    TestDbAddSignaller* signaller = m_testSystem->getSignaller();
+    QSignalSpy spyAddTransaction(signaller, &TestDbAddSignaller::sigAddTransaction);
+
+    const QString transactionName = "transactionName";
+    const QString sessionName = "sessionName";
+    const QStringList contentSets = QStringList() << "contentSet1" << "contentSet2";
+    const QString guiContextName = "guiContextName";
+
+    const VeinLogger::StartTransactionParam param = {transactionName, sessionName, contentSets, guiContextName};
+    std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
+    TaskDbAddTransaction task(loggerDb,  param, transactionId);
+    QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], false);
+    QCOMPARE(*transactionId, -1);
 }
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)

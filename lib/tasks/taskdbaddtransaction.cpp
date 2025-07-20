@@ -22,7 +22,12 @@ TaskDbAddTransaction::TaskDbAddTransaction(AbstractLoggerDBPtr loggerDb,
 
 void TaskDbAddTransaction::start()
 {
-    m_loggerDb->startAddTransaction(m_param);
+    if(m_loggerDb)
+        m_loggerDb->startAddTransaction(m_param);
+    else {
+        qWarning("No database set in TaskDbAddTransaction");
+        finishTask(false);
+    }
 }
 
 void TaskDbAddTransaction::onAddTransactionFinished(int transactionId)

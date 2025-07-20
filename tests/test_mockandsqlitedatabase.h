@@ -43,6 +43,7 @@ private slots:
     void displayLoggedValuesBeforeDbLoaded();
 
     void taskAddTransaction();
+    void taskAddTransactionNoDb();
 
 private:
     void logATransaction(QString session, QString transaction, QStringList contentSets);
