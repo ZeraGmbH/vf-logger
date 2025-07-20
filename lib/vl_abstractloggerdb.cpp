@@ -72,14 +72,14 @@ void AbstractLoggerDB::startAddTransaction(const StartTransactionParam &param)
 
 void AbstractLoggerDB::startAddTransactionQueued(const StartTransactionParam &param)
 {
-    bool ok = addTransaction(param.m_transactionName,
+    int transactionId = addTransaction(param.m_transactionName,
                              param.m_dbSessionName,
                              param.m_contentSets,
                              param.m_guiContextName);
     QMetaObject::invokeMethod(this,
                               "sigAddTransactionCompleted",
                               Qt::QueuedConnection,
-                              Q_ARG(bool, ok));
+                              Q_ARG(int, transactionId));
 }
 
 void AbstractLoggerDB::startFlushToDb()

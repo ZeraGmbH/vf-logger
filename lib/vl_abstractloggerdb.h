@@ -63,7 +63,7 @@ signals:
     void sigListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
     void sigDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
     // for tasks
-    void sigAddTransactionCompleted(bool ok);
+    void sigAddTransactionCompleted(int transactionId);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) = 0;

@@ -557,7 +557,8 @@ void test_mockandsqlitedatabase::taskAddTransaction()
     const QString guiContextName = "guiContextName";
 
     const VeinLogger::StartTransactionParam param = {transactionName, sessionName, contentSets, guiContextName};
-    TaskDbAddTransaction task(loggerDb,  param);
+    std::shared_ptr<int> transactionId = std::make_shared<int>(-1);
+    TaskDbAddTransaction task(loggerDb,  param, transactionId);
     QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
     task.start();
     TimeMachineObject::feedEventLoop();
@@ -565,6 +566,7 @@ void test_mockandsqlitedatabase::taskAddTransaction()
     QCOMPARE(spyTask.count(), 1);
     QCOMPARE(spyTask[0][0], true);
 
+    QVERIFY(*transactionId > 0);
     QCOMPARE(spyAddTransaction.count(), 1);
     QCOMPARE(spyAddTransaction[0][0], transactionName);
     QCOMPARE(spyAddTransaction[0][1], sessionName);
