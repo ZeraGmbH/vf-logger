@@ -111,6 +111,7 @@ bool TestLoggerDB::updateTransactionStartTime(int transactionId, QDateTime time)
         qFatal("Unexpected transaction id: %i!", transactionId);
     QJsonObject entry {{"StartTime", QJsonValue(m_valueWriteCount)}};
     m_startStopEvents.append(entry);
+    emit m_testSignaller->sigTransactionUpdateStart(transactionId, time);
     return true;
 }
 
