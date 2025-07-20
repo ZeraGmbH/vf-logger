@@ -43,7 +43,13 @@ public:
     virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
     virtual bool requiresOwnThread() = 0;
 
+    // These are not thread safe and should go to private
     virtual bool hasSessionName(const QString &dbSessionName) const = 0;
+    virtual int addTransaction(const QString &transactionName,
+                               const QString &dbSessionName,
+                               const QStringList &contentSets,
+                               const QString &guiContextName) = 0;
+    virtual bool addStartTime(int transactionId, QDateTime t_time) = 0;
 
     void startDeleteTransaction(QUuid callId, QString transactionName);
     void startDisplaySessionsInfos(QUuid callId, const QString &sessionName);
@@ -67,11 +73,6 @@ signals:
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) = 0;
-    virtual bool addStartTime(int t_transactionId, QDateTime t_time) = 0;
-    virtual int addTransaction(const QString &transactionName,
-                               const QString &dbSessionName,
-                               const QStringList &contentSets,
-                               const QString &guiContextName) = 0;
     virtual void addLoggedValue(const QString &dbSessionName,
                                 QVector<int> t_transactionIds,
                                 VeinLogger::ComponentInfo component) = 0;
