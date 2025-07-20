@@ -7,6 +7,7 @@
 #include <QTest>
 
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
+
 QTEST_MAIN(test_mockandsqlitedatabase)
 
 void test_mockandsqlitedatabase::initTestCase_data()
@@ -547,11 +548,22 @@ void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)
 {
+    const QString defaultGuiContext = "ZeraGuiActualValues";
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", session);
-    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testSystem->setComponent(dataLoggerEntityId, "guiContext", defaultGuiContext);
     m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", contentSets);
     m_testSystem->startLogging(session, transaction);
     m_testSystem->stopLogging();
+}
+
+void test_mockandsqlitedatabase::logATransactionRpc(QString session, QString transaction, QStringList contentSets)
+{
+    const QString defaultGuiContext = "ZeraGuiActualValues";
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", session);
+    QVariantMap rpcParams;
+    rpcParams.insert("p_contentSets", contentSets);
+    rpcParams.insert("p_guiContext", defaultGuiContext);
+    // TODO
 }
 
 QVariant test_mockandsqlitedatabase::getResultCode(QVariant rpcReturnData)

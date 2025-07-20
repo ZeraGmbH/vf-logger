@@ -44,6 +44,7 @@ private slots:
 
 private:
     void logATransaction(QString session, QString transaction, QStringList contentSets);
+    void logATransactionRpc(QString session, QString transaction, QStringList contentSets);
     QVariant getResultCode(QVariant rpcReturnData);
     QString getErrorString(QVariant rpcReturnData);
     QVariant getReturnedResult(QVariant rpcReturnData);
