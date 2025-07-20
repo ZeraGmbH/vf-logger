@@ -114,7 +114,7 @@ bool TestLoggerDB::updateTransactionStartTime(int transactionId, QDateTime time)
     return true;
 }
 
-bool TestLoggerDB::addStopTime(int transactionId, QDateTime time)
+bool TestLoggerDB::updateTransactionStopTime(int transactionId, QDateTime time)
 {
     Q_UNUSED(time);
     if(transactionId != testTransactionId)
@@ -294,5 +294,5 @@ void TestLoggerDB::onOpen(const QString &dbPath)
 void TestLoggerDB::onFlushToDb()
 {
     // Surprise: This is a poor mimic of what SQLite implementation does
-    addStopTime(testTransactionId, QDateTime());
+    updateTransactionStopTime(testTransactionId, QDateTime());
 }

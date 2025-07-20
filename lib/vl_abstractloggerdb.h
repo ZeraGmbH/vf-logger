@@ -87,7 +87,7 @@ private slots:
     void startAddTransactionQueued(const VeinLogger::StartTransactionParam &param);
 
 private:
-    virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
+    virtual bool updateTransactionStopTime(int t_transactionId,  QDateTime t_time) = 0;
 };
 
 /// @b factory function alias to create database

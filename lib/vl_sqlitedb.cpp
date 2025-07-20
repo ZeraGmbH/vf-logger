@@ -402,7 +402,7 @@ bool SQLiteDB::updateTransactionStartTime(int transactionId, QDateTime time)
     return false;
 }
 
-bool SQLiteDB::addStopTime(int transactionId, QDateTime time)
+bool SQLiteDB::updateTransactionStopTime(int transactionId, QDateTime time)
 {
     QSqlQuery logtimeQuery(QString("UPDATE transactions SET (stop_time) = ('\%0\') WHERE id = \'%1\';").arg(time.toString()).arg(transactionId),m_dPtr->m_logDB);
     if(logtimeQuery.exec()){
@@ -878,7 +878,7 @@ void SQLiteDB::onFlushToDb()
             // Add stop time to active transactions. we have to that here becaus a bathc might be written after the script is removed.
             // The result is an sql conflict.
             for(int id : activeTransactions.values()) {
-                addStopTime(id ,QDateTime::currentDateTime());
+                updateTransactionStopTime(id ,QDateTime::currentDateTime());
             }
 
             if(m_dPtr->m_logDB.commit() == false) { //do not use assert here, asserts are no-ops in release code

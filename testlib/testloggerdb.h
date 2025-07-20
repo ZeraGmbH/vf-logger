@@ -46,7 +46,7 @@ private:
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
     void onFlushToDb() override;
-    bool addStopTime(int transactionId,  QDateTime time) override;
+    bool updateTransactionStopTime(int transactionId,  QDateTime time) override;
 
     TestDbAddSignaller* m_testSignaller;
     int m_valueWriteCount = 0;
