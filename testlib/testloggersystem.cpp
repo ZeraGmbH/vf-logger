@@ -164,6 +164,11 @@ QString TestLoggerSystem::getCustomerDataPath()
     return "/tmp/test-vf-logger-customerdata/";
 }
 
+VeinLogger::DatabaseLogger *TestLoggerSystem::getDbLogger()
+{
+    return m_dataLoggerSystem.get();
+}
+
 TestDbAddSignaller *TestLoggerSystem::getSignaller()
 {
     return m_testSignaller.get();

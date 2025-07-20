@@ -11,8 +11,6 @@
 #include <QHash>
 #include <QJsonDocument>
 
-Q_DECLARE_METATYPE(VeinLogger::ComponentInfo)
-
 namespace VeinLogger
 {
 DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,

@@ -1,7 +1,9 @@
 #include "test_mockandsqlitedatabase.h"
+#include "taskdbaddtransaction.h"
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
 #include "loggerstatictexts.h"
+#include <timemachineobject.h>
 #include <QTest>
 
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
@@ -539,6 +541,35 @@ void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
     QCOMPARE(invokerSpy[0][1], id);
     QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
     QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+}
+
+void test_mockandsqlitedatabase::taskAddTransaction()
+{
+    m_testSystem->loadDatabase();
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+
+    TestDbAddSignaller* signaller = m_testSystem->getSignaller();
+    QSignalSpy spyAddTransaction(signaller, &TestDbAddSignaller::sigAddTransaction);
+
+    const QString transactionName = "transactionName";
+    const QString sessionName = "sessionName";
+    const QStringList contentSets = QStringList() << "contentSet1" << "contentSet2";
+    const QString guiContextName = "guiContextName";
+
+    const VeinLogger::StartTransactionParam param = {transactionName, sessionName, contentSets, guiContextName};
+    TaskDbAddTransaction task(loggerDb,  param);
+    QSignalSpy spyTask(&task, &TaskDbAddTransaction::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], true);
+
+    QCOMPARE(spyAddTransaction.count(), 1);
+    QCOMPARE(spyAddTransaction[0][0], transactionName);
+    QCOMPARE(spyAddTransaction[0][1], sessionName);
+    QCOMPARE(spyAddTransaction[0][2], contentSets);
+    QCOMPARE(spyAddTransaction[0][3], guiContextName);
 }
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)

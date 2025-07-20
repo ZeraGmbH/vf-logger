@@ -23,6 +23,13 @@ struct ComponentInfo
     QDateTime timestamp;
 };
 
+struct StartTransactionParam
+{
+    QString m_transactionName;
+    QString m_dbSessionName;
+    QStringList m_contentSets;
+    QString m_guiContextName;
+};
 
 class AbstractLoggerDB : public QObject
 {
@@ -32,7 +39,7 @@ public:
         TEXT = 0,
         BINARY = 1,
     };
-    virtual ~AbstractLoggerDB() = default;
+    AbstractLoggerDB();
     virtual void setStorageMode(STORAGE_MODE t_storageMode) = 0;
     virtual bool requiresOwnThread() = 0;
 
@@ -43,6 +50,7 @@ public:
     void startListAllSessions(QUuid callId);
     void startDisplayActualValues(QUuid callId, QString transactionName);
     void startDeleteSession(QUuid callId, const QString &sessionName);
+    void startAddTransaction(const StartTransactionParam &param);
     void startFlushToDb();
 
 signals:
@@ -54,6 +62,8 @@ signals:
     void sigDisplaySessionInfosCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject infos);
     void sigListAllSessionsCompleted(QUuid callId, bool success, QString errorMsg, QJsonArray sessions);
     void sigDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
+    // for tasks
+    void sigAddTransactionCompleted(bool ok);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) = 0;
@@ -73,6 +83,8 @@ private slots:
     virtual void onListAllSessions(QUuid callId) = 0;
     virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
     virtual void onDeleteSession(QUuid callId, const QString &sessionName) = 0;
+    void startAddTransactionQueued(const VeinLogger::StartTransactionParam &param);
+
 private:
     virtual bool addStopTime(int t_transactionId,  QDateTime t_time) = 0;
 };

@@ -42,6 +42,8 @@ private slots:
     void displayLoggedValuesInvalidTransaction();
     void displayLoggedValuesBeforeDbLoaded();
 
+    void taskAddTransaction();
+
 private:
     void logATransaction(QString session, QString transaction, QStringList contentSets);
     QVariant getResultCode(QVariant rpcReturnData);
