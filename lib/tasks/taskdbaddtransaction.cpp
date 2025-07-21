@@ -42,10 +42,8 @@ void TaskDbAddTransaction::start()
 
     if(allConditionsOk)
         m_loggerDb->startAddTransaction(m_param);
-    else {
-        qWarning("No database set in TaskDbAddTransaction");
+    else
         finishTaskQueued(false);
-    }
 }
 
 void TaskDbAddTransaction::onAddTransactionFinished(int transactionId)
