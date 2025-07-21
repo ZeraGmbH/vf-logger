@@ -66,7 +66,7 @@ void test_mockandsqlitedatabase::createSessionWithCustomerDataAlreadyCreated()
 void test_mockandsqlitedatabase::logInsertsEntityComponents()
 {
     m_testSystem->loadDatabase();
-    m_testSystem->setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testSystem->setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "ZeraAll");
     QSignalSpy spyDbEntitiesAdded(m_testSystem->getSignaller(), &TestDbAddSignaller::sigEntityAdded);
     QSignalSpy spyDbComponentsAdded(m_testSystem->getSignaller(), &TestDbAddSignaller::sigComponentAdded);
 

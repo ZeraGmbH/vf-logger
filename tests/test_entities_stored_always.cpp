@@ -38,7 +38,7 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysAndOthers()
     m_testSystem.setupServer(3, 3, QList<int>() << 10 << 11);
     m_testSystem.loadDatabase();
 
-    // To simplify we use "LoggedComponents" not "currentContentSets"
+    // To simplify we use "LoggedComponents" not "currentContentSets" (LoggerStaticTexts::s_currentContentSetsComponentName)
     // BTW: This is the only place, we check that this still works
     QVariantMap onDemandLoggedComponents;
     onDemandLoggedComponents["12"] = QStringList() << "ComponentName1" << "ComponentName3";

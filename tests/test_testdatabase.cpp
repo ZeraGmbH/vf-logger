@@ -1,4 +1,5 @@
 #include "test_testdatabase.h"
+#include "loggerstatictexts.h"
 #include "testloghelpers.h"
 #include "testloggerdb.h"
 #include <timemachineobject.h>
@@ -92,7 +93,7 @@ void test_testdatabase::recordVeinDump()
 {
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.startLogging();
 
     QFile file(":/vein-dumps/dumpDbRecordInitial.json");
@@ -106,7 +107,7 @@ void test_testdatabase::recordOneContentSet()
 {
     m_testSystem.setupServer(3, 3);
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.setComponentValues(1);
 
     m_testSystem.startLogging();
@@ -130,7 +131,7 @@ void test_testdatabase::recordTwoContentSets()
 {
     m_testSystem.setupServer(3, 3);
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1" << "TestSet2");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1" << "TestSet2");
     m_testSystem.setComponentValues(1);
 
     m_testSystem.startLogging();
@@ -154,7 +155,7 @@ void test_testdatabase::recordAllContentSets()
 {
     m_testSystem.setupServer(3, 3);
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "ZeraAll");
     m_testSystem.setComponentValues(1);
 
     m_testSystem.startLogging();
@@ -199,7 +200,7 @@ void test_testdatabase::noRecordTransactionMissing()
 {
     m_testSystem.setupServer(3, 3);
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.setComponentValues(1);
 
     m_testSystem.startLogging("DbTestSession1", "");
@@ -223,7 +224,7 @@ void test_testdatabase::noRecordSessionMissing()
 {
     m_testSystem.setupServer(3, 3);
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.setComponentValues(1);
 
     m_testSystem.startLogging("", "TestTransaction");
@@ -246,7 +247,7 @@ void test_testdatabase::noRecordSessionMissing()
 void test_testdatabase::noRecordDatbaseMissing()
 {
     m_testSystem.setupServer(3, 3);
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1"); // LOL
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1"); // LOL
     m_testSystem.setComponentValues(1);
 
     m_testSystem.startLogging();
@@ -301,7 +302,7 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
     QSignalSpy spy(m_testSystem.getSignaller(), &TestDbAddSignaller::sigAddTransaction);
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.setComponent(dataLoggerEntityId, "guiContext", "TestGuiContext");
 
     m_testSystem.startLogging();
@@ -323,7 +324,7 @@ void test_testdatabase::noRecordSessionChange()
 {
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     bool isLoggingEnabled = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggingEnabled").toBool();
     QCOMPARE(isLoggingEnabled, false);
 
@@ -336,7 +337,7 @@ void test_testdatabase::stopRecordingOnSessionChange()
 {
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
-    m_testSystem.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "TestSet1");
+    m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.startLogging();
     bool isLoggingEnabled = m_testSystem.getValueOfComponent(dataLoggerEntityId, "LoggingEnabled").toBool();
     QCOMPARE(isLoggingEnabled, true);
