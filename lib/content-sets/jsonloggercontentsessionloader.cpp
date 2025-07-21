@@ -12,13 +12,13 @@ void JsonLoggerContentSessionLoader::setConfigFileDir(const QString &dir)
     m_configFileDir = dir;
 }
 
-void JsonLoggerContentSessionLoader::setSession(const QString &session)
+void JsonLoggerContentSessionLoader::setModmanSession(const QString &session)
 {
     m_session = session;
     m_currentJsonContentSet = cJsonFileLoader::loadJsonFile(QDir::cleanPath(m_configFileDir + QDir::separator() + session));
 }
 
-QString JsonLoggerContentSessionLoader::getSession()
+QString JsonLoggerContentSessionLoader::getModmanSession()
 {
     return m_session;
 }

@@ -15,7 +15,7 @@ void test_jsonloggercontentloader::testSimpleAvailContentSets()
 {
     JsonLoggerContentLoader loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
-    loader.setSession("simple-valid.json");
+    loader.setModmanSession("simple-valid.json");
     QStringList cs = loader.getAvailableContentSets();
     cs.sort();
     QCOMPARE(cs.size(), 3);
@@ -28,7 +28,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsNoMatch()
 {
     JsonLoggerContentLoader loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
-    loader.setSession("simple-valid.json");
+    loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("foo");
     QVERIFY(entityComponentMap.isEmpty());
 }
@@ -37,7 +37,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsActual()
 {
     JsonLoggerContentLoader loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
-    loader.setSession("simple-valid.json");
+    loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraActualValues");
     QCOMPARE(entityComponentMap.count(), 2);
     QCOMPARE(entityComponentMap[1040].count(), 0);
@@ -48,7 +48,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsHarmonics()
 {
     JsonLoggerContentLoader loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
-    loader.setSession("simple-valid.json");
+    loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraHarmonics");
     QCOMPARE(entityComponentMap.count(), 2);
     QCOMPARE(entityComponentMap[1110].count(), 0);
@@ -59,7 +59,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsDcRef()
 {
     JsonLoggerContentLoader loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
-    loader.setSession("simple-valid.json");
+    loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraDCReference");
     QCOMPARE(entityComponentMap.count(), 1);
     QCOMPARE(entityComponentMap[1050].count(), 3);

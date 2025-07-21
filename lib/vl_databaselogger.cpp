@@ -445,7 +445,7 @@ void DatabaseLogger::onModmanSessionChange(QVariant newSession)
 {
     setLoggingEnabled(false);
     for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
-        env.m_loggerContentHandler->setSession(newSession.toString());
+        env.m_loggerContentHandler->setModmanSession(newSession.toString());
     const QStringList availContentSetStrings = LoggerContentSetConfig::getAvailableContentSets();
 
     // Avoid QVariant type cast - is there a more simple way?

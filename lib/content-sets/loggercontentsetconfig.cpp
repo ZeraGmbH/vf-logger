@@ -40,10 +40,10 @@ QStringList LoggerContentSetConfig::getAvailableContentSets(QString sessionDevic
     if(sessionDeviceName.isEmpty())
         return getAvailableContentSets();
     for(auto &confEnv: m_loggerConfigEnvironment) {
-        QString activeSession = confEnv.m_loggerContentHandler->getSession();
-        confEnv.m_loggerContentHandler->setSession(sessionDeviceName);
+        QString activeSession = confEnv.m_loggerContentHandler->getModmanSession();
+        confEnv.m_loggerContentHandler->setModmanSession(sessionDeviceName);
         ret.append(confEnv.m_loggerContentHandler->getAvailableContentSets());
-        confEnv.m_loggerContentHandler->setSession(activeSession);
+        confEnv.m_loggerContentHandler->setModmanSession(activeSession);
     }
     return ret;
 }

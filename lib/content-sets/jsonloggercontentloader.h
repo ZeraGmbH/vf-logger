@@ -9,8 +9,8 @@ class JsonLoggerContentLoader : public LoggerContentHandler
 public:
     JsonLoggerContentLoader();
     void setConfigFileDir(const QString &dir) override;
-    void setSession(const QString &session) override;
-    QString getSession() override;
+    void setModmanSession(const QString &session) override;
+    QString getModmanSession() override;
     QStringList getAvailableContentSets() override;
     QMap<int, QStringList> getEntityComponents(const QString &contentSetName) override;
 private:
