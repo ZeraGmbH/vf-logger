@@ -40,8 +40,8 @@ public:
 public slots:
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool updateTransactionStartTime(int transactionId, QDateTime time) override;
-    int addSession(const QString &sessionName, QList<ComponentInfo> componentsStoredOncePerSession) override;
-    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, ComponentInfo component) override;
+    int addSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) override;
+    void addLoggedValue(const  QString &sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component) override;
 
     void onOpen(const QString &dbPath) override;
     bool isDbStillWitable(const QString &dbPath);
