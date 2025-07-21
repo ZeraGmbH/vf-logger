@@ -3,7 +3,7 @@
         "ComponentName1": 1,
         "ComponentName2": 2
     },
-    "contentsets": [
+    "Contentsets": [
         "TestSet1"
     ]
 }
