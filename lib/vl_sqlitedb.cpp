@@ -438,7 +438,7 @@ void SQLiteDB::onDeleteSession(QUuid callId, const QString &session)
 int SQLiteDB::addSession(const QString &sessionName, QList<ComponentInfo> componentsStoredOncePerSession)
 {
     int retVal = -1;
-    if(m_dPtr->m_sessionIds.contains(sessionName) == false) {
+    if (m_dPtr->m_sessionIds.contains(sessionName) == false) {
         int nextsessionId = 0;
         if(m_dPtr->m_sessionSequenceQuery.exec() == true) {
             m_dPtr->m_sessionSequenceQuery.next();
@@ -481,6 +481,8 @@ int SQLiteDB::addSession(const QString &sessionName, QList<ComponentInfo> compon
             return retVal;
         }
     }
+    else
+        retVal = m_dPtr->m_sessionIds.value(sessionName);
     return retVal;
 }
 

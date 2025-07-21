@@ -1,4 +1,5 @@
 #include "test_db_tasks.h"
+#include "taskdbaddsession.h"
 #include "taskdbaddtransaction.h"
 #include "taskdbupdatetransactionstarttime.h"
 #include "taskdbupdatetransactionstoptime.h"
@@ -28,6 +29,62 @@ void test_db_tasks::cleanup()
 {
     m_testSystem->cleanup();
     m_testSystem.reset();
+}
+
+void test_db_tasks::taskAddSession()
+{
+    m_testSystem->loadDatabase();
+
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+    TestDbAddSignaller* signaller = m_testSystem->getSignaller();
+    QSignalSpy spyAddSession(signaller, &TestDbAddSignaller::sigAddSession);
+
+    const QString sessionName = "sessionName";
+    std::shared_ptr<int> sessionId = std::make_shared<int>(-1);
+    TaskDbAddSession task(loggerDb, m_testSystem->getStorage(), sessionName, sessionId);
+    QSignalSpy spyTask(&task, &TaskTemplate::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], true);
+
+    QCOMPARE(spyAddSession.count(), 1);
+    QCOMPARE(spyAddSession[0][0], sessionName);
+    QVERIFY(*sessionId > 0);
+}
+
+void test_db_tasks::taskAddSessionNoDb()
+{
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+
+    const QString sessionName = "sessionName";
+    std::shared_ptr<int> sessionId = std::make_shared<int>(-1);
+    TaskDbAddSession task(loggerDb, m_testSystem->getStorage(), sessionName, sessionId);
+    QSignalSpy spyTask(&task, &TaskTemplate::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], false);
+}
+
+void test_db_tasks::taskAddSessionNoSessionName()
+{
+    m_testSystem->loadDatabase();
+
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+    TestDbAddSignaller* signaller = m_testSystem->getSignaller();
+    QSignalSpy spyAddSession(signaller, &TestDbAddSignaller::sigAddSession);
+
+    std::shared_ptr<int> sessionId = std::make_shared<int>(-1);
+    TaskDbAddSession task(loggerDb, m_testSystem->getStorage(), "", sessionId);
+    QSignalSpy spyTask(&task, &TaskTemplate::sigFinish);
+    task.start();
+    TimeMachineObject::feedEventLoop();
+
+    QCOMPARE(spyTask.count(), 1);
+    QCOMPARE(spyTask[0][0], false);
 }
 
 void test_db_tasks::taskAddTransaction()

@@ -12,6 +12,10 @@ private slots:
     void init();
     void cleanup();
 
+    void taskAddSession();
+    void taskAddSessionNoDb();
+    void taskAddSessionNoSessionName();
+
     void taskAddTransaction();
     void taskAddTransactionNoDb();
     void taskAddTransactionNoTransactionName();

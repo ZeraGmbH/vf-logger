@@ -55,6 +55,7 @@ public:
     void startDisplaySessionsInfos(QUuid callId, const QString &sessionName);
     void startListAllSessions(QUuid callId);
     void startDisplayActualValues(QUuid callId, QString transactionName);
+    void startAddSession(const QString &sessionName, QList<ComponentInfo> componentsAddedOncePerSession);
     void startDeleteSession(QUuid callId, const QString &sessionName);
     void startAddTransaction(const StartTransactionParam &param);
     void startUpdateTransactionStartTime(int transactionId, const QDateTime &time);
@@ -64,6 +65,7 @@ public:
 signals:
     void sigDatabaseError(QString errorString);
     void sigDatabaseReady();
+    void sigAddSessionCompleted(int sessionId);
     void sigNewSessionList(QStringList p_sessions);
     void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
     void sigDeleteTransactionCompleted(QUuid callId, bool success, QString errorMsg);
@@ -88,6 +90,8 @@ private slots:
     virtual void onListAllSessions(QUuid callId) = 0;
     virtual void onDisplayActualValues(QUuid callId, const QString &transactionName) = 0;
     virtual void onDeleteSession(QUuid callId, const QString &sessionName) = 0;
+    void startAddSessionQueued(const QString &sessionName,
+                               QList<VeinLogger::ComponentInfo> componentsAddedOncePerSession);
     void startAddTransactionQueued(const VeinLogger::StartTransactionParam &param);
     void startUpdateTransactionStartTimeQueued(int transactionId, const QDateTime &time);
     void startUpdateTransactionStopTimeQueued(int transactionId, const QDateTime &time);

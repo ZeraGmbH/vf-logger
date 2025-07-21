@@ -174,6 +174,11 @@ TestDbAddSignaller *TestLoggerSystem::getSignaller()
     return m_testSignaller.get();
 }
 
+VeinStorage::AbstractEventSystem *TestLoggerSystem::getStorage()
+{
+    return m_server->getStorage();
+}
+
 QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)
 {
     QByteArray jsonDumped;

@@ -53,6 +53,26 @@ void AbstractLoggerDB::startDisplayActualValues(QUuid callId, QString transactio
                               Q_ARG(QString, transactionName));
 }
 
+void AbstractLoggerDB::startAddSession(const QString &sessionName,
+                                       QList<VeinLogger::ComponentInfo> componentsAddedOncePerSession)
+{
+    QMetaObject::invokeMethod(this,
+                              "startAddSessionQueued",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, sessionName),
+                              Q_ARG(QList<VeinLogger::ComponentInfo>, componentsAddedOncePerSession));
+}
+
+void AbstractLoggerDB::startAddSessionQueued(const QString &sessionName,
+                                             QList<ComponentInfo> componentsAddedOncePerSession)
+{
+    int sessionId = addSession(sessionName, componentsAddedOncePerSession);
+    QMetaObject::invokeMethod(this,
+                              "sigAddSessionCompleted",
+                              Qt::QueuedConnection,
+                              Q_ARG(int, sessionId));
+}
+
 void AbstractLoggerDB::startDeleteSession(QUuid callId, const QString &sessionName)
 {
     QMetaObject::invokeMethod(this,

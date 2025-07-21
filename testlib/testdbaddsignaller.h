@@ -14,6 +14,7 @@ public:
 signals:
     void sigEntityAdded(int entityId, QString entityName);
     void sigComponentAdded(QString componentName);
+    void sigAddSession(const QString &sessionName);
     void sigAddTransaction(const QString &transactionName,
                            const QString &sessionName,
                            const QStringList &contentSets,

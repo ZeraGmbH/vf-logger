@@ -233,6 +233,7 @@ int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::Compo
     staticJson.insert(sessionName, jsonArray);
     m_sessionOnceComponentsAdded.append(staticJson);
 
+    emit m_testSignaller->sigAddSession(sessionName);
     return m_dbSessionNames.count();
 }
 

@@ -17,6 +17,13 @@ void TestSQLiteDB::addEntity(int entityId, QString entityName)
     emit m_testSignaller->sigEntityAdded(entityId, entityName);
 }
 
+int TestSQLiteDB::addSession(const QString &dbSessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession)
+{
+    int sessionId = SQLiteDB::addSession(dbSessionName, componentsStoredOncePerSession);
+    emit m_testSignaller->sigAddSession(dbSessionName);
+    return sessionId;
+}
+
 int TestSQLiteDB::addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName)
 {
     int transactionId = SQLiteDB::addTransaction(transactionName, sessionName, contentSets, guiContextName);

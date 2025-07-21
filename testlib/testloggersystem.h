@@ -43,6 +43,7 @@ public:
 
     VeinLogger::DatabaseLogger* getDbLogger();
     TestDbAddSignaller* getSignaller();
+    VeinStorage::AbstractEventSystem* getStorage();
     QByteArray dumpStorage(QList<int> entities = QList<int>() << dataLoggerEntityId);
 
     static const QLatin1String DBNameOpenOk;
