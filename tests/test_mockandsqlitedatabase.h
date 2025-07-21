@@ -42,20 +42,6 @@ private slots:
     void displayLoggedValuesInvalidTransaction();
     void displayLoggedValuesBeforeDbLoaded();
 
-    void taskAddTransaction();
-    void taskAddTransactionNoDb();
-    void taskAddTransactionNoTransactionName();
-    void taskAddTransactionNoSessionName();
-    void taskAddTransactionNoContentSets();
-
-    void taskUpdateTransactionStartTime();
-    void taskUpdateTransactionStartTimeNoDb();
-    //void taskUpdateTransactionStartTimeInvalidTaskId(); // TODO: SQLite implementation accepts all transaction ids
-
-    void taskUpdateTransactionStopTime();
-    void taskUpdateTransactionStopTimeNoDb();
-    //void taskUpdateTransactionStopTimeInvalidTaskId(); // TODO: SQLite implementation accepts all transaction ids
-
 private:
     void logATransaction(QString session, QString transaction, QStringList contentSets);
     QVariant getResultCode(QVariant rpcReturnData);

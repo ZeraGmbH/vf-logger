@@ -32,6 +32,7 @@ SETUP_TESTS(
     test_loggedcomponents
     test_entities_stored_always
     test_mockandsqlitedatabase
+    test_db_tasks
     )
 
 target_sources(test_contentsets
@@ -55,6 +56,11 @@ target_sources(test_entities_stored_always
 )
 
 target_sources(test_mockandsqlitedatabase
+    PRIVATE
+    test-data/test-data.qrc
+)
+
+target_sources(test_db_tasks
     PRIVATE
     test-data/test-data.qrc
 )
