@@ -100,6 +100,24 @@ void AbstractLoggerDB::startUpdateTransactionStartTimeQueued(int transactionId, 
                               Q_ARG(bool, ok));
 }
 
+void AbstractLoggerDB::startUpdateTransactionStopTimeQueued(int transactionId, const QDateTime &time)
+{
+    bool ok = updateTransactionStopTime(transactionId, time);
+    QMetaObject::invokeMethod(this,
+                              "sigUpdateTransactionStopTimeCompleted",
+                              Qt::QueuedConnection,
+                              Q_ARG(bool, ok));
+}
+
+void AbstractLoggerDB::startUpdateTransactionStopTime(int transactionId, const QDateTime &time)
+{
+    QMetaObject::invokeMethod(this,
+                              "startUpdateTransactionStopTimeQueued",
+                              Qt::QueuedConnection,
+                              Q_ARG(int, transactionId),
+                              Q_ARG(QDateTime, time));
+}
+
 void AbstractLoggerDB::startFlushToDb()
 {
     QMetaObject::invokeMethod(this,

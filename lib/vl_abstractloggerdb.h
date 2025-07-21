@@ -58,6 +58,7 @@ public:
     void startDeleteSession(QUuid callId, const QString &sessionName);
     void startAddTransaction(const StartTransactionParam &param);
     void startUpdateTransactionStartTime(int transactionId, const QDateTime &time);
+    void startUpdateTransactionStopTime(int transactionId, const QDateTime &time);
     void startFlushToDb();
 
 signals:
@@ -72,6 +73,7 @@ signals:
     // for tasks
     void sigAddTransactionCompleted(int transactionId);
     void sigUpdateTransactionStartTimeCompleted(bool ok);
+    void sigUpdateTransactionStopTimeCompleted(bool ok);
 public slots:
     virtual void onOpen(const QString &dbPath) = 0;
     virtual int addSession(const QString &dbSessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession) = 0;
@@ -88,6 +90,7 @@ private slots:
     virtual void onDeleteSession(QUuid callId, const QString &sessionName) = 0;
     void startAddTransactionQueued(const VeinLogger::StartTransactionParam &param);
     void startUpdateTransactionStartTimeQueued(int transactionId, const QDateTime &time);
+    void startUpdateTransactionStopTimeQueued(int transactionId, const QDateTime &time);
 
 private:
     virtual bool updateTransactionStopTime(int t_transactionId,  QDateTime t_time) = 0;

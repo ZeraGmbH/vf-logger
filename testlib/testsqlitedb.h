@@ -15,6 +15,7 @@ public:
     void addEntity(int entityId, QString entityName) override;
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;
     bool updateTransactionStartTime(int transactionId, QDateTime time) override;
+    bool updateTransactionStopTime(int transactionId, QDateTime time) override;
 
 private:
     TestDbAddSignaller *m_testSignaller;

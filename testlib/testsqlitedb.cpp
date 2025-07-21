@@ -30,3 +30,10 @@ bool TestSQLiteDB::updateTransactionStartTime(int transactionId, QDateTime time)
     emit m_testSignaller->sigTransactionUpdateStart(transactionId, time);
     return ok;
 }
+
+bool TestSQLiteDB::updateTransactionStopTime(int transactionId, QDateTime time)
+{
+    bool ok = SQLiteDB::updateTransactionStopTime(transactionId, time);
+    emit m_testSignaller->sigTransactionUpdateStop(transactionId, time);
+    return ok;
+}

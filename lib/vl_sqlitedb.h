@@ -47,6 +47,7 @@ public slots:
     bool isDbStillWitable(const QString &dbPath);
 
 protected:
+    bool updateTransactionStopTime(int transactionId,  QDateTime time) override;
     virtual void addComponent(const QString &componentName);
     virtual void addEntity(int entityId, QString entityName);
 
@@ -57,7 +58,6 @@ private:
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
     void onFlushToDb() override;
-    bool updateTransactionStopTime(int transactionId,  QDateTime time) override;
 
     void initLocalData();
     bool hasEntityId(int entityId) const;
@@ -66,7 +66,6 @@ private:
     void addLoggedValue(int sessionId, const QVector<int> &transactionIds, const ComponentInfo &component);
     void writeStaticData(QVector<SQLBatchData> p_batchData);
     QStringList getContentsetList(const QString &transactionName);
-
 
     DBPrivate *m_dPtr = nullptr;
 };

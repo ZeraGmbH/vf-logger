@@ -19,6 +19,7 @@ signals:
                            const QStringList &contentSets,
                            const QString &guiContextName);
     void sigTransactionUpdateStart(int transactionId, const QDateTime &startDateTime);
+    void sigTransactionUpdateStop(int transactionId, const QDateTime &stopDateTime);
 
 private slots:
     void onTransactionAdded(const QString &transactionName,

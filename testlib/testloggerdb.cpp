@@ -122,6 +122,7 @@ bool TestLoggerDB::updateTransactionStopTime(int transactionId, QDateTime time)
         qFatal("Unexpected transaction id: %i!", transactionId);
     QJsonObject entry {{"StopTime", QJsonValue(m_valueWriteCount)}};
     m_startStopEvents.append(entry);
+    emit m_testSignaller->sigTransactionUpdateStop(transactionId, time);
     return true;
 }
 
