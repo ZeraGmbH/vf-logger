@@ -548,7 +548,7 @@ void test_mockandsqlitedatabase::taskAddTransaction()
 
     const QString transactionName = "transactionName";
     const QString sessionName = "sessionName";
-    const QStringList contentSets = QStringList() << "contentSet1" << "contentSet2";
+    const QStringList contentSets = QStringList() << "TestSet1" << "TestSet2";
     const QString guiContextName = "guiContextName";
 
     const VeinLogger::StartTransactionParam param = {transactionName, sessionName, contentSets, guiContextName};
