@@ -1,4 +1,5 @@
 #include "taskdbaddtransaction.h"
+#include "loggercontentsetconfig.h"
 
 TaskTemplatePtr TaskDbAddTransaction::create(AbstractLoggerDBPtr loggerDb,
                                              const VeinLogger::StartTransactionParam &param,
@@ -36,6 +37,11 @@ void TaskDbAddTransaction::start()
     if (m_param.m_contentSets.isEmpty()) {
         qWarning("Cannot add transaction without content sets in TaskDbAddTransaction");
         allConditionsOk = false;
+    }
+    else {
+        // TODO enhance contentsets check
+        QVariantMap loggedComponents = VeinLogger::LoggerContentSetConfig::componentFromContentSets(m_param.m_contentSets);
+        //Q_ASSERT(!loggedComponents.isEmpty());
     }
 
     if(allConditionsOk) {
