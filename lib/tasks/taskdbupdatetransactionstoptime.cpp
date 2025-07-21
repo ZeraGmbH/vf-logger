@@ -16,14 +16,15 @@ TaskDbUpdateTransactionStopTime::TaskDbUpdateTransactionStopTime(AbstractLoggerD
     m_transactionId(transactionId),
     m_stopDateTime(stopDateTime)
 {
-    connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigUpdateTransactionStopTimeCompleted,
-            this, &TaskDbUpdateTransactionStopTime::finishTask);
 }
 
 void TaskDbUpdateTransactionStopTime::start()
 {
-    if (m_loggerDb)
+    if (m_loggerDb) {
+        connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigUpdateTransactionStopTimeCompleted,
+                this, &TaskDbUpdateTransactionStopTime::finishTask);
         m_loggerDb->startUpdateTransactionStopTime(*m_transactionId, m_stopDateTime);
+    }
     else
         finishTaskQueued(false);
 }

@@ -16,8 +16,6 @@ TaskDbAddTransaction::TaskDbAddTransaction(AbstractLoggerDBPtr loggerDb,
     m_param(param),
     m_transactionId(transactionId)
 {
-    connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigAddTransactionCompleted,
-            this, &TaskDbAddTransaction::onAddTransactionFinished);
 }
 
 void TaskDbAddTransaction::start()
@@ -40,8 +38,11 @@ void TaskDbAddTransaction::start()
         allConditionsOk = false;
     }
 
-    if(allConditionsOk)
+    if(allConditionsOk) {
+        connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigAddTransactionCompleted,
+                this, &TaskDbAddTransaction::onAddTransactionFinished);
         m_loggerDb->startAddTransaction(m_param);
+    }
     else
         finishTaskQueued(false);
 }

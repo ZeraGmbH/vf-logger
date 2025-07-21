@@ -201,38 +201,38 @@ void TestLoggerDB::onDisplayActualValues(QUuid callId, const QString &transactio
 
 int TestLoggerDB::addSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> componentsStoredOncePerSession)
 {
-    // for vf-logger
-    m_dbSessionNames.append(sessionName);
-    emit sigNewSessionList(m_dbSessionNames);
-    m_sessions.insert(sessionName, Transactions());
+    if(!m_dbSessionNames.contains(sessionName)) {
+        m_dbSessionNames.append(sessionName);
+        emit sigNewSessionList(m_dbSessionNames);
+        m_sessions.insert(sessionName, Transactions());
 
-    QMap<QString, VeinLogger::ComponentInfo> componentValuesSorted;
-    for(int i=0; i<componentsStoredOncePerSession.count(); i++) {
-        VeinLogger::ComponentInfo variantEntry = componentsStoredOncePerSession[i];
-        Q_ASSERT(variantEntry.timestamp.isValid());
-        // timestamps must be there but are not suited for textfile dumps
-        variantEntry.timestamp = QDateTime::fromSecsSinceEpoch(m_valueWriteCount, Qt::UTC);
+        QMap<QString, VeinLogger::ComponentInfo> componentValuesSorted;
+        for(int i=0; i<componentsStoredOncePerSession.count(); i++) {
+            VeinLogger::ComponentInfo variantEntry = componentsStoredOncePerSession[i];
+            Q_ASSERT(variantEntry.timestamp.isValid());
+            // timestamps must be there but are not suited for textfile dumps
+            variantEntry.timestamp = QDateTime::fromSecsSinceEpoch(m_valueWriteCount, Qt::UTC);
 
-        Q_ASSERT(!variantEntry.componentName.isEmpty());
-        componentValuesSorted.insert(variantEntry.componentName, variantEntry);
+            Q_ASSERT(!variantEntry.componentName.isEmpty());
+            componentValuesSorted.insert(variantEntry.componentName, variantEntry);
 
-        emit m_testSignaller->sigEntityAdded(variantEntry.entityId, variantEntry.entityName);
-        emit m_testSignaller->sigComponentAdded(variantEntry.componentName);
+            emit m_testSignaller->sigEntityAdded(variantEntry.entityId, variantEntry.entityName);
+            emit m_testSignaller->sigComponentAdded(variantEntry.componentName);
+        }
+        QJsonArray jsonArray;
+        for(const auto &component : componentValuesSorted) {
+            QJsonObject entry;
+            entry["entityId"] = component.entityId;
+            entry["entityName"] = component.entityName;
+            entry["componentName"] = component.componentName;
+            entry["value"] = component.value.toJsonValue();
+            entry["testtime"] = component.timestamp.toSecsSinceEpoch();
+            jsonArray.append(entry);
+        }
+        QJsonObject staticJson;
+        staticJson.insert(sessionName, jsonArray);
+        m_sessionOnceComponentsAdded.append(staticJson);
     }
-    QJsonArray jsonArray;
-    for(const auto &component : componentValuesSorted) {
-        QJsonObject entry;
-        entry["entityId"] = component.entityId;
-        entry["entityName"] = component.entityName;
-        entry["componentName"] = component.componentName;
-        entry["value"] = component.value.toJsonValue();
-        entry["testtime"] = component.timestamp.toSecsSinceEpoch();
-        jsonArray.append(entry);
-    }
-    QJsonObject staticJson;
-    staticJson.insert(sessionName, jsonArray);
-    m_sessionOnceComponentsAdded.append(staticJson);
-
     emit m_testSignaller->sigAddSession(sessionName);
     return m_dbSessionNames.count();
 }

@@ -1,4 +1,5 @@
 #include "test_mockandsqlitedatabase.h"
+#include "taskdbaddsession.h"
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
 #include "loggerstatictexts.h"
@@ -339,8 +340,17 @@ QVariant test_mockandsqlitedatabase::getComponentValue(int entityId, QString com
 void test_mockandsqlitedatabase::listAllSessions()
 {
     m_testSystem->loadDatabase();
+    AbstractLoggerDBPtr loggerDb = m_testSystem->getDbLogger()->getDb();
+
+    // Generate sessions by component/task to cover more
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession2");
+    std::shared_ptr<int> sessionId = std::make_shared<int>(-1);
+    TaskDbAddSession task3(loggerDb, m_testSystem->getStorage(), "DbTestSession3", sessionId);
+    task3.start();
+    TaskDbAddSession task4(loggerDb, m_testSystem->getStorage(), "DbTestSession4", sessionId);
+    task4.start();
+    TimeMachineObject::feedEventLoop();
 
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
     QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());

@@ -16,14 +16,15 @@ TaskDbUpdateTransactionStartTime::TaskDbUpdateTransactionStartTime(AbstractLogge
     m_transactionId(transactionId),
     m_startDateTime(startDateTime)
 {
-    connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigUpdateTransactionStartTimeCompleted,
-            this, &TaskDbUpdateTransactionStartTime::finishTask);
 }
 
 void TaskDbUpdateTransactionStartTime::start()
 {
-    if (m_loggerDb)
+    if (m_loggerDb) {
+        connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigUpdateTransactionStartTimeCompleted,
+                this, &TaskDbUpdateTransactionStartTime::finishTask);
         m_loggerDb->startUpdateTransactionStartTime(*m_transactionId, m_startDateTime);
+    }
     else
         finishTaskQueued(false);
 }

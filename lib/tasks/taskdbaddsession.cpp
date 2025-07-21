@@ -2,6 +2,17 @@
 #include "vs_abstractdatabase.h"
 #include "vl_loggedcomponents.h"
 
+TaskTemplatePtr TaskDbAddSession::create(AbstractLoggerDBPtr loggerDb,
+                                         VeinStorage::AbstractEventSystem *veinStorage,
+                                         const QString &dbSessionName,
+                                         std::shared_ptr<int> sessionId)
+{
+    return std::make_unique<TaskDbAddSession>(loggerDb,
+                                              veinStorage,
+                                              dbSessionName,
+                                              sessionId);
+}
+
 TaskDbAddSession::TaskDbAddSession(AbstractLoggerDBPtr loggerDb,
                                    VeinStorage::AbstractEventSystem *veinStorage,
                                    const QString &dbSessionName,
@@ -11,8 +22,6 @@ TaskDbAddSession::TaskDbAddSession(AbstractLoggerDBPtr loggerDb,
     m_dbSessionName(dbSessionName),
     m_sessionId(sessionId)
 {
-    connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigAddSessionCompleted,
-            this, &TaskDbAddSession::onAddSessionCompleted);
 }
 
 void TaskDbAddSession::start()
@@ -27,6 +36,8 @@ void TaskDbAddSession::start()
         allConditionsOk = false;
     }
     if(allConditionsOk) {
+        connect(m_loggerDb.get(), &VeinLogger::AbstractLoggerDB::sigAddSessionCompleted,
+                this, &TaskDbAddSession::onAddSessionCompleted);
         QMultiHash<int, QString> tmpStaticComps;
         const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
         // Add customer data once per session

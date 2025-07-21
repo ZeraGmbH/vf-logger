@@ -9,6 +9,10 @@ class TaskDbAddSession : public TaskTemplate
 {
     Q_OBJECT
 public:
+    static TaskTemplatePtr create(AbstractLoggerDBPtr loggerDb,
+                                                    VeinStorage::AbstractEventSystem *veinStorage,
+                                                    const QString &dbSessionName,
+                                                    std::shared_ptr<int> sessionId);
     TaskDbAddSession(AbstractLoggerDBPtr loggerDb,
                      VeinStorage::AbstractEventSystem *veinStorage,
                      const QString &dbSessionName,
