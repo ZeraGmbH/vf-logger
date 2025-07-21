@@ -33,7 +33,7 @@ QJsonObject JsonLoggedValues::createLoggedValuesJson(QString sessionDeviceName)
     else
         for (const QString &contentSet : m_contentsetsList)
             jsonArray.append(contentSet);
-    loggedValues.insert("contentsets", jsonArray);
+    loggedValues.insert("Contentsets", jsonArray);
     for (auto it = m_entityCompoValues.begin(); it != m_entityCompoValues.end(); ++it)
         loggedValues.insert(it.key(), it.value());
 
