@@ -31,8 +31,6 @@ public:
 
     bool requiresOwnThread() override { return true; }
 
-    bool hasSessionName(const QString &sessionName) const override;
-
     void setStorageMode(AbstractLoggerDB::STORAGE_MODE storageMode) override;
 
     static bool isValidDatabase(QString dbPath);
