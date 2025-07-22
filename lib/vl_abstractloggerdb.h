@@ -44,6 +44,7 @@ public:
     virtual bool requiresOwnThread() = 0;
 
     // These are not thread safe and should go to private
+    virtual bool hasSessionName(const QString &dbSessionName) const = 0;
     virtual int addTransaction(const QString &transactionName,
                                const QString &dbSessionName,
                                const QStringList &contentSets,

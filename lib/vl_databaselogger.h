@@ -38,6 +38,7 @@ signals:
     void sigOpenDatabase(const QString &filePath);
     void sigDatabaseError(const QString &errorMsg);
     void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component);
+    void sigAddSession(const QString &sessionName, QList<VeinLogger::ComponentInfo> staticData);
     void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
 public slots:
     void setLoggingEnabled(bool enabled);
@@ -98,13 +99,11 @@ private:
     QStringList m_contentSets;
     LoggedComponents m_loggedComponents;
     QString m_transactionName;
+    QString m_dbSessionName;
     int m_transactionId;
     QString m_guiContext;
     QString m_loggerStatusText;
     std::unique_ptr<DatabaseFileWatcher> m_dbFileWatcher;
-
-    QString m_dbSessionName;
-    TaskTemplatePtr m_taskDbAddSession;
 };
 }
 
