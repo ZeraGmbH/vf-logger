@@ -32,7 +32,7 @@ void TaskDbAddSession::start()
         allConditionsOk = false;
     }
     if (m_dbSessionName.isEmpty()) {
-        qWarning("Cannot add transaction to nameless session in TaskDbAddSession");
+        qWarning("Cannot add nameless session in TaskDbAddSession");
         allConditionsOk = false;
     }
     if(allConditionsOk) {
