@@ -28,7 +28,7 @@ public:
 private:
     void initEntritiesStoredAlways();
     bool specificContains(int entityId, const QString &componentName) const;
-    static const QStringList getComponentsNotStoredOnAll();
+    static const QStringList getComponentsNotStored();
 
     QHash<int, QSet<QString>> m_entitiesWithSpecificComponents;
     QSet<int> m_entitiesWithAllComponents;

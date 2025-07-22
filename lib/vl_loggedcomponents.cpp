@@ -28,7 +28,7 @@ void LoggedComponents::clear()
     initEntritiesStoredAlways();
 }
 
-const QStringList LoggedComponents::getComponentsNotStoredOnAll()
+const QStringList LoggedComponents::getComponentsNotStored()
 {
     return QStringList()
            << QStringLiteral("EntityName")
@@ -39,7 +39,7 @@ const QStringList LoggedComponents::getComponentsNotStoredOnAll()
 bool LoggedComponents::isLoggedComponent(int entityId, const QString &componentName) const
 {
     if(m_entitiesWithAllComponents.contains(entityId))
-        return !getComponentsNotStoredOnAll().contains(componentName);
+        return !getComponentsNotStored().contains(componentName);
     return specificContains(entityId, componentName);
 }
 
@@ -68,7 +68,7 @@ QStringList LoggedComponents::getComponentsFilteredForDb(const VeinStorage::Abst
                                                          int entityId)
 {
     QStringList fullList = storageDb->getComponentList(entityId);
-    for(const auto &noStoreLabel : getComponentsNotStoredOnAll())
+    for(const auto &noStoreLabel : getComponentsNotStored())
         fullList.removeAll(noStoreLabel);
     return fullList;
 }
