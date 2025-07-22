@@ -217,11 +217,6 @@ bool SQLiteDB::hasComponentName(const QString &componentName) const
     return m_dPtr->m_componentIds.contains(componentName);
 }
 
-bool SQLiteDB::hasSessionName(const QString &sessionName) const
-{
-    return m_dPtr->m_sessionIds.contains(sessionName);
-}
-
 void SQLiteDB::setStorageMode(AbstractLoggerDB::STORAGE_MODE storageMode)
 {
     if(m_dPtr->m_storageMode != storageMode) {

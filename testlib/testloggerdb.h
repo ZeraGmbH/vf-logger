@@ -18,8 +18,6 @@ public:
 
     bool requiresOwnThread() override { return false; }
 
-    bool hasSessionName(const QString &sessionName) const override;
-
     void setStorageMode(STORAGE_MODE storageMode) override;
 
     int addTransaction(const QString &transactionName, const QString &sessionName, const QStringList &contentSets, const QString &guiContextName) override;

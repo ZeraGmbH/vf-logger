@@ -83,11 +83,6 @@ void TestLoggerDB::valuesFromNowOnAreRecorded()
     m_valuesAreInitial = false;
 }
 
-bool TestLoggerDB::hasSessionName(const QString &sessionName) const
-{
-    return m_dbSessionNames.contains(sessionName);
-}
-
 void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
 {
     m_storageMode = storageMode;

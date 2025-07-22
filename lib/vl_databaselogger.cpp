@@ -2,6 +2,7 @@
 #include "loggerstatictexts.h"
 #include "loggercontentsetconfig.h"
 #include "databasefilepathchecker.h"
+#include "taskdbaddsession.h"
 #include <vcmp_entitydata.h>
 #include <vcmp_errordata.h>
 #include <vf-cpp-rpc.h>
@@ -355,8 +356,6 @@ void DatabaseLogger::openDatabase(const QString &filePath)
             this, &DatabaseLogger::onDeleteSessionCompleted, Qt::QueuedConnection);
     connect(this, &DatabaseLogger::sigAddLoggedValue,
             m_database.get(), &AbstractLoggerDB::addLoggedValue, Qt::QueuedConnection);
-    connect(this, &DatabaseLogger::sigAddSession,
-            m_database.get(), &AbstractLoggerDB::addSession, Qt::QueuedConnection);
     connect(this, &DatabaseLogger::sigOpenDatabase,
             m_database.get(), &AbstractLoggerDB::onOpen, Qt::QueuedConnection);
 
@@ -577,34 +576,12 @@ void DatabaseLogger::handleLoggedComponentsChange(QVariant newValue)
 
 void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
 {
-    if(!m_database->hasSessionName(sessionName)) {
-        QMultiHash<int, QString> tmpStaticComps;
-        const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
-        // Add customer data once per session
-        if(storageDb->hasEntity(200))
-            for(const QString &comp : getComponentsFilteredForDb(200))
-                tmpStaticComps.insert(200, comp);
-        // Add status module once per session
-        if(storageDb->hasEntity(1150))
-            for(const QString &comp : getComponentsFilteredForDb(1150))
-                tmpStaticComps.insert(1150, comp);
-
-        QList<ComponentInfo> componentsAddedOncePerSession;
-        for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
-            const QList<QString> tmpComponents = tmpStaticComps.values(tmpEntityId);
-            for(const QString &tmpComponentName : tmpComponents) {
-                ComponentInfo component = {
-                    tmpEntityId,
-                    getEntityName(tmpEntityId),
-                    tmpComponentName,
-                    storageDb->getStoredValue(tmpEntityId, tmpComponentName),
-                    QDateTime::currentDateTime()
-                };
-                componentsAddedOncePerSession.append(component);
-            }
-        }
-        emit sigAddSession(sessionName, componentsAddedOncePerSession);
-    }
+    m_taskDbAddSession = std::make_unique<TaskDbAddSession>(m_database,
+                                                            m_veinStorage,
+                                                            sessionName,
+                                                            std::make_shared<int>(-1));
+    // Fire & forget for now
+    m_taskDbAddSession->start();
 }
 
 QStringList DatabaseLogger::checkConditionsForStartLog() const
