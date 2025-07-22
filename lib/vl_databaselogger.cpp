@@ -232,7 +232,7 @@ void DatabaseLogger::writeCurrentStorageToDb()
     for(const int entityId : entities) {
         QStringList components;
         if(m_loggedComponents.areAllComponentsStored(entityId))
-            components = getComponentsFilteredForDb(entityId);
+            components = LoggedComponents::getComponentsFilteredForDb(storageDb, entityId);
         else
             components = m_loggedComponents.getComponents(entityId);
         for(const QString &component : qAsConst(components)) {
@@ -242,12 +242,6 @@ void DatabaseLogger::writeCurrentStorageToDb()
             }
         }
     }
-}
-
-QStringList DatabaseLogger::getComponentsFilteredForDb(int entityId)
-{
-    QStringList fullList = m_veinStorage->getDb()->getComponentList(entityId);
-    return LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(fullList);
 }
 
 void DatabaseLogger::onSchedulerCountdownToVein()

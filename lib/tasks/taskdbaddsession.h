@@ -22,7 +22,6 @@ private slots:
     void onAddSessionCompleted(int sessionId);
 private:
     QString getEntityName(int entityId) const;
-    const QStringList getComponentsFilteredForDb(int entityId) const;
 
     AbstractLoggerDBPtr m_loggerDb;
     VeinStorage::AbstractEventSystem *m_veinStorage;

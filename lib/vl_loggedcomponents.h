@@ -4,6 +4,7 @@
 #include <QString>
 #include <QHash>
 #include <QSet>
+#include <vs_abstracteventsystem.h>
 
 namespace VeinLogger
 {
@@ -11,7 +12,7 @@ namespace VeinLogger
 class LoggedComponents
 {
 public:
-    LoggedComponents(QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
+    explicit LoggedComponents(QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
     void addComponent(int entityId, const QString &componentName);
     void addAllComponents(int entityId);
     void clear();
@@ -21,7 +22,8 @@ public:
 
     QList<int> getEntities() const;
     QStringList getComponents(int entityId) const;
-    static QStringList removeNotStoredOnEntitiesStoringAllComponents(const QStringList &allComponents);
+    static QStringList getComponentsFilteredForDb(const VeinStorage::AbstractDatabase* storageDb,
+                                                  int entityId);
 
 private:
     void initEntritiesStoredAlways();

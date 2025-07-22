@@ -64,12 +64,13 @@ QStringList LoggedComponents::getComponents(int entityId) const
     return components;
 }
 
-QStringList LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(const QStringList &allComponents)
+QStringList LoggedComponents::getComponentsFilteredForDb(const VeinStorage::AbstractDatabase *storageDb,
+                                                         int entityId)
 {
-    QStringList ret = allComponents;
+    QStringList fullList = storageDb->getComponentList(entityId);
     for(const auto &noStoreLabel : getComponentsNotStoredOnAll())
-        ret.removeAll(noStoreLabel);
-    return ret;
+        fullList.removeAll(noStoreLabel);
+    return fullList;
 }
 
 bool LoggedComponents::specificContains(int entityId, const QString &componentName) const

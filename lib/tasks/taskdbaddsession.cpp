@@ -42,11 +42,11 @@ void TaskDbAddSession::start()
         const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
         // Add customer data once per session
         if(storageDb->hasEntity(200))
-            for(const QString &comp : getComponentsFilteredForDb(200))
+            for(const QString &comp : VeinLogger::LoggedComponents::getComponentsFilteredForDb(storageDb, 200))
                 tmpStaticComps.insert(200, comp);
         // Add status module once per session
         if(storageDb->hasEntity(1150))
-            for(const QString &comp : getComponentsFilteredForDb(1150))
+            for(const QString &comp : VeinLogger::LoggedComponents::getComponentsFilteredForDb(storageDb, 1150))
                 tmpStaticComps.insert(1150, comp);
         QList<VeinLogger::ComponentInfo> componentsAddedOncePerSession;
         for(const int tmpEntityId : tmpStaticComps.uniqueKeys()) { //only process once for every entity
@@ -77,10 +77,4 @@ void TaskDbAddSession::onAddSessionCompleted(int sessionId)
 QString TaskDbAddSession::getEntityName(int entityId) const
 {
     return m_veinStorage->getDb()->getStoredValue(entityId, "EntityName").toString();
-}
-
-const QStringList TaskDbAddSession::getComponentsFilteredForDb(int entityId) const
-{
-    QStringList fullList = m_veinStorage->getDb()->getComponentList(entityId);
-    return VeinLogger::LoggedComponents::removeNotStoredOnEntitiesStoringAllComponents(fullList);
 }

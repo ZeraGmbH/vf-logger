@@ -66,7 +66,6 @@ private:
     void prepareLogging();
     void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
     void writeCurrentStorageToDb();
-    QStringList getComponentsFilteredForDb(int entityId);
     void terminateCurrentDb();
     void emptyCurrentContentSets();
     void emptyLoggedComponents();
