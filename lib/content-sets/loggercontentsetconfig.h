@@ -7,6 +7,9 @@
 
 namespace VeinLogger
 {
+
+typedef QMap<int, QStringList> EntityComponenMap;
+
 class LoggerContentSetConfig
 {
 public:
@@ -20,7 +23,7 @@ public:
     static QStringList getAvailableContentSets();
     static QStringList getAvailableContentSets(QString sessionDeviceName);
     static QVariantMap componentFromContentSets(const QStringList &contentSets);
-
+    static EntityComponenMap entityComponentsFromContentSets(const QStringList &contentSets);
 private:
     static QList<LoggerContentConfigEntry> m_loggerConfigEnvironment;
 };
