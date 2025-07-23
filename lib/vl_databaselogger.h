@@ -2,9 +2,9 @@
 #define VL_DATALOGGER_H
 
 #include "databasefilewatcher.h"
+#include "loggercontentsetshelper.h"
 #include "vflogger_export.h"
 #include "vl_abstractloggerdb.h"
-#include "vl_loggedcomponents.h"
 #include "rpcdeletesession.h"
 #include "rpcdeletetransaction.h"
 #include "rpcdisplaysessionsinfos.h"
@@ -59,8 +59,7 @@ private:
     void dbNameToVein(const QString &filePath);
     void statusTextToVein(const QString &status);
     void initModmanSessionComponent();
-    void handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData);
-    void handleLoggedComponentsChange(QVariant newValue);
+    void handleVeinLoggedComponentsChange(VeinComponent::ComponentData *cData);
     void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
     void handleVeinDbSessionNameSet(QString sessionName);
     void prepareLogging();
@@ -85,6 +84,11 @@ private:
     DBFactory m_databaseFactory;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;
     AbstractLoggerDBPtr m_database;
+
+    const QList<int> m_entitiesWithAllComponentsStoredAlways;
+    QStringList m_contentSets;
+    std::unique_ptr<LoggerContentsetsHelper> m_loggedComponentsHelper;
+
     QThread m_asyncDatabaseThread;
     QString m_databaseFilePath;
     QStringList m_existingSessions;
@@ -95,8 +99,6 @@ private:
     QTimer m_schedulingTimer;
     QTimer m_countdownUpdateTimer;
 
-    QStringList m_contentSets;
-    LoggedComponents m_loggedComponents;
     QString m_transactionName;
     int m_transactionId;
     QString m_guiContext;

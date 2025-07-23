@@ -23,7 +23,12 @@ DatabaseLogger::DatabaseLogger(VeinStorage::AbstractEventSystem *veinStorage,
     m_veinStorage(veinStorage),
     m_databaseFactory(factoryFunction),
     m_storageMode(storageMode),
-    m_loggedComponents(entitiesWithAllComponentsStoredAlways)
+    m_entitiesWithAllComponentsStoredAlways(entitiesWithAllComponentsStoredAlways),
+    m_loggedComponentsHelper(
+          std::make_unique<LoggerContentsetsHelper>(
+                m_entitiesWithAllComponentsStoredAlways,
+                m_contentSets))
+
 {
     switch(storageMode) {
     case AbstractLoggerDB::STORAGE_MODE::TEXT:
@@ -60,22 +65,6 @@ DatabaseLogger::~DatabaseLogger()
     terminateCurrentDb();
 }
 
-void VeinLogger::DatabaseLogger::handleContentSetsChange(const QVariant oldValue, const QVariant newValue)
-{
-    m_contentSets = newValue.toStringList();
-    QVariantMap loggedComponents = LoggerContentSetConfig::componentFromContentSets(m_contentSets);
-    m_loggedComponents.clear();
-
-    // Client: we choose same as a client would - it can still access availableContentSets
-    QEvent* event = VfClientComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::loggedComponentsComponentName,
-                                                           QVariant(), loggedComponents);
-    emit sigSendEvent(event);
-
-    event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName,
-                                                   oldValue, newValue);
-    emit sigSendEvent(event);
-}
-
 void DatabaseLogger::processEvent(QEvent *event)
 {
     using namespace VeinEvent;
@@ -98,7 +87,7 @@ void DatabaseLogger::processEvent(QEvent *event)
 
                 if(cData->eventCommand() == VeinComponent::ComponentData::Command::CCMD_SET) {
                     if(componentName == LoggerStaticTexts::loggedComponentsComponentName)
-                        handleLoggedComponentsSetNotification(cData);
+                        handleVeinLoggedComponentsChange(cData);
                     else if(componentName == LoggerStaticTexts::s_databaseFileComponentName) {
                         if(m_database == nullptr || newValue != m_databaseFilePath) {
                             if(newValue.toString().isEmpty()) //unsetting the file component = closing the database
@@ -227,19 +216,14 @@ void DatabaseLogger::processEvent(QEvent *event)
 
 void DatabaseLogger::writeCurrentStorageToDb()
 {
-    const VeinStorage::AbstractDatabase* storageDb = m_veinStorage->getDb();
-    const QList<int> entities = m_loggedComponents.getEntities();
-    for(const int entityId : entities) {
-        QStringList components;
-        if(m_loggedComponents.areAllComponentsStored(entityId))
-            components = LoggedComponents::getComponentsFilteredForDb(storageDb, entityId);
-        else
-            components = m_loggedComponents.getComponents(entityId);
-        for(const QString &component : qAsConst(components)) {
-            if(storageDb->hasStoredValue(entityId, component)) {
-                const QVariant storedValue = storageDb->getStoredValue(entityId, component);
-                addValueToDb(storedValue, entityId, component);
-            }
+    EntityComponentData entityCompData = m_loggedComponentsHelper->getCurrentData(m_veinStorage);
+    for (auto iterEntity = entityCompData.constBegin(); iterEntity != entityCompData.constEnd(); ++iterEntity) {
+        int entityId = iterEntity.key();
+        const QList<Component> EntityComponentData = iterEntity.value();
+        for (const Component &componentData : EntityComponentData) {
+            QString entityName = getEntityName(entityId);
+            ComponentInfo info = { entityId, entityName, componentData.name, componentData.data, QDateTime::currentDateTime() };
+            emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
         }
     }
 }
@@ -536,36 +520,43 @@ void DatabaseLogger::initOnce()
     }
 }
 
-void DatabaseLogger::handleLoggedComponentsSetNotification(VeinComponent::ComponentData *cData)
+void VeinLogger::DatabaseLogger::handleContentSetsChange(const QVariant oldValue, const QVariant newValue)
+{
+    m_contentSets = newValue.toStringList();
+    m_loggedComponentsHelper = std::make_unique<LoggerContentsetsHelper>(
+        m_entitiesWithAllComponentsStoredAlways,
+        m_contentSets);
+
+    QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_currentContentSetsComponentName,
+                                                           oldValue, newValue);
+    emit sigSendEvent(event);
+
+    // Update LoggedComponents (TODO remove)
+    QVariantMap loggedComponents = LoggerContentSetConfig::componentFromContentSets(m_contentSets);
+    // Client: we choose same as a client would - it can still access availableContentSets
+    event = VfClientComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::loggedComponentsComponentName,
+                                                           QVariant(), loggedComponents);
+    emit sigSendEvent(event);
+
+}
+
+// for (test?) compatibility -> remove LoggedComponents later
+void DatabaseLogger::handleVeinLoggedComponentsChange(VeinComponent::ComponentData *cData)
 {
     QVariant oldValue = cData->oldValue();
     QVariant newValue = cData->newValue();
-    if(oldValue != newValue)
-        handleLoggedComponentsChange(newValue);
+    if(oldValue != newValue) {
+        if(static_cast<QMetaType::Type>(newValue.type()) != QMetaType::QVariantMap) {
+            qWarning("DatabaseLogger::handleLoggedComponentsChange: wrong type");
+            return;
+        }
+        m_loggedComponentsHelper = std::make_unique<LoggerContentsetsHelper>(
+            m_entitiesWithAllComponentsStoredAlways,
+            newValue.toMap());
+    }
 
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, cData->componentName(), oldValue, newValue);
     emit sigSendEvent(event);
-}
-
-void DatabaseLogger::handleLoggedComponentsChange(QVariant newValue)
-{
-    if(static_cast<QMetaType::Type>(newValue.type()) != QMetaType::QVariantMap) {
-        qWarning("DatabaseLogger::handleLoggedComponentsChange: wrong type");
-        return;
-    }
-    m_loggedComponents.clear();
-
-    QVariantMap entityComponentMap = newValue.toMap();
-    QStringList entityIdsStr = entityComponentMap.keys();
-    for(const auto &entityIdStr : entityIdsStr) {
-        QVariantList componentList = entityComponentMap[entityIdStr].toList();
-        if(componentList.size()) {
-            for(auto &component : qAsConst(componentList))
-                m_loggedComponents.addComponent(entityIdStr.toInt(), component.toString());
-        }
-        else
-            m_loggedComponents.addAllComponents(entityIdStr.toInt());
-    }
 }
 
 void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
@@ -602,7 +593,7 @@ void DatabaseLogger::initModmanSessionComponent()
 
 void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
 {
-    if(m_loggedComponents.isLoggedComponent(entityId, componentName)) {
+    if (m_loggedComponentsHelper->isLoggedComponent(entityId, componentName)) {
         QString entityName = getEntityName(entityId);
         ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
         emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
