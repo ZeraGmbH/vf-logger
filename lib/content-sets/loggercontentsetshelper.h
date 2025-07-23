@@ -1,7 +1,6 @@
 #ifndef LOGGERCONTENTSETSHELPER_H
 #define LOGGERCONTENTSETSHELPER_H
 
-#include "loggercontentsetconfig.h"
 #include "vl_loggedcomponents.h"
 #include <vs_abstractdatabase.h>
 
@@ -17,10 +16,10 @@ typedef QMap<int, QList<Component>> EntityComponentData;
 class LoggerContentsetsHelper
 {
 public:
-    explicit LoggerContentsetsHelper(QList<int> entitiesWithAllComponentsStoredAlways,
+    explicit LoggerContentsetsHelper(const QList<int> &entitiesWithAllComponentsStoredAlways,
                                      const QStringList &contentSets);
-    explicit LoggerContentsetsHelper(QList<int> entitiesWithAllComponentsStoredAlways, // for compatibility -> remove later
-                                     QVariantMap entityComponentsVariantMap);
+    explicit LoggerContentsetsHelper(const QList<int> &entitiesWithAllComponentsStoredAlways, // for compatibility -> remove later
+                                     const QVariantMap &entityComponentsVariantMap);
     EntityComponentData getCurrentData(const VeinStorage::AbstractEventSystem *veinStorage) const;
     bool isLoggedComponent(int entityId, const QString &componentName) const;
 private:

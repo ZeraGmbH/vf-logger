@@ -1,9 +1,10 @@
 #include "loggercontentsetshelper.h"
+#include "loggercontentsetconfig.h"
 
 namespace VeinLogger
 {
 
-LoggerContentsetsHelper::LoggerContentsetsHelper(QList<int> entitiesWithAllComponentsStoredAlways,
+LoggerContentsetsHelper::LoggerContentsetsHelper(const QList<int> &entitiesWithAllComponentsStoredAlways,
                                                  const QStringList &contentSets) :
     m_loggedComponents(entitiesWithAllComponentsStoredAlways)
 {
@@ -19,8 +20,8 @@ LoggerContentsetsHelper::LoggerContentsetsHelper(QList<int> entitiesWithAllCompo
     }
 }
 
-LoggerContentsetsHelper::LoggerContentsetsHelper(QList<int> entitiesWithAllComponentsStoredAlways,
-                                                 QVariantMap entityComponentsVariantMap) :
+LoggerContentsetsHelper::LoggerContentsetsHelper(const QList<int> &entitiesWithAllComponentsStoredAlways,
+                                                 const QVariantMap &entityComponentsVariantMap) :
     m_loggedComponents(entitiesWithAllComponentsStoredAlways)
 {
     for (auto iter=entityComponentsVariantMap.cbegin(); iter!=entityComponentsVariantMap.cend(); ++iter) {
