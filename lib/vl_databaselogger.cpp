@@ -65,12 +65,12 @@ DatabaseLogger::~DatabaseLogger()
     terminateCurrentDb();
 }
 
-void DatabaseLogger::processEvent(QEvent *event)
+void DatabaseLogger::processEvent(QEvent *eventToProcess)
 {
     using namespace VeinEvent;
     using namespace VeinComponent;
-    if(event->type()==CommandEvent::getQEventType()) {
-        CommandEvent *cEvent = static_cast<CommandEvent *>(event);
+    if(eventToProcess->type()==CommandEvent::getQEventType()) {
+        CommandEvent *cEvent = static_cast<CommandEvent *>(eventToProcess);
         EventData *evData = cEvent->eventData();
 
         const bool isLogRunning = m_dbReady && m_loggingActive;
@@ -182,7 +182,7 @@ void DatabaseLogger::processEvent(QEvent *event)
                         handleContentSetsChange(cData->oldValue(), newValue);
                     }
 
-                    event->accept();
+                    eventToProcess->accept();
                 }
             }
         }
@@ -218,11 +218,11 @@ void DatabaseLogger::writeCurrentStorageToDb()
 {
     EntityComponentData entityCompData = m_loggedComponentsHelper->getCurrentData(m_veinStorage);
     for (auto iterEntity = entityCompData.constBegin(); iterEntity != entityCompData.constEnd(); ++iterEntity) {
-        int entityId = iterEntity.key();
+        int entId = iterEntity.key();
         const QList<Component> EntityComponentData = iterEntity.value();
         for (const Component &componentData : EntityComponentData) {
-            QString entityName = getEntityName(entityId);
-            ComponentInfo info = { entityId, entityName, componentData.name, componentData.data, QDateTime::currentDateTime() };
+            QString entName = getEntityName(entId);
+            ComponentInfo info = { entId, entName, componentData.name, componentData.data, QDateTime::currentDateTime() };
             emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
         }
     }
@@ -591,11 +591,11 @@ void DatabaseLogger::initModmanSessionComponent()
         onModmanSessionChange(m_modmanSessionComponent->getValue());
 }
 
-void DatabaseLogger::addValueToDb(const QVariant newValue, const int entityId, const QString componentName)
+void DatabaseLogger::addValueToDb(const QVariant &newValue, const int entityId, const QString &componentName)
 {
     if (m_loggedComponentsHelper->isLoggedComponent(entityId, componentName)) {
-        QString entityName = getEntityName(entityId);
-        ComponentInfo info = { entityId, entityName, componentName, newValue, QDateTime::currentDateTime() };
+        QString entName = getEntityName(entityId);
+        ComponentInfo info = { entityId, entName, componentName, newValue, QDateTime::currentDateTime() };
         emit sigAddLoggedValue(m_dbSessionName, QVector<int>() << m_transactionId, info);
     }
 }

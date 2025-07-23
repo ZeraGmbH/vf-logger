@@ -12,10 +12,9 @@ namespace VeinLogger
 class LoggedComponents
 {
 public:
-    explicit LoggedComponents(QList<int> entitiesWithAllComponentsStoredAlways = QList<int>());
+    explicit LoggedComponents(const QList<int> &entitiesWithAllComponentsStoredAlways = QList<int>());
     void addComponent(int entityId, const QString &componentName);
     void addAllComponents(int entityId);
-    void clear();
 
     bool isLoggedComponent(int entityId, const QString &componentName) const;
     bool areAllComponentsStored(int entityId) const;

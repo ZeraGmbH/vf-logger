@@ -28,7 +28,7 @@ public:
                             QList<int> entitiesWithAllComponentsStoredAlways = QList<int>(),
                             AbstractLoggerDB::STORAGE_MODE storageMode=AbstractLoggerDB::STORAGE_MODE::TEXT);
     virtual ~DatabaseLogger();
-    void processEvent(QEvent *event) override;
+    void processEvent(QEvent *eventToProcess) override;
     int entityId() const;
     QString entityName() const;
 
@@ -63,7 +63,7 @@ private:
     void handleContentSetsChange(const QVariant oldValue, const QVariant newValue);
     void handleVeinDbSessionNameSet(QString sessionName);
     void prepareLogging();
-    void addValueToDb(const QVariant newValue, const int entityId, const QString componentName);
+    void addValueToDb(const QVariant &newValue, const int entityId, const QString &componentName);
     void writeCurrentStorageToDb();
     void terminateCurrentDb();
     void emptyCurrentContentSets();

@@ -90,22 +90,6 @@ void test_loggedcomponents::allComponentsNoEntityNameAndMeta()
     QCOMPARE(components.isLoggedComponent(entityId, "foo"), true);
 }
 
-void test_loggedcomponents::addWithComponentAndClear()
-{
-    LoggedComponents components;
-    components.addComponent(entityId, "foo");
-    components.clear();
-    QCOMPARE(components.getEntities(), QList<int>());
-}
-
-void test_loggedcomponents::addAllAndClear()
-{
-    LoggedComponents components;
-    components.addAllComponents(entityId);
-    components.clear();
-    QCOMPARE(components.getEntities(), QList<int>());
-}
-
 static constexpr int entityIdStoredAlways = 37;
 
 void test_loggedcomponents::storeAlwaysNoAdditional()
@@ -121,24 +105,4 @@ void test_loggedcomponents::storeAlwaysNoAdditional()
     QCOMPARE(components.isLoggedComponent(entityIdStoredAlways, "EntityName"), false);
     QCOMPARE(components.isLoggedComponent(entityIdStoredAlways, "INF_ModuleInterface"), false);
     QCOMPARE(components.isLoggedComponent(entityIdStoredAlways, "foo"), true);
-}
-
-void test_loggedcomponents::storeAlwaysAddClearAdd()
-{
-    LoggedComponents components(QList<int>() << entityIdStoredAlways);
-
-    components.addAllComponents(entityId);
-    QCOMPARE(components.getEntities().count(), 2);
-    QCOMPARE(components.getEntities().contains(entityIdStoredAlways), true);
-    QCOMPARE(components.getEntities().contains(entityId), true);
-
-    components.clear();
-    QCOMPARE(components.getEntities().count(), 1);
-    QCOMPARE(components.getEntities().contains(entityIdStoredAlways), true);
-    QCOMPARE(components.getEntities().contains(entityId), false);
-
-    components.addAllComponents(entityId);
-    QCOMPARE(components.getEntities().count(), 2);
-    QCOMPARE(components.getEntities().contains(entityIdStoredAlways), true);
-    QCOMPARE(components.getEntities().contains(entityId), true);
 }

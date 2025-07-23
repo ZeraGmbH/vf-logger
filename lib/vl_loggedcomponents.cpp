@@ -3,7 +3,7 @@
 namespace VeinLogger
 {
 
-LoggedComponents::LoggedComponents(QList<int> entitiesWithAllComponentsStoredAlways) :
+LoggedComponents::LoggedComponents(const QList<int> &entitiesWithAllComponentsStoredAlways) :
     m_entitiesWithAllComponentsStoredAlways(entitiesWithAllComponentsStoredAlways)
 {
     initEntritiesStoredAlways();
@@ -19,13 +19,6 @@ void LoggedComponents::addAllComponents(int entityId)
 {
     m_entitiesWithSpecificComponents.remove(entityId);
     m_entitiesWithAllComponents.insert(entityId);
-}
-
-void LoggedComponents::clear()
-{
-    m_entitiesWithSpecificComponents.clear();
-    m_entitiesWithAllComponents.clear();
-    initEntritiesStoredAlways();
 }
 
 const QStringList LoggedComponents::getComponentsNotStored()
