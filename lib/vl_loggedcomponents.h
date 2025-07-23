@@ -18,7 +18,7 @@ public:
     void clear();
 
     bool isLoggedComponent(int entityId, const QString &componentName) const;
-    bool areAllComponentsStored(int entityId);
+    bool areAllComponentsStored(int entityId) const;
 
     QList<int> getEntities() const;
     QStringList getComponents(int entityId) const;

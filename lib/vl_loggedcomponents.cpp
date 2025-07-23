@@ -43,7 +43,7 @@ bool LoggedComponents::isLoggedComponent(int entityId, const QString &componentN
     return specificContains(entityId, componentName);
 }
 
-bool LoggedComponents::areAllComponentsStored(int entityId)
+bool LoggedComponents::areAllComponentsStored(int entityId) const
 {
     return m_entitiesWithAllComponents.contains(entityId);
 }
