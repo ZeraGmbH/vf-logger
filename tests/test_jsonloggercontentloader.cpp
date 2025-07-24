@@ -1,5 +1,5 @@
 #include "test_jsonloggercontentloader.h"
-#include "jsonloggercontentloader.h"
+#include "contentsetsotherfromcontentsetsconfig.h"
 #include <QFileInfo>
 #include <QTest>
 
@@ -7,13 +7,13 @@ QTEST_MAIN(test_jsonloggercontentloader)
 
 void test_jsonloggercontentloader::noSessionSetEmptyAvailableContentSets()
 {
-    JsonLoggerContentLoader loader;
+    ContentSetsOtherFromContentSetsConfig loader;
     QVERIFY(loader.getAvailableContentSets().isEmpty());
 }
 
 void test_jsonloggercontentloader::testSimpleAvailContentSets()
 {
-    JsonLoggerContentLoader loader;
+    ContentSetsOtherFromContentSetsConfig loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid.json");
     QStringList cs = loader.getAvailableContentSets();
@@ -26,7 +26,7 @@ void test_jsonloggercontentloader::testSimpleAvailContentSets()
 
 void test_jsonloggercontentloader::testSimpleEntityComponentsNoMatch()
 {
-    JsonLoggerContentLoader loader;
+    ContentSetsOtherFromContentSetsConfig loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("foo");
@@ -35,7 +35,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsNoMatch()
 
 void test_jsonloggercontentloader::testSimpleEntityComponentsActual()
 {
-    JsonLoggerContentLoader loader;
+    ContentSetsOtherFromContentSetsConfig loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraActualValues");
@@ -46,7 +46,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsActual()
 
 void test_jsonloggercontentloader::testSimpleEntityComponentsHarmonics()
 {
-    JsonLoggerContentLoader loader;
+    ContentSetsOtherFromContentSetsConfig loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraHarmonics");
@@ -57,7 +57,7 @@ void test_jsonloggercontentloader::testSimpleEntityComponentsHarmonics()
 
 void test_jsonloggercontentloader::testSimpleEntityComponentsDcRef()
 {
-    JsonLoggerContentLoader loader;
+    ContentSetsOtherFromContentSetsConfig loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraDCReference");

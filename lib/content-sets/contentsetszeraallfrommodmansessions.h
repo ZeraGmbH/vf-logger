@@ -1,13 +1,13 @@
-#ifndef JSONLOGGERCONTENTSESSIONLOADER_H
-#define JSONLOGGERCONTENTSESSIONLOADER_H
+#ifndef CONTENTSETSZERAALLFROMMODMANSESSIONS_H
+#define CONTENTSETSZERAALLFROMMODMANSESSIONS_H
 
 #include <vf_loggercontenthandler.h>
 #include <QJsonObject>
 
-class JsonLoggerContentSessionLoader : public LoggerContentHandler
+class ContentSetsZeraAllFromModmanSessions : public LoggerContentHandler
 {
 public:
-    JsonLoggerContentSessionLoader();
+    ContentSetsZeraAllFromModmanSessions();
     void setConfigFileDir(const QString &dir) override;
     void setModmanSession(const QString &session) override;
     QString getModmanSession() override;
@@ -19,4 +19,4 @@ private:
     QJsonObject m_currentJsonContentSet;
 };
 
-#endif // JSONLOGGERCONTENTSESSIONLOADER_H
+#endif // CONTENTSETSZERAALLFROMMODMANSESSIONS_H

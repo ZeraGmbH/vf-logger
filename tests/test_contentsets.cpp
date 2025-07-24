@@ -1,7 +1,7 @@
 #include "test_contentsets.h"
 #include "loggerstatictexts.h"
-#include "jsonloggercontentloader.h"
-#include "jsonloggercontentsessionloader.h"
+#include "contentsetsotherfromcontentsetsconfig.h"
+#include "contentsetszeraallfrommodmansessions.h"
 #include "testloghelpers.h"
 #include "loggercontentsetconfig.h"
 #include <timemachineobject.h>
@@ -23,10 +23,10 @@ void test_contentsets::contentSetsJsonEnviornmentSetTwice()
 {
     QCOMPARE(VeinLogger::LoggerContentSetConfig::getConfigEnvironment().count(), 2);
 
-    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<JsonLoggerContentLoader>());
+    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<ContentSetsOtherFromContentSetsConfig>());
     QCOMPARE(VeinLogger::LoggerContentSetConfig::getConfigEnvironment().count(), 2);
 
-    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
+    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<ContentSetsZeraAllFromModmanSessions>());
     QCOMPARE(VeinLogger::LoggerContentSetConfig::getConfigEnvironment().count(), 2);
 }
 

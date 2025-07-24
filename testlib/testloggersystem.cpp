@@ -1,9 +1,9 @@
 #include "testloggersystem.h"
 #include "testloggerdb.h"
 #include "testsqlitedb.h"
-#include "jsonloggercontentloader.h"
-#include "jsonloggercontentsessionloader.h"
 #include "loggercontentsetconfig.h"
+#include "contentsetsotherfromcontentsetsconfig.h"
+#include "contentsetszeraallfrommodmansessions.h"
 #include <vs_dumpjson.h>
 #include <modulemanagersetupfacade.h>
 #include <timemachineobject.h>
@@ -19,8 +19,8 @@ const QLatin1String TestLoggerSystem::DBNameOpenErrorLate = QLatin1String("/tmp/
 TestLoggerSystem::TestLoggerSystem(DbType dbType) :
     m_dbType(dbType)
 {
-    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<JsonLoggerContentLoader>());
-    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<JsonLoggerContentSessionLoader>());
+    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/contentsets/", std::make_shared<ContentSetsOtherFromContentSetsConfig>());
+    VeinLogger::LoggerContentSetConfig::setJsonEnvironment(":/sessions/", std::make_shared<ContentSetsZeraAllFromModmanSessions>());
 }
 
 void TestLoggerSystem::setupServer(int entityCount,

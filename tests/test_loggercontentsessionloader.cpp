@@ -1,18 +1,18 @@
 #include "test_loggercontentsessionloader.h"
-#include "jsonloggercontentsessionloader.h"
+#include "contentsetszeraallfrommodmansessions.h"
 #include <QTest>
 
 QTEST_MAIN(test_loggercontentsessionloader)
 
 void test_loggercontentsessionloader::noSessionSetEmptyAvailableContentSets()
 {
-    JsonLoggerContentSessionLoader loader;
+    ContentSetsZeraAllFromModmanSessions loader;
     QVERIFY(loader.getAvailableContentSets().isEmpty());
 }
 
 void test_loggercontentsessionloader::testSimpleAvailContentSets()
 {
-    JsonLoggerContentSessionLoader loader;
+    ContentSetsZeraAllFromModmanSessions loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid-session.json");
     QStringList cs = loader.getAvailableContentSets();
@@ -22,7 +22,7 @@ void test_loggercontentsessionloader::testSimpleAvailContentSets()
 
 void test_loggercontentsessionloader::testSimpleEntityComponentsNoMatch()
 {
-    JsonLoggerContentSessionLoader loader;
+    ContentSetsZeraAllFromModmanSessions loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid-session.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("foo");
@@ -31,7 +31,7 @@ void test_loggercontentsessionloader::testSimpleEntityComponentsNoMatch()
 
 void test_loggercontentsessionloader::testSimpleEntityComponentsAll()
 {
-    JsonLoggerContentSessionLoader loader;
+    ContentSetsZeraAllFromModmanSessions loader;
     loader.setConfigFileDir(JSON_TEST_DIR);
     loader.setModmanSession("simple-valid-session.json");
     QMap<int, QStringList> entityComponentMap = loader.getEntityComponents("ZeraAll");

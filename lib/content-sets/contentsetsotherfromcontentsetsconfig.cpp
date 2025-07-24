@@ -1,34 +1,34 @@
-#include "jsonloggercontentloader.h"
+#include "contentsetsotherfromcontentsetsconfig.h"
 #include <zera-jsonfileloader.h>
 #include <QDir>
 #include <QJsonArray>
 
-JsonLoggerContentLoader::JsonLoggerContentLoader()
+ContentSetsOtherFromContentSetsConfig::ContentSetsOtherFromContentSetsConfig()
 {
 }
 
-void JsonLoggerContentLoader::setConfigFileDir(const QString &dir)
+void ContentSetsOtherFromContentSetsConfig::setConfigFileDir(const QString &dir)
 {
     m_configFileDir = dir;
 }
 
-void JsonLoggerContentLoader::setModmanSession(const QString &session)
+void ContentSetsOtherFromContentSetsConfig::setModmanSession(const QString &session)
 {
     m_session = session;
     m_currentJsonContentSet = cJsonFileLoader::loadJsonFile(QDir::cleanPath(m_configFileDir + QDir::separator() + session));
 }
 
-QString JsonLoggerContentLoader::getModmanSession()
+QString ContentSetsOtherFromContentSetsConfig::getModmanSession()
 {
     return m_session;
 }
 
-QStringList JsonLoggerContentLoader::getAvailableContentSets()
+QStringList ContentSetsOtherFromContentSetsConfig::getAvailableContentSets()
 {
     return m_currentJsonContentSet.keys();
 }
 
-QMap<int, QStringList> JsonLoggerContentLoader::getEntityComponents(const QString &contentSetName)
+QMap<int, QStringList> ContentSetsOtherFromContentSetsConfig::getEntityComponents(const QString &contentSetName)
 {
     QMap<int, QStringList> ret;
     const auto ecArr = m_currentJsonContentSet[contentSetName].toArray();
