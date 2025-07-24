@@ -3,6 +3,11 @@
 #include <QDir>
 #include <QJsonArray>
 
+
+const QSet<int> ContentSetsZeraAllFromModmanSessions::m_entitiesNotAddedToZeraAllContentSet =
+    // apimodule / scpimodule
+    QSet<int>() << 1500 << 9999;
+
 ContentSetsZeraAllFromModmanSessions::ContentSetsZeraAllFromModmanSessions()
 {
 }
@@ -39,7 +44,8 @@ QMap<int, QStringList> ContentSetsZeraAllFromModmanSessions::getEntityComponents
         const auto ecArr = m_currentJsonContentSet["modules"].toArray();
         for(const auto &arrEntry : ecArr) {
             int entityId = arrEntry["id"].toInt();
-            ret.insert(entityId, QStringList());
+            if (!m_entitiesNotAddedToZeraAllContentSet.contains(entityId))
+                ret.insert(entityId, QStringList());
         }
     }
     return ret;

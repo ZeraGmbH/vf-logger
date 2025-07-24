@@ -2,6 +2,7 @@
 #define CONTENTSETSZERAALLFROMMODMANSESSIONS_H
 
 #include <vf_loggercontenthandler.h>
+#include <QSet>
 #include <QJsonObject>
 
 class ContentSetsZeraAllFromModmanSessions : public LoggerContentHandler
@@ -17,6 +18,8 @@ private:
     QString m_session;
     QString m_configFileDir;
     QJsonObject m_currentJsonContentSet;
+
+    const static QSet<int> m_entitiesNotAddedToZeraAllContentSet;
 };
 
 #endif // CONTENTSETSZERAALLFROMMODMANSESSIONS_H
