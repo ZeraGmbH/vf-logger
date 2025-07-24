@@ -1,4 +1,4 @@
-#include "vl_loggedcomponents.h"
+#include "loggedcomponents.h"
 
 namespace VeinLogger
 {

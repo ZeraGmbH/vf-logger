@@ -1,6 +1,5 @@
 #include "test_loggedcomponents.h"
-#include "qtestcase.h"
-#include "vl_loggedcomponents.h"
+#include "loggedcomponents.h"
 #include <QTest>
 
 QTEST_MAIN(test_loggedcomponents)

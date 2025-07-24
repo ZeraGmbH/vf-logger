@@ -1,6 +1,6 @@
 #include "taskdbaddsession.h"
-#include "vs_abstractdatabase.h"
-#include "vl_loggedcomponents.h"
+#include "loggedcomponents.h"
+#include <vs_abstractdatabase.h>
 
 TaskTemplatePtr TaskDbAddSession::create(AbstractLoggerDBPtr loggerDb,
                                          VeinStorage::AbstractEventSystem *veinStorage,

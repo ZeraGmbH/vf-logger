@@ -1,7 +1,7 @@
 #ifndef LOGGERCONTENTSETSHELPER_H
 #define LOGGERCONTENTSETSHELPER_H
 
-#include "vl_loggedcomponents.h"
+#include "loggedcomponents.h"
 #include <vs_abstractdatabase.h>
 
 namespace VeinLogger
