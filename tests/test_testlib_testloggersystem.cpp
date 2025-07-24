@@ -22,5 +22,5 @@ void test_testlib_testloggersystem::systemSetupProperly()
 
     QByteArray jsonDumped = m_testSystem.dumpStorage(QList<int>() << systemEntityId << dataLoggerEntityId << m_testSystem.getComponentsCreated().keys());
 
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }

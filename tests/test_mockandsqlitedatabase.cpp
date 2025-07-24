@@ -43,7 +43,7 @@ void test_mockandsqlitedatabase::createSessionInsertsEntityComponents()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::createSessionWithCustomerDataAlreadyCreated()
@@ -77,7 +77,7 @@ void test_mockandsqlitedatabase::logInsertsEntityComponents()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 
     m_testSystem->setComponentValues(2);
 
@@ -93,7 +93,7 @@ void test_mockandsqlitedatabase::openDatabaseErrorEarly()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem->dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::openDatabaseOk()
@@ -114,7 +114,7 @@ void test_mockandsqlitedatabase::openDatabaseErrorLate()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem->dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 constexpr bool rpc_signature_ok = true;
@@ -143,7 +143,7 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displaySessionInfosInvalidSession()
@@ -189,7 +189,7 @@ void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
     QVERIFY(fileSessionInfo.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileSessionInfo.readAll();
 
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displaySessionInfoBeforeDbLoaded()
@@ -367,7 +367,7 @@ void test_mockandsqlitedatabase::listAllSessions()
     QVERIFY(fileSession.open(QFile::ReadOnly));
     QByteArray jsonExpected = fileSession.readAll();
 
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::listNoSession()
@@ -433,7 +433,7 @@ void test_mockandsqlitedatabase::displayLoggedValues()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesOnDifferentSessionDeviceName()
@@ -499,7 +499,7 @@ void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jsonExpected = file.readAll();
 
-    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
