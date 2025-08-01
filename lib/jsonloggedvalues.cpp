@@ -9,14 +9,19 @@ JsonLoggedValues::JsonLoggedValues(QStringList contentsetsList)
 
 void JsonLoggedValues::appendLoggedValues(QString entityId, QString componentName, QVariant value)
 {
+    QVariant precisedValue = value;
+    if(value.typeName() == QLatin1String("double") || value.typeName() == QLatin1String("float")) {
+        QString strValue = QString::number(value.toDouble(), 'f', 8);
+        precisedValue = strValue.toDouble();
+    }
     if(!m_entityCompoValues.contains(entityId)) {
         QJsonObject compoValues;
-        compoValues.insert(componentName, value.toJsonValue());
+        compoValues.insert(componentName, precisedValue.toJsonValue());
         m_entityCompoValues.insert(entityId, compoValues);
     }
     else {
         QJsonObject compoValues = m_entityCompoValues.value(entityId).toObject();
-        compoValues.insert(componentName, value.toJsonValue());
+        compoValues.insert(componentName, precisedValue.toJsonValue());
         m_entityCompoValues[entityId] = compoValues;
     }
 }
