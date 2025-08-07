@@ -36,6 +36,15 @@ void AbstractLoggerDB::startDisplaySessionsInfos(QUuid callId, const QString &se
                               Q_ARG(QString, sessionName));
 }
 
+void AbstractLoggerDB::startDisplayCustomerData(QUuid callId, const QString &sessionName)
+{
+    QMetaObject::invokeMethod(this,
+                              "onDisplayCustomerData",
+                              Qt::QueuedConnection,
+                              Q_ARG(QUuid, callId),
+                              Q_ARG(QString, sessionName));
+}
+
 void AbstractLoggerDB::startListAllSessions(QUuid callId)
 {
     QMetaObject::invokeMethod(this,

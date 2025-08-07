@@ -104,6 +104,18 @@ void TestLoggerSystem::setComponent(int entityId, QString componentName, QVarian
     m_server->setComponentClientTransaction(entityId, componentName, newValue);
 }
 
+void TestLoggerSystem::setCustomerDataComponent(QString componentName, QVariant newValue)
+{
+    if(TestLoggerDB::getCurrentInstance()) {
+        TestLoggerDB::getCurrentInstance()->initCustomerDataOnce();
+        QJsonObject customerData = TestLoggerDB::getCurrentInstance()->getCustomerData();
+        if(customerData.contains(componentName))
+            TestLoggerDB::getCurrentInstance()->setCustomerDataComponent(componentName, newValue);
+    }
+    else
+        m_server->setComponentClientTransaction(customerDataEntityId, componentName, newValue);
+}
+
 void TestLoggerSystem::setComponentValues(int valuesEmittedPerComponent)
 {
     QMap<int, QList<QString>> componentsCreated = getComponentsCreated();

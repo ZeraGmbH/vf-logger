@@ -56,5 +56,8 @@
         <file>logged-values/LogAll.json</file>
         <file>logged-values/LogTestSet1.json</file>
         <file>logged-values/LogTestSet2.json</file>
+
+        <file>customerData/emptyCustomerData.json</file>
+        <file>customerData/filledCustomerData.json</file>
     </qresource>
 </RCC>

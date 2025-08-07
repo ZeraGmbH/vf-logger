@@ -18,6 +18,7 @@ TestLoggerDB::TestLoggerDB(TestDbAddSignaller *testSignaller) :
     if(m_instance)
         qFatal("m_instance is set!");
     m_instance = this;
+    m_isInitalized = false;
 }
 
 TestLoggerDB::~TestLoggerDB()
@@ -83,6 +84,50 @@ void TestLoggerDB::valuesFromNowOnAreRecorded()
     m_valuesAreInitial = false;
 }
 
+void TestLoggerDB::initCustomerDataOnce()
+{
+    if(!m_isInitalized) {
+        m_isInitalized = true;
+        m_customerData.insert("FileSelected", "");
+        m_customerData.insert("PAR_CustomerCity", "");
+        m_customerData.insert("PAR_CustomerComment", "");
+        m_customerData.insert("PAR_CustomerCountry", "");
+        m_customerData.insert("PAR_CustomerFirstName", "");
+        m_customerData.insert("PAR_CustomerLastName", "");
+        m_customerData.insert("PAR_CustomerNumber", "");
+        m_customerData.insert("PAR_CustomerPostalCode", "");
+        m_customerData.insert("PAR_CustomerStreet", "");
+        m_customerData.insert("PAR_DatasetComment", "");
+        m_customerData.insert("PAR_DatasetIdentifier", "");
+        m_customerData.insert("PAR_LocationCity", "");
+        m_customerData.insert("PAR_LocationComment", "");
+        m_customerData.insert("PAR_LocationCountry", "");
+        m_customerData.insert("PAR_LocationFirstName", "");
+        m_customerData.insert("PAR_LocationLastName", "");
+        m_customerData.insert("PAR_LocationNumber", "");
+        m_customerData.insert("PAR_LocationPostalCode", "");
+        m_customerData.insert("PAR_LocationStreet", "");
+        m_customerData.insert("PAR_MeterComment", "");
+        m_customerData.insert("PAR_MeterFactoryNumber", "");
+        m_customerData.insert("PAR_MeterManufacturer", "");
+        m_customerData.insert("PAR_MeterOwner", "");
+        m_customerData.insert("PAR_PowerGridComment", "");
+        m_customerData.insert("PAR_PowerGridOperator", "");
+        m_customerData.insert("PAR_PowerGridSupplier", "");
+    }
+}
+
+QJsonObject TestLoggerDB::getCustomerData()
+{
+    return m_customerData;
+}
+
+void TestLoggerDB::setCustomerDataComponent(QString componentName, QVariant value)
+{
+    if(m_customerData.contains(componentName))
+        m_customerData[componentName] = value.toJsonValue();
+}
+
 void TestLoggerDB::setStorageMode(STORAGE_MODE storageMode)
 {
     m_storageMode = storageMode;
@@ -135,6 +180,16 @@ void TestLoggerDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionNa
             sessionObject.insert(transactionName, transactionObject);
         }
         emit sigDisplaySessionInfosCompleted(callId, true, QString(), sessionObject);
+    }
+}
+
+void TestLoggerDB::onDisplayCustomerData(QUuid callId, const QString &sessionName)
+{
+    if(!m_sessions.contains(sessionName))
+        emit sigDisplayCustomerDataCompleted(callId, false, "Select an existing session", QJsonObject());
+    else {
+        initCustomerDataOnce();
+        emit sigDisplayCustomerDataCompleted(callId, true, QString(), m_customerData);
     }
 }
 

@@ -37,9 +37,14 @@ public:
     void valuesFromNowOnAreInitial();
     void valuesFromNowOnAreRecorded();
 
+    void initCustomerDataOnce();
+    QJsonObject getCustomerData();
+    void setCustomerDataComponent(QString componentName, QVariant value);
+
 private:
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
+    void onDisplayCustomerData(QUuid callId, const QString &sessionName) override;
     void onListAllSessions(QUuid callId) override;
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     void onDeleteSession(QUuid callId, const QString &session) override;
@@ -83,6 +88,8 @@ private:
     };
     typedef QMap<QString, TransactionInfo> Transactions;
     QMap<QString, Transactions> m_sessions;
+    QJsonObject m_customerData;
+    bool m_isInitalized;
 
     static TestLoggerDB* m_instance;
 };
