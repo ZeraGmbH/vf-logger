@@ -28,6 +28,7 @@ public:
     void cleanup();
 
     void setComponent(int entityId, QString componentName, QVariant newValue);
+    void setCustomerDataComponent(QString componentName, QVariant newValue);
     void setComponentValues(int valuesEmittedPerComponent);
 
     QVariant getValueOfComponent(int entityId, QString componentName);

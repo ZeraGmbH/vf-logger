@@ -52,6 +52,7 @@ protected:
 private:
     void onDeleteTransaction(QUuid callId, const QString &transactionName) override;
     void onDisplaySessionsInfos(QUuid callId, const QString &sessionName) override;
+    void onDisplayCustomerData(QUuid callId, const QString &sessionName) override;
     void onListAllSessions(QUuid callId) override;
     void onDisplayActualValues(QUuid callId, const QString &transactionName) override;
     void onDeleteSession(QUuid callId, const QString &session) override;

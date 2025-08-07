@@ -552,6 +552,26 @@ void SQLiteDB::onDisplaySessionsInfos(QUuid callId, const QString &sessionName)
     }
 }
 
+void SQLiteDB::onDisplayCustomerData(QUuid callId, const QString &sessionName)
+{
+    if(!m_dPtr->m_sessionIds.contains(sessionName))
+        emit sigDisplayCustomerDataCompleted(callId, false, "Select an existing session", QJsonObject());
+    else {
+        const QString entityName = "CustomerData";
+        m_dPtr->m_sessionCustomerQuery.bindValue(":sessionname", sessionName);
+        m_dPtr->m_sessionCustomerQuery.bindValue(":entity", entityName);
+        m_dPtr->m_sessionCustomerQuery.exec();
+
+        QJsonObject customerData;
+        while(m_dPtr->m_sessionCustomerQuery.next()) {
+            QString componentName = m_dPtr->m_sessionCustomerQuery.value("component_name").toString();
+            QVariant componentValue = m_dPtr->m_sessionCustomerQuery.value("component_value");
+            customerData.insert(componentName, componentValue.toJsonValue());
+        }
+        emit sigDisplayCustomerDataCompleted(callId, true, QString(), customerData);
+    }
+}
+
 void SQLiteDB::onDeleteTransaction(QUuid callId, const QString &transactionName)
 {
     bool deleted = false;
@@ -749,7 +769,7 @@ void SQLiteDB::onOpen(const QString &dbPath)
                                                        " sessions_valuemap ON sessions.id = sessions_valuemap.sessionsid INNER JOIN"
                                                        " valuemap ON sessions_valuemap.valueid = valuemap.id INNER JOIN entities ON valuemap.entityiesid = entities.id INNER JOIN"
                                                        " components ON valuemap.componentid = components.id"
-                                                       " WHERE session_name= :sessionname AND entity_name= :entity AND component_name= :component;");
+                                                       " WHERE session_name= :sessionname AND entity_name= :entity;");
 
                 m_dPtr->m_displayInfosQuery.prepare("SELECT sessions.session_name,"
                                                     " transactions.transaction_name, transactions.contentset_names, transactions.guicontext_name, transactions.start_time"

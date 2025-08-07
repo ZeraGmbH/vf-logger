@@ -545,6 +545,113 @@ void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
     QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
 }
 
+void test_mockandsqlitedatabase::NoCustomerDataSet()
+{
+    m_testSystem->appendCustomerDataSystem();
+    m_testSystem->loadDatabase();
+    QMap<int, QList<QString>> map = m_testSystem->getServer()->getTestEntityComponentInfo();
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "session1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "session1");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayCustomerData", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonDocument jsonDocument(jsonObj);
+    QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
+
+    QFile customerfile(":/customerData/emptyCustomerData.json");
+    QVERIFY(customerfile.open(QFile::ReadOnly));
+    QByteArray jsonExpected = customerfile.readAll();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+}
+
+void test_mockandsqlitedatabase::displayEmptyCustomerData()
+{
+    m_testSystem->appendCustomerDataSystem();
+    m_testSystem->loadDatabase();
+
+    QString dirPath = m_testSystem->getCustomerDataPath();
+    QString filePath = QDir(dirPath).filePath("test.json");
+    QJsonDocument jsonDoc;
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly))
+        qCritical() << "Could not open file for writing:" << filePath;
+
+    file.write(jsonDoc.toJson());
+    file.close();
+
+    m_testSystem->setComponent(customerDataEntityId, "FileSelected", "test.json");
+    TimeMachineObject::feedEventLoop();
+
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "sessionTest");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "sessionTest");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayCustomerData", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonDocument jsonDocument(jsonObj);
+    QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
+
+    QFile customerfile(":/customerData/emptyCustomerData.json");
+    QVERIFY(customerfile.open(QFile::ReadOnly));
+    QByteArray jsonExpected = customerfile.readAll();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+}
+
+void test_mockandsqlitedatabase::displayEnteredCustomerData()
+{
+    m_testSystem->appendCustomerDataSystem();
+    m_testSystem->loadDatabase();
+
+    QString dirPath = m_testSystem->getCustomerDataPath();
+    QString filePath = QDir(dirPath).filePath("test.json");
+    QJsonDocument jsonDoc;
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::WriteOnly))
+        qCritical() << "Could not open file for writing:" << filePath;
+
+    file.write(jsonDoc.toJson());
+    file.close();
+
+    m_testSystem->setComponent(customerDataEntityId, "FileSelected", "test.json");
+    TimeMachineObject::feedEventLoop();
+    m_testSystem->setCustomerDataComponent("PAR_CustomerFirstName", "foo");
+    m_testSystem->setCustomerDataComponent("PAR_CustomerLastName", "bar");
+    m_testSystem->setCustomerDataComponent("PAR_CustomerCity", "Königswinter");
+    m_testSystem->setCustomerDataComponent("PAR_CustomerCountry", "Germany");
+
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "sessionTest");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_session", "sessionTest");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayCustomerData", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonDocument jsonDocument(jsonObj);
+    QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
+
+    QFile customerfile(":/customerData/filledCustomerData.json");
+    QVERIFY(customerfile.open(QFile::ReadOnly));
+    QByteArray jsonExpected = customerfile.readAll();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+}
+
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)
 {
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", session);
