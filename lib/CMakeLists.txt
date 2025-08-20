@@ -40,6 +40,7 @@ target_link_libraries(VfLogger
     zera-json-params
     Qt5::Sql
     Qt5::Concurrent
+    Qt5::Gui
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})

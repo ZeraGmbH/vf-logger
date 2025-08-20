@@ -13,7 +13,7 @@ include(FeatureSummary)
 include(GNUInstallDirs)
 include(GenerateExportHeader)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Sql Concurrent Test CONFIG)
+find_package(Qt5 REQUIRED COMPONENTS Core Sql Concurrent Gui Test CONFIG)
 find_package(VeinFramework REQUIRED)
 find_package(zera-json-params REQUIRED)
 
