@@ -1,12 +1,10 @@
 <RCC>
     <qresource prefix="/">
         <file>database/readOnlyDatabase.db</file>
-
         <file>contentsets/test-session1.json</file>
         <file>contentsets/test-session2.json</file>
         <file>sessions/test-session1.json</file>
         <file>sessions/test-session2.json</file>
-
         <file>recording-dumps/dumpCreateSession.json</file>
         <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
         <file>recording-dumps/dumpRecordAllContentSets.json</file>
@@ -17,15 +15,12 @@
         <file>recording-dumps/dumpRecordNotStarted.json</file>
         <file>recording-dumps/dumpRecordOneContentSet.json</file>
         <file>recording-dumps/dumpRecordTwoContentSets.json</file>
-
         <file>session-infos/DbTestSession1.json</file>
         <file>session-infos/DbTestSession1MultipleTransactions.json</file>
         <file>session-infos/AllSessions.json</file>
-
         <file>sqlite-inserts/dumpRecordTwoEntityComponents.json</file>
         <file>sqlite-inserts/dumpSessionCreated.json</file>
         <file>sqlite-inserts/dumpSessionInfos.json</file>
-
         <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
         <file>vein-dumps/dumpDbFileRemoved.json</file>
         <file>vein-dumps/dumpDbGuiContext.json</file>
@@ -52,12 +47,16 @@
         <file>vein-dumps/dumpSetContentValidAllSessionChange.json</file>
         <file>vein-dumps/dumpSetContentValidTwo.json</file>
         <file>vein-dumps/dumpSetContentValidTwoSame.json</file>
-
         <file>logged-values/LogAll.json</file>
         <file>logged-values/LogTestSet1.json</file>
         <file>logged-values/LogTestSet2.json</file>
-
         <file>customerData/emptyCustomerData.json</file>
         <file>customerData/filledCustomerData.json</file>
+        <file>vectors-options/complete-options</file>
+        <file>vectors-options/some-extra-colors</file>
+        <file>vectors-options/missing-some-colors</file>
+        <file>vectors-options/some-extra-labels</file>
+        <file>vectors-options/missing-some-labels</file>
+        <file>vectors-options/missing-current-lengths</file>
     </qresource>
 </RCC>

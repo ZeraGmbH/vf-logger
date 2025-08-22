@@ -3,6 +3,7 @@ file(GLOB SOURCES
     content-sets/*.cpp
     file-helpers/*.cpp
     rpc/*.cpp
+    rpc-param-helpers/*.cpp
     tasks/*.cpp
     )
 
@@ -11,6 +12,7 @@ file(GLOB HEADERS
     content-sets/*.h
     file-helpers/*.h
     rpc/*.h
+    rpc-param-helpers/*.h
     tasks/*.h
     )
 
@@ -61,6 +63,7 @@ target_include_directories(VfLogger
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/content-sets>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/file-helpers>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/rpc>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/rpc-param-helpers>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tasks>
     )
 

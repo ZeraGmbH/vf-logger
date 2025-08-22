@@ -1,0 +1,12 @@
+{
+    "labels": {
+        "UL1": "Van",
+        "UL2": "Vbn",
+        "UL3": "Vcn",
+        "UAUX": "Vdn",
+        "IL1": "Ia",
+        "IL2": "Ib",
+        "IL3": "Ic",
+        "IAUX": "Id"
+    }
+}
