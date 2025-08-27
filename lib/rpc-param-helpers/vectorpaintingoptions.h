@@ -12,6 +12,7 @@ class VectorPaintingOptions
 public:
     VectorPaintingOptions();
     bool convertJsonParams(const QString &param);
+    void calculateNominalAndMinValues(QJsonObject loggedValues);
     QColor getPhaseColor(int idx) const;
     QString getPhaseLabel(int idx) const;
     VectorSettingsUser::VectorStandard getVectorStandard() const;
@@ -35,7 +36,7 @@ private:
     void extractColors(const QJsonObject &inputJson);
     void extractLabels(const QJsonObject &inputJson);
     void extractUserSettings(const QJsonObject &inputJson);
-    void extractLengthSettings(const QJsonObject &inputJson);
+    void extractNominalSelection(const QJsonObject &inputJson);
     void extractStyle(const QJsonObject &inputJson);
 
     static const QMap<QString, int> m_channelNamesIndexMap;

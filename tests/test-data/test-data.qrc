@@ -57,6 +57,6 @@
         <file>vectors-options/missing-some-colors</file>
         <file>vectors-options/some-extra-labels</file>
         <file>vectors-options/missing-some-labels</file>
-        <file>vectors-options/missing-current-lengths</file>
+        <file>logged-values/rangeValues.json</file>
     </qresource>
 </RCC>

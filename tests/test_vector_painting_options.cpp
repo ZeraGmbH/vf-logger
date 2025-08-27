@@ -1,5 +1,8 @@
 #include "test_vector_painting_options.h"
+#include <vs_dumpjson.h>
+#include <QJsonDocument>
 #include <QTest>
+#include <cmath>
 
 QTEST_MAIN(test_vector_painting_options)
 
@@ -51,13 +54,7 @@ void test_vector_painting_options::validJsonWithAllOptions()
 
     QCOMPARE(options.getVectorStandard(), VectorSettingsUser::VectorStandard::ANSI);
     QCOMPARE(options.getVectorType(), VectorSettingsUser::VectorType::THREE_PHASE);
-
     QCOMPARE(options.getNominalSelection(), VectorSettingsLengths::VectorNominals::NOMINAL);
-    QCOMPARE(options.getNomVoltage(), 10);
-    QCOMPARE(options.getNomCurrent(), 10);
-    QCOMPARE(options.getMinVoltage(), 1);
-    QCOMPARE(options.getMinCurrent(), 1);
-
     QCOMPARE(options.getVectorStyle(), VectorSettingsLayout::VectorStyle::WEBSAM);
 }
 
@@ -133,18 +130,23 @@ void test_vector_painting_options::jsonWithSomeLabelsExtra()
     QCOMPARE(options.getPhaseLabel(5), "Ic");
 }
 
-void test_vector_painting_options::jsonWithMissingSomeLengths()
+void test_vector_painting_options::nominalAndMinValuesFromRangeModule()
 {
-    QFile file(":/vectors-options/missing-current-lengths");
+    QFile file(":/logged-values/rangeValues.json");
     QVERIFY(file.open(QFile::ReadOnly));
-    QString params(file.readAll());
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    QJsonObject loggedValues = document.object();
+
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
-    QCOMPARE(options.getNominalSelection(), VectorSettingsLengths::VectorNominals::MAXIMUM);
-    QCOMPARE(options.getNomVoltage(), 10);
-    QCOMPARE(options.getNomCurrent(), VectorPaintingOptions::m_defaultLengthValue);
-    QCOMPARE(options.getMinVoltage(), 1);
-    QCOMPARE(options.getMinCurrent(), VectorPaintingOptions::m_defaultLengthValue);
+    options.calculateNominalAndMinValues(loggedValues);
+    float expectedNomVoltage = 250 * sqrt(2);
+    QCOMPARE(VeinStorage::DumpJson::formatDouble(options.getNomVoltage()), VeinStorage::DumpJson::formatDouble(expectedNomVoltage));
+    float expectedNomCurrent = 10 * sqrt(2);
+    QCOMPARE(VeinStorage::DumpJson::formatDouble(options.getNomCurrent()), VeinStorage::DumpJson::formatDouble(expectedNomCurrent));
+    float expectedMinVoltage = expectedNomVoltage * 0.009;
+    QCOMPARE(VeinStorage::DumpJson::formatDouble(options.getMinVoltage()), VeinStorage::DumpJson::formatDouble(expectedMinVoltage));
+    float expectedMinCurrent = expectedNomCurrent * 0.009;
+    QCOMPARE(VeinStorage::DumpJson::formatDouble(options.getMinCurrent()), VeinStorage::DumpJson::formatDouble(expectedMinCurrent));
 }
 
 void test_vector_painting_options::checkIfAllColorsAreSetToDefault(VectorPaintingOptions &options)
