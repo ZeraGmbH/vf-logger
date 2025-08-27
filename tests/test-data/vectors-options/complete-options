@@ -18,11 +18,5 @@
     "vector_standard": "2",
     "vector_type": "2",
     "vector_circlecmode": "0",
-    "lengths": {
-        "nomvoltage": 10,
-        "nomCurrent": 10,
-        "minvoltage": 1,
-        "minCurrent": 1
-    },
     "vector_style": "WEBSAM"
 }

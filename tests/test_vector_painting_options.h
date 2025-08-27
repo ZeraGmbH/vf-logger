@@ -20,7 +20,7 @@ private slots:
     void jsonWithSomeLabelsMissing();
     void jsonWithSomeLabelsExtra();
     // vector lengths
-    void jsonWithMissingSomeLengths();
+    void nominalAndMinValuesFromRangeModule();
 private:
     void checkIfAllColorsAreSetToDefault(VectorPaintingOptions &options);
     void checkIfAllLabelsAreSetToDefault(VectorPaintingOptions &options);

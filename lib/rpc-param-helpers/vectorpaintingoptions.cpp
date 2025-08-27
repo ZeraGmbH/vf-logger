@@ -2,6 +2,7 @@
 #include <vectorconstants.h>
 #include <QJsonDocument>
 #include <QJsonArray>
+#include <cmath>
 
 const QColor VectorPaintingOptions::m_defaultColor = Qt::darkGray;
 const QMap<int, QString> VectorPaintingOptions::m_defaultLabels = {
@@ -57,9 +58,38 @@ bool VectorPaintingOptions::convertJsonParams(const QString &param)
     extractColors(json);
     extractLabels(json);
     extractUserSettings(json);
-    extractLengthSettings(json);
+    extractNominalSelection(json);
     extractStyle(json);
     return true;
+}
+
+void VectorPaintingOptions::calculateNominalAndMinValues(QJsonObject loggedValues)
+{
+    QJsonObject rangeValues = loggedValues.value("1020").toObject();
+
+    float maxVal = 0.0;
+    for(int channel = 1; channel <= 3; channel++) {
+        float newVal = rangeValues.value("INF_Channel" + QString::number(channel) + "ActREJ").toDouble() / rangeValues.value("INF_PreScalingInfoGroup0").toDouble();
+        if(newVal > maxVal)
+            maxVal = newVal;
+    }
+    float maxRejectionU = maxVal * sqrt(2);
+    m_lengthSettings.setNomVoltage(maxRejectionU);
+    float minVoltage = (m_lengthSettings.getNominalSelection() == VectorSettingsLengths::VectorNominals::MAXIMUM) ?
+                           (maxRejectionU * 0.009) : (maxRejectionU * 0.05);
+    m_lengthSettings.setMinVoltage(minVoltage);
+
+    maxVal = 0.0;
+    for(int channel = 4; channel <= 6; channel++) {
+        float newVal = rangeValues.value("INF_Channel" + QString::number(channel) + "ActREJ").toDouble() / rangeValues.value("INF_PreScalingInfoGroup1").toDouble();
+        if(newVal > maxVal)
+            maxVal = newVal;
+    }
+    float maxRejectionI = maxVal * sqrt(2);
+    m_lengthSettings.setNomCurrent(maxRejectionI);
+    float minCurrent = (m_lengthSettings.getNominalSelection() == VectorSettingsLengths::VectorNominals::MAXIMUM) ?
+                           (maxRejectionI * 0.009) : (maxRejectionI * 0.05);
+    m_lengthSettings.setMinCurrent(minCurrent);
 }
 
 QColor VectorPaintingOptions::getPhaseColor(int idx) const
@@ -154,22 +184,11 @@ void VectorPaintingOptions::extractUserSettings(const QJsonObject &inputJson)
     }
 }
 
-void VectorPaintingOptions::extractLengthSettings(const QJsonObject &inputJson)
+void VectorPaintingOptions::extractNominalSelection(const QJsonObject &inputJson)
 {
     if(inputJson.contains("vector_circlecmode")) {
         int mode = inputJson.value("vector_circlecmode").toString().toInt();
        m_lengthSettings.setNominalSelection(static_cast<VectorSettingsLengths::VectorNominals>(mode));
-    }
-    if(inputJson.contains("lengths")) {
-        QJsonObject lengths = inputJson.value("lengths").toObject();
-        if(lengths.contains("nomvoltage"))
-            m_lengthSettings.setNomVoltage(lengths.value("nomvoltage").toDouble());
-        if(lengths.contains("nomCurrent"))
-            m_lengthSettings.setNomCurrent(lengths.value("nomCurrent").toDouble());
-        if(lengths.contains("minvoltage"))
-            m_lengthSettings.setMinVoltage(lengths.value("minvoltage").toDouble());
-        if(lengths.contains("minCurrent"))
-            m_lengthSettings.setMinCurrent(lengths.value("minCurrent").toDouble());
     }
 }
 
