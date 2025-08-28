@@ -28,6 +28,8 @@ const QMap<QString, int> VectorPaintingOptions::m_channelNamesIndexMap = {
     {"IL3", 5},
 };
 
+static constexpr const char* RangeModule = "1020";
+
 VectorPaintingOptions::VectorPaintingOptions() :
     m_colors(VectorConstants::COUNT_VECTORS),
     m_labels(VectorConstants::COUNT_VECTORS)
@@ -65,7 +67,7 @@ bool VectorPaintingOptions::convertJsonParams(const QString &param)
 
 void VectorPaintingOptions::calculateNominalAndMinValues(QJsonObject loggedValues)
 {
-    QJsonObject rangeValues = loggedValues.value("1020").toObject();
+    QJsonObject rangeValues = loggedValues.value(RangeModule).toObject();
 
     float maxVal = 0.0;
     for(int channel = 1; channel <= 3; channel++) {
