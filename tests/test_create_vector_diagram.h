@@ -15,6 +15,9 @@ private slots:
     void vectorDiagramWithInvalidOptions();
     void vectorDiagramWithNoDftValues();
     void vectorDiagramWithCompleteOptionsDftValues();
+private:
+    QJsonObject readLoggedValues(QString fileName);
+    QString readVectorOptions(QString fileName);
 };
 
 #endif // TEST_CREATE_VECTOR_DIAGRAM_H

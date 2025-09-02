@@ -9,11 +9,7 @@ QTEST_MAIN(test_create_vector_diagram)
 
 void test_create_vector_diagram::extractVectorValidIdx()
 {
-    QFile file(":/logged-values/dftValues.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
-    QJsonObject actualValues = document.object();
-
+    QJsonObject actualValues = readLoggedValues(":/logged-values/dftValues.json");
     QVector2D expectedVector(169.706, 0.0);
     QVector2D actualVector = VectorDiagramCreator::getVector(0, actualValues);
     QCOMPARE(expectedVector, actualVector);
@@ -21,11 +17,7 @@ void test_create_vector_diagram::extractVectorValidIdx()
 
 void test_create_vector_diagram::extractVectorInvalidIdx()
 {
-    QFile file(":/logged-values/dftValues.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
-    QJsonObject actualValues = document.object();
-
+    QJsonObject actualValues = readLoggedValues(":/logged-values/dftValues.json");
     QVector2D expectedVector(0.0, 0.0);
     QVector2D actualVector = VectorDiagramCreator::getVector(6, actualValues);
     QCOMPARE(expectedVector, actualVector);
@@ -33,11 +25,7 @@ void test_create_vector_diagram::extractVectorInvalidIdx()
 
 void test_create_vector_diagram::extractVectorFromJsonWithoutDft()
 {
-    QFile file(":/logged-values/rangeValues.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
-    QJsonObject actualValues = document.object();
-
+    QJsonObject actualValues = readLoggedValues(":/logged-values/rangeValues.json");
     QVector2D expectedVector(0.0, 0.0);
     QVector2D actualVector = VectorDiagramCreator::getVector(0, actualValues);
     QCOMPARE(expectedVector, actualVector);
@@ -45,11 +33,7 @@ void test_create_vector_diagram::extractVectorFromJsonWithoutDft()
 
 void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 {
-    QFile file(":/logged-values/dftValues.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
-    QJsonObject dftValues = document.object();
-
+    QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
     const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
     QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram("", dftValues);
@@ -62,15 +46,8 @@ void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 
 void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 {
-    QFile fileLoggedValues(":/logged-values/dftValues.json");
-    QVERIFY(fileLoggedValues.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(fileLoggedValues.readAll());
-    QJsonObject dftValues = document.object();
-
-    QFile fileOptions(":/vectors-options/missing-some-colors");
-    QVERIFY(fileOptions.open(QFile::ReadOnly));
-    QString options = fileOptions.readAll();
-
+    QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
+    QString options = readVectorOptions(":/vectors-options/missing-some-colors");
     const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
     QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftValues);
@@ -83,15 +60,8 @@ void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 
 void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 {
-    QFile fileLoggedValues(":/logged-values/rangeValues.json");
-    QVERIFY(fileLoggedValues.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(fileLoggedValues.readAll());
-    QJsonObject loggedValues = document.object();
-
-    QFile fileOptions(":/vectors-options/complete-options");
-    QVERIFY(fileOptions.open(QFile::ReadOnly));
-    QString options = fileOptions.readAll();
-
+    QJsonObject loggedValues = readLoggedValues(":/logged-values/rangeValues.json");
+    QString options = readVectorOptions(":/vectors-options/complete-options");
     const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
     QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, loggedValues);
@@ -104,15 +74,8 @@ void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 
 void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
 {
-    QFile fileLoggedValues(":/logged-values/dftRangeValues.json");
-    QVERIFY(fileLoggedValues.open(QFile::ReadOnly));
-    QJsonDocument document = QJsonDocument::fromJson(fileLoggedValues.readAll());
-    QJsonObject dftRangeValues = document.object();
-
-    QFile fileOptions(":/vectors-options/complete-options");
-    QVERIFY(fileOptions.open(QFile::ReadOnly));
-    QString options = fileOptions.readAll();
-
+    QJsonObject dftRangeValues = readLoggedValues(":/logged-values/dftRangeValues.json");
+    QString options = readVectorOptions(":/vectors-options/complete-options");
     const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
     QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftRangeValues);
@@ -121,4 +84,19 @@ void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
     if(!ok)
         TestLogHelpers::compareAndLogOnDiff(expected, dumped);
     QVERIFY(ok);
+}
+
+QJsonObject test_create_vector_diagram::readLoggedValues(QString fileName)
+{
+    QFile file(fileName);
+    file.open(QFile::ReadOnly);
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    return document.object();
+}
+
+QString test_create_vector_diagram::readVectorOptions(QString fileName)
+{
+    QFile fileOptions(fileName);
+    fileOptions.open(QFile::ReadOnly);
+    return fileOptions.readAll();
 }
