@@ -24,6 +24,7 @@ void RpcDisplayActualValues::onOpenDatabase()
 void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     if(m_dbLogger->isDatabaseReady()) {
+        m_callId = callId;
         QString transaction = parameters["p_transaction"].toString();
         m_dbLogger->getDb()->startDisplayActualValues(callId, transaction);
     }
@@ -33,8 +34,11 @@ void RpcDisplayActualValues::callRPCFunction(const QUuid &callId, const QVariant
 
 void RpcDisplayActualValues::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values)
 {
-    if(success)
-        sendRpcResult(callId, values.toVariantMap());
-    else
-        sendRpcError(callId, errorMsg);
+    //We should send RPC response from this RPC only when this RPC initiated 'startDisplayActualValues'
+    if(m_callId == callId) {
+        if(success)
+            sendRpcResult(callId, values.toVariantMap());
+        else
+            sendRpcError(callId, errorMsg);
+    }
 }

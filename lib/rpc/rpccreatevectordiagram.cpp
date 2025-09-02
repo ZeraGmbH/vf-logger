@@ -24,6 +24,7 @@ void RpcCreateVectorDiagram::onOpenDatabase()
 void RpcCreateVectorDiagram::callRPCFunction(const QUuid &callId, const QVariantMap &parameters)
 {
     if(m_dbLogger->isDatabaseReady()) {
+        m_callId = callId;
         m_options = parameters["p_paintingOptions"].toString();
         QString transaction = parameters["p_transaction"].toString();
         m_dbLogger->getDb()->startDisplayActualValues(callId, transaction);
@@ -34,8 +35,11 @@ void RpcCreateVectorDiagram::callRPCFunction(const QUuid &callId, const QVariant
 
 void RpcCreateVectorDiagram::onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject loggedValues)
 {
-    if(!success)
-        sendRpcError(callId, errorMsg);
-    else
-        sendRpcResult(callId, VectorDiagramCreator::CreateVectorDiagram(m_options, loggedValues));
+    //We should send RPC response from this RPC only when this RPC initiated 'startDisplayActualValues'
+    if(m_callId == callId) {
+        if(!success)
+            sendRpcError(callId, errorMsg);
+        else
+            sendRpcResult(callId, VectorDiagramCreator::CreateVectorDiagram(m_options, loggedValues));
+    }
 }
