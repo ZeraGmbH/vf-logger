@@ -7,6 +7,42 @@
 
 QTEST_MAIN(test_create_vector_diagram)
 
+void test_create_vector_diagram::extractVectorValidIdx()
+{
+    QFile file(":/logged-values/dftValues.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    QJsonObject actualValues = document.object();
+
+    QVector2D expectedVector(169.706, 0.0);
+    QVector2D actualVector = VectorDiagramCreator::getVector(0, actualValues);
+    QCOMPARE(expectedVector, actualVector);
+}
+
+void test_create_vector_diagram::extractVectorInvalidIdx()
+{
+    QFile file(":/logged-values/dftValues.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    QJsonObject actualValues = document.object();
+
+    QVector2D expectedVector(0.0, 0.0);
+    QVector2D actualVector = VectorDiagramCreator::getVector(6, actualValues);
+    QCOMPARE(expectedVector, actualVector);
+}
+
+void test_create_vector_diagram::extractVectorFromJsonWithoutDft()
+{
+    QFile file(":/logged-values/rangeValues.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QJsonDocument document = QJsonDocument::fromJson(file.readAll());
+    QJsonObject actualValues = document.object();
+
+    QVector2D expectedVector(0.0, 0.0);
+    QVector2D actualVector = VectorDiagramCreator::getVector(0, actualValues);
+    QCOMPARE(expectedVector, actualVector);
+}
+
 void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 {
     QFile file(":/logged-values/dftValues.json");
@@ -86,4 +122,3 @@ void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
         TestLogHelpers::compareAndLogOnDiff(expected, dumped);
     QVERIFY(ok);
 }
-

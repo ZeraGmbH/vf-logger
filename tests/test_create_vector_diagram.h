@@ -7,6 +7,10 @@ class test_create_vector_diagram : public QObject
 {
     Q_OBJECT
 private slots:
+    void extractVectorValidIdx();
+    void extractVectorInvalidIdx();
+    void extractVectorFromJsonWithoutDft();
+
     void vectorDiagramWithDefaultOptions();
     void vectorDiagramWithInvalidOptions();
     void vectorDiagramWithNoDftValues();
