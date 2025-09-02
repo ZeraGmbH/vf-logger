@@ -5,6 +5,7 @@ file(GLOB SOURCES
     rpc/*.cpp
     rpc-param-helpers/*.cpp
     tasks/*.cpp
+    vector-helper/*.cpp
     )
 
 file(GLOB HEADERS
@@ -14,6 +15,7 @@ file(GLOB HEADERS
     rpc/*.h
     rpc-param-helpers/*.h
     tasks/*.h
+    vector-helper/*.h
     )
 
 # Exclude psql files
@@ -65,6 +67,7 @@ target_include_directories(VfLogger
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/rpc>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/rpc-param-helpers>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/tasks>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/vector-helper>
     )
 
 export(TARGETS VfLogger NAMESPACE VeinMeta:: FILE VfLoggerTargets.cmake)
