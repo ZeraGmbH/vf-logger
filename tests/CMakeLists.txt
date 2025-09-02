@@ -35,7 +35,6 @@ SETUP_TESTS(
     test_mockandsqlitedatabase
     test_db_tasks
     test_vector_painting_options
-    test_vector_actual_value_extractor
     test_create_vector_diagram
     )
 
@@ -70,11 +69,6 @@ target_sources(test_db_tasks
 )
 
 target_sources(test_vector_painting_options
-    PRIVATE
-    test-data/test-data.qrc
-)
-
-target_sources(test_vector_actual_value_extractor
     PRIVATE
     test-data/test-data.qrc
 )
