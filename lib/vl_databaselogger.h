@@ -11,6 +11,7 @@
 #include "rpcdisplaycustomerdata.h"
 #include "rpclistallsessions.h"
 #include "rpcdisplayactualvalues.h"
+#include "rpccreatevectordiagram.h"
 #include <tasktemplate.h>
 #include <vs_abstracteventsystem.h>
 #include <vcmp_componentdata.h>
@@ -82,6 +83,7 @@ private:
     std::shared_ptr<RpcDisplayCustomerData> m_rpcDisplayCustomerData;
     std::shared_ptr<RpcListAllSessions> m_rpcListAllSessions;
     std::shared_ptr<RpcDisplayActualValues> m_rpcDisplayActualValues;
+    std::shared_ptr<RpcCreateVectorDiagram> m_rpcCreateVectorDiagram;
 
     DBFactory m_databaseFactory;
     AbstractLoggerDB::STORAGE_MODE m_storageMode;

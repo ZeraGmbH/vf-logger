@@ -64,5 +64,6 @@
         <file>vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg</file>
         <file>vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg</file>
         <file>vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg</file>
+        <file>vector-diagram-svgs/vectorDiagramWithDefaultOptionsNoDftValues.svg</file>
     </qresource>
 </RCC>
