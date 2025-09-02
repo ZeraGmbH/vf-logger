@@ -53,7 +53,7 @@ void test_vector_painting_options::validJsonWithAllOptions()
     QCOMPARE(options.getPhaseLabel(5), "Ic");
 
     QCOMPARE(options.getVectorStandard(), VectorSettingsUser::VectorStandard::ANSI);
-    QCOMPARE(options.getVectorType(), VectorSettingsUser::VectorType::THREE_PHASE);
+    QCOMPARE(options.getVectorType(), VectorSettingsUser::VectorType::TRIANGLE);
     QCOMPARE(options.getNominalSelection(), VectorSettingsLengths::VectorNominals::NOMINAL);
     QCOMPARE(options.getVectorStyle(), VectorSettingsLayout::VectorStyle::WEBSAM);
 }

@@ -15,6 +15,7 @@ function(SETUP_TESTS)
         target_link_libraries(${_testname}
             PUBLIC
             Qt5::Test
+            Zera::xml-compare-testlib
             vf-logger-testlib
             )
     endforeach()
@@ -35,6 +36,7 @@ SETUP_TESTS(
     test_db_tasks
     test_vector_painting_options
     test_vector_actual_value_extractor
+    test_create_vector_diagram
     )
 
 target_sources(test_contentsets
@@ -73,6 +75,11 @@ target_sources(test_vector_painting_options
 )
 
 target_sources(test_vector_actual_value_extractor
+    PRIVATE
+    test-data/test-data.qrc
+)
+
+target_sources(test_create_vector_diagram
     PRIVATE
     test-data/test-data.qrc
 )
