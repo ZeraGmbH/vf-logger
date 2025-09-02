@@ -59,10 +59,10 @@
         <file>vectors-options/missing-some-labels</file>
         <file>logged-values/rangeValues.json</file>
         <file>logged-values/dftValues.json</file>
-        <file>vector-diagram-svgs/vectorDiagramWithDefaultOptions.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithInvalidOptions.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithNoDftValues.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithCompleteOptionsDftValues.svg</file>
         <file>logged-values/dftRangeValues.json</file>
+        <file>vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg</file>
+        <file>vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg</file>
+        <file>vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg</file>
+        <file>vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg</file>
     </qresource>
 </RCC>
