@@ -34,8 +34,7 @@ void test_create_vector_diagram::extractVectorFromJsonWithoutDft()
 void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
-    const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
-    QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
+    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram("", dftValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
@@ -48,8 +47,7 @@ void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
     QString options = readVectorOptions(":/vectors-options/missing-some-colors");
-    const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
-    QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
+    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
@@ -62,8 +60,7 @@ void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 {
     QJsonObject loggedValues = readLoggedValues(":/logged-values/rangeValues.json");
     QString options = readVectorOptions(":/vectors-options/complete-options");
-    const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
-    QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
+    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, loggedValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
@@ -76,8 +73,7 @@ void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
 {
     QJsonObject dftRangeValues = readLoggedValues(":/logged-values/dftRangeValues.json");
     QString options = readVectorOptions(":/vectors-options/complete-options");
-    const QString fileBase = QString(QTest::currentTestFunction()) + ".svg";
-    QString expected = TestLogHelpers::loadFile(QString(":/vector-diagram-svgs/") + fileBase);
+    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftRangeValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
