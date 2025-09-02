@@ -58,5 +58,6 @@
         <file>vectors-options/some-extra-labels</file>
         <file>vectors-options/missing-some-labels</file>
         <file>logged-values/rangeValues.json</file>
+        <file>logged-values/dftValues.json</file>
     </qresource>
 </RCC>

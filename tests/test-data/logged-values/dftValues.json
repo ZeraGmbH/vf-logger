@@ -1,0 +1,30 @@
+{
+    "1050": {
+        "ACT_DFTPN1": "169.706;0",
+        "ACT_DFTPN2": "-84.8528;146.969",
+        "ACT_DFTPN3": "-84.8528;-146.969",
+        "ACT_DFTPN4": "14.1421;0",
+        "ACT_DFTPN5": "-7.07107;12.2474",
+        "ACT_DFTPN6": "-7.07107;-12.2474",
+        "ACT_DFTPN7": "169.706;0",
+        "ACT_DFTPN8": "14.1421;0",
+        "ACT_DFTPP1": "254.558;-146.969",
+        "ACT_DFTPP2": "0;-293.939",
+        "ACT_DFTPP3": "-254.558;-146.969",
+        "ACT_POL_DFTPN1": "169.706;0;0",
+        "ACT_POL_DFTPN2": "169.706;2.0944;120",
+        "ACT_POL_DFTPN3": "169.706;4.18879;240",
+        "ACT_POL_DFTPN4": "14.1421;0;0",
+        "ACT_POL_DFTPN5": "14.1421;2.0944;120",
+        "ACT_POL_DFTPN6": "14.1421;4.18879;240",
+        "ACT_POL_DFTPN7": "169.706;0;0",
+        "ACT_POL_DFTPN8": "14.1421;0;0",
+        "ACT_POL_DFTPP1": "293.939;5.75959;330",
+        "ACT_POL_DFTPP2": "293.939;4.71239;270",
+        "ACT_POL_DFTPP3": "293.939;3.66519;210",
+        "ACT_RFIELD": 123,
+        "PAR_Interval": 1,
+        "PAR_RefChannel": "UL1",
+        "SIG_Measuring": 1
+    }
+}
