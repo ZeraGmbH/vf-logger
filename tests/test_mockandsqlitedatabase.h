@@ -46,6 +46,10 @@ private slots:
     void displayEmptyCustomerData();
     void displayEnteredCustomerData();
 
+    void createVectorDiagramDefaultOptions();
+    void createVectorDiagramInvalidTransaction();
+    void createVectorDiagramBeforeDbLoaded();
+
 private:
     void logATransaction(QString session, QString transaction, QStringList contentSets);
     QVariant getResultCode(QVariant rpcReturnData);

@@ -3,6 +3,7 @@
 #include "testloghelpers.h"
 #include "testinsertspiestojson.h"
 #include "loggerstatictexts.h"
+#include "svgfuzzycompare.h"
 #include <timemachineobject.h>
 #include <QTest>
 
@@ -650,6 +651,66 @@ void test_mockandsqlitedatabase::displayEnteredCustomerData()
     QVERIFY(customerfile.open(QFile::ReadOnly));
     QByteArray jsonExpected = customerfile.readAll();
     QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+}
+
+void test_mockandsqlitedatabase::createVectorDiagramDefaultOptions()
+{
+    m_testSystem->loadDatabase();
+    logATransaction("session1", "Transaction1", QStringList() << "Transaction1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "Transaction1");
+    rpcParams.insert("p_paintingOptions", "");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+
+    QString dumped = getReturnedResult(invokerSpy[0][2]).toString();
+    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsNoDftValues.svg");
+    SvgFuzzyCompare compare;
+    bool ok = compare.compareXml(dumped, expected);
+    if(!ok)
+        TestLogHelpers::compareAndLogOnDiff(expected, dumped);
+    QVERIFY(ok);
+}
+
+void test_mockandsqlitedatabase::createVectorDiagramInvalidTransaction()
+{
+    m_testSystem->loadDatabase();
+    logATransaction("session1", "Transaction1", QStringList() << "Transaction1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "foo");
+    rpcParams.insert("p_paintingOptions", "");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][2]), "Select an existing transaction");
+}
+
+void test_mockandsqlitedatabase::createVectorDiagramBeforeDbLoaded()
+{
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+
+    QVariantMap rpcParams;
+    rpcParams.insert("p_transaction", "foo");
+    rpcParams.insert("p_paintingOptions", "");
+    QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
+    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
+
+    QCOMPARE(invokerSpy.count(), 1);
+    QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
+    QCOMPARE(invokerSpy[0][1], id);
+    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)
