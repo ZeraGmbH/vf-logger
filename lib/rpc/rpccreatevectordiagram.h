@@ -3,6 +3,7 @@
 
 #include <vf-cpp-rpc-simplified.h>
 #include <QJsonObject>
+#include <QUuid>
 
 namespace VeinLogger {
 class DatabaseLogger;
@@ -21,6 +22,7 @@ private slots:
 private:
     VeinLogger::DatabaseLogger *m_dbLogger;
     QString m_options;
+    QUuid m_callId;
 };
 
 #endif // RPCCREATEVECTORDIAGRAM_H

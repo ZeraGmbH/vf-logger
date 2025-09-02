@@ -2,6 +2,7 @@
 #define RPCDISPLAYACTUALVALUES_H
 
 #include <vf-cpp-rpc-simplified.h>
+#include <QUuid>
 
 namespace VeinLogger {
 class DatabaseLogger;
@@ -18,6 +19,7 @@ private slots:
     void onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject values);
 private:
     VeinLogger::DatabaseLogger *m_dbLogger;
+    QUuid m_callId;
 };
 
 #endif // RPCDISPLAYACTUALVALUES_H
