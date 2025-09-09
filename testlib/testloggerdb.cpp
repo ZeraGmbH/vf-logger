@@ -23,7 +23,6 @@ TestLoggerDB::TestLoggerDB(TestDbAddSignaller *testSignaller) :
 
 TestLoggerDB::~TestLoggerDB()
 {
-    deleteDbFile();
     if(m_instance != this)
         qFatal("Seems another instance was created!");
     m_instance = nullptr;
