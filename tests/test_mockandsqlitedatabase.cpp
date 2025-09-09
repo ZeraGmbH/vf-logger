@@ -10,6 +10,8 @@
 Q_DECLARE_METATYPE(TestLoggerSystem::DbType)
 QTEST_MAIN(test_mockandsqlitedatabase)
 
+const char* db_temp_path = "/tmp/veindb-test";
+
 void test_mockandsqlitedatabase::initTestCase_data()
 {
     QTest::addColumn<TestLoggerSystem::DbType>("DbType");
@@ -28,6 +30,8 @@ void test_mockandsqlitedatabase::cleanup()
 {
     m_testSystem->cleanup();
     m_testSystem.reset();
+    QDir dir(db_temp_path);
+    dir.removeRecursively();
 }
 
 void test_mockandsqlitedatabase::createSessionInsertsEntityComponents()
@@ -116,6 +120,23 @@ void test_mockandsqlitedatabase::openDatabaseErrorLate()
     QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem->dumpStorage();
     QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+}
+
+void test_mockandsqlitedatabase::createTwoDatabases()
+{
+    m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", QString(db_temp_path) + "/testDatabase1.db");
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "no customer");
+    QJsonObject jsonDumped = QJsonDocument::fromJson(m_testSystem->dumpStorage()).object();
+    QJsonObject loggerEntityDump = jsonDumped.value("2").toObject();
+    QCOMPARE(loggerEntityDump.value("DatabaseReady").toBool(), true);
+    QCOMPARE(loggerEntityDump.value("LoggingStatus").toString(), "Database loaded");
+
+    m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", QString(db_temp_path) + "/testDatabase2.db");
+    m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "no customer");
+    jsonDumped = QJsonDocument::fromJson(m_testSystem->dumpStorage()).object();
+    loggerEntityDump = jsonDumped.value("2").toObject();
+    QCOMPARE(loggerEntityDump.value("DatabaseReady").toBool(), true);
+    QCOMPARE(loggerEntityDump.value("LoggingStatus").toString(), "Database loaded");
 }
 
 constexpr bool rpc_signature_ok = true;

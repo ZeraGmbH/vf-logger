@@ -569,7 +569,9 @@ void DatabaseLogger::handleVeinDbSessionNameSet(QString sessionName)
                                                             m_veinStorage,
                                                             sessionName,
                                                             std::make_shared<int>(-1));
-    // Fire & forget for now
+    connect(m_taskDbAddSession.get(), &TaskDbAddSession::sigFinish, this, [&]() {
+        m_taskDbAddSession.reset();
+    });
     m_taskDbAddSession->start();
 }
 
