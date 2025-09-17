@@ -7,7 +7,7 @@
 static constexpr const char* DftModule = "1050";
 constexpr int clipLen = 2000;
 
-QByteArray VectorDiagramCreator::CreateVectorDiagram(QString rpcOptions, QJsonObject loggedValues)
+QByteArray VectorDiagramCreator::CreateVectorDiagram(QVariantMap rpcOptions, QJsonObject loggedValues)
 {
     VectorPaintingOptions paintingOptions;
     paintingOptions.convertJsonParams(rpcOptions);

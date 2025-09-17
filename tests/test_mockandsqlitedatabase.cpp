@@ -681,7 +681,7 @@ void test_mockandsqlitedatabase::createVectorDiagramDefaultOptions()
 
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
-    rpcParams.insert("p_paintingOptions", "");
+    rpcParams.insert("p_paintingOptions", QVariantMap());
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
     QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
 
@@ -706,7 +706,7 @@ void test_mockandsqlitedatabase::createVectorDiagramInvalidTransaction()
 
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "foo");
-    rpcParams.insert("p_paintingOptions", "");
+    rpcParams.insert("p_paintingOptions", QVariantMap());
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
     QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
 
@@ -723,7 +723,7 @@ void test_mockandsqlitedatabase::createVectorDiagramBeforeDbLoaded()
 
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "foo");
-    rpcParams.insert("p_paintingOptions", "");
+    rpcParams.insert("p_paintingOptions", QVariantMap());
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
     QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
 

@@ -8,7 +8,7 @@ class test_vector_painting_options : public QObject
 {
     Q_OBJECT
 private slots:
-    void invalidJson();
+    void emptyJson();
     void getDefaultParams();
     void validJsonWithAllOptions();
     // colors
