@@ -25,6 +25,7 @@ private:
     void checkIfAllColorsAreSetToDefault(VectorPaintingOptions &options);
     void checkIfAllLabelsAreSetToDefault(VectorPaintingOptions &options);
     void checkIfLengthSettingsAreSetToDefault(VectorPaintingOptions &options);
+    QVariantMap readVectorOptionsFromAFile(QString fileName);
 };
 
 #endif // TEST_VECTOR_PAINTING_OPTIONS_H

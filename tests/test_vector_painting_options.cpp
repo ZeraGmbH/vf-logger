@@ -31,10 +31,7 @@ void test_vector_painting_options::getDefaultParams()
 
 void test_vector_painting_options::validJsonWithAllOptions()
 {
-    QFile file(":/vectors-options/complete-options");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    QVariantMap params(doc.object().toVariantMap());
+    QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/complete-options");
     VectorPaintingOptions options;
     QVERIFY(options.convertJsonParams(params));
 
@@ -66,10 +63,7 @@ void test_vector_painting_options::colorForInvalidVectorIndex()
 
 void test_vector_painting_options::jsonWithSomeColorsMissing()
 {
-    QFile file(":/vectors-options/missing-some-colors");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    QVariantMap params(doc.object().toVariantMap());
+    QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/missing-some-colors");
     VectorPaintingOptions options;
     QVERIFY(options.convertJsonParams(params));
     QCOMPARE(options.getPhaseColor(0), "#EEff0000");
@@ -82,10 +76,7 @@ void test_vector_painting_options::jsonWithSomeColorsMissing()
 
 void test_vector_painting_options::jsonWithSomeColorsExtra()
 {
-    QFile file(":/vectors-options/some-extra-colors");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    QVariantMap params(doc.object().toVariantMap());
+    QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/some-extra-colors");
     VectorPaintingOptions options;
     QVERIFY(options.convertJsonParams(params));
     QCOMPARE(options.getPhaseColor(0), "#EEff0000");
@@ -104,10 +95,7 @@ void test_vector_painting_options::labelForInvalidVectorIndex()
 
 void test_vector_painting_options::jsonWithSomeLabelsMissing()
 {
-    QFile file(":/vectors-options/missing-some-labels");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    QVariantMap params(doc.object().toVariantMap());
+    QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/missing-some-labels");
     VectorPaintingOptions options;
     QVERIFY(options.convertJsonParams(params));
     QCOMPARE(options.getPhaseLabel(0), "Van");
@@ -120,10 +108,7 @@ void test_vector_painting_options::jsonWithSomeLabelsMissing()
 
 void test_vector_painting_options::jsonWithSomeLabelsExtra()
 {
-    QFile file(":/vectors-options/some-extra-labels");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QJsonDocument doc = QJsonDocument::fromJson(file.readAll());
-    QVariantMap params(doc.object().toVariantMap());
+    QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/some-extra-labels");
     VectorPaintingOptions options;
     QVERIFY(options.convertJsonParams(params));
     QCOMPARE(options.getPhaseLabel(0), "Van");
@@ -180,4 +165,12 @@ void test_vector_painting_options::checkIfLengthSettingsAreSetToDefault(VectorPa
     QCOMPARE(options.getNomCurrent(), VectorPaintingOptions::m_defaultLengthValue);
     QCOMPARE(options.getMinVoltage(), VectorPaintingOptions::m_defaultLengthValue);
     QCOMPARE(options.getMinCurrent(), VectorPaintingOptions::m_defaultLengthValue);
+}
+
+QVariantMap test_vector_painting_options::readVectorOptionsFromAFile(QString fileName)
+{
+    QFile fileOptions(fileName);
+    fileOptions.open(QFile::ReadOnly);
+    QJsonDocument doc = QJsonDocument::fromJson(fileOptions.readAll());
+    return doc.object().toVariantMap();
 }
