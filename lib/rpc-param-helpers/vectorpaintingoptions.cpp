@@ -48,15 +48,9 @@ VectorPaintingOptions::VectorPaintingOptions() :
     m_layoutSettings.setVectorStyle(m_defaultStyle);
 }
 
-bool VectorPaintingOptions::convertJsonParams(const QString &param)
+bool VectorPaintingOptions::convertJsonParams(const QVariantMap &param)
 {
-    QJsonParseError parseError;
-    QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
-    if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
-        qWarning("VectorPaintingOptions::convertJsonParams input parameter is an invalid json.");
-        return false;
-    }
-    QJsonObject json = doc.object();
+    QJsonObject json = QJsonObject::fromVariantMap(param);
     extractColors(json);
     extractLabels(json);
     extractUserSettings(json);

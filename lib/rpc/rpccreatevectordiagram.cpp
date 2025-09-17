@@ -8,7 +8,7 @@ RpcCreateVectorDiagram::RpcCreateVectorDiagram(VeinLogger::DatabaseLogger *dbLog
                               entityId,
                               VfCpp::VfCppRpcSignature::createRpcSignature(
                                   "RPC_createVectorDiagram",
-                                  VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}, {"p_paintingOptions", "QString"}}))),
+                                  VfCpp::VfCppRpcSignature::RPCParams({{"p_transaction", "QString"}, {"p_paintingOptions", "QVariantMap"}}))),
     m_dbLogger(dbLogger)
 {
     connect(m_dbLogger, &VeinLogger::DatabaseLogger::sigOpenDatabase,
@@ -25,7 +25,7 @@ void RpcCreateVectorDiagram::callRPCFunction(const QUuid &callId, const QVariant
 {
     if(m_dbLogger->isDatabaseReady()) {
         m_callId = callId;
-        m_options = parameters["p_paintingOptions"].toString();
+        m_options = parameters["p_paintingOptions"].toMap();
         QString transaction = parameters["p_transaction"].toString();
         m_dbLogger->getDb()->startDisplayActualValues(callId, transaction);
     }

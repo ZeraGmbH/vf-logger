@@ -21,7 +21,7 @@ private slots:
     void onDisplayActualValuesCompleted(QUuid callId, bool success, QString errorMsg, QJsonObject loggedValues);
 private:
     VeinLogger::DatabaseLogger *m_dbLogger;
-    QString m_options;
+    QVariantMap m_options;
     QUuid m_callId;
 };
 
