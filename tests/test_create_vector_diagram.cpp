@@ -46,7 +46,7 @@ void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
-    QVariantMap options = readVectorOptions(":/vectors-options/missing-some-colors");
+    QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/missing-some-colors");
     QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftValues);
     SvgFuzzyCompare compare;
@@ -59,7 +59,7 @@ void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 {
     QJsonObject loggedValues = readLoggedValues(":/logged-values/rangeValues.json");
-    QVariantMap options = readVectorOptions(":/vectors-options/complete-options");
+    QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/complete-options");
     QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, loggedValues);
     SvgFuzzyCompare compare;
@@ -72,7 +72,7 @@ void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
 {
     QJsonObject dftRangeValues = readLoggedValues(":/logged-values/dftRangeValues.json");
-    QVariantMap options = readVectorOptions(":/vectors-options/complete-options");
+    QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/complete-options");
     QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg");
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftRangeValues);
     SvgFuzzyCompare compare;
@@ -90,7 +90,7 @@ QJsonObject test_create_vector_diagram::readLoggedValues(QString fileName)
     return document.object();
 }
 
-QVariantMap test_create_vector_diagram::readVectorOptions(QString fileName)
+QVariantMap test_create_vector_diagram::readVectorOptionsFromAFile(QString fileName)
 {
     QFile fileOptions(fileName);
     fileOptions.open(QFile::ReadOnly);
