@@ -6,10 +6,10 @@
 
 QTEST_MAIN(test_vector_painting_options)
 
-void test_vector_painting_options::emptyJson()
+void test_vector_painting_options::emptyParams()
 {
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(QVariantMap()));
+    QVERIFY(options.parseParams(QVariantMap()));
     checkIfAllColorsAreSetToDefault(options);
     checkIfAllLabelsAreSetToDefault(options);
     QCOMPARE(options.getVectorStandard(), VectorPaintingOptions::m_defaultVectorStandard);
@@ -29,11 +29,11 @@ void test_vector_painting_options::getDefaultParams()
     QCOMPARE(options.getVectorStyle(), VectorPaintingOptions::m_defaultStyle);
 }
 
-void test_vector_painting_options::validJsonWithAllOptions()
+void test_vector_painting_options::validParamsWithAllOptions()
 {
     QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/complete-options");
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
+    QVERIFY(options.parseParams(params));
 
     QCOMPARE(options.getPhaseColor(0), "#EEff0000");
     QCOMPARE(options.getPhaseColor(1), "#ffe0e000");
@@ -55,11 +55,11 @@ void test_vector_painting_options::validJsonWithAllOptions()
     QCOMPARE(options.getVectorStyle(), VectorSettingsLayout::VectorStyle::WEBSAM);
 }
 
-void test_vector_painting_options::invalidOptions()
+void test_vector_painting_options::invalidParams()
 {
     QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/invalid-options");
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
+    QVERIFY(options.parseParams(params));
     checkIfAllColorsAreSetToDefault(options);
     checkIfAllLabelsAreSetToDefault(options);
     QCOMPARE(options.getVectorStandard(), VectorPaintingOptions::m_defaultVectorStandard);
@@ -74,11 +74,11 @@ void test_vector_painting_options::colorForInvalidVectorIndex()
     QCOMPARE(options.getPhaseColor(6), VectorPaintingOptions::m_defaultColor);
 }
 
-void test_vector_painting_options::jsonWithSomeColorsMissing()
+void test_vector_painting_options::paramsWithSomeColorsMissing()
 {
     QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/missing-some-colors");
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
+    QVERIFY(options.parseParams(params));
     QCOMPARE(options.getPhaseColor(0), "#EEff0000");
     QCOMPARE(options.getPhaseColor(1), "#ffe0e000");
     QCOMPARE(options.getPhaseColor(2), VectorPaintingOptions::m_defaultColor);
@@ -87,11 +87,11 @@ void test_vector_painting_options::jsonWithSomeColorsMissing()
     QCOMPARE(options.getPhaseColor(5), "#EE0092ff");
 }
 
-void test_vector_painting_options::jsonWithSomeColorsExtra()
+void test_vector_painting_options::paramsWithSomeColorsExtra()
 {
     QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/some-extra-colors");
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
+    QVERIFY(options.parseParams(params));
     QCOMPARE(options.getPhaseColor(0), "#EEff0000");
     QCOMPARE(options.getPhaseColor(1), "#ffe0e000");
     QCOMPARE(options.getPhaseColor(2), "#EE0092ff");
@@ -106,11 +106,11 @@ void test_vector_painting_options::labelForInvalidVectorIndex()
     QCOMPARE(options.getPhaseLabel(6), "");
 }
 
-void test_vector_painting_options::jsonWithSomeLabelsMissing()
+void test_vector_painting_options::paramsWithSomeLabelsMissing()
 {
     QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/missing-some-labels");
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
+    QVERIFY(options.parseParams(params));
     QCOMPARE(options.getPhaseLabel(0), "Van");
     QCOMPARE(options.getPhaseLabel(1), "Vbn");
     QCOMPARE(options.getPhaseLabel(2), VectorPaintingOptions::m_defaultLabels.value(2));
@@ -119,11 +119,11 @@ void test_vector_painting_options::jsonWithSomeLabelsMissing()
     QCOMPARE(options.getPhaseLabel(5), "Ic");
 }
 
-void test_vector_painting_options::jsonWithSomeLabelsExtra()
+void test_vector_painting_options::paramsWithSomeLabelsExtra()
 {
     QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/some-extra-labels");
     VectorPaintingOptions options;
-    QVERIFY(options.convertJsonParams(params));
+    QVERIFY(options.parseParams(params));
     QCOMPARE(options.getPhaseLabel(0), "Van");
     QCOMPARE(options.getPhaseLabel(1), "Vbn");
     QCOMPARE(options.getPhaseLabel(2), "Vcn");

@@ -10,7 +10,7 @@ constexpr int clipLen = 2000;
 QByteArray VectorDiagramCreator::CreateVectorDiagram(QVariantMap rpcOptions, QJsonObject loggedValues)
 {
     VectorPaintingOptions paintingOptions;
-    paintingOptions.convertJsonParams(rpcOptions);
+    paintingOptions.parseParams(rpcOptions);
     paintingOptions.calculateNominalAndMinValues(loggedValues);
 
     VectorPaintController paintController;
