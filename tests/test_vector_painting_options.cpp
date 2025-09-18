@@ -55,6 +55,19 @@ void test_vector_painting_options::validJsonWithAllOptions()
     QCOMPARE(options.getVectorStyle(), VectorSettingsLayout::VectorStyle::WEBSAM);
 }
 
+void test_vector_painting_options::invalidOptions()
+{
+    QVariantMap params = readVectorOptionsFromAFile(":/vectors-options/invalid-options");
+    VectorPaintingOptions options;
+    QVERIFY(options.convertJsonParams(params));
+    checkIfAllColorsAreSetToDefault(options);
+    checkIfAllLabelsAreSetToDefault(options);
+    QCOMPARE(options.getVectorStandard(), VectorPaintingOptions::m_defaultVectorStandard);
+    QCOMPARE(options.getVectorType(), VectorPaintingOptions::m_defaultVectorType);
+    checkIfLengthSettingsAreSetToDefault(options);
+    QCOMPARE(options.getVectorStyle(), VectorPaintingOptions::m_defaultStyle);
+}
+
 void test_vector_painting_options::colorForInvalidVectorIndex()
 {
     VectorPaintingOptions options;

@@ -11,6 +11,7 @@ private slots:
     void emptyJson();
     void getDefaultParams();
     void validJsonWithAllOptions();
+    void invalidOptions();
     // colors
     void colorForInvalidVectorIndex();
     void jsonWithSomeColorsMissing();

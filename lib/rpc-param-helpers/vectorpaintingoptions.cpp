@@ -148,7 +148,7 @@ VectorSettingsLayout::VectorStyle VectorPaintingOptions::getVectorStyle() const
 
 void VectorPaintingOptions::extractColors(const QJsonObject &inputJson)
 {
-    if(inputJson.contains("colors")) {
+    if(inputJson.contains("colors") && inputJson.value("colors").isObject()) {
         QJsonObject colors = inputJson.value("colors").toObject();
         for(QString &channel: colors.keys()) {
             if(m_channelNamesIndexMap.contains(channel))
@@ -159,7 +159,7 @@ void VectorPaintingOptions::extractColors(const QJsonObject &inputJson)
 
 void VectorPaintingOptions::extractLabels(const QJsonObject &inputJson)
 {
-    if(inputJson.contains("labels")) {
+    if(inputJson.contains("labels") && inputJson.value("labels").isObject()) {
         QJsonObject labels = inputJson.value("labels").toObject();
         for(QString &channel: labels.keys()) {
             if(m_channelNamesIndexMap.contains(channel))
@@ -170,27 +170,64 @@ void VectorPaintingOptions::extractLabels(const QJsonObject &inputJson)
 
 void VectorPaintingOptions::extractUserSettings(const QJsonObject &inputJson)
 {
-    if(inputJson.contains("vector_standard")) {
+    if(inputJson.contains("vector_standard") && inputJson.value("vector_standard").isString()) {
         int standard = inputJson.value("vector_standard").toString().toInt();
-        m_userSettings.setVectorStandard(static_cast<VectorSettingsUser::VectorStandard>(standard));
+        switch(static_cast<VectorSettingsUser::VectorStandard>(standard)) {
+        case VectorSettingsUser::VectorStandard::DIN:
+            m_userSettings.setVectorStandard(VectorSettingsUser::VectorStandard::DIN);
+            break;
+        case VectorSettingsUser::VectorStandard::IEC:
+            m_userSettings.setVectorStandard(VectorSettingsUser::VectorStandard::IEC);
+            break;
+        case VectorSettingsUser::VectorStandard::ANSI:
+            m_userSettings.setVectorStandard(VectorSettingsUser::VectorStandard::ANSI);
+            break;
+        default:
+            m_userSettings.setVectorStandard(m_defaultVectorStandard);
+            break;
+        }
     }
-    if(inputJson.contains("vector_type")) {
+
+    if(inputJson.contains("vector_type") && inputJson.value("vector_standard").isString()) {
         int type = inputJson.value("vector_type").toString().toInt();
-        m_userSettings.setVectorType(static_cast<VectorSettingsUser::VectorType>(type));
+        switch(static_cast<VectorSettingsUser::VectorType>(type)) {
+        case VectorSettingsUser::VectorType::STAR:
+            m_userSettings.setVectorType(VectorSettingsUser::VectorType::STAR);
+            break;
+        case VectorSettingsUser::VectorType::TRIANGLE:
+            m_userSettings.setVectorType(VectorSettingsUser::VectorType::TRIANGLE);
+            break;
+        case VectorSettingsUser::VectorType::THREE_PHASE:
+            m_userSettings.setVectorType(VectorSettingsUser::VectorType::THREE_PHASE);
+            break;
+        default:
+            m_userSettings.setVectorType(m_defaultVectorType);
+            break;
+        }
     }
 }
 
 void VectorPaintingOptions::extractNominalSelection(const QJsonObject &inputJson)
 {
-    if(inputJson.contains("vector_circlecmode")) {
+    if(inputJson.contains("vector_circlecmode") && inputJson.value("vector_circlecmode").isString()) {
         int mode = inputJson.value("vector_circlecmode").toString().toInt();
-       m_lengthSettings.setNominalSelection(static_cast<VectorSettingsLengths::VectorNominals>(mode));
+        switch(static_cast<VectorSettingsLengths::VectorNominals>(mode)) {
+        case VectorSettingsLengths::VectorNominals::NOMINAL:
+            m_lengthSettings.setNominalSelection(VectorSettingsLengths::VectorNominals::NOMINAL);
+            break;
+        case VectorSettingsLengths::VectorNominals::MAXIMUM:
+            m_lengthSettings.setNominalSelection(VectorSettingsLengths::VectorNominals::MAXIMUM);
+            break;
+        default:
+            m_lengthSettings.setNominalSelection(m_defaultNominalSelection);
+            break;
+        }
     }
 }
 
 void VectorPaintingOptions::extractStyle(const QJsonObject &inputJson)
 {
-    if(inputJson.contains("vector_style")) {
+    if(inputJson.contains("vector_style") && inputJson.value("vector_style").isString()) {
         QString styleStr = inputJson.value("vector_style").toString();
         if(styleStr == "ZENUX")
             m_layoutSettings.setVectorStyle(VectorSettingsLayout::VectorStyle::ZENUX);
