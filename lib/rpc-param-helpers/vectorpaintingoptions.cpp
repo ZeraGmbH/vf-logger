@@ -48,7 +48,7 @@ VectorPaintingOptions::VectorPaintingOptions() :
     m_layoutSettings.setVectorStyle(m_defaultStyle);
 }
 
-bool VectorPaintingOptions::convertJsonParams(const QVariantMap &param)
+bool VectorPaintingOptions::parseParams(const QVariantMap &param)
 {
     QJsonObject json = QJsonObject::fromVariantMap(param);
     extractColors(json);

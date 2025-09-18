@@ -11,7 +11,7 @@ class VectorPaintingOptions
 {
 public:
     VectorPaintingOptions();
-    bool convertJsonParams(const QVariantMap &param);
+    bool parseParams(const QVariantMap &param);
     void calculateNominalAndMinValues(QJsonObject loggedValues);
     QColor getPhaseColor(int idx) const;
     QString getPhaseLabel(int idx) const;

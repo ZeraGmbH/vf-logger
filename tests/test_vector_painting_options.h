@@ -8,18 +8,18 @@ class test_vector_painting_options : public QObject
 {
     Q_OBJECT
 private slots:
-    void emptyJson();
+    void emptyParams();
     void getDefaultParams();
-    void validJsonWithAllOptions();
-    void invalidOptions();
+    void validParamsWithAllOptions();
+    void invalidParams();
     // colors
     void colorForInvalidVectorIndex();
-    void jsonWithSomeColorsMissing();
-    void jsonWithSomeColorsExtra();
+    void paramsWithSomeColorsMissing();
+    void paramsWithSomeColorsExtra();
     // labels
     void labelForInvalidVectorIndex();
-    void jsonWithSomeLabelsMissing();
-    void jsonWithSomeLabelsExtra();
+    void paramsWithSomeLabelsMissing();
+    void paramsWithSomeLabelsExtra();
     // vector lengths
     void nominalAndMinValuesFromRangeModule();
 private:
