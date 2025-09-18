@@ -1,0 +1,15 @@
+{
+    "colors": "#EEff0000",
+    "labels": {
+        "X": "Van",
+        "Y": "Vbn",
+        "Z": "Vcn",
+        "A": "Ia",
+        "B": "Ib",
+        "C": "Ic"
+    },
+    "vector_standard": 2,
+    "vector_circlecmode": 100,
+    "vector_type": "99",
+    "vector_style_foo": "UNDEFINED"
+}
