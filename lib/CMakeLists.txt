@@ -41,8 +41,8 @@ target_link_libraries(VfLogger
     Zera::ModmanBase
     Zera::VfConvenientCode
     Zera::vector-diagram-lib
+    Zera::zera-json-params
     PRIVATE
-    zera-json-params
     Qt5::Sql
     Qt5::Concurrent
     Qt5::Gui
