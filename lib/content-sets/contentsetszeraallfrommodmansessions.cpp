@@ -5,8 +5,8 @@
 
 
 const QSet<int> ContentSetsZeraAllFromModmanSessions::m_entitiesNotAddedToZeraAllContentSet =
-    // apimodule / scpimodule
-    QSet<int>() << 1500 << 9999;
+    // apimodule / hotplugcontrolsmodule / scpimodule
+    QSet<int>() << 1500 << 1700 << 9999;
 
 ContentSetsZeraAllFromModmanSessions::ContentSetsZeraAllFromModmanSessions()
 {
