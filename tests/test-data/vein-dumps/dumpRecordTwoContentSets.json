@@ -29,7 +29,7 @@
             "TestSet1",
             "TestSet2"
         ],
-        "guiContext": "",
+        "guiContext": null,
         "sessionName": "DbTestSession1",
         "transactionName": "TestTransaction"
     }

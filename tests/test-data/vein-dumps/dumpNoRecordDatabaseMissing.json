@@ -1,6 +1,6 @@
 {
     "2": {
-        "DatabaseFile": "",
+        "DatabaseFile": null,
         "DatabaseReady": false,
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
@@ -22,7 +22,7 @@
         "currentContentSets": [
             "TestSet1"
         ],
-        "guiContext": "",
+        "guiContext": null,
         "sessionName": "DbTestSession1",
         "transactionName": "TestTransaction"
     }

@@ -101,7 +101,7 @@
         "EntityName": "EntityName12"
     },
     "2": {
-        "DatabaseFile": "",
+        "DatabaseFile": null,
         "DatabaseReady": false,
         "EntityName": "_LoggingSystem",
         "ExistingSessions": [
@@ -120,8 +120,8 @@
         ],
         "currentContentSets": [
         ],
-        "guiContext": "",
-        "sessionName": "",
-        "transactionName": ""
+        "guiContext": null,
+        "sessionName": null,
+        "transactionName": null
     }
 }

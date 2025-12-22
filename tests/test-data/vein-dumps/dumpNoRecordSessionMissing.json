@@ -24,8 +24,8 @@
         "currentContentSets": [
             "TestSet1"
         ],
-        "guiContext": "",
-        "sessionName": "",
+        "guiContext": null,
+        "sessionName": null,
         "transactionName": "TestTransaction"
     }
 }

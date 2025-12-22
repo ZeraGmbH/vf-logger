@@ -21,8 +21,8 @@
         ],
         "currentContentSets": [
         ],
-        "guiContext": "",
+        "guiContext": null,
         "sessionName": "DbTestSession1",
-        "transactionName": ""
+        "transactionName": null
     }
 }
