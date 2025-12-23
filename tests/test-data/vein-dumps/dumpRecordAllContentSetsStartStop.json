@@ -28,7 +28,7 @@
         "currentContentSets": [
             "ZeraAll"
         ],
-        "guiContext": null,
+        "guiContext": "",
         "sessionName": "DbTestSession1",
         "transactionName": "TestTransaction"
     }

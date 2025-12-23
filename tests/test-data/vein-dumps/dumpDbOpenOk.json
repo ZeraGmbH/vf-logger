@@ -21,8 +21,8 @@
         ],
         "currentContentSets": [
         ],
-        "guiContext": null,
-        "sessionName": null,
-        "transactionName": null
+        "guiContext": "",
+        "sessionName": "",
+        "transactionName": ""
     }
 }
