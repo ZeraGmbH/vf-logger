@@ -310,7 +310,7 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QCOMPARE(spy.count(), 1);
     QCOMPARE(spy[0][0], "TestTransaction");
     QCOMPARE(spy[0][1], "DbTestSession1");
-    QCOMPARE(spy[0][2], "TestSet1");
+    QCOMPARE(spy[0][2], QStringList() << "TestSet1");
     QCOMPARE(spy[0][3], "TestGuiContext");
 
     QFile file(":/vein-dumps/dumpDbGuiContext.json");
