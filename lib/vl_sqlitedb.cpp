@@ -841,7 +841,7 @@ void SQLiteDB::onFlushToDb()
         QList<QVariant> tmpEntityIds;
 
         //do not use QHash here, the sorted key lists are required
-        QMultiMap<QVariant, QVariant> tmpTransactionIds; //session_id, valuemap_id
+        QMultiMap<int, QVariant> tmpTransactionIds; //session_id, valuemap_id
         QSet<int> activeTransactions;
         QMap<int, QVariant> tmpValues; //valuemap_id, component_value
 
@@ -885,7 +885,10 @@ void SQLiteDB::onFlushToDb()
                 return;
             }
             //transaction_id, valuemap_id
-            m_dPtr->m_transactionMappingInsertQuery.addBindValue(tmpTransactionIds.keys());
+            QVariantList variantTransactionIdList;
+            for (int id: tmpTransactionIds.keys())
+                variantTransactionIdList.append(id);
+            m_dPtr->m_transactionMappingInsertQuery.addBindValue(variantTransactionIdList);
             m_dPtr->m_transactionMappingInsertQuery.addBindValue(tmpTransactionIds.values());
             if(m_dPtr->m_transactionMappingInsertQuery.execBatch() == false) {
                 emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
@@ -924,7 +927,7 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
         QList<QVariant> tmpEntityIds;
 
         //do not use QHash here, the sorted key lists are required
-        QMultiMap<QVariant, QVariant> tmpSessionIds; //session_id, valuemap_id
+        QMultiMap<int, QVariant> tmpSessionIds; //session_id, valuemap_id
         QMap<int, QVariant> tmpValues; //valuemap_id, component_value
 
         //code that is used in both loops
@@ -965,7 +968,10 @@ void SQLiteDB::writeStaticData(QVector<SQLBatchData> p_batchData)
             m_dPtr->m_valueMapInsertQuery.finish();
 
             //transaction_id, valuemap_id
-            m_dPtr->m_sessionMappingInsertQuery.addBindValue(tmpSessionIds.keys());
+            QVariantList variantSessionIdList;
+            for (int id: tmpSessionIds.keys())
+                variantSessionIdList.append(id);
+            m_dPtr->m_sessionMappingInsertQuery.addBindValue(variantSessionIdList);
             m_dPtr->m_sessionMappingInsertQuery.addBindValue(tmpSessionIds.values());
             if(m_dPtr->m_sessionMappingInsertQuery.execBatch() == false) {
                 emit sigDatabaseError(QString("Error executing m_transactionMappingInsertQuery: %1").arg(m_dPtr->m_transactionMappingInsertQuery.lastError().text()));
