@@ -44,7 +44,6 @@ target_link_libraries(VfLogger
     Zera::zera-json-params
     PRIVATE
     Qt5::Sql
-    Qt5::Concurrent
     Qt5::Gui
     )
 

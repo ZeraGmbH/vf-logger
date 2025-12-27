@@ -116,9 +116,6 @@
                 },
                 "customerDataRemove(QString fileName)": {
                     "Description": "fileName: the name of the file to be removed"
-                },
-                "customerDataSearch(QVariantMap searchMap)": {
-                    "Description": "searchMap: regular expression values in the map are tested against all files"
                 }
             }
         },

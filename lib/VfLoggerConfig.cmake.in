@@ -1,6 +1,6 @@
 include(CMakeFindDependencyMacro)
 
-find_dependency(Qt5 REQUIRED COMPONENTS Core Sql Concurrent CONFIG)
+find_dependency(Qt5 REQUIRED COMPONENTS Core Sql CONFIG)
 find_dependency(VeinFramework REQUIRED)
 find_dependency(VfQmlLibs REQUIRED)
 
