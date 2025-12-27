@@ -13,7 +13,10 @@ include(FeatureSummary)
 include(GNUInstallDirs)
 include(GenerateExportHeader)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Sql Gui Test CONFIG)
+set(QT_MAJOR_VER "5" CACHE STRING "Qt major version")
+set(QTX "Qt${QT_MAJOR_VER}")
+
+find_package(${QTX} REQUIRED COMPONENTS Core Sql Gui Test CONFIG)
 find_package(VeinFramework REQUIRED)
 find_package(zera-json-helpers REQUIRED)
 find_package(VfQmlLibs REQUIRED)

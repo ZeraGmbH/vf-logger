@@ -14,7 +14,7 @@ function(SETUP_TESTS)
             )
         target_link_libraries(${_testname}
             PUBLIC
-            Qt5::Test
+            ${QTX}::Test
             Zera::xml-compare-testlib
             vf-logger-testlib
             )

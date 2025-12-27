@@ -43,8 +43,8 @@ target_link_libraries(VfLogger
     Zera::vector-diagram-lib
     Zera::zera-json-params
     PRIVATE
-    Qt5::Sql
-    Qt5::Gui
+    ${QTX}::Sql
+    ${QTX}::Gui
     )
 
 set_target_properties(VfLogger PROPERTIES VERSION ${PROJECT_VERSION})

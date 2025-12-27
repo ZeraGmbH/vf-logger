@@ -1,6 +1,11 @@
 include(CMakeFindDependencyMacro)
 
-find_dependency(Qt5 REQUIRED COMPONENTS Core Sql CONFIG)
+if("${QT_MAJOR_VER}" STREQUAL "6")
+    find_dependency(Qt6 REQUIRED COMPONENTS Core Sql CONFIG)
+else()
+    find_dependency(Qt5 REQUIRED COMPONENTS Core Sql CONFIG)
+endif()
+
 find_dependency(VeinFramework REQUIRED)
 find_dependency(VfQmlLibs REQUIRED)
 
