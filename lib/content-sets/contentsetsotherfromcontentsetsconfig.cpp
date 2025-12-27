@@ -31,8 +31,8 @@ QStringList ContentSetsOtherFromContentSetsConfig::getAvailableContentSets()
 QMap<int, QStringList> ContentSetsOtherFromContentSetsConfig::getEntityComponents(const QString &contentSetName)
 {
     QMap<int, QStringList> ret;
-    const auto ecArr = m_currentJsonContentSet[contentSetName].toArray();
-    for(const auto &arrEntry : ecArr) {
+    const QJsonArray ecArr = m_currentJsonContentSet[contentSetName].toArray();
+    for(const QJsonValue &arrEntry : ecArr) {
         int entityId = arrEntry["EntityId"].toInt();
         QStringList componentList;
         const QJsonArray arrComponents = arrEntry["Components"].toArray();

@@ -41,8 +41,8 @@ QMap<int, QStringList> ContentSetsZeraAllFromModmanSessions::getEntityComponents
 {
     QMap<int, QStringList> ret;
     if(!getAvailableContentSets().isEmpty() && contentSetName == "ZeraAll") {
-        const auto ecArr = m_currentJsonContentSet["modules"].toArray();
-        for(const auto &arrEntry : ecArr) {
+        const QJsonArray ecArr = m_currentJsonContentSet["modules"].toArray();
+        for(const QJsonValue &arrEntry : ecArr) {
             int entityId = arrEntry["id"].toInt();
             if (!m_entitiesNotAddedToZeraAllContentSet.contains(entityId))
                 ret.insert(entityId, QStringList());
