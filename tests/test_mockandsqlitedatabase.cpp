@@ -149,13 +149,12 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "Session1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QJsonObject sessionInfo = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject sessionInfo = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
     removeTimeInfoInTransactions(sessionInfo);
     QJsonDocument jsonDoc(sessionInfo);
@@ -176,13 +175,12 @@ void test_mockandsqlitedatabase::displaySessionInfosInvalidSession()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "NonExistingSession");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Select an existing session");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Select an existing session");
 }
 
 void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
@@ -195,13 +193,12 @@ void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "DbTestSession1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QJsonObject sessionInfo = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject sessionInfo = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     //Remove 'Time' information as it indicates the actual time when logging was done. So it will never match with 'Time' from jsonExpected.
     removeTimeInfoInTransactions(sessionInfo);
     QJsonDocument jsonDoc(sessionInfo);
@@ -221,13 +218,12 @@ void test_mockandsqlitedatabase::displaySessionInfoBeforeDbLoaded()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "DbTestSession1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::deleteTransaction()
@@ -239,18 +235,17 @@ void test_mockandsqlitedatabase::deleteTransaction()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QVERIFY(getReturnedResult(invokerSpy[0][2]).toBool());
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QVERIFY(getReturnedResult(invokerSpy[0][1]).toBool());
 
     rpcParams.clear();
     rpcParams.insert("p_session", "DbTestSession1");
     m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displaySessionsInfos", rpcParams);
-    QJsonObject sessionInfo = invokerSpy[1][2].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
+    QJsonObject sessionInfo = invokerSpy[1][1].toMap().value(VeinComponent::RemoteProcedureData::s_returnString).toJsonObject();
     QVERIFY(!sessionInfo.contains("Transaction1"));
     QVERIFY(sessionInfo.contains("Transaction2"));
 }
@@ -263,13 +258,12 @@ void test_mockandsqlitedatabase::deleteNonexistingTransaction()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "foo");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Select an existing transaction");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Select an existing transaction");
 }
 
 void test_mockandsqlitedatabase::deleteTransactionBeforeDbLoaded()
@@ -279,13 +273,12 @@ void test_mockandsqlitedatabase::deleteTransactionBeforeDbLoaded()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteTransaction", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::deleteSession()
@@ -301,12 +294,11 @@ void test_mockandsqlitedatabase::deleteSession()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "DbTestSession1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
     exisitingSessions = getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_existingSessionsComponentName).toStringList();
     QVERIFY(!exisitingSessions.contains("DbTestSession1"));
     currentSession =  getComponentValue(dataLoggerEntityId, LoggerStaticTexts::s_sessionNameComponentName).toString();
@@ -320,13 +312,12 @@ void test_mockandsqlitedatabase::deleteNonexistingSession()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "foo");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Select an existing session");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Select an existing session");
 }
 
 void test_mockandsqlitedatabase::deleteSessionBeforeDbLoaded()
@@ -336,13 +327,12 @@ void test_mockandsqlitedatabase::deleteSessionBeforeDbLoaded()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "DbTestSession1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_deleteSession", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
@@ -375,13 +365,12 @@ void test_mockandsqlitedatabase::listAllSessions()
     TimeMachineObject::feedEventLoop();
 
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QJsonArray allSessions = getReturnedResult(invokerSpy[0][2]).toJsonArray();
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonArray allSessions = getReturnedResult(invokerSpy[0][1]).toJsonArray();
     QJsonDocument jsonDoc(allSessions);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
 
@@ -407,7 +396,7 @@ void test_mockandsqlitedatabase::listNoSession()
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
     m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
 
-    QJsonArray allSessions = getReturnedResult(invokerSpy[0][2]).toJsonArray();
+    QJsonArray allSessions = getReturnedResult(invokerSpy[0][1]).toJsonArray();
     QVERIFY(allSessions.isEmpty());
 }
 
@@ -416,13 +405,12 @@ void test_mockandsqlitedatabase::listAllSessionsBeforeDbLoaded()
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
 
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_listAllSessions", QVariantMap());
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::displayLoggedValues()
@@ -441,13 +429,12 @@ void test_mockandsqlitedatabase::displayLoggedValues()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
 
@@ -478,12 +465,11 @@ void test_mockandsqlitedatabase::displayLoggedValuesOnDifferentSessionDeviceName
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
-    QJsonObject jsonDumped = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QJsonObject jsonDumped = getReturnedResult(invokerSpy[0][1]).toJsonObject();
 
     QFile file(":/logged-values/LogTestSet2.json");
     QVERIFY(file.open(QFile::ReadOnly));
@@ -510,10 +496,10 @@ void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
-    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
 
@@ -540,13 +526,12 @@ void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "InvalidTransaction");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Select an existing transaction");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Select an existing transaction");
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
@@ -558,13 +543,12 @@ void test_mockandsqlitedatabase::displayLoggedValuesBeforeDbLoaded()
     QVariantMap rpcParams;
     rpcParams.insert("p_transaction", "Transaction1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayActualValues", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::NoCustomerDataSet()
@@ -577,14 +561,13 @@ void test_mockandsqlitedatabase::NoCustomerDataSet()
     QVariantMap rpcParams;
     rpcParams.insert("p_session", "session1");
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayCustomerData", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_displayCustomerData", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
 
-    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
 
@@ -622,7 +605,7 @@ void test_mockandsqlitedatabase::displayEmptyCustomerData()
 
     QCOMPARE(invokerSpy.count(), 1);
 
-    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
 
@@ -664,7 +647,7 @@ void test_mockandsqlitedatabase::displayEnteredCustomerData()
 
     QCOMPARE(invokerSpy.count(), 1);
 
-    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][2]).toJsonObject();
+    QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
 
@@ -683,14 +666,13 @@ void test_mockandsqlitedatabase::createVectorDiagramDefaultOptions()
     rpcParams.insert("p_transaction", "Transaction1");
     rpcParams.insert("p_paintingOptions", QVariantMap());
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
 
-    QString dumped = getReturnedResult(invokerSpy[0][2]).toString();
+    QString dumped = getReturnedResult(invokerSpy[0][1]).toString();
     QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsNoDftValues.svg");
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
@@ -708,13 +690,12 @@ void test_mockandsqlitedatabase::createVectorDiagramInvalidTransaction()
     rpcParams.insert("p_transaction", "foo");
     rpcParams.insert("p_paintingOptions", QVariantMap());
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Select an existing transaction");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Select an existing transaction");
 }
 
 void test_mockandsqlitedatabase::createVectorDiagramBeforeDbLoaded()
@@ -725,13 +706,12 @@ void test_mockandsqlitedatabase::createVectorDiagramBeforeDbLoaded()
     rpcParams.insert("p_transaction", "foo");
     rpcParams.insert("p_paintingOptions", QVariantMap());
     QSignalSpy invokerSpy(m_testSystem->getServer(), &TestVeinServer::sigRPCFinished);
-    QUuid id = m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
+    m_testSystem->getServer()->invokeRpc(dataLoggerEntityId, "RPC_createVectorDiagram", rpcParams);
 
     QCOMPARE(invokerSpy.count(), 1);
     QCOMPARE(invokerSpy[0][0].toBool(), rpc_signature_ok);
-    QCOMPARE(invokerSpy[0][1], id);
-    QCOMPARE(getResultCode(invokerSpy[0][2]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
-    QCOMPARE(getErrorString(invokerSpy[0][2]), "Database is not set");
+    QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_EINVAL);
+    QCOMPARE(getErrorString(invokerSpy[0][1]), "Database is not set");
 }
 
 void test_mockandsqlitedatabase::logATransaction(QString session, QString transaction, QStringList contentSets)
