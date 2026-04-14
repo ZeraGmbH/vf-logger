@@ -60,7 +60,7 @@ QStringList LoggedComponents::getComponents(int entityId) const
 QStringList LoggedComponents::getComponentsFilteredForDb(const VeinStorage::AbstractDatabase *storageDb,
                                                          int entityId)
 {
-    QStringList fullList = storageDb->getComponentListWithFutures(entityId);
+    QStringList fullList = storageDb->getComponentList(entityId);
     for(const auto &noStoreLabel : getComponentsNotStored())
         fullList.removeAll(noStoreLabel);
     return fullList;

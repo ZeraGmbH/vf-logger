@@ -51,10 +51,6 @@ EntityComponentData LoggerContentsetsHelper::getCurrentData(const VeinStorage::A
                 const QVariant componentData = storageDb->getStoredValue(entityId, componentName);
                 data[entityId].append({componentName, componentData});
             }
-            else if(storageDb->hasFutureStoredValue(entityId, componentName)) {
-                const QVariant componentData = storageDb->getFutureStoredValue(entityId, componentName);
-                data[entityId].append({componentName, componentData});
-            }
         }
     }
     return data;
