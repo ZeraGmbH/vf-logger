@@ -34,10 +34,10 @@ public:
     QVariant getValueOfComponent(int entityId, QString componentName);
 
     void loadDatabase();
-    void startLogging(QString sessionName = "DbTestSession1", QString transactionName = "TestTransaction");
+    void startLogging(const QString &sessionName = "DbTestSession1", const QString &transactionName = "TestTransaction");
     void stopLogging();
 
-    void setNextValueWriteCount(int newValueWriteCount);
+    static void setNextValueWriteCount(int newValueWriteCount);
 
     void changeSession(const QString &sessionPath = "test-session2.json", int baseEntityId = 20);
     static QString getCustomerDataPath();

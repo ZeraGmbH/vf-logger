@@ -144,7 +144,7 @@ void TestLoggerSystem::loadDatabase()
     TimeMachineObject::feedEventLoop();
 }
 
-void TestLoggerSystem::startLogging(QString sessionName, QString transactionName)
+void TestLoggerSystem::startLogging(const QString &sessionName, const QString &transactionName)
 {
     if(TestLoggerDB::getCurrentInstance())
         TestLoggerDB::getCurrentInstance()->valuesFromNowOnAreInitial();

@@ -15,7 +15,7 @@ LoggerContentsetsHelper::LoggerContentsetsHelper(const QList<int> &entitiesWithA
         if (componentList.isEmpty())
             m_loggedComponents.addAllComponents(entityId);
         else
-            for(auto &component : componentList)
+            for(const QString &component : componentList)
                 m_loggedComponents.addComponent(entityId, component);
     }
 }
@@ -30,7 +30,7 @@ LoggerContentsetsHelper::LoggerContentsetsHelper(const QList<int> &entitiesWithA
         if (componentList.isEmpty())
             m_loggedComponents.addAllComponents(entityId);
         else
-            for(auto &component : componentList)
+            for(const QString &component : componentList)
                 m_loggedComponents.addComponent(entityId, component);
     }
 }

@@ -8,7 +8,7 @@ class JsonLoggedValues : public QObject
 {
     Q_OBJECT
 public:
-    explicit JsonLoggedValues(QStringList contentsetsList);
+    explicit JsonLoggedValues(const QStringList &contentsetsList);
     void appendLoggedValues(QString entityId, QString componentName, QVariant value);
     QJsonObject createLoggedValuesJson(QString sessionDeviceName);
 

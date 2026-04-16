@@ -2,7 +2,7 @@
 #include "loggercontentsetconfig.h"
 #include <qjsonarray.h>
 
-JsonLoggedValues::JsonLoggedValues(QStringList contentsetsList)
+JsonLoggedValues::JsonLoggedValues(const QStringList &contentsetsList)
     : m_contentsetsList(contentsetsList)
 {
 }
@@ -31,7 +31,7 @@ QJsonObject JsonLoggedValues::createLoggedValuesJson(QString sessionDeviceName)
     QJsonObject loggedValues;
     QJsonArray jsonArray;
     if(m_contentsetsList.contains("ZeraAll")) {
-        QStringList contentsetAll = VeinLogger::LoggerContentSetConfig::getAvailableContentSets(sessionDeviceName);
+        const QStringList contentsetAll = VeinLogger::LoggerContentSetConfig::getAvailableContentSets(sessionDeviceName);
         for (const QString &contentSet : contentsetAll)
             jsonArray.append(contentSet);
     }
