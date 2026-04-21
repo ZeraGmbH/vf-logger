@@ -25,8 +25,7 @@ const QStringList LoggedComponents::getComponentsNotStored()
 {
     return QStringList()
            << QStringLiteral("EntityName")
-           << QStringLiteral("INF_ModuleInterface")
-           << QStringLiteral("ACT_DEV_IFACE");
+           << QStringLiteral("INF_ModuleInterface");
 }
 
 bool LoggedComponents::isLoggedComponent(int entityId, const QString &componentName) const
