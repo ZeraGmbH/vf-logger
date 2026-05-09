@@ -34,12 +34,13 @@ void test_create_vector_diagram::extractVectorFromJsonWithoutDft()
 void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
-    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg");
+    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg";
+    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(QVariantMap(), dftValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
     if(!ok)
-        TestLogHelpers::compareAndLogOnDiff(expected, dumped);
+        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
     QVERIFY(ok);
 }
 
@@ -47,12 +48,13 @@ void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
     QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/missing-some-colors");
-    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg");
+    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg";
+    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
     if(!ok)
-        TestLogHelpers::compareAndLogOnDiff(expected, dumped);
+        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
     QVERIFY(ok);
 }
 
@@ -60,12 +62,13 @@ void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 {
     QJsonObject loggedValues = readLoggedValues(":/logged-values/rangeValues.json");
     QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/complete-options");
-    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg");
+    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg";
+    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, loggedValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
     if(!ok)
-        TestLogHelpers::compareAndLogOnDiff(expected, dumped);
+        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
     QVERIFY(ok);
 }
 
@@ -73,19 +76,21 @@ void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
 {
     QJsonObject dftRangeValues = readLoggedValues(":/logged-values/dftRangeValues.json");
     QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/complete-options");
-    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg");
+    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg";
+    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftRangeValues);
     SvgFuzzyCompare compare;
     bool ok = compare.compareXml(dumped, expected);
     if(!ok)
-        TestLogHelpers::compareAndLogOnDiff(expected, dumped);
+        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
     QVERIFY(ok);
 }
 
 QJsonObject test_create_vector_diagram::readLoggedValues(QString fileName)
 {
     QFile file(fileName);
-    file.open(QFile::ReadOnly);
+    if(!file.open(QFile::ReadOnly))
+        return QJsonObject();
     QJsonDocument document = QJsonDocument::fromJson(file.readAll());
     return document.object();
 }
@@ -93,7 +98,8 @@ QJsonObject test_create_vector_diagram::readLoggedValues(QString fileName)
 QVariantMap test_create_vector_diagram::readVectorOptionsFromAFile(QString fileName)
 {
     QFile fileOptions(fileName);
-    fileOptions.open(QFile::ReadOnly);
+    if(!fileOptions.open(QFile::ReadOnly))
+        return QVariantMap();
     QJsonDocument doc = QJsonDocument::fromJson(fileOptions.readAll());
     return doc.object().toVariantMap();
 }
