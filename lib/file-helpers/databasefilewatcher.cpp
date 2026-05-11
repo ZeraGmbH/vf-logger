@@ -8,7 +8,7 @@ DatabaseFileWatcher::DatabaseFileWatcher()
 {
 }
 
-void DatabaseFileWatcher::startWatch(const QString filePath)
+void DatabaseFileWatcher::startWatch(const QString &filePath)
 {
     m_databaseFilePath = filePath;
     // * To avoid fire storm on logging we watch file's dir

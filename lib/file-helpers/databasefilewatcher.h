@@ -9,7 +9,7 @@ class DatabaseFileWatcher : public QObject
     Q_OBJECT
 public:
     DatabaseFileWatcher();
-    void startWatch(const QString filePath);
+    void startWatch(const QString &filePath);
 signals:
     void sigFileError();
 

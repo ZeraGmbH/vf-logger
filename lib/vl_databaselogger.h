@@ -40,20 +40,20 @@ public:
 signals:
     void sigOpenDatabase(const QString &filePath);
     void sigDatabaseError(const QString &errorMsg);
-    void sigAddLoggedValue(QString sessionName, QVector<int> transactionIds, VeinLogger::ComponentInfo component);
-    void sigDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg);
+    void sigAddLoggedValue(const QString &sessionName, const QVector<int> &transactionIds, const VeinLogger::ComponentInfo &component);
+    void sigDeleteSessionCompleted(const QUuid &callId, bool success, const QString &errorMsg);
 public slots:
     void setLoggingEnabled(bool enabled);
     void closeDatabase();
 
 private slots:
     void initOnce();
-    void onModmanSessionChange(QVariant newSession);
+    void onModmanSessionChange(const QVariant &newSession);
     void onDbReady();
-    void onDbError(QString errorMsg);
+    void onDbError(const QString &errorMsg);
     void onSchedulerCountdownToVein();
-    void updateSessionList(QStringList sessionNames);
-    void onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList);
+    void updateSessionList(const QStringList &sessionNames);
+    void onDeleteSessionCompleted(const QUuid &callId, bool success, const QString &errorMsg, const QStringList &newSessionsList);
 private:
     void openDatabase(const QString &filePath);
     QStringList checkConditionsForStartLog() const;

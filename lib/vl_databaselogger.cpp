@@ -373,7 +373,7 @@ void DatabaseLogger::closeDatabase()
     qInfo() << "Unloaded database:" << closedDb;
 }
 
-void DatabaseLogger::updateSessionList(QStringList sessionNames)
+void DatabaseLogger::updateSessionList(const QStringList &sessionNames)
 {
     m_existingSessions = sessionNames;
     QEvent* event = VfServerComponentSetter::generateEvent(m_entityId, LoggerStaticTexts::s_existingSessionsComponentName,
@@ -381,7 +381,10 @@ void DatabaseLogger::updateSessionList(QStringList sessionNames)
     emit sigSendEvent(event);
 }
 
-void DatabaseLogger::onDeleteSessionCompleted(QUuid callId, bool success, QString errorMsg, QStringList newSessionsList)
+void DatabaseLogger::onDeleteSessionCompleted(const QUuid &callId,
+                                              bool success,
+                                              const QString &errorMsg,
+                                              const QStringList &newSessionsList)
 {
     Q_UNUSED(callId)
     Q_UNUSED(errorMsg)
@@ -418,7 +421,7 @@ void DatabaseLogger::emptyLoggedComponents()
     }
 }
 
-void DatabaseLogger::onModmanSessionChange(QVariant newSession)
+void DatabaseLogger::onModmanSessionChange(const QVariant &newSession)
 {
     setLoggingEnabled(false);
     for (auto &env : LoggerContentSetConfig::getConfigEnvironment())
@@ -458,7 +461,7 @@ void DatabaseLogger::onDbReady()
     dbNameToVein(m_databaseFilePath);
 }
 
-void DatabaseLogger::onDbError(QString errorMsg)
+void DatabaseLogger::onDbError(const QString &errorMsg)
 {
     qWarning() << errorMsg;
     closeDatabase();
