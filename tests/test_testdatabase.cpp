@@ -19,17 +19,15 @@ void test_testdatabase::createSessionNoCustomerDataSystem()
     m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
-    QFile fileRecording(":/recording-dumps/dumpCreateSessionNoCustomerDataSystem.json");
-    QVERIFY(fileRecording.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileRecording.readAll();
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    bool allOk = true;
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpCreateSessionNoCustomerDataSystem.json", jsonDumped))
+        allOk = false;
 
-    QFile fileVein(":/vein-dumps/dumpDbSetSessionNew.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    jsonExpected = fileVein.readAll();
     jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbSetSessionNew.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::setupCustomerData()
@@ -37,13 +35,8 @@ void test_testdatabase::setupCustomerData()
     m_testSystem.setupServer();
     m_testSystem.appendCustomerDataSystem();
 
-    QFile file(":/vein-dumps/dumpDbCustomerDataInitial.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-
     QByteArray jsonDumped = m_testSystem.dumpStorage(QList<int>() << dataLoggerEntityId << customerDataEntityId);
-
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbCustomerDataInitial.json", jsonDumped));
 }
 
 void test_testdatabase::selectExistingSession()
@@ -53,19 +46,17 @@ void test_testdatabase::selectExistingSession()
     m_testSystem.loadDatabase();
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
 
+    bool allOk = true;
     // see DatabaseLogger::handleVeinDbSessionNameSet: If a session is already existent
     // => no session static components added
-    QFile fileRecording(":/recording-dumps/dumpRecordNotStarted.json");
-    QVERIFY(fileRecording.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileRecording.readAll();
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordNotStarted.json", jsonDumped))
+        allOk = false;
 
-    QFile file(":/vein-dumps/dumpDbSetSessionAvail.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbSetSessionAvail.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::createSession()
@@ -76,17 +67,15 @@ void test_testdatabase::createSession()
 
     m_testSystem.setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
-    QFile fileRecording(":/recording-dumps/dumpCreateSession.json");
-    QVERIFY(fileRecording.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileRecording.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpCreateSession.json", jsonDumped))
+        allOk = false;
 
-    QFile fileVein(":/vein-dumps/dumpDbSetSessionNew.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray veinJsonExpected = fileVein.readAll();
     QByteArray veinJsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(veinJsonExpected, veinJsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbSetSessionNew.json", veinJsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::recordVeinDump()
@@ -96,11 +85,8 @@ void test_testdatabase::recordVeinDump()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
     m_testSystem.startLogging();
 
-    QFile file(":/vein-dumps/dumpDbRecordInitial.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbRecordInitial.json", jsonDumped));
 }
 
 void test_testdatabase::recordOneContentSet()
@@ -114,17 +100,15 @@ void test_testdatabase::recordOneContentSet()
 
     m_testSystem.setComponentValues(2);
 
-    QFile fileVein(":/vein-dumps/dumpDbRecordInitial.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbRecordInitial.json", jsonDumped))
+        allOk = false;
 
-    QFile file(":/recording-dumps/dumpRecordOneContentSet.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordOneContentSet.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::recordTwoContentSets()
@@ -138,17 +122,15 @@ void test_testdatabase::recordTwoContentSets()
 
     m_testSystem.setComponentValues(2);
 
-    QFile fileVein(":/vein-dumps/dumpRecordTwoContentSets.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpRecordTwoContentSets.json", jsonDumped))
+        allOk = false;
 
-    QFile file(":/recording-dumps/dumpRecordTwoContentSets.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordTwoContentSets.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::recordAllContentSets()
@@ -162,17 +144,15 @@ void test_testdatabase::recordAllContentSets()
 
     m_testSystem.setComponentValues(2);
 
-    QFile fileVein(":/vein-dumps/dumpRecordAllContentSets.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpRecordAllContentSets.json", jsonDumped))
+        allOk = false;
 
-    QFile file(":/recording-dumps/dumpRecordAllContentSets.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAllContentSets.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::recordStartStop()
@@ -183,17 +163,15 @@ void test_testdatabase::recordStartStop()
 
     m_testSystem.setComponentValues(10);
 
-    QFile fileVein(":/vein-dumps/dumpRecordAllContentSetsStartStop.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpRecordAllContentSetsStartStop.json", jsonDumped))
+        allOk = false;
 
-    QFile file(":/recording-dumps/dumpRecordAllContentSetsStartStop.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAllContentSetsStartStop.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::noRecordTransactionMissing()
@@ -207,17 +185,15 @@ void test_testdatabase::noRecordTransactionMissing()
 
     m_testSystem.setComponentValues(2);
 
-    QFile fileVein(":/vein-dumps/dumpNoRecordTransactionMissing.json"); // bug on LoggingEnabled / Logging data
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpNoRecordTransactionMissing.json", jsonDumped)) // bug on LoggingEnabled / Logging data
+        allOk = false;
 
-    QFile file(":/recording-dumps/dumpRecordNotStarted.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordNotStarted.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::noRecordSessionMissing()
@@ -231,17 +207,15 @@ void test_testdatabase::noRecordSessionMissing()
 
     m_testSystem.setComponentValues(2);
 
-    QFile fileVein(":/vein-dumps/dumpNoRecordSessionMissing.json"); // bug on LoggingEnabled / Logging data
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpNoRecordSessionMissing.json", jsonDumped)) // bug on LoggingEnabled / Logging data
+        allOk = false;
 
-    QFile file(":/recording-dumps/dumpRecordNotStarted.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    jsonExpected = file.readAll();
     jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordNotStarted.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::noRecordDatbaseMissing()
@@ -256,11 +230,8 @@ void test_testdatabase::noRecordDatbaseMissing()
 
     // database is not created -> no dumps
 
-    QFile fileVein(":/vein-dumps/dumpNoRecordDatabaseMissing.json");
-    QVERIFY(fileVein.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileVein.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpNoRecordDatabaseMissing.json", jsonDumped));
 }
 
 void test_testdatabase::removeDbFileForUsbStickGone()
@@ -268,20 +239,18 @@ void test_testdatabase::removeDbFileForUsbStickGone()
     m_testSystem.setupServer();
     m_testSystem.loadDatabase();
 
-    QFile fileOpenOk(":/vein-dumps/dumpDbOpenOk.json");
-    QVERIFY(fileOpenOk.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileOpenOk.readAll();
+    bool allOk = true;
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbOpenOk.json", jsonDumped))
+        allOk = false;
 
     TestLoggerDB::getCurrentInstance()->deleteDbFile();
     TimeMachineObject::feedEventLoop();;
 
-    QFile fileRemoved(":/vein-dumps/dumpDbFileRemoved.json");
-    QVERIFY(fileRemoved.open(QFile::ReadOnly));
-    jsonExpected = fileRemoved.readAll();
     jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    if (!TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbFileRemoved.json", jsonDumped))
+        allOk = false;
+    QVERIFY(allOk);
 }
 
 void test_testdatabase::openRunLogAndClose()
@@ -290,11 +259,8 @@ void test_testdatabase::openRunLogAndClose()
 
     m_testSystem.setComponent(dataLoggerEntityId, "DatabaseFile", "");
 
-    QFile fileDbClose(":/vein-dumps/dumpOpenRunLogAndClose.json");
-    QVERIFY(fileDbClose.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileDbClose.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpOpenRunLogAndClose.json", jsonDumped));
 }
 
 void test_testdatabase::guiContextMakesItIntoDbAndVein()
@@ -313,11 +279,8 @@ void test_testdatabase::guiContextMakesItIntoDbAndVein()
     QCOMPARE(spy[0][2], QStringList() << "TestSet1");
     QCOMPARE(spy[0][3], "TestGuiContext");
 
-    QFile file(":/vein-dumps/dumpDbGuiContext.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbGuiContext.json", jsonDumped));
 }
 
 void test_testdatabase::noRecordSessionChange()

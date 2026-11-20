@@ -26,11 +26,8 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysOnly()
     m_testSystem.startLogging();
     m_testSystem.setComponentValues(2);
 
-    QFile file(":/recording-dumps/dumpRecordAlwaysTwoEntities.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAlwaysTwoEntities.json", jsonDumped));
 }
 
 void test_entities_stored_always::recordEntitiesStoredAlwaysAndOthers()
@@ -48,11 +45,8 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysAndOthers()
     m_testSystem.startLogging();
     m_testSystem.setComponentValues(2);
 
-    QFile file(":/recording-dumps/dumpRecordAlwaysTwoSetOneEntities.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAlwaysTwoSetOneEntities.json", jsonDumped));
 }
 
 void test_entities_stored_always::recordEntitiesStoredAlwaysTwoRecordings()
@@ -78,9 +72,6 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysTwoRecordings()
     m_testSystem.startLogging();
     m_testSystem.setComponentValues(1);
 
-    QFile file(":/recording-dumps/dumpRecordAlwaysStartStopStart.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAlwaysStartStopStart.json", jsonDumped));
 }

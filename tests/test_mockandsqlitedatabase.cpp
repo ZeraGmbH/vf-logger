@@ -44,11 +44,8 @@ void test_mockandsqlitedatabase::createSessionInsertsEntityComponents()
 
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
-    QFile file(":/sqlite-inserts/dumpSessionCreated.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/sqlite-inserts/dumpSessionCreated.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::createSessionWithCustomerDataAlreadyCreated()
@@ -78,11 +75,8 @@ void test_mockandsqlitedatabase::logInsertsEntityComponents()
     QCOMPARE(spyDbComponentsAdded.count(), 0);
 
     m_testSystem->startLogging();
-    QFile file(":/sqlite-inserts/dumpRecordTwoEntityComponents.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/sqlite-inserts/dumpRecordTwoEntityComponents.json", jsonDumped));
 
     m_testSystem->setComponentValues(2);
 
@@ -94,11 +88,8 @@ void test_mockandsqlitedatabase::openDatabaseErrorEarly()
 {
     m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorEarly);
 
-    QFile file(":/vein-dumps/dumpDbOpenErrorEarly.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem->dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbOpenErrorEarly.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::openDatabaseOk()
@@ -115,11 +106,8 @@ void test_mockandsqlitedatabase::openDatabaseErrorLate()
 {
     m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", ":/database/readOnlyDatabase.db");
 
-    QFile file(":/vein-dumps/dumpDbOpenErrorLate.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
     QByteArray jsonDumped = m_testSystem->dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbOpenErrorLate.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::createTwoDatabases()
@@ -159,12 +147,7 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     removeTimeInfoInTransactions(sessionInfo);
     QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-
-    QFile file(":/sqlite-inserts/dumpSessionInfos.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/sqlite-inserts/dumpSessionInfos.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displaySessionInfosInvalidSession()
@@ -203,12 +186,7 @@ void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
     removeTimeInfoInTransactions(sessionInfo);
     QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-
-    QFile fileSessionInfo(":/session-infos/DbTestSession1MultipleTransactions.json");
-    QVERIFY(fileSessionInfo.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileSessionInfo.readAll();
-
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/session-infos/DbTestSession1MultipleTransactions.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displaySessionInfoBeforeDbLoaded()
@@ -373,12 +351,7 @@ void test_mockandsqlitedatabase::listAllSessions()
     QJsonArray allSessions = getReturnedResult(invokerSpy[0][1]).toJsonArray();
     QJsonDocument jsonDoc(allSessions);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-
-    QFile fileSession(":/session-infos/AllSessions.json");
-    QVERIFY(fileSession.open(QFile::ReadOnly));
-    QByteArray jsonExpected = fileSession.readAll();
-
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/session-infos/AllSessions.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::listNoSession()
@@ -437,12 +410,7 @@ void test_mockandsqlitedatabase::displayLoggedValues()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-
-    QFile file(":/logged-values/LogTestSet1.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/logged-values/LogTestSet1.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesOnDifferentSessionDeviceName()
@@ -502,12 +470,7 @@ void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-
-    QFile file(":/logged-values/LogAll.json");
-    QVERIFY(file.open(QFile::ReadOnly));
-    QByteArray jsonExpected = file.readAll();
-
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/logged-values/LogAll.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
@@ -570,11 +533,7 @@ void test_mockandsqlitedatabase::NoCustomerDataSet()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
-
-    QFile customerfile(":/customerData/emptyCustomerData.json");
-    QVERIFY(customerfile.open(QFile::ReadOnly));
-    QByteArray jsonExpected = customerfile.readAll();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/customerData/emptyCustomerData.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displayEmptyCustomerData()
@@ -608,11 +567,7 @@ void test_mockandsqlitedatabase::displayEmptyCustomerData()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
-
-    QFile customerfile(":/customerData/emptyCustomerData.json");
-    QVERIFY(customerfile.open(QFile::ReadOnly));
-    QByteArray jsonExpected = customerfile.readAll();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/customerData/emptyCustomerData.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::displayEnteredCustomerData()
@@ -650,11 +605,7 @@ void test_mockandsqlitedatabase::displayEnteredCustomerData()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
-
-    QFile customerfile(":/customerData/filledCustomerData.json");
-    QVERIFY(customerfile.open(QFile::ReadOnly));
-    QByteArray jsonExpected = customerfile.readAll();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJson(jsonExpected, jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/customerData/filledCustomerData.json", jsonDumped));
 }
 
 void test_mockandsqlitedatabase::createVectorDiagramDefaultOptions()
