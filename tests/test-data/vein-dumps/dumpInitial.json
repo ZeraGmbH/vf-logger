@@ -12,13 +12,23 @@
         "INF_ModuleInterface": {
             "ComponentInfo": {
                 "EntityName": {
-                    "Description": "Module's name"
+                    "Description": "<skipped>"
                 },
                 "INF_ModuleInterface": {
-                    "Description": "Module's interface details"
+                    "Description": "<skipped>"
+                },
+                "ScpiEnableFullLog": {
+                    "Description": "<skipped>",
+                    "Validation": {
+                        "Data": [
+                            0,
+                            1
+                        ],
+                        "Type": "BOOL"
+                    }
                 },
                 "Session": {
-                    "Description": "Session name",
+                    "Description": "<skipped>",
                     "Validation": {
                         "Data": [
                         ],
@@ -26,7 +36,7 @@
                     }
                 },
                 "XSession": {
-                    "Description": "XSession name",
+                    "Description": "<skipped>",
                     "Validation": {
                         "Data": [
                             "Foo",
@@ -42,6 +52,13 @@
             },
             "SCPIInfo": {
                 "Cmd": [
+                    [
+                        "CONFIGURATION",
+                        "LOGSCPIFULL",
+                        "10",
+                        "ScpiEnableFullLog",
+                        "0"
+                    ],
                     [
                         "CONFIGURATION",
                         "NAMESESSION",
@@ -75,6 +92,7 @@
             }
         },
         "ModulesPaused": false,
+        "ScpiEnableFullLog": 1,
         "Session": "test-session1.json",
         "SessionsAvailable": [
             "test-session1.json",

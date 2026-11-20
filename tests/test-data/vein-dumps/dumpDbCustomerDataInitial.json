@@ -29,85 +29,85 @@
         "INF_ModuleInterface": {
             "ComponentInfo": {
                 "EntityName": {
-                    "Description": "Entity name"
+                    "Description": "<skipped>"
                 },
                 "FileSelected": {
-                    "Description": "Currently selected customer data file"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerCity": {
-                    "Description": "City of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerComment": {
-                    "Description": "Free form text comment"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerCountry": {
-                    "Description": "Country of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerFirstName": {
-                    "Description": "First name"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerLastName": {
-                    "Description": "Last name"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerNumber": {
-                    "Description": "Customer number"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerPostalCode": {
-                    "Description": "Postal/Zip code of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_CustomerStreet": {
-                    "Description": "Street of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_DatasetComment": {
-                    "Description": "Free form text comment"
+                    "Description": "<skipped>"
                 },
                 "PAR_DatasetIdentifier": {
-                    "Description": "Unique identifier"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationCity": {
-                    "Description": "City of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationComment": {
-                    "Description": "Free form text comment"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationCountry": {
-                    "Description": "Country of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationFirstName": {
-                    "Description": "First name"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationLastName": {
-                    "Description": "Last name"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationNumber": {
-                    "Description": "Location number"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationPostalCode": {
-                    "Description": "Postal/Zip code of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_LocationStreet": {
-                    "Description": "Street of the address"
+                    "Description": "<skipped>"
                 },
                 "PAR_MeterComment": {
-                    "Description": "Free form text comment"
+                    "Description": "<skipped>"
                 },
                 "PAR_MeterFactoryNumber": {
-                    "Description": "Meter factory number"
+                    "Description": "<skipped>"
                 },
                 "PAR_MeterManufacturer": {
-                    "Description": "Meter manufacturer"
+                    "Description": "<skipped>"
                 },
                 "PAR_MeterOwner": {
-                    "Description": "Meter owner"
+                    "Description": "<skipped>"
                 },
                 "PAR_PowerGridComment": {
-                    "Description": "Free form text comment"
+                    "Description": "<skipped>"
                 },
                 "PAR_PowerGridOperator": {
-                    "Description": "Power grid operator"
+                    "Description": "<skipped>"
                 },
                 "PAR_PowerGridSupplier": {
-                    "Description": "Power grid supplier"
+                    "Description": "<skipped>"
                 }
             },
             "ProcedureInfo": {

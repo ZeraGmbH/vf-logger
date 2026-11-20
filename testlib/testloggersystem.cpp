@@ -195,6 +195,6 @@ QByteArray TestLoggerSystem::dumpStorage(QList<int> entities)
 {
     QByteArray jsonDumped;
     QBuffer buff(&jsonDumped);
-    VeinStorage::DumpJson::dumpToFile(m_server->getStorage()->getDb(), &buff, entities);
+    VeinStorage::DumpJson::dumpToFile(m_server->getStorage()->getDb(), &buff, entities, QList<int>(), true);
     return jsonDumped;
 }
