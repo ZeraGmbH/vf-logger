@@ -35,7 +35,7 @@ void test_contentsets::contentSetsSelectValidStringToBeFixed()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, "TestSet1"); // this is a bug - stored value must be a list!!!
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentSetValidByString.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentSetValidByString.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectInvalid()
@@ -43,7 +43,7 @@ void test_contentsets::contentSetsSelectInvalid()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, "foo");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentSetInvalid.json", jsonDumped)); // another bug: we expect dumpInitial.json
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentSetInvalid.json", jsonDumped, TEST_SRC_DIR)); // another bug: we expect dumpInitial.json
 }
 
 void test_contentsets::contentSetsSelectValid()
@@ -51,7 +51,7 @@ void test_contentsets::contentSetsSelectValid()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValid.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValid.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectValidTwo()
@@ -59,7 +59,7 @@ void test_contentsets::contentSetsSelectValidTwo()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1" << "TestSet2");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValidTwo.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValidTwo.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectValidTwoSame()
@@ -67,7 +67,7 @@ void test_contentsets::contentSetsSelectValidTwoSame()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1" << "TestSet1");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValidTwoSame.json", jsonDumped)); // we would not expect two identical...
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValidTwoSame.json", jsonDumped, TEST_SRC_DIR)); // we would not expect two identical...
 }
 
 void test_contentsets::sameContentSetDifferentSession()
@@ -95,7 +95,7 @@ void test_contentsets::contentSetsSelectValidAll()
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
     // Just to remember: All Entities stored are completely independent of context set configured
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentAll.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentAll.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectValidSequence()
@@ -104,7 +104,7 @@ void test_contentsets::contentSetsSelectValidSequence()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet1");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValid.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValid.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectValid3SessionChange()
@@ -113,7 +113,7 @@ void test_contentsets::contentSetsSelectValid3SessionChange()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet3");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValid3SessionChange.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValid3SessionChange.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectValid4SessionChange()
@@ -122,7 +122,7 @@ void test_contentsets::contentSetsSelectValid4SessionChange()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "TestSet4");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValid4SessionChange.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValid4SessionChange.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_contentsets::contentSetsSelectValidAllSessionChange()
@@ -131,5 +131,5 @@ void test_contentsets::contentSetsSelectValidAllSessionChange()
     m_testSystem.setComponent(dataLoggerEntityId, LoggerStaticTexts::s_currentContentSetsComponentName, QVariantList() << "ZeraAll");
 
     QByteArray jsonDumped = m_testSystem.dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpSetContentValidAllSessionChange.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpSetContentValidAllSessionChange.json", jsonDumped, TEST_SRC_DIR));
 }

@@ -27,7 +27,7 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysOnly()
     m_testSystem.setComponentValues(2);
 
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAlwaysTwoEntities.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("recording-dumps/dumpRecordAlwaysTwoEntities.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_entities_stored_always::recordEntitiesStoredAlwaysAndOthers()
@@ -46,7 +46,7 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysAndOthers()
     m_testSystem.setComponentValues(2);
 
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAlwaysTwoSetOneEntities.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("recording-dumps/dumpRecordAlwaysTwoSetOneEntities.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_entities_stored_always::recordEntitiesStoredAlwaysTwoRecordings()
@@ -73,5 +73,5 @@ void test_entities_stored_always::recordEntitiesStoredAlwaysTwoRecordings()
     m_testSystem.setComponentValues(1);
 
     QByteArray jsonDumped = TestLoggerDB::getCurrentInstance()->getJsonDumpedComponentStored();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/recording-dumps/dumpRecordAlwaysStartStopStart.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("recording-dumps/dumpRecordAlwaysStartStopStart.json", jsonDumped, TEST_SRC_DIR));
 }

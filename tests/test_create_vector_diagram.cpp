@@ -34,56 +34,36 @@ void test_create_vector_diagram::extractVectorFromJsonWithoutDft()
 void test_create_vector_diagram::vectorDiagramWithDefaultOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
-    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg";
-    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(QVariantMap(), dftValues);
-    SvgFuzzyCompare compare;
-    bool ok = compare.compareXml(dumped, expected);
-    if(!ok)
-        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
-    QVERIFY(ok);
+
+    QVERIFY(SvgFuzzyCompare::compareXmlSrc("vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg", dumped, TEST_SRC_DIR));
 }
 
 void test_create_vector_diagram::vectorDiagramWithInvalidOptions()
 {
     QJsonObject dftValues = readLoggedValues(":/logged-values/dftValues.json");
     QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/missing-some-colors");
-    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg";
-    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftValues);
-    SvgFuzzyCompare compare;
-    bool ok = compare.compareXml(dumped, expected);
-    if(!ok)
-        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
-    QVERIFY(ok);
+
+    QVERIFY(SvgFuzzyCompare::compareXmlSrc("vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg", dumped, TEST_SRC_DIR));
 }
 
 void test_create_vector_diagram::vectorDiagramWithNoDftValues()
 {
     QJsonObject loggedValues = readLoggedValues(":/logged-values/rangeValues.json");
     QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/complete-options");
-    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg";
-    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, loggedValues);
-    SvgFuzzyCompare compare;
-    bool ok = compare.compareXml(dumped, expected);
-    if(!ok)
-        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
-    QVERIFY(ok);
+
+    QVERIFY(SvgFuzzyCompare::compareXmlSrc("vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg", dumped, TEST_SRC_DIR));
 }
 
 void test_create_vector_diagram::vectorDiagramWithCompleteOptionsDftValues()
 {
     QJsonObject dftRangeValues = readLoggedValues(":/logged-values/dftRangeValues.json");
     QVariantMap options = readVectorOptionsFromAFile(":/vectors-options/complete-options");
-    QString fileNameExpected = ":/vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg";
-    QString expected = TestLogHelpers::loadFile(fileNameExpected);
     QString dumped = VectorDiagramCreator::CreateVectorDiagram(options, dftRangeValues);
-    SvgFuzzyCompare compare;
-    bool ok = compare.compareXml(dumped, expected);
-    if(!ok)
-        TestLogHelpers::compareAndLogOnDiffFile(fileNameExpected, dumped);
-    QVERIFY(ok);
+
+    QVERIFY(SvgFuzzyCompare::compareXmlSrc("vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg", dumped, TEST_SRC_DIR));
 }
 
 QJsonObject test_create_vector_diagram::readLoggedValues(QString fileName)

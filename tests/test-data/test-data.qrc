@@ -5,53 +5,8 @@
         <file>contentsets/test-session2.json</file>
         <file>sessions/test-session1.json</file>
         <file>sessions/test-session2.json</file>
-        <file>recording-dumps/dumpCreateSession.json</file>
-        <file>recording-dumps/dumpCreateSessionNoCustomerDataSystem.json</file>
-        <file>recording-dumps/dumpRecordAllContentSets.json</file>
-        <file>recording-dumps/dumpRecordAllContentSetsStartStop.json</file>
-        <file>recording-dumps/dumpRecordAlwaysStartStopStart.json</file>
-        <file>recording-dumps/dumpRecordAlwaysTwoEntities.json</file>
-        <file>recording-dumps/dumpRecordAlwaysTwoSetOneEntities.json</file>
-        <file>recording-dumps/dumpRecordNotStarted.json</file>
-        <file>recording-dumps/dumpRecordOneContentSet.json</file>
-        <file>recording-dumps/dumpRecordTwoContentSets.json</file>
         <file>session-infos/DbTestSession1.json</file>
-        <file>session-infos/DbTestSession1MultipleTransactions.json</file>
-        <file>session-infos/AllSessions.json</file>
-        <file>sqlite-inserts/dumpRecordTwoEntityComponents.json</file>
-        <file>sqlite-inserts/dumpSessionCreated.json</file>
-        <file>sqlite-inserts/dumpSessionInfos.json</file>
-        <file>vein-dumps/dumpDbCustomerDataInitial.json</file>
-        <file>vein-dumps/dumpDbFileRemoved.json</file>
-        <file>vein-dumps/dumpDbGuiContext.json</file>
-        <file>vein-dumps/dumpDbOpenErrorEarly.json</file>
-        <file>vein-dumps/dumpDbOpenErrorLate.json</file>
-        <file>vein-dumps/dumpDbOpenOk.json</file>
-        <file>vein-dumps/dumpDbRecordInitial.json</file>
-        <file>vein-dumps/dumpDbSetSessionAvail.json</file>
-        <file>vein-dumps/dumpDbSetSessionNew.json</file>
-        <file>vein-dumps/dumpInitial.json</file>
-        <file>vein-dumps/dumpNoRecordDatabaseMissing.json</file>
-        <file>vein-dumps/dumpNoRecordSessionMissing.json</file>
-        <file>vein-dumps/dumpNoRecordTransactionMissing.json</file>
-        <file>vein-dumps/dumpOpenRunLogAndClose.json</file>
-        <file>vein-dumps/dumpRecordAllContentSets.json</file>
-        <file>vein-dumps/dumpRecordAllContentSetsStartStop.json</file>
-        <file>vein-dumps/dumpRecordTwoContentSets.json</file>
-        <file>vein-dumps/dumpSetContentAll.json</file>
-        <file>vein-dumps/dumpSetContentSetInvalid.json</file>
-        <file>vein-dumps/dumpSetContentSetValidByString.json</file>
-        <file>vein-dumps/dumpSetContentValid.json</file>
-        <file>vein-dumps/dumpSetContentValid3SessionChange.json</file>
-        <file>vein-dumps/dumpSetContentValid4SessionChange.json</file>
-        <file>vein-dumps/dumpSetContentValidAllSessionChange.json</file>
-        <file>vein-dumps/dumpSetContentValidTwo.json</file>
-        <file>vein-dumps/dumpSetContentValidTwoSame.json</file>
-        <file>logged-values/LogAll.json</file>
-        <file>logged-values/LogTestSet1.json</file>
         <file>logged-values/LogTestSet2.json</file>
-        <file>customerData/emptyCustomerData.json</file>
-        <file>customerData/filledCustomerData.json</file>
         <file>vectors-options/complete-options</file>
         <file>vectors-options/some-extra-colors</file>
         <file>vectors-options/missing-some-colors</file>
@@ -60,11 +15,6 @@
         <file>logged-values/rangeValues.json</file>
         <file>logged-values/dftValues.json</file>
         <file>logged-values/dftRangeValues.json</file>
-        <file>vector-diagram-svgs/vectorDiagramWithCustomOptionsNoDftValues.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithCustomOptionsValidDftValues.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithDefaultOptionsValidDftValues.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithInvalidOptionsValidDftValues.svg</file>
-        <file>vector-diagram-svgs/vectorDiagramWithDefaultOptionsNoDftValues.svg</file>
         <file>vectors-options/invalid-options</file>
     </qresource>
 </RCC>

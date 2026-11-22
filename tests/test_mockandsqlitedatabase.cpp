@@ -45,7 +45,7 @@ void test_mockandsqlitedatabase::createSessionInsertsEntityComponents()
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "NotExistingDbSession");
 
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/sqlite-inserts/dumpSessionCreated.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("sqlite-inserts/dumpSessionCreated.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::createSessionWithCustomerDataAlreadyCreated()
@@ -76,7 +76,7 @@ void test_mockandsqlitedatabase::logInsertsEntityComponents()
 
     m_testSystem->startLogging();
     QByteArray jsonDumped = TestInsertSpiesToJson::spiesToJsonAndClear(spyDbEntitiesAdded, spyDbComponentsAdded);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/sqlite-inserts/dumpRecordTwoEntityComponents.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("sqlite-inserts/dumpRecordTwoEntityComponents.json", jsonDumped, TEST_SRC_DIR));
 
     m_testSystem->setComponentValues(2);
 
@@ -89,7 +89,7 @@ void test_mockandsqlitedatabase::openDatabaseErrorEarly()
     m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", TestLoggerSystem::DBNameOpenErrorEarly);
 
     QByteArray jsonDumped = m_testSystem->dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbOpenErrorEarly.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpDbOpenErrorEarly.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::openDatabaseOk()
@@ -107,7 +107,7 @@ void test_mockandsqlitedatabase::openDatabaseErrorLate()
     m_testSystem->setComponent(dataLoggerEntityId, "DatabaseFile", ":/database/readOnlyDatabase.db");
 
     QByteArray jsonDumped = m_testSystem->dumpStorage();
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpDbOpenErrorLate.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpDbOpenErrorLate.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::createTwoDatabases()
@@ -147,7 +147,7 @@ void test_mockandsqlitedatabase::displaySessionInfo()
     removeTimeInfoInTransactions(sessionInfo);
     QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/sqlite-inserts/dumpSessionInfos.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("sqlite-inserts/dumpSessionInfos.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::displaySessionInfosInvalidSession()
@@ -186,7 +186,7 @@ void test_mockandsqlitedatabase::displaySessionInfosMultipleTransactions()
     removeTimeInfoInTransactions(sessionInfo);
     QJsonDocument jsonDoc(sessionInfo);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/session-infos/DbTestSession1MultipleTransactions.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("session-infos/DbTestSession1MultipleTransactions.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::displaySessionInfoBeforeDbLoaded()
@@ -351,7 +351,7 @@ void test_mockandsqlitedatabase::listAllSessions()
     QJsonArray allSessions = getReturnedResult(invokerSpy[0][1]).toJsonArray();
     QJsonDocument jsonDoc(allSessions);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/session-infos/AllSessions.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("session-infos/AllSessions.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::listNoSession()
@@ -410,7 +410,7 @@ void test_mockandsqlitedatabase::displayLoggedValues()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/logged-values/LogTestSet1.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("logged-values/LogTestSet1.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesOnDifferentSessionDeviceName()
@@ -470,7 +470,7 @@ void test_mockandsqlitedatabase::displayLoggedValuesZeraAll()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDoc(jsonObj);
     QString jsonDumped = jsonDoc.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/logged-values/LogAll.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("logged-values/LogAll.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::displayLoggedValuesInvalidTransaction()
@@ -533,7 +533,7 @@ void test_mockandsqlitedatabase::NoCustomerDataSet()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/customerData/emptyCustomerData.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("customerData/emptyCustomerData.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::displayEmptyCustomerData()
@@ -567,7 +567,7 @@ void test_mockandsqlitedatabase::displayEmptyCustomerData()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/customerData/emptyCustomerData.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("customerData/emptyCustomerData.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::displayEnteredCustomerData()
@@ -605,7 +605,7 @@ void test_mockandsqlitedatabase::displayEnteredCustomerData()
     QJsonObject jsonObj = getReturnedResult(invokerSpy[0][1]).toJsonObject();
     QJsonDocument jsonDocument(jsonObj);
     QString jsonDumped = jsonDocument.toJson(QJsonDocument::Indented);
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/customerData/filledCustomerData.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("customerData/filledCustomerData.json", jsonDumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::createVectorDiagramDefaultOptions()
@@ -624,12 +624,7 @@ void test_mockandsqlitedatabase::createVectorDiagramDefaultOptions()
     QCOMPARE(getResultCode(invokerSpy[0][1]), VeinComponent::RemoteProcedureData::RPCResultCodes::RPC_SUCCESS);
 
     QString dumped = getReturnedResult(invokerSpy[0][1]).toString();
-    QString expected = TestLogHelpers::loadFile(":/vector-diagram-svgs/vectorDiagramWithDefaultOptionsNoDftValues.svg");
-    SvgFuzzyCompare compare;
-    bool ok = compare.compareXml(dumped, expected);
-    if(!ok)
-        TestLogHelpers::compareAndLogOnDiff(expected, dumped);
-    QVERIFY(ok);
+    QVERIFY(SvgFuzzyCompare::compareXmlSrc("vector-diagram-svgs/vectorDiagramWithDefaultOptionsNoDftValues.svg", dumped, TEST_SRC_DIR));
 }
 
 void test_mockandsqlitedatabase::createVectorDiagramInvalidTransaction()

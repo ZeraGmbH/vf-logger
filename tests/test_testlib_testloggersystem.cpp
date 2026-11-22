@@ -17,5 +17,5 @@ void test_testlib_testloggersystem::cleanup()
 void test_testlib_testloggersystem::systemSetupProperly()
 {
     QByteArray jsonDumped = m_testSystem.dumpStorage(QList<int>() << systemEntityId << dataLoggerEntityId << m_testSystem.getComponentsCreated().keys());
-    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonFile(":/vein-dumps/dumpInitial.json", jsonDumped));
+    QVERIFY(TestLogHelpers::compareAndLogOnDiffJsonSrc("vein-dumps/dumpInitial.json", jsonDumped, TEST_SRC_DIR));
 }
