@@ -315,7 +315,8 @@ void test_mockandsqlitedatabase::deleteSessionBeforeDbLoaded()
 
 void test_mockandsqlitedatabase::removeTimeInfoInTransactions(QJsonObject &sessionInfo)
 {
-    for(QString transaction: sessionInfo.keys()) {
+    const QStringList transactions = sessionInfo.keys();
+    for(const QString &transaction : transactions) {
         QJsonObject temp = sessionInfo.value(transaction).toObject();
         temp.insert("Time", QString());
         sessionInfo.insert(transaction, temp);
@@ -518,7 +519,6 @@ void test_mockandsqlitedatabase::NoCustomerDataSet()
 {
     m_testSystem->appendCustomerDataSystem();
     m_testSystem->loadDatabase();
-    QMap<int, QList<QString>> map = m_testSystem->getServer()->getTestEntityComponentInfo();
     m_testSystem->setComponent(dataLoggerEntityId, "sessionName", "session1");
 
     QVariantMap rpcParams;
