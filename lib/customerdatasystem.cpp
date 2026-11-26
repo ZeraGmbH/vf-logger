@@ -205,7 +205,6 @@ void CustomerDataSystem::initializeEntity()
     entityData = nullptr;
 
     VeinComponent::ComponentData *initData=nullptr;
-    VeinComponent::RemoteProcedureData *rpcData=nullptr;
 
     const QList<QString> tmpComponentList = getComponentNames();
     for(const QString &tmpComponentName : qAsConst(tmpComponentList)) {
@@ -234,7 +233,7 @@ void CustomerDataSystem::initializeEntity()
         tmpRemoteProcedureInfo.insert("Description", CustomerDataSystem::s_remoteProcedureIntrospection.value(tmpRemoteProcedureName));
         remoteProcedureInfo.insert(tmpRemoteProcedureName, tmpRemoteProcedureInfo);
 
-        rpcData = new VeinComponent::RemoteProcedureData();
+        VeinComponent::RemoteProcedureData *rpcData = new VeinComponent::RemoteProcedureData();
         rpcData->setEntityId(CustomerDataSystem::s_entityId);
         rpcData->setCommand(VeinComponent::RemoteProcedureData::Command::RPCMD_REGISTER);
         rpcData->setProcedureName(tmpRemoteProcedureName);
@@ -260,11 +259,10 @@ void CustomerDataSystem::initializeEntity()
 }
 
 void CustomerDataSystem::unloadFile(){
-    VeinComponent::ComponentData *initData=nullptr;
     const QList<QString> tmpComponentList = getComponentNames();
     for(const QString &tmpComponentName : qAsConst(tmpComponentList)) {
         if(tmpComponentName != CustomerDataSystem::s_entityNameComponentName) {
-            initData = new VeinComponent::ComponentData();
+            VeinComponent::ComponentData *initData = new VeinComponent::ComponentData();
             initData->setEntityId(CustomerDataSystem::s_entityId);
             initData->setCommand(VeinComponent::ComponentData::Command::CCMD_SET);
             initData->setComponentName(tmpComponentName);
