@@ -27,22 +27,22 @@ public:
         CDS_QFILEDEVICE_FILEERROR_BEGIN = QFileDevice::ReadError //if the resultCode is >= CDS_QFILEDEVICE_FILEERROR_BEGIN then it is a QFileDevice::FileError
     };
 
-    explicit CustomerDataSystem(QString cutomerDataPath, QObject *parent = nullptr);
+    explicit CustomerDataSystem(const QString &customerDataPath, QObject *parent = nullptr);
     static int getEntityId();
     static QStringList getComponentNames();
 
     VF_COMPONENT(entityName, "EntityName", "Entity name")
     static constexpr QLatin1String s_entityName = modman_util::to_latin1("CustomerData");
 
-    void processEvent(QEvent *t_event) override;
+    void processEvent(QEvent *event) override;
     void initializeEntity();
 
 public slots:
     void writeCustomerdata();
 
 signals:
-    void sigCustomerDataError(QString message);
-    void sigDataValueChanged(QString componentName, QString newValue);
+    void sigCustomerDataError(const QString &message);
+    void sigDataValueChanged(const QString &componentName, const QString &newValue);
 
 private:
     /**
@@ -54,30 +54,20 @@ private:
     /**
    * @brief Writes one value to a file, but delays the write in case of multiple changes that can occur in short frequence
    * (on the client the entire file is changed at once if the user presses the save button)
-   * @param t_componentName
-   * @param t_newValue
    */
-    void updateDataFile(QString t_componentName, QString t_newValue);
+    void updateDataFile(const QString &componentName, const QString &newValue);
     /**
    * @brief Reads a json encoded customer data file from the given path
-   * @param t_fileName
-   * @return success indicator
    */
-    bool parseCustomerDataFile(const QString &t_fileName);
+    bool parseCustomerDataFile(const QString &fileName);
     /**
    * @brief Packages rpc result data in RemoteProcedureData and sends a CommandEvent
-   * @param t_callId
-   * @param t_procedureName
-   * @param t_data
    */
-    void rpcFinished(QUuid t_callId, const QString &t_procedureName, const QVariantMap &t_data);
+    void rpcFinished(const QUuid &callId, const QString &procedureName, const QVariantMap &data);
     /**
    * @brief Packages rpc progress data in RemoteProcedureData and sends a CommandEvent
-   * @param t_callId
-   * @param t_procedureName
-   * @param t_data
    */
-    void rpcProgress(QUuid t_callId, const QString &t_procedureName, const QVariantMap &t_data);
+    void rpcProgress(const QUuid &callId, const QString &procedureName, const QVariantMap &data);
 
     static constexpr int s_entityId = 200;
     const QString m_customerDataPath;

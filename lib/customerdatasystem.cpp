@@ -61,9 +61,9 @@ const QSet<QString> CustomerDataSystem::s_writeProtectedComponents = {
     CustomerDataSystem::s_introspectionComponentName,
 };
 
-CustomerDataSystem::CustomerDataSystem(QString cutomerDataPath, QObject *parent) :
+CustomerDataSystem::CustomerDataSystem(const QString &customerDataPath, QObject *parent) :
     VeinEvent::EventSystem(parent),
-    m_customerDataPath(cutomerDataPath),
+    m_customerDataPath(customerDataPath),
     m_remoteProcedures{VF_RPC_BIND(customerDataAdd, std::bind(&CustomerDataSystem::customerDataAdd, this, std::placeholders::_1, std::placeholders::_2)),
                        VF_RPC_BIND(customerDataRemove, std::bind(&CustomerDataSystem::customerDataRemove, this, std::placeholders::_1, std::placeholders::_2))}
 {
@@ -97,10 +97,10 @@ QStringList CustomerDataSystem::getComponentNames()
     return s_componentIntrospection.keys();
 }
 
-void CustomerDataSystem::processEvent(QEvent *t_event)
+void CustomerDataSystem::processEvent(QEvent *event)
 {
-    if(t_event->type() == VeinEvent::CommandEvent::getQEventType()) {
-        VeinEvent::CommandEvent *cEvent = static_cast<VeinEvent::CommandEvent *>(t_event);
+    if(event->type() == VeinEvent::CommandEvent::getQEventType()) {
+        VeinEvent::CommandEvent *cEvent = static_cast<VeinEvent::CommandEvent *>(event);
         if(cEvent->eventSubtype() != VeinEvent::CommandEvent::EventSubtype::NOTIFICATION && //we do not need to process notifications
             cEvent->eventData()->entityId() == CustomerDataSystem::s_entityId) { //only our own entity is relevant
             switch(cEvent->eventData()->type()) {
@@ -165,7 +165,7 @@ void CustomerDataSystem::processEvent(QEvent *t_event)
                         Q_ASSERT(m_pendingRpcHash.contains(callId) == false);
                         m_pendingRpcHash.insert(callId, cEvent->peerId());
                         m_remoteProcedures.value(rpcData->procedureName())(callId, rpcData->invokationData());
-                        t_event->accept();
+                        event->accept();
                     }
                     else { //unknown procedure
                         qWarning() << "No remote procedure with entityId:" << CustomerDataSystem::s_entityId << "name:" << rpcData->procedureName();
@@ -284,29 +284,29 @@ void CustomerDataSystem::writeCustomerdata()
         qCritical() << "Error writing customerdata json file:" << m_currentCustomerFileName;
 }
 
-void CustomerDataSystem::updateDataFile(QString t_componentName, QString t_newValue)
+void CustomerDataSystem::updateDataFile(const QString &componentName, const QString &newValue)
 {
     if(m_currentCustomerFileName.isEmpty() == false) {
         QJsonObject tmpObject = m_currentCustomerDocument.object();
         const QStringList documentKeyList = tmpObject.keys();
-        if(documentKeyList.contains(t_componentName)) {
-            tmpObject.insert(t_componentName, t_newValue);
+        if(documentKeyList.contains(componentName)) {
+            tmpObject.insert(componentName, newValue);
             m_currentCustomerDocument.setObject(tmpObject);
             m_dataWriteDelay.start(); //delay the write so other changes to the same document in short succession only write the file once
         }
         else
-            qWarning() << "Unknown data entry to add in customerdata json file:" << t_componentName;
+            qWarning() << "Unknown data entry to add in customerdata json file:" << componentName;
     }
 }
 
-bool CustomerDataSystem::parseCustomerDataFile(const QString &t_fileName)
+bool CustomerDataSystem::parseCustomerDataFile(const QString &fileName)
 {
     Q_ASSERT(!m_customerDataPath.isEmpty());
     bool retVal = false;
-    QFile customerDataFile(QString("%1%2").arg(m_customerDataPath, t_fileName));
+    QFile customerDataFile(QString("%1%2").arg(m_customerDataPath, fileName));
     QJsonParseError parseError;
     if(customerDataFile.exists() && customerDataFile.open(QFile::ReadOnly)) {
-        m_currentCustomerFileName = t_fileName;
+        m_currentCustomerFileName = fileName;
         m_currentCustomerDocument = QJsonDocument::fromJson(customerDataFile.readAll(), &parseError);
         if(m_currentCustomerDocument.isObject()) {
             const QJsonObject tmpObject = m_currentCustomerDocument.object();
@@ -321,14 +321,14 @@ bool CustomerDataSystem::parseCustomerDataFile(const QString &t_fileName)
 
             unknownData.subtract(componentNames); //the files could be hand edited, unknownData will hold all unknown values
             if(unknownData.isEmpty() == false) {
-                qWarning() << "Unknown data in customerdata json file:" << t_fileName << "keys:" << unknownData;
+                qWarning() << "Unknown data in customerdata json file:" << fileName << "keys:" << unknownData;
             }
 
             //we do not want the superfluous data
             entries.subtract(unknownData);
 
             if(componentNames.subtract(entries).isEmpty() == false) { //check if all component names are present
-                qWarning() << "Missing values in customer data file:" << t_fileName << "values:" << componentNames;
+                qWarning() << "Missing values in customer data file:" << fileName << "values:" << componentNames;
             }
 
             retVal = (tmpObject.isEmpty() == false);
@@ -344,7 +344,7 @@ bool CustomerDataSystem::parseCustomerDataFile(const QString &t_fileName)
             }
         }
         else {
-            QString errorMessage = QString("Invalid JSON data in customer data file: %1 error: %2").arg(t_fileName, parseError.errorString());
+            QString errorMessage = QString("Invalid JSON data in customer data file: %1 error: %2").arg(fileName, parseError.errorString());
             qWarning() << errorMessage;
             emit sigCustomerDataError(errorMessage);
         }
@@ -368,36 +368,36 @@ bool CustomerDataSystem::parseCustomerDataFile(const QString &t_fileName)
     return retVal;
 }
 
-void CustomerDataSystem::rpcFinished(QUuid t_callId, const QString &t_procedureName, const QVariantMap &t_data)
+void CustomerDataSystem::rpcFinished(const QUuid &callId, const QString &procedureName, const QVariantMap &data)
 {
-    Q_ASSERT(m_pendingRpcHash.contains(t_callId));
+    Q_ASSERT(m_pendingRpcHash.contains(callId));
     VeinComponent::RemoteProcedureData *resultData = new VeinComponent::RemoteProcedureData();
     resultData->setEntityId(s_entityId);
     resultData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
     resultData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
     resultData->setCommand(VeinComponent::RemoteProcedureData::Command::RPCMD_RESULT);
-    resultData->setProcedureName(t_procedureName);
-    resultData->setInvokationData(t_data);
+    resultData->setProcedureName(procedureName);
+    resultData->setInvokationData(data);
 
     VeinEvent::CommandEvent *rpcResultEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, resultData);
-    rpcResultEvent->setPeerId(m_pendingRpcHash.value(t_callId));
+    rpcResultEvent->setPeerId(m_pendingRpcHash.value(callId));
     emit sigSendEvent(rpcResultEvent);
-    m_pendingRpcHash.remove(t_callId);
+    m_pendingRpcHash.remove(callId);
 }
 
-void CustomerDataSystem::rpcProgress(QUuid t_callId, const QString &t_procedureName, const QVariantMap &t_data)
+void CustomerDataSystem::rpcProgress(const QUuid &callId, const QString &procedureName, const QVariantMap &data)
 {
-    Q_ASSERT(m_pendingRpcHash.contains(t_callId));
+    Q_ASSERT(m_pendingRpcHash.contains(callId));
     VeinComponent::RemoteProcedureData *progressData = new VeinComponent::RemoteProcedureData();
     progressData->setEntityId(s_entityId);
     progressData->setEventOrigin(VeinEvent::EventData::EventOrigin::EO_LOCAL);
     progressData->setEventTarget(VeinEvent::EventData::EventTarget::ET_ALL);
     progressData->setCommand(VeinComponent::RemoteProcedureData::Command::RPCMD_PROGRESS);
-    progressData->setProcedureName(t_procedureName);
-    progressData->setInvokationData(t_data);
+    progressData->setProcedureName(procedureName);
+    progressData->setInvokationData(data);
 
     VeinEvent::CommandEvent *rpcResultEvent = new VeinEvent::CommandEvent(VeinEvent::CommandEvent::EventSubtype::NOTIFICATION, progressData);
-    rpcResultEvent->setPeerId(m_pendingRpcHash.value(t_callId));
+    rpcResultEvent->setPeerId(m_pendingRpcHash.value(callId));
     emit sigSendEvent(rpcResultEvent);
 }
 
